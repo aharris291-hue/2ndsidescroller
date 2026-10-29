@@ -1,0 +1,64 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dialogue_ui.gd" id="1_y3syv"]
+
+[node name="DialogueUI" type="CanvasLayer" unique_id=1022984972]
+layer = 20
+script = ExtResource("1_y3syv")
+
+[node name="Box" type="PanelContainer" parent="." unique_id=1470919401]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_top = -300.0
+offset_right = -180.0
+offset_bottom = -40.0
+
+[node name="Margin" type="MarginContainer" parent="Box" unique_id=531822786]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Box/Margin" unique_id=1870396771]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Box/Margin/VBox" unique_id=1022658056]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+
+[node name="Text" type="RichTextLabel" parent="Box/Margin/VBox" unique_id=438962584]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 34
+bbcode_enabled = true
+scroll_active = false
+
+[node name="ContinueHint" type="Label" parent="Box/Margin/VBox" unique_id=10439291]
+layout_mode = 2
+text = ">>"
+horizontal_alignment = 2
+
+[node name="Caption" type="PanelContainer" parent="." unique_id=1362828845]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -640.0
+offset_top = 110.0
+offset_right = 640.0
+offset_bottom = 220.0
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="Caption" unique_id=1804819682]
+layout_mode = 2
+
+[node name="CaptionLabel" type="Label" parent="Caption/Margin" unique_id=959217299]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3529412, 0.23921569, 0.14117648, 1)
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

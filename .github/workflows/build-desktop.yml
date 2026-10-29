@@ -1,0 +1,75 @@
+name: Build desktop
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-desktop
+
+      - name: Install Godot ${{ env.GODOT_VERSION }} and export templates
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          if [ ! -x ~/godot/godot ]; then
+            mkdir -p ~/godot
+            curl -fsSL -o /tmp/godot.zip "$BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+            unzip -q /tmp/godot.zip -d ~/godot
+            mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          fi
+          TEMPLATES=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          if [ ! -f "$TEMPLATES/version.txt" ]; then
+            curl -fsSL -o /tmp/templates.tpz "$BASE/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+            unzip -q /tmp/templates.tpz -d /tmp/templates
+            mkdir -p "$TEMPLATES"
+            # Keep only what desktop exports need, so the cache stays small.
+            cp /tmp/templates/templates/version.txt "$TEMPLATES/"
+            cp /tmp/templates/templates/windows_* "$TEMPLATES/"
+            cp /tmp/templates/templates/macos.zip "$TEMPLATES/"
+          fi
+          ~/godot/godot --version
+
+      - name: Import project
+        run: ~/godot/godot --headless --path . --import
+
+      - name: Smoke test
+        run: ~/godot/godot --headless --path . --script tools/godot/smoke_test.gd
+
+      - name: Export Windows (.exe)
+        run: |
+          mkdir -p build/windows
+          ~/godot/godot --headless --path . --export-release "Windows Desktop" build/windows/PatchPopUpKingdom.exe
+          test -s build/windows/PatchPopUpKingdom.exe
+
+      - name: Export macOS (.app in .zip)
+        run: |
+          mkdir -p build/macos
+          ~/godot/godot --headless --path . --export-release "macOS" build/macos/PatchPopUpKingdom.zip
+          test -s build/macos/PatchPopUpKingdom.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PatchPopUpKingdom-windows
+          path: build/windows/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PatchPopUpKingdom-macos
+          path: build/macos/PatchPopUpKingdom.zip

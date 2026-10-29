@@ -1,0 +1,83 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_6tw0m"]
+
+[node name="PauseMenu" type="CanvasLayer" unique_id=350977567]
+layer = 30
+script = ExtResource("1_6tw0m")
+
+[node name="Root" type="ColorRect" parent="." unique_id=655632429]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.17, 0.13, 0.09, 0.5)
+
+[node name="Panel" type="PanelContainer" parent="Root" unique_id=1607106962]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -330.0
+offset_right = 340.0
+offset_bottom = 330.0
+
+[node name="Margin" type="MarginContainer" parent="Root/Panel" unique_id=1540767445]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Root/Panel/Margin" unique_id=1062524500]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Root/Panel/Margin/VBox" unique_id=1355284876]
+layout_mode = 2
+theme_override_font_sizes/font_size = 52
+text = "Bookmarked for now"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="Root/Panel/Margin/VBox" unique_id=2043029243]
+layout_mode = 2
+text = "Keep reading"
+
+[node name="FullscreenButton" type="Button" parent="Root/Panel/Margin/VBox" unique_id=1184116956]
+layout_mode = 2
+text = "Toggle fullscreen"
+
+[node name="MusicRow" type="HBoxContainer" parent="Root/Panel/Margin/VBox" unique_id=1535861171]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Root/Panel/Margin/VBox/MusicRow" unique_id=204746824]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="Root/Panel/Margin/VBox/MusicRow" unique_id=191880657]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="SfxRow" type="HBoxContainer" parent="Root/Panel/Margin/VBox" unique_id=1013409570]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Root/Panel/Margin/VBox/SfxRow" unique_id=260005978]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Sounds"
+
+[node name="SfxSlider" type="HSlider" parent="Root/Panel/Margin/VBox/SfxRow" unique_id=506064563]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="QuitButton" type="Button" parent="Root/Panel/Margin/VBox" unique_id=1608139929]
+layout_mode = 2
+text = "Save and close the book"

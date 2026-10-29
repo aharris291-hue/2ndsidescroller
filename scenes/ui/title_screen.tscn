@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="2_w8uqo"]
+
+[node name="TitleScreen" type="Control" unique_id=1152711530]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_aqpy5")
+
+[node name="Background" type="TextureRect" parent="." unique_id=979234032]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_w8uqo")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Center" type="CenterContainer" parent="." unique_id=410656683]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Center" unique_id=328609849]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Center/VBox" unique_id=1831544713]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Patch and the
+Pop-Up Kingdom"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/VBox" unique_id=1924034281]
+layout_mode = 2
+text = "A storybook adventure, mended with tape"
+horizontal_alignment = 1
+
+[node name="Slots" type="VBoxContainer" parent="Center/VBox" unique_id=1831653061]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Slot1" type="Button" parent="Center/VBox/Slots" unique_id=765828839]
+custom_minimum_size = Vector2(720, 64)
+layout_mode = 2
+text = "Book 1"
+
+[node name="Slot2" type="Button" parent="Center/VBox/Slots" unique_id=101988977]
+custom_minimum_size = Vector2(720, 64)
+layout_mode = 2
+text = "Book 2"
+
+[node name="Slot3" type="Button" parent="Center/VBox/Slots" unique_id=308435021]
+custom_minimum_size = Vector2(720, 64)
+layout_mode = 2
+text = "Book 3"
+
+[node name="EraseToggle" type="CheckButton" parent="Center/VBox" unique_id=1759916905]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Erase a book"
+
+[node name="QuitButton" type="Button" parent="Center/VBox" unique_id=1359311191]
+layout_mode = 2
+text = "Close the book (quit)"

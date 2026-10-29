@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="1_inh2k"]
+[ext_resource type="Texture2D" path="res://assets/art/props/page_corner_door.png" id="2_qld14"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_esank"]
+size = Vector2(120, 128)
+
+[node name="PageDoor" type="Area2D" unique_id=1424784169]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_inh2k")
+prompt_offset = Vector2(0, -170)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=731966860]
+position = Vector2(0, -64)
+texture = ExtResource("2_qld14")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=928102880]
+position = Vector2(0, -64)
+shape = SubResource("RectangleShape2D_esank")

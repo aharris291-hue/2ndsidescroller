@@ -1,0 +1,23 @@
+{
+	"fluff_intro": [
+		{"speaker": "shepherd_fluff", "text": "Well, well. If it isn't young Patch. You've lost something, lad."},
+		{"speaker": "patch", "text": "My tail? Oh, that. I lost it wrestling a thunderstorm. Two thunderstorms, actually. They were twins."},
+		{"speaker": "shepherd_fluff", "text": "Mm-hm. I was on the Weather Page that night, you know. I saw what I saw."},
+		{"speaker": "patch", "text": "Ha! Ha. Anyway! Why is everything so... squelchy?"},
+		{"speaker": "shepherd_fluff", "text": "The Sogg. It's unfolding the meadow, one hill at a time. The windmills have stopped, and my flock is swelling up like sponges."},
+		{"speaker": "shepherd_fluff", "text": "Pull the tabs, lad. The book still remembers how it's meant to fold. Up ahead, the old platform tab should still work."}
+	],
+	"fluff_repeat": [
+		{"speaker": "shepherd_fluff", "text": "Mind the Soggies. A good swipe dries them right out."},
+		{"speaker": "shepherd_fluff", "text": "And Patch? Whatever happened that night, nobody here thinks less of you."}
+	],
+	"dot_meet": [
+		{"speaker": "dot", "text": "Hello. I am Dot. I end sentences."},
+		{"speaker": "patch", "text": "You're a... full stop?"},
+		{"speaker": "dot", "text": "Was. My sentence got smeared. Now I just float. Badly."},
+		{"speaker": "patch", "text": "Well, you're in luck! You've found the bravest fox in all of Foldwick."},
+		{"speaker": "dot", "text": "Where."},
+		{"speaker": "patch", "text": "...Me. I meant me."},
+		{"speaker": "dot", "text": "Hm. Fine. I will come. Somebody has to end your sentences."}
+	]
+}

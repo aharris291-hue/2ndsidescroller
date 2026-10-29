@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="1_0q0t2"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/patch.png" id="2_q1kn0"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_kmpdd"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_1i65l"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_i6swd"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_74qas"]
+radius = 28.0
+height = 84.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hjv00"]
+size = Vector2(48, 72)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xciew"]
+size = Vector2(76, 96)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jqn7g"]
+radius = 90.0
+
+[node name="Patch" type="CharacterBody2D" unique_id=84479202]
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("1_0q0t2")
+
+[node name="Visual" type="Node2D" parent="." unique_id=478534995]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visual" unique_id=979234526]
+position = Vector2(-8, -10)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("2_q1kn0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2078869355]
+shape = SubResource("CapsuleShape2D_74qas")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1262292107]
+collision_layer = 0
+collision_mask = 16
+script = ExtResource("3_kmpdd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1736999639]
+shape = SubResource("RectangleShape2D_hjv00")
+
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=1246427333]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_1i65l")
+knockback = 420.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox" unique_id=1670581523]
+shape = SubResource("RectangleShape2D_xciew")
+
+[node name="InteractArea" type="Area2D" parent="." unique_id=602054759]
+collision_layer = 0
+collision_mask = 32
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea" unique_id=70431834]
+shape = SubResource("CircleShape2D_jqn7g")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=356223760]
+script = ExtResource("5_i6swd")
+invulnerability_time = 1.0
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=558071437]
+position_smoothing_enabled = true
+position_smoothing_speed = 7.0
+drag_vertical_enabled = true
+drag_top_margin = 0.25
+drag_bottom_margin = 0.15
