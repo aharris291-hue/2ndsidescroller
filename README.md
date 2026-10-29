@@ -2,7 +2,7 @@
 
 A whimsical ink-and-crayon storybook adventure made in **Godot 4.7.2**, written entirely in GDScript. You play Patch, a paper fox whose tail was torn off in a flood, as he mends a soggy pop-up book. The story, world and characters are original, and the full design is in the Story Bible.
 
-This repository holds the **core framework** and a playable vertical slice:
+This repository holds the **core framework**, the **Prologue**, and all of **Chapter 1: Thistledown Meadow**:
 
 - **Patch's controller**, with both page views: side-scrolling on a standing page (coyote time, jump buffering, variable jump height) and eight-way top-down on a flat page or in the Margin.
 - **Combat:** Crease Swipe (attack), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
@@ -11,7 +11,10 @@ This repository holds the **core framework** and a playable vertical slice:
 - **Pickups:** Scraps (currency), Lost Letters, tape (healing), and ability pages.
 - **Saving:** three save slots, autosaved at every bookmark (crash-safe writes), plus separate settings (volume, fullscreen).
 - **Controls:** keyboard + mouse and full controller support, with prompts that switch automatically between keyboard and controller labels.
-- **Two demo pages:** *Thistledown Meadow, page 1* (side view) and *The Margin* (top-down, Gran's kitchen table).
+- **Prologue:** Nell and Dad at bedtime, then Patch escaping the rising ink flood off the page.
+- **Chapter 1, Thistledown Meadow:** the meadow, Windmill Hills (ride the windmill sails), the Ribbon Regatta paper-boat race, and the boss fight with the Old Millwheel, ending in an interlude at Gran's table.
+- **Side quests and companions:** Fluff's lost-sheep quest, the regatta, a quest log in the pause menu, and Dot the ladybird, who follows Patch once she joins.
+- **The Margin:** a top-down page on Gran's kitchen table.
 - **Desktop builds:** export presets for Windows (.exe) and macOS (universal .app), and a GitHub Actions workflow that tests and builds both on every push.
 
 ## Quick start
@@ -52,9 +55,10 @@ tools/         Asset generators (Python) and Godot helper scripts
 | --- | --- |
 | `python3 tools/art/generate_art.py` | Regenerates all ink-and-crayon textures and the app icon (needs Pillow and numpy). |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). |
-| `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the demo automatically and checks that it works. CI runs this. |
+| `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapter 1 automatically and checks that it works. CI runs this. |
 | `godot --headless --path . --script tools/godot/setup_input_map.gd` | Rewrites the input map in `project.godot`. |
 | `godot --headless --path . --script tools/godot/build_starter_content.gd` | **One-time bootstrap** that generated the starter scenes. Re-running it overwrites them, so once you edit scenes in the editor, leave it alone. |
+| `godot --headless --path . --script tools/godot/build_chapter1.gd` | **One-time bootstrap** that generated the Prologue and Chapter 1 scenes. Same warning: it overwrites them. |
 
 ## Credits
 

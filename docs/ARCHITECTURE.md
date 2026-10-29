@@ -22,13 +22,13 @@ The autoloads load in this order (Project > Project Settings > Globals > Autoloa
 | --- | --- | --- |
 | `EventBus` | script | Global signals (`player_health_changed`, `checkpoint_reached`, `dialogue_started`, and others). Systems emit and listen here instead of holding references to each other. |
 | `Settings` | script | Volume and fullscreen, saved to `user://settings.cfg`. |
-| `GameState` | script | The current playthrough: health, Scraps, letters, abilities, collected pickups, story flags, checkpoint. Also reads and writes the save slots. |
+| `GameState` | script | The current playthrough: health, Scraps, letters, abilities, collected pickups, story flags, side quests, checkpoint. Also reads and writes the save slots. A new game starts at `FIRST_PAGE` (the Prologue). |
 | `InputGlyphs` | script | Detects whether the player is on a controller or keyboard, for prompt labels. |
 | `AudioManager` | script | Crossfading music plus a pooled sound-effect player (`play_sfx(&"jump")`). Uses the `Music` and `SFX` buses. |
 | `SceneManager` | script (CanvasLayer) | Page-turn transitions, spawn placement, respawning, returning to the title screen. |
-| `HUD` | scene | Health tokens, Scraps, and Lost Letter count. |
+| `HUD` | scene | Health tokens, Scraps, Lost Letter count, and the boss health bar. |
 | `DialogueUI` | scene | Conversations (typewriter + voice blips) and narrator captions. |
-| `PauseMenu` | scene | Pause, volume, fullscreen, save and quit. Runs while the tree is paused. |
+| `PauseMenu` | scene | Pause, quest log, volume, fullscreen, save and quit. Runs while the tree is paused. |
 
 ### Save data
 
@@ -124,6 +124,29 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 - `Bookmark` is a checkpoint: it sets the respawn point, heals Patch fully, and autosaves.
 - UI scenes use `resources/ui_theme.tres` (Patrick Hand font, paper-styled buttons and panels). Every menu takes controller focus.
 
+### Story flow (Prologue and Chapter 1)
+
+```
+prologue/prologue_intro      CutscenePage: Nell and Dad at bedtime
+prologue/prologue_flood      Climb away from the RisingWater flood, out the OffThePage door
+ch1_thistledown/page_01      Meet Fluff (lost_flock quest) and Dot (joins as companion)
+ch1_thistledown/page_02      Windmill Hills: Windmill wheel, 3 LostSheep, doors to the race and arena
+ch1_thistledown/ribbon_regatta   BoatRace minigame (ribbon_regatta quest), returns to page 2
+ch1_thistledown/millwheel_arena  BossMillwheel fight, exit door to the interlude
+interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complete
+```
+
+### Chapter 1 systems
+
+- **Quests** live in `data/quests.json` (`title`, `goal`, `reward_scraps`). `GameState.start_quest`, `advance_quest` and `complete_quest` track them, and they're saved. An `NPC` with `quest_id` set picks its dialogue from the quest's state: give, progress, turn-in, then repeat.
+- **Companions:** an `NPC` with `joins_as_companion` turns into `dot_companion.tscn` after talking, and sets `met_dot`. Every `Page` respawns Dot while that flag is set.
+- **CutscenePage** (a `Control`) shows an illustration and a title caption, plays one conversation, then sets a flag, optionally saves, and turns to `next_page` (or the title screen).
+- **RisingWater** is a `Hitbox` that rises at `rise_speed` until `stop_y`, and pauses during dialogue.
+- **NarratorTrigger** shows a one-time caption; `{jump}`, `{attack}`, `{dash}` and `{interact}` become the right button names.
+- **Windmill** spins a ring of `AnimatableBody2D` gondolas Patch can ride. A `PullTab` (now with an optional target) starts it.
+- **BossMillwheel:** pull the three mooring tabs to jam the sails, then hit the core. Every 3 hits it recovers, spins faster, and calls 2 Soggies. `EventBus.boss_started`, `boss_health_changed` and `boss_defeated` drive the HUD boss bar.
+- **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 3 bumps or fewer.
+
 ## Collision layers
 
 | # | Name | Used by |
@@ -166,6 +189,11 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 1. Give it an id, e.g. `&"tape_tail"`.
 2. Gate its input in `patch.gd` with `GameState.has_ability(&"tape_tail")`.
 3. Unlock it with an `ability_page.tscn` pickup or by calling `GameState.unlock_ability()`.
+
+**A new side quest**
+1. Add it to `data/quests.json`.
+2. On the quest giver's `NPC`, set `quest_id`, `quest_progress_dialogue` and `quest_turn_in_dialogue`.
+3. Call `GameState.advance_quest(id)` wherever progress happens (see `lost_sheep.gd`).
 
 **A new enemy**
 Copy `soggy.tscn`. Keep the `Hurtbox`, `HealthComponent` and `ContactHitbox` structure so combat works without changes.

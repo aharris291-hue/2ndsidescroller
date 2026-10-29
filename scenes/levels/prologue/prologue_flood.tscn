@@ -1,0 +1,137 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_38tsg"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_l8l1x"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_bookshelf_night.png" id="3_ns4sx"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_xk3kt"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_ma3et"]
+[ext_resource type="PackedScene" path="res://scenes/world/narrator_trigger.tscn" id="6_26mal"]
+[ext_resource type="Script" path="res://scripts/world/narrator_trigger.gd" id="7_5ap6s"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="8_4416x"]
+[ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="9_36ekf"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="10_ejjrs"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="11_uexxv"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="12_1l67u"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="13_skijv"]
+[ext_resource type="PackedScene" path="res://scenes/world/rising_water.tscn" id="14_n86fd"]
+[ext_resource type="Script" path="res://scripts/world/rising_water.gd" id="15_sch5e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="16_gtv5h"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="17_gjvxv"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_d01hr"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_bx3om"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_52smw"]
+size = Vector2(200, 200)
+
+[node name="PrologueFlood" type="Node2D" unique_id=963970258]
+script = ExtResource("1_38tsg")
+page_title = "The Title Page"
+opening_caption = "Patch the Magnificent was halfway through a very good boast when the page began to flood."
+music = ExtResource("2_l8l1x")
+bounds = Rect2(0, 0, 1920, 3200)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=1545775525]
+scroll_scale = Vector2(0.2, 0.2)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=336462487]
+texture = ExtResource("3_ns4sx")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1202567682]
+tile_map_data = PackedByteArray("AAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAACAAQAAAAAAAAAAAADAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAFAAQAAAAAAAAAAAAGAAQAAAAAAAAAAAAHAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAJAAQAAAAAAAAAAAAKAAQAAAAAAAAAAAALAAQAAAAAAAAAAAAMAAQAAAAAAAAAAAANAAQAAAAAAAAAAAAOAAQAAAAAAAAAAAAPAAQAAAAAAAAAAAAQAAQAAAAAAAAAAAARAAQAAAAAAAAAAAASAAQAAAAAAAAAAAATAAQAAAAAAAAAAAAWAAYAAAACAAAAAAAXAAYAAAACAAAAAAAYAAYAAAACAAAAAAAZAAYAAAACAAAAAAAWAAgAAAACAAAAAAAXAAgAAAACAAAAAAAYAAgAAAACAAAAAAAZAAgAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAASAAoAAAACAAAAAAATAAoAAAACAAAAAAAKAAwAAAACAAAAAAALAAwAAAACAAAAAAAMAAwAAAACAAAAAAANAAwAAAACAAAAAAAEAA4AAAACAAAAAAAFAA4AAAACAAAAAAAGAA4AAAACAAAAAAAHAA4AAAACAAAAAAAEABAAAAACAAAAAAAFABAAAAACAAAAAAAGABAAAAACAAAAAAAHABAAAAACAAAAAAAKABIAAAACAAAAAAALABIAAAACAAAAAAAMABIAAAACAAAAAAANABIAAAACAAAAAAAQABQAAAACAAAAAAARABQAAAACAAAAAAASABQAAAACAAAAAAATABQAAAACAAAAAAAWABYAAAACAAAAAAAXABYAAAACAAAAAAAYABYAAAACAAAAAAAZABYAAAACAAAAAAAWABgAAAACAAAAAAAXABgAAAACAAAAAAAYABgAAAACAAAAAAAZABgAAAACAAAAAAAQABoAAAACAAAAAAARABoAAAACAAAAAAASABoAAAACAAAAAAATABoAAAACAAAAAAAKABwAAAACAAAAAAALABwAAAACAAAAAAAMABwAAAACAAAAAAANABwAAAACAAAAAAAEAB4AAAACAAAAAAAFAB4AAAACAAAAAAAGAB4AAAACAAAAAAAHAB4AAAACAAAAAAAEACAAAAACAAAAAAAFACAAAAACAAAAAAAGACAAAAACAAAAAAAHACAAAAACAAAAAAAKACIAAAACAAAAAAALACIAAAACAAAAAAAMACIAAAACAAAAAAANACIAAAACAAAAAAAQACQAAAACAAAAAAARACQAAAACAAAAAAASACQAAAACAAAAAAATACQAAAACAAAAAAAWACYAAAACAAAAAAAXACYAAAACAAAAAAAYACYAAAACAAAAAAAZACYAAAACAAAAAAAWACgAAAACAAAAAAAXACgAAAACAAAAAAAYACgAAAACAAAAAAAZACgAAAACAAAAAAAQACoAAAACAAAAAAARACoAAAACAAAAAAASACoAAAACAAAAAAATACoAAAACAAAAAAAKACwAAAACAAAAAAALACwAAAACAAAAAAAMACwAAAACAAAAAAANACwAAAACAAAAAAAEAC4AAAACAAAAAAAFAC4AAAACAAAAAAAGAC4AAAACAAAAAAAHAC4AAAACAAAAAAAAADAAAAAAAAAAAAABADAAAAAAAAAAAAACADAAAAAAAAAAAAADADAAAAAAAAAAAAAEADAAAAAAAAAAAAAFADAAAAAAAAAAAAAGADAAAAAAAAAAAAAHADAAAAAAAAAAAAAIADAAAAAAAAAAAAAJADAAAAAAAAAAAAAKADAAAAAAAAAAAAALADAAAAAAAAAAAAAMADAAAAAAAAAAAAANADAAAAAAAAAAAAAOADAAAAAAAAAAAAAPADAAAAAAAAAAAAAQADAAAAAAAAAAAAARADAAAAAAAAAAAAASADAAAAAAAAAAAAATADAAAAAAAAAAAAAUADAAAAAAAAAAAAAVADAAAAAAAAAAAAAWADAAAAAAAAAAAAAXADAAAAAAAAAAAAAYADAAAAAAAAAAAAAZADAAAAAAAAAAAAAaADAAAAAAAAAAAAAbADAAAAAAAAAAAAAcADAAAAAAAAAAAAAdADAAAAAAAAAAAAAAADEAAAABAAAAAAABADEAAAABAAAAAAACADEAAAABAAAAAAADADEAAAABAAAAAAAEADEAAAABAAAAAAAFADEAAAABAAAAAAAGADEAAAABAAAAAAAHADEAAAABAAAAAAAIADEAAAABAAAAAAAJADEAAAABAAAAAAAKADEAAAABAAAAAAALADEAAAABAAAAAAAMADEAAAABAAAAAAANADEAAAABAAAAAAAOADEAAAABAAAAAAAPADEAAAABAAAAAAAQADEAAAABAAAAAAARADEAAAABAAAAAAASADEAAAABAAAAAAATADEAAAABAAAAAAAUADEAAAABAAAAAAAVADEAAAABAAAAAAAWADEAAAABAAAAAAAXADEAAAABAAAAAAAYADEAAAABAAAAAAAZADEAAAABAAAAAAAaADEAAAABAAAAAAAbADEAAAABAAAAAAAcADEAAAABAAAAAAAdADEAAAABAAAAAAA=")
+tile_set = ExtResource("4_xk3kt")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=1851947814]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1617015653]
+shape = SubResource("WorldBoundaryShape2D_d01hr")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1419367993]
+position = Vector2(1920, 0)
+shape = SubResource("WorldBoundaryShape2D_bx3om")
+
+[node name="Start" type="Marker2D" parent="." unique_id=2035429218 groups=["spawn_points"]]
+position = Vector2(192, 3024)
+
+[node name="Story" type="Node2D" parent="." unique_id=1401525190]
+
+[node name="PatchBoasts" type="Area2D" parent="Story" unique_id=678364019]
+position = Vector2(192, 2972)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_ma3et")
+dialogue_id = "prologue_patch"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/PatchBoasts" unique_id=1905824755]
+shape = SubResource("RectangleShape2D_52smw")
+
+[node name="HowToJump" type="Area2D" parent="Story" unique_id=2041830658 instance=ExtResource("6_26mal")]
+position = Vector2(448, 3072)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_5ap6s")
+caption = "Run with the arrow keys, WASD or the left stick. Press {jump} to jump. Climb! Climb!"
+
+[node name="HowToSwipe" type="Area2D" parent="Story" unique_id=1915164105 instance=ExtResource("6_26mal")]
+position = Vector2(768, 1920)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_5ap6s")
+caption = "A Soggy! Patch's paper edge is sharp: press {attack} to swipe."
+
+[node name="TailLost" type="Area2D" parent="Story" unique_id=1093637155 instance=ExtResource("6_26mal")]
+position = Vector2(320, 256)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_5ap6s")
+caption = "Patch made it off the page. Most of him did. His beautiful tail was gone."
+
+[node name="Actors" type="Node2D" parent="." unique_id=1423761784]
+
+[node name="Soggy1" type="CharacterBody2D" parent="Actors" unique_id=187063361 instance=ExtResource("8_4416x")]
+position = Vector2(384, 1880)
+collision_layer = 4
+script = ExtResource("9_36ekf")
+
+[node name="Props" type="Node2D" parent="." unique_id=1501430466]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("10_ejjrs")]
+position = Vector2(1152, 1664)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("11_uexxv")
+respawn_offset = Vector2(0, -48)
+
+[node name="OffThePage" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("12_1l67u")]
+position = Vector2(256, 256)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("13_skijv")
+target_page = "res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn"
+target_spawn = &"Start"
+door_prompt = "Leap off the page!"
+prompt_offset = Vector2(0, -170)
+
+[node name="Flood" type="Area2D" parent="." unique_id=1154847441 instance=ExtResource("14_n86fd")]
+z_index = 10
+position = Vector2(0, 3320)
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("15_sch5e")
+rise_speed = 34.0
+stop_y = 320.0
+knockback = 900.0
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("16_gtv5h")]
+position = Vector2(192, 3024)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("17_gjvxv")

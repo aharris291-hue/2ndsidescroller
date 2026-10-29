@@ -3,6 +3,38 @@
 [ext_resource type="Texture2D" path="res://assets/art/props/scrap.png" id="1_0mwgc"]
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hqnrr"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hqnrr"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.9882353, 0.9647059, 0.89411765, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.16862746, 0.12941177, 0.09411765, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bo48s"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.87058824, 0.34509805, 0.23921569, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.16862746, 0.12941177, 0.09411765, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="HUD" type="CanvasLayer" unique_id=1845372864]
 layer = 10
 script = ExtResource("1_hqnrr")
@@ -12,6 +44,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
 [node name="Top" type="HBoxContainer" parent="Root" unique_id=826647500]
@@ -40,3 +74,28 @@ text = "x 0"
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Lost Letters 0/26"
+
+[node name="BossBar" type="VBoxContainer" parent="Root" unique_id=1716331137]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -460.0
+offset_top = -120.0
+offset_right = 460.0
+offset_bottom = -40.0
+
+[node name="BossName" type="Label" parent="Root/BossBar" unique_id=1779226610]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.9882353, 0.9647059, 0.89411765, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+
+[node name="BossHealth" type="ProgressBar" parent="Root/BossBar" unique_id=1318004175]
+custom_minimum_size = Vector2(920, 28)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_hqnrr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bo48s")
+show_percentage = false

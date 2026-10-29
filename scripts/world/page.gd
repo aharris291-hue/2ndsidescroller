@@ -7,6 +7,8 @@ extends Node2D
 ## Expected children: a Patch instance (scenes/player/patch.tscn) and at least one
 ## Marker2D named "Start" in the "spawn_points" group.
 
+const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
+
 @export var view_mode: PageView.Mode = PageView.Mode.SIDE
 @export var page_title := ""
 ## Dad's handwritten caption, shown once on the first visit.
@@ -34,6 +36,11 @@ func _ready() -> void:
 	# A page with no checkpoint yet (fresh game) uses its start point.
 	if GameState.checkpoint_page.is_empty():
 		GameState.set_checkpoint(scene_file_path, player.global_position)
+
+	if GameState.get_flag("met_dot") and get_tree().get_first_node_in_group("companion") == null:
+		var dot := COMPANION_SCENE.instantiate() as Node2D
+		dot.position = player.position + Vector2(-70, -90)
+		add_child.call_deferred(dot)
 
 	if music:
 		AudioManager.play_music(music)

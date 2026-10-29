@@ -1,23 +1,124 @@
 {
 	"fluff_intro": [
-		{"speaker": "shepherd_fluff", "text": "Well, well. If it isn't young Patch. You've lost something, lad."},
-		{"speaker": "patch", "text": "My tail? Oh, that. I lost it wrestling a thunderstorm. Two thunderstorms, actually. They were twins."},
-		{"speaker": "shepherd_fluff", "text": "Mm-hm. I was on the Weather Page that night, you know. I saw what I saw."},
-		{"speaker": "patch", "text": "Ha! Ha. Anyway! Why is everything so... squelchy?"},
-		{"speaker": "shepherd_fluff", "text": "The Sogg. It's unfolding the meadow, one hill at a time. The windmills have stopped, and my flock is swelling up like sponges."},
-		{"speaker": "shepherd_fluff", "text": "Pull the tabs, lad. The book still remembers how it's meant to fold. Up ahead, the old platform tab should still work."}
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Well, well. If it isn't young Patch. You've lost something, lad."
+		},
+		{
+			"speaker": "patch",
+			"text": "My tail? Oh, that. I lost it wrestling a thunderstorm. Two thunderstorms, actually. They were twins."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Mm-hm. I was on the Weather Page that night, you know. I saw what I saw."
+		},
+		{
+			"speaker": "patch",
+			"text": "Ha! Ha. Anyway! Why is everything so... squelchy?"
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "The Sogg. It's unfolding the meadow, one hill at a time. The windmills have stopped, and my flock is swelling up like sponges."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Pull the tabs, lad. The book still remembers how it's meant to fold. Up ahead, the old platform tab should still work."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "And if you're heading for the Windmill Hills... three of my flock wandered off up there. Soaked through and grumpy. Shoo them home for me?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Herding sheep? For a legend like me? ...Fine. But I'm telling everyone it was dangerous."
+		}
 	],
 	"fluff_repeat": [
-		{"speaker": "shepherd_fluff", "text": "Mind the Soggies. A good swipe dries them right out."},
-		{"speaker": "shepherd_fluff", "text": "And Patch? Whatever happened that night, nobody here thinks less of you."}
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Mind the Soggies. A good swipe dries them right out."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "And Patch? Whatever happened that night, nobody here thinks less of you."
+		}
 	],
 	"dot_meet": [
-		{"speaker": "dot", "text": "Hello. I am Dot. I end sentences."},
-		{"speaker": "patch", "text": "You're a... full stop?"},
-		{"speaker": "dot", "text": "Was. My sentence got smeared. Now I just float. Badly."},
-		{"speaker": "patch", "text": "Well, you're in luck! You've found the bravest fox in all of Foldwick."},
-		{"speaker": "dot", "text": "Where."},
-		{"speaker": "patch", "text": "...Me. I meant me."},
-		{"speaker": "dot", "text": "Hm. Fine. I will come. Somebody has to end your sentences."}
+		{
+			"speaker": "dot",
+			"text": "Hello. I am Dot. I end sentences."
+		},
+		{
+			"speaker": "patch",
+			"text": "You're a... full stop?"
+		},
+		{
+			"speaker": "dot",
+			"text": "Was. My sentence got smeared. Now I just float. Badly."
+		},
+		{
+			"speaker": "patch",
+			"text": "Well, you're in luck! You've found the bravest fox in all of Foldwick."
+		},
+		{
+			"speaker": "dot",
+			"text": "Where."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Me. I meant me."
+		},
+		{
+			"speaker": "dot",
+			"text": "Hm. Fine. I will come. Somebody has to end your sentences."
+		}
+	],
+	"fluff_quest_progress": [
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Any luck with my flock? They'll be up on the Windmill Hills, sulking somewhere high and damp."
+		}
+	],
+	"fluff_quest_done": [
+		{
+			"speaker": "shepherd_fluff",
+			"text": "All three home, and only a little mildewed! You've a kind heart under all that bragging, Patch."
+		},
+		{
+			"speaker": "patch",
+			"text": "It was nothing. Well. It was three things. Fluffy things."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Here, take these Scraps. And lad? Whatever happened to your tail, it's still you walking about without it."
+		}
+	],
+	"windmill_hills_arrival": [
+		{
+			"speaker": "dot",
+			"text": "Windmills. Not turning."
+		},
+		{
+			"speaker": "patch",
+			"text": "Because they're soggy. Everything's soggy. Even my jokes are soggy, and my jokes are excellent."
+		},
+		{
+			"speaker": "dot",
+			"text": "Debatable. Look for tabs."
+		}
+	],
+	"millwheel_arrival": [
+		{
+			"speaker": "patch",
+			"text": "That's the old mill. It used to grind sunshine into flour for the whole meadow."
+		},
+		{
+			"speaker": "dot",
+			"text": "It is looking at us."
+		},
+		{
+			"speaker": "patch",
+			"text": "Windmills don't look at people, Dot. They don't have... oh. Oh, it has eyes."
+		}
 	]
 }

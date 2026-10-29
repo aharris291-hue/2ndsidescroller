@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/windmill.gd" id="1_ixoir"]
+[ext_resource type="Texture2D" path="res://assets/art/props/windmill.png" id="2_luj2r"]
+[ext_resource type="Texture2D" path="res://assets/art/props/windmill_sails.png" id="3_1db5v"]
+[ext_resource type="Texture2D" path="res://assets/art/props/cardboard_platform.png" id="4_nfkne"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u7w36"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v6it"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o4vn0"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t3m5f"]
+size = Vector2(112, 24)
+
+[node name="WindmillWheel" type="Node2D" unique_id=1597017457]
+script = ExtResource("1_ixoir")
+spin_speed = 0.5
+gondola_count = 4
+radius = 170.0
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=854306879]
+position = Vector2(0, -200)
+texture = ExtResource("2_luj2r")
+
+[node name="Sails" type="Node2D" parent="." unique_id=1780934787]
+position = Vector2(0, -300)
+
+[node name="Sprite2D" type="Sprite2D" parent="Sails" unique_id=499634135]
+texture = ExtResource("3_1db5v")
+
+[node name="Gondola0" type="AnimatableBody2D" parent="." unique_id=641687448]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola0" unique_id=1119608276]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola0" unique_id=180364618]
+shape = SubResource("RectangleShape2D_u7w36")
+one_way_collision = true
+
+[node name="Gondola1" type="AnimatableBody2D" parent="." unique_id=746281703]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola1" unique_id=1796477260]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola1" unique_id=1617428450]
+shape = SubResource("RectangleShape2D_2v6it")
+one_way_collision = true
+
+[node name="Gondola2" type="AnimatableBody2D" parent="." unique_id=1222904653]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola2" unique_id=116199698]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola2" unique_id=248151733]
+shape = SubResource("RectangleShape2D_o4vn0")
+one_way_collision = true
+
+[node name="Gondola3" type="AnimatableBody2D" parent="." unique_id=1759901766]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola3" unique_id=276430124]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola3" unique_id=941580864]
+shape = SubResource("RectangleShape2D_t3m5f")
+one_way_collision = true

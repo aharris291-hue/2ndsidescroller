@@ -1,0 +1,26 @@
+{
+	"prologue_intro": [
+		{
+			"speaker": "nell",
+			"text": "Dad? The water's coming under the door."
+		},
+		{
+			"speaker": "dad",
+			"text": "Grab your coat, Nell. Just your coat. We have to go, right now."
+		},
+		{
+			"speaker": "nell",
+			"text": "Wait! My book!"
+		}
+	],
+	"prologue_patch": [
+		{
+			"speaker": "patch",
+			"text": "Behold! Patch the Magnificent, hero of page one, finest tail in all of Foldwick!"
+		},
+		{
+			"speaker": "patch",
+			"text": "...Why is the page wet? Why is the page MOVING?"
+		}
+	]
+}

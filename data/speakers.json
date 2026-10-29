@@ -1,7 +1,42 @@
 {
-	"patch": {"name": "Patch", "color": "#c8641e", "pitch": 1.35},
-	"dot": {"name": "Dot", "color": "#2b2118", "pitch": 1.9},
-	"shepherd_fluff": {"name": "Shepherd Fluff", "color": "#6b5a4a", "pitch": 0.75},
-	"mayor_gumption": {"name": "Mayor Gumption", "color": "#7a4a9a", "pitch": 0.95},
-	"narrator": {"name": "", "color": "#2b2118", "pitch": 1.0}
+	"patch": {
+		"name": "Patch",
+		"color": "#c8641e",
+		"pitch": 1.35
+	},
+	"dot": {
+		"name": "Dot",
+		"color": "#2b2118",
+		"pitch": 1.9
+	},
+	"shepherd_fluff": {
+		"name": "Shepherd Fluff",
+		"color": "#6b5a4a",
+		"pitch": 0.75
+	},
+	"mayor_gumption": {
+		"name": "Mayor Gumption",
+		"color": "#7a4a9a",
+		"pitch": 0.95
+	},
+	"narrator": {
+		"name": "",
+		"color": "#2b2118",
+		"pitch": 1.0
+	},
+	"nell": {
+		"name": "Nell",
+		"color": "#3a6ea5",
+		"pitch": 1.5
+	},
+	"dad": {
+		"name": "Dad",
+		"color": "#5a3d24",
+		"pitch": 0.8
+	},
+	"gran": {
+		"name": "Gran",
+		"color": "#7a4a9a",
+		"pitch": 1.1
+	}
 }

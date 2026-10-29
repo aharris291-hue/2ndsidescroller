@@ -12,6 +12,8 @@ extends CanvasLayer
 const DIALOGUE_FILES: Array[String] = [
 	"res://data/dialogue/ch1_thistledown.json",
 	"res://data/dialogue/margin.json",
+	"res://data/dialogue/prologue.json",
+	"res://data/dialogue/interludes.json",
 ]
 const SPEAKERS_FILE := "res://data/speakers.json"
 const CHARS_PER_SECOND := 45.0

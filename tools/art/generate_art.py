@@ -455,6 +455,201 @@ def build_icon():
     img.save(os.path.join(ROOT, "icon.ico"), sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
 
 
+# ------------------------------------------------------------------ chapter 1 art
+
+
+def build_lost_sheep():
+    """A flock sheep swollen by the damp: puffier, bluer, and grumpy about it."""
+    w, h = 144, 128
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    wool = (190, 206, 220, 255)
+    for lx in (44, 62, 82, 98):
+        crayon_poly(img, [(lx, 94), (lx + 8, 94), (lx + 8, 120), (lx, 120)], INK, outline=False)
+    for cx, cy, r in [(42, 62, 30), (70, 48, 32), (100, 62, 30), (56, 84, 26), (88, 84, 26)]:
+        crayon_poly(img, jitter(ellipse_points(cx, cy, r, r * 0.9, 16), 2.5), wool, width=4)
+    for _ in range(5):
+        x, y = rng.uniform(34, 104), rng.uniform(40, 92)
+        ImageDraw.Draw(img).ellipse([x - 4, y - 4, x + 4, y + 4], fill=(120, 150, 180, 200))
+    crayon_poly(img, jitter(ellipse_points(124, 58, 15, 18, 14), 1.5), (70, 58, 52, 255), width=4)
+    button_eye(img, 128, 54, 4)
+    ink_line(img, [(118, 70), (126, 66), (134, 70)], width=2, wobble=0.3)
+    paper_grain(img).save(out("characters", "lost_sheep.png"))
+
+
+def build_windmill():
+    w, h = 256, 400
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    crayon_poly(img, [(70, 396), (186, 396), (164, 120), (92, 120)], CARDBOARD, width=6)
+    crayon_poly(img, [(80, 126), (128, 50), (176, 126)], TOMATO, width=6)
+    crayon_poly(img, [(110, 396), (146, 396), (146, 330), (128, 316), (110, 330)], (120, 84, 54, 255), width=4)
+    crayon_poly(img, jitter(ellipse_points(128, 200, 16, 16, 12), 0.6), SKY, width=4)
+    paper_grain(img).save(out("props", "windmill.png"))
+
+    s = 320
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    c = s / 2
+    for i in range(4):
+        a = i * math.pi / 2
+        dx, dy = math.cos(a), math.sin(a)
+        px, py = -dy, dx
+        blade = [(c + dx * 24 + px * 10, c + dy * 24 + py * 10), (c + dx * 150 + px * 10, c + dy * 150 + py * 10),
+                 (c + dx * 150 + px * 44, c + dy * 150 + py * 44), (c + dx * 40 + px * 44, c + dy * 40 + py * 44)]
+        crayon_poly(img, blade, CREAM, width=4, wobble=1.0)
+        ink_line(img, [(c, c), (c + dx * 152, c + dy * 152)], width=6, wobble=0.6)
+    crayon_poly(img, jitter(ellipse_points(c, c, 18, 18, 12), 0.5), MARIGOLD, width=4)
+    paper_grain(img).save(out("props", "windmill_sails.png"))
+
+
+def build_millwheel():
+    """Old Millwheel: a waterlogged windmill golem, the Chapter 1 boss."""
+    w, h = 360, 440
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    soggy_wood = (128, 120, 112, 255)
+    crayon_poly(img, [(70, 436), (290, 436), (250, 130), (110, 130)], soggy_wood, width=7)
+    crayon_poly(img, [(90, 138), (180, 30), (270, 138)], (110, 96, 120, 255), width=7)
+    d = ImageDraw.Draw(img)
+    for _ in range(14):
+        x, y = rng.uniform(100, 260), rng.uniform(150, 420)
+        d.ellipse([x - 7, y - 6, x + 7, y + 6], fill=(108, 132, 96, 220))
+    for x in (100, 150, 210, 258):
+        crayon_poly(img, [(x - 6, 430), (x + 6, 430), (x, 440)], (92, 120, 160, 255), outline=False)
+    # Angry window-eyes and a plank frown.
+    for ex in (140, 220):
+        crayon_poly(img, [(ex - 26, 230), (ex + 26, 222), (ex + 22, 262), (ex - 22, 262)], (40, 36, 44, 255), width=5)
+        d.ellipse([ex - 9, 236, ex + 9, 254], fill=MARIGOLD)
+    ink_line(img, [(110, 206), (166, 222)], width=7, wobble=0.5)
+    ink_line(img, [(250, 206), (194, 222)], width=7, wobble=0.5)
+    crayon_poly(img, [(130, 320), (230, 320), (220, 360), (140, 360)], (52, 40, 36, 255), width=5)
+    for x in range(146, 222, 18):
+        ink_line(img, [(x, 322), (x + 4, 340)], width=3, wobble=0.3, color=CREAM)
+    paper_grain(img).save(out("characters", "millwheel_body.png"))
+
+    s = 560
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    c = s / 2
+    for i in range(4):
+        a = i * math.pi / 2 + 0.2
+        dx, dy = math.cos(a), math.sin(a)
+        px, py = -dy, dx
+        blade = [(c + dx * 40 + px * 14, c + dy * 40 + py * 14), (c + dx * 270 + px * 14, c + dy * 270 + py * 14),
+                 (c + dx * 262 + px * 74, c + dy * 262 + py * 74), (c + dx * 60 + px * 70, c + dy * 60 + py * 70)]
+        crayon_poly(img, jitter(blade, 4), SOGGY, width=6, wobble=2.0)
+        ink_line(img, [(c, c), (c + dx * 272, c + dy * 272)], width=9, wobble=1.0)
+    paper_grain(img).save(out("characters", "millwheel_sails.png"))
+
+    img = Image.new("RGBA", (112, 112), (0, 0, 0, 0))
+    crayon_poly(img, jitter(ellipse_points(56, 56, 46, 46, 24), 1.0), MARIGOLD, width=6, density=1.5)
+    d = ImageDraw.Draw(img)
+    for hx, hy in ((44, 44), (68, 44), (44, 68), (68, 68)):
+        d.ellipse([hx - 6, hy - 6, hx + 6, hy + 6], fill=INK)
+    paper_grain(img).save(out("characters", "millwheel_core.png"))
+
+
+def build_boat_race():
+    img = Image.new("RGBA", (176, 112), (0, 0, 0, 0))
+    crayon_poly(img, [(8, 60), (168, 60), (140, 100), (36, 100)], (238, 236, 226, 255), width=5)
+    crayon_poly(img, [(88, 8), (88, 60), (40, 60)], (232, 226, 210, 255), width=4)
+    crayon_poly(img, [(92, 14), (132, 60), (92, 60)], (220, 214, 196, 255), width=4)
+    ink_line(img, [(40, 72), (136, 72)], width=2, wobble=0.6)
+    paper_grain(img).save(out("props", "paper_boat.png"))
+
+    img = Image.new("RGBA", (112, 96), (0, 0, 0, 0))
+    crayon_poly(img, jitter(ellipse_points(56, 52, 50, 38, 16), 3), (150, 140, 130, 255), width=5)
+    crayon_poly(img, jitter(ellipse_points(44, 40, 14, 9, 10), 1), (186, 178, 168, 255), outline=False)
+    paper_grain(img).save(out("props", "stream_rock.png"))
+
+    w, h = 1920, 1080
+    img = Image.new("RGBA", (w, h), GRASS)
+    img.alpha_composite(crayon_layer((w, h), GRASS, density=0.2, angle=-1.2, stroke_len=(8, 20)))
+    top = [(x, 250 + math.sin(x / w * math.tau * 3) * 30) for x in range(-20, w + 40, 40)]
+    bottom = [(x, 860 + math.sin(x / w * math.tau * 2 + 1) * 30) for x in range(w + 20, -40, -40)]
+    crayon_poly(img, top + bottom, (110, 168, 214, 255), width=7, wobble=2.0, density=0.5)
+    d = ImageDraw.Draw(img)
+    for y in range(330, 820, 70):
+        for x0 in range(0, w, 240):
+            x = (x0 + y * 3) % w
+            d.arc([x, y, x + 90, y + 24], 200, 340, fill=CREAM, width=4)
+    paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_ribbon_stream.png"))
+
+
+def build_prologue_art():
+    w, h = 1920, 1080
+    night = (62, 70, 112, 255)
+    img = Image.new("RGBA", (w, h), night)
+    img.alpha_composite(crayon_layer((w, h), night, density=0.25, angle=-0.3, stroke_len=(30, 70)))
+    # Rainy window.
+    crayon_poly(img, [(1240, 140), (1700, 140), (1700, 600), (1240, 600)], (40, 48, 86, 255), width=10, density=0.6)
+    ink_line(img, [(1470, 140), (1470, 600)], width=8)
+    ink_line(img, [(1240, 370), (1700, 370)], width=8)
+    d = ImageDraw.Draw(img)
+    for _ in range(90):
+        x, y = rng.uniform(1250, 1690), rng.uniform(150, 590)
+        d.line([(x, y), (x - 6, y + 22)], fill=(150, 170, 220, 255), width=2)
+    # Shelves full of books.
+    for shelf_y in (300, 620):
+        crayon_poly(img, [(80, shelf_y), (1100, shelf_y), (1100, shelf_y + 24), (80, shelf_y + 24)], WOOD, width=5, density=0.6)
+        x = 100
+        while x < 1060:
+            bw = rng.randint(34, 70)
+            bh = rng.randint(150, 230)
+            col = rng.choice([TOMATO, MARIGOLD, SAGE, (96, 132, 186, 255), (150, 110, 170, 255)])
+            col = shade(col, -40)
+            crayon_poly(img, [(x, shelf_y - bh), (x + bw, shelf_y - bh), (x + bw, shelf_y), (x, shelf_y)], col, width=4, wobble=0.8, density=0.5)
+            x += bw + rng.randint(2, 10)
+    paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_bookshelf_night.png"))
+
+    img = Image.new("RGBA", (256, 128), (0, 0, 0, 0))
+    water = (82, 116, 170, 230)
+    pts = [(x, 30 + math.sin(x / 256 * math.tau * 2) * 12) for x in range(0, 257, 8)] + [(256, 128), (0, 128)]
+    crayon_poly(img, pts, water, outline=False, density=1.2)
+    ink_line(img, pts[:-2], width=4, wobble=0.6, color=(40, 56, 96, 255))
+    paper_grain(img, 6).save(out("props", "rising_water.png"))
+
+
+def build_dad_table():
+    """The real world between chapters: Gran's table under one lamp."""
+    w, h = 1920, 1080
+    img = Image.new("RGBA", (w, h), (64, 46, 40, 255))
+    img.alpha_composite(crayon_layer((w, h), (64, 46, 40, 255), density=0.2, angle=0.0, stroke_len=(50, 120)))
+    crayon_poly(img, [(0, 640), (w, 600), (w, h), (0, h)], WOOD, width=8, wobble=2.0, density=0.5)
+    glow = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(glow).ellipse([560, 120, 1520, 1040], fill=150)
+    glow = glow.filter(ImageFilter.GaussianBlur(140))
+    img = Image.composite(Image.new("RGBA", (w, h), (255, 220, 150, 255)), img, glow)
+    # Lamp.
+    crayon_poly(img, [(840, 0), (860, 0), (860, 150), (840, 150)], INK, outline=False)
+    crayon_poly(img, [(740, 150), (960, 150), (1010, 280), (690, 280)], MARIGOLD, width=7)
+    # The open, taped pop-up book.
+    crayon_poly(img, [(520, 760), (950, 720), (950, 900), (520, 940)], CREAM, width=6, density=0.5)
+    crayon_poly(img, [(950, 720), (1380, 760), (1380, 940), (950, 900)], (244, 236, 214, 255), width=6, density=0.5)
+    crayon_poly(img, [(700, 790), (760, 700), (820, 790)], SAGE, width=4)
+    crayon_poly(img, [(1080, 800), (1140, 690), (1200, 800)], TOMATO, width=4)
+    for x in (640, 1010, 1240):
+        crayon_poly(img, [(x, 770), (x + 90, 760), (x + 92, 790), (x + 2, 800)], (236, 226, 176, 220), width=3, wobble=0.6)
+    # Tape roll and hairdryer.
+    crayon_poly(img, jitter(ellipse_points(1560, 860, 80, 60, 20), 2), (226, 214, 160, 255), width=6)
+    crayon_poly(img, jitter(ellipse_points(1560, 860, 34, 24, 14), 1), (90, 66, 50, 255), width=4)
+    crayon_poly(img, [(220, 780), (420, 760), (430, 830), (230, 850)], (96, 132, 186, 255), width=6)
+    crayon_poly(img, [(300, 840), (350, 836), (360, 980), (310, 984)], (96, 132, 186, 255), width=6)
+    paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_dad_table.png"))
+
+
+def build_drip():
+    img = Image.new("RGBA", (40, 56), (0, 0, 0, 0))
+    crayon_poly(img, [(20, 4), (34, 32), (30, 46), (20, 52), (10, 46), (6, 32)], (60, 84, 130, 255), width=3, wobble=0.5)
+    paper_grain(img).save(out("props", "ink_drip.png"))
+
+
+def build_chapter1_art():
+    build_drip()
+    build_lost_sheep()
+    build_windmill()
+    build_millwheel()
+    build_boat_race()
+    build_prologue_art()
+    build_dad_table()
+
+
 if __name__ == "__main__":
     build_tiles()
     build_patch()
@@ -465,4 +660,5 @@ if __name__ == "__main__":
     build_ui()
     build_backgrounds()
     build_icon()
+    build_chapter1_art()
     print("Art written to", ART)

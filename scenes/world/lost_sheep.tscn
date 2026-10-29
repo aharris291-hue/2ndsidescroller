@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/lost_sheep.gd" id="1_1ik5o"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/lost_sheep.png" id="2_yn0a0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gcq2p"]
+size = Vector2(200, 130)
+
+[node name="LostSheep" type="Area2D" unique_id=1602423081]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_1ik5o")
+prompt_offset = Vector2(0, -150)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1860964336]
+position = Vector2(0, -56)
+texture = ExtResource("2_yn0a0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1521776480]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_gcq2p")

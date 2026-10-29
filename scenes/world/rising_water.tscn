@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/rising_water.gd" id="1_jxkm0"]
+[ext_resource type="Texture2D" path="res://assets/art/props/rising_water.png" id="2_qa26k"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_12wyh"]
+size = Vector2(1920, 2400)
+
+[node name="RisingWater" type="Area2D" unique_id=1154847441]
+z_index = 10
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_jxkm0")
+knockback = 900.0
+
+[node name="Body" type="ColorRect" parent="." unique_id=3507626]
+mouse_filter = 2
+color = Color(0.32, 0.45, 0.67, 0.9)
+
+[node name="Surface" type="Sprite2D" parent="." unique_id=2007172534]
+texture_repeat = 2
+texture = ExtResource("2_qa26k")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1199351131]
+shape = SubResource("RectangleShape2D_12wyh")

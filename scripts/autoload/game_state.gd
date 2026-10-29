@@ -4,7 +4,8 @@ extends Node
 
 const SAVE_VERSION := 1
 const SLOT_COUNT := 3
-const FIRST_PAGE := "res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn"
+const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
+const QUESTS_FILE := "res://data/quests.json"
 const STARTING_ABILITIES: Array[StringName] = [&"crease_swipe"]
 const LETTER_TOTAL := 26
 
@@ -18,12 +19,22 @@ var abilities: Array[StringName] = []
 var collected: Dictionary = {}
 ## Story flags, e.g. "met_shepherd_fluff": true.
 var flags: Dictionary = {}
+## Side quests: quest id -> {"progress": int, "done": bool}. Definitions live in data/quests.json.
+var quests: Dictionary = {}
+var quest_defs: Dictionary = {}
 var checkpoint_page := ""
 var checkpoint_position := Vector2.ZERO
 var current_page := ""
 var play_time := 0.0
 ## True while a gameplay page is running; the clock only counts real play.
 var in_gameplay := false
+
+
+func _ready() -> void:
+	if FileAccess.file_exists(QUESTS_FILE):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(QUESTS_FILE))
+		if typeof(parsed) == TYPE_DICTIONARY:
+			quest_defs = parsed
 
 
 func _process(delta: float) -> void:
@@ -40,6 +51,7 @@ func new_game(new_slot: int) -> void:
 	abilities = STARTING_ABILITIES.duplicate()
 	collected.clear()
 	flags.clear()
+	quests.clear()
 	checkpoint_page = ""
 	checkpoint_position = Vector2.ZERO
 	current_page = ""
@@ -85,6 +97,60 @@ func get_flag(flag: String, default: Variant = false) -> Variant:
 	return flags.get(flag, default)
 
 
+# --- Quests -----------------------------------------------------------------
+
+func quest_started(quest_id: String) -> bool:
+	return quests.has(quest_id)
+
+
+func quest_done(quest_id: String) -> bool:
+	return quests.has(quest_id) and quests[quest_id].get("done", false)
+
+
+func quest_progress(quest_id: String) -> int:
+	return int(quests.get(quest_id, {}).get("progress", 0))
+
+
+func quest_goal(quest_id: String) -> int:
+	return int(quest_defs.get(quest_id, {}).get("goal", 1))
+
+
+func quest_title(quest_id: String) -> String:
+	return quest_defs.get(quest_id, {}).get("title", quest_id)
+
+
+func start_quest(quest_id: String) -> void:
+	if not quests.has(quest_id):
+		quests[quest_id] = {"progress": 0, "done": false}
+		EventBus.quest_updated.emit(quest_id)
+
+
+## Adds progress (starting the quest if needed). Returns true when the goal is now met.
+func advance_quest(quest_id: String, amount := 1) -> bool:
+	start_quest(quest_id)
+	quests[quest_id]["progress"] = mini(quest_progress(quest_id) + amount, quest_goal(quest_id))
+	EventBus.quest_updated.emit(quest_id)
+	return quest_progress(quest_id) >= quest_goal(quest_id)
+
+
+func complete_quest(quest_id: String) -> void:
+	start_quest(quest_id)
+	if quests[quest_id]["done"]:
+		return
+	quests[quest_id]["done"] = true
+	add_scraps(int(quest_defs.get(quest_id, {}).get("reward_scraps", 0)))
+	EventBus.quest_updated.emit(quest_id)
+
+
+## One line per started quest, for the pause menu.
+func quest_log() -> Array[String]:
+	var lines: Array[String] = []
+	for quest_id in quests:
+		var mark := "[done]" if quest_done(quest_id) else "%d/%d" % [quest_progress(quest_id), quest_goal(quest_id)]
+		lines.append("%s  %s" % [quest_title(quest_id), mark])
+	return lines
+
+
 func set_checkpoint(page_path: String, position: Vector2) -> void:
 	checkpoint_page = page_path
 	checkpoint_position = position
@@ -110,6 +176,7 @@ func save_game() -> bool:
 		"abilities": abilities.map(func(a: StringName) -> String: return String(a)),
 		"collected": collected.keys(),
 		"flags": flags,
+		"quests": quests,
 		"checkpoint_page": checkpoint_page,
 		"checkpoint_position": [checkpoint_position.x, checkpoint_position.y],
 		"play_time": play_time,
@@ -148,6 +215,7 @@ func load_game(save_slot: int) -> bool:
 	for pickup_id in data.get("collected", []):
 		collected[String(pickup_id)] = true
 	flags = data.get("flags", {})
+	quests = data.get("quests", {})
 	checkpoint_page = String(data.get("checkpoint_page", FIRST_PAGE))
 	var pos: Array = data.get("checkpoint_position", [0, 0])
 	checkpoint_position = Vector2(float(pos[0]), float(pos[1]))

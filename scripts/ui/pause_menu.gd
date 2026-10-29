@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var music_slider: HSlider = $Root/Panel/Margin/VBox/MusicRow/MusicSlider
 @onready var sfx_slider: HSlider = $Root/Panel/Margin/VBox/SfxRow/SfxSlider
 @onready var quit_button: Button = $Root/Panel/Margin/VBox/QuitButton
+@onready var quest_log: Label = $Root/Panel/Margin/VBox/QuestLog
 
 
 func _ready() -> void:
@@ -35,6 +36,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func open() -> void:
+	var lines := GameState.quest_log()
+	quest_log.text = "Side quests:\n" + "\n".join(lines) if not lines.is_empty() else "No side quests yet."
 	panel.visible = true
 	get_tree().paused = true
 	resume_button.grab_focus()

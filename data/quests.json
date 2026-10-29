@@ -1,0 +1,14 @@
+{
+	"lost_flock": {
+		"title": "The Lost Flock",
+		"description": "Find Shepherd Fluff's three soggy sheep on the Windmill Hills.",
+		"goal": 3,
+		"reward_scraps": 15
+	},
+	"ribbon_regatta": {
+		"title": "The Ribbon Regatta",
+		"description": "Win the paper-boat race down the ribbon stream.",
+		"goal": 1,
+		"reward_scraps": 20
+	}
+}
