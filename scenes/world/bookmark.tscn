@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="1_jwtr4"]
+[ext_resource type="Texture2D" path="res://assets/art/props/bookmark_off.png" id="2_slv06"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_71ve1"]
+size = Vector2(70, 128)
+
+[node name="Bookmark" type="Area2D" unique_id=809914190]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_jwtr4")
+respawn_offset = Vector2(0, -48)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1386120680]
+position = Vector2(0, -64)
+texture = ExtResource("2_slv06")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1330130638]
+position = Vector2(0, -64)
+shape = SubResource("RectangleShape2D_71ve1")

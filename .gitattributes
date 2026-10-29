@@ -1,0 +1,10 @@
+# Normalize line endings so Windows and macOS checkouts stay identical.
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
+*.wav binary
+*.ogg binary
+*.ttf binary
+*.otf binary
+*.zip binary

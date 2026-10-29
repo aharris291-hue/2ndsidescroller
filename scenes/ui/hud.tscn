@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/props/scrap.png" id="1_0mwgc"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hqnrr"]
+
+[node name="HUD" type="CanvasLayer" unique_id=1845372864]
+layer = 10
+script = ExtResource("1_hqnrr")
+
+[node name="Root" type="Control" parent="." unique_id=302597038]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Top" type="HBoxContainer" parent="Root" unique_id=826647500]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = 32.0
+offset_bottom = 24.0
+theme_override_constants/separation = 18
+
+[node name="Tokens" type="HBoxContainer" parent="Root/Top" unique_id=455485992]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ScrapIcon" type="TextureRect" parent="Root/Top" unique_id=1181145495]
+layout_mode = 2
+texture = ExtResource("1_0mwgc")
+stretch_mode = 3
+
+[node name="ScrapsLabel" type="Label" parent="Root/Top" unique_id=1889292422]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "x 0"
+
+[node name="LettersLabel" type="Label" parent="Root/Top" unique_id=1776581004]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Lost Letters 0/26"

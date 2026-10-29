@@ -1,0 +1,14 @@
+# Godot 4 cache and editor state
+.godot/
+*.translation
+
+# Export output
+build/
+
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python caches from the asset generators
+__pycache__/

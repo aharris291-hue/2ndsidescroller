@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_akgu6"]
+[ext_resource type="Texture2D" path="res://assets/art/props/scrap.png" id="1_jh1vi"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_akgu6"]
+radius = 20.0
+
+[node name="Scrap" type="Area2D" unique_id=703028243]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_akgu6")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=464532488]
+texture = ExtResource("1_jh1vi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1357780127]
+shape = SubResource("CircleShape2D_akgu6")

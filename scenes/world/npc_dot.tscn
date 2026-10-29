@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/npc.gd" id="1_uiwpb"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/dot.png" id="2_d3pn8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jhfsm"]
+size = Vector2(150, 140)
+
+[node name="Dot" type="Area2D" unique_id=878314417]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_uiwpb")
+dialogue_id = "dot_meet"
+first_talk_flag = "met_dot"
+idle_bob = 12.0
+prompt_offset = Vector2(0, -130)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=870242554]
+position = Vector2(0, -60)
+texture = ExtResource("2_d3pn8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2059064415]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_jhfsm")
