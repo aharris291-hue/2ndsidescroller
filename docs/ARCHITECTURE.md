@@ -85,8 +85,11 @@ KitchenTable (Node2D, page.gd)             view_mode = TOP, bounds = 2560 x 1536
 ├── ArrivalTalk (Area2D, dialogue_trigger.gd)
 ├── Actors (Node2D)                        Soggies chase Patch in top view
 ├── Pickups (Node2D)
-└── Patch (patch.tscn)
+├── Patch (patch.tscn)
+└── Diorama (Node, desk_diorama.gd)        draws the page as a lit 3D desk
 ```
+
+The Margin is shown in 3D by `DeskDiorama` (`scripts/world/desk_diorama.gd`). It builds a 3D world in a SubViewport behind everything (wood desk, book-stack walls and ink puddles from the TileMapLayers, a mug, pencils and blocks), then hides the 2D page so only the 3D one shows. The 2D nodes keep running all the gameplay: every few frames the diorama mirrors each visible Sprite2D as a paper-cutout Sprite3D (with a real shadow) and each Label as a Label3D, at 128 px per metre. To add 3D decoration, extend `_build_decor()`; gameplay changes still go in the 2D scene. This needs the Forward+ renderer.
 
 On a flat page, Patch uses `MOTION_MODE_FLOATING` and no gravity, so the same tileset can be both a side-view floor and a top-down wall.
 

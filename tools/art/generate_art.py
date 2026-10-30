@@ -163,15 +163,47 @@ def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1
     ImageDraw.Draw(mask).polygon(hp, fill=255)
     layer.paste(color[:3] + (255,), (0, 0), mask)
     if shadow:
-        ys = [y for _, y in hp]
-        xs = [x for x, _ in hp]
-        size = min(max(ys) - min(ys), max(xs) - min(xs))
-        k = max(3 * ss, min(18 * ss, size * 0.16))
-        rim = ImageChops.subtract(mask, _shifted(mask, -k * 0.35, -k * 0.35))
-        layer.paste(shade(color, 34)[:3] + (255,), (0, 0), rim)
-        under = ImageChops.subtract(mask, _shifted(mask, 0, -k))
-        layer.paste(shade(color, -38)[:3] + (255,), (0, 0), under)
+        _volume_shade(layer, mask, color)
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
+
+
+LIGHT = np.array([-0.45, -0.62, 0.64])
+LIGHT = LIGHT / np.linalg.norm(LIGHT)
+
+
+def _volume_shade(layer, mask, color):
+    """Shades a filled shape as a soft, rounded form lit from the top-left.
+
+    The shape's mask is blurred into a height field; its slope gives a surface
+    normal, and simple lighting turns that into gentle gradients, a darker
+    underside and a small glossy highlight, with a little paper grain on top.
+    """
+    box = mask.getbbox()
+    if box is None:
+        return
+    pad = 4
+    x0, y0 = max(0, box[0] - pad), max(0, box[1] - pad)
+    x1, y1 = min(mask.size[0], box[2] + pad), min(mask.size[1], box[3] + pad)
+    m = mask.crop((x0, y0, x1, y1))
+    size = min(x1 - x0, y1 - y0)
+    radius = max(2.0, size * 0.2)
+    height = np.asarray(m.filter(ImageFilter.GaussianBlur(radius))).astype(np.float32)
+    height = np.minimum(height, np.asarray(m).astype(np.float32))
+    gy, gx = np.gradient(height)
+    k = radius * 2.0 / 255.0
+    nx, ny, nz = -gx * k, -gy * k, np.ones_like(height)
+    length = np.sqrt(nx * nx + ny * ny + nz * nz)
+    lambert = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / length
+    shade_map = 0.62 + 0.5 * lambert
+    # Glossy highlight where the surface faces the light most directly.
+    spec = np.clip((lambert - 0.93) / 0.07, 0.0, 1.0) ** 2 * 0.35
+    grain = np.random.default_rng(int(size) + x0 * 7 + y0).normal(0.0, 0.025, height.shape)
+    base = np.array(color[:3], np.float32)
+    rgb = base[None, None, :] * (shade_map + grain)[..., None] + 255.0 * spec[..., None]
+    region = np.asarray(layer.crop((x0, y0, x1, y1))).copy()
+    inside = np.asarray(m) > 0
+    region[inside, :3] = np.clip(rgb[inside], 0, 255).astype(np.uint8)
+    layer.paste(Image.fromarray(region), (x0, y0))
 
 
 def ink_line(img, points, width=5, wobble=1.6, closed=False, color=INK):
@@ -311,7 +343,7 @@ def build_tiles():
     for row, funcs in enumerate(makers):
         for col, fn in enumerate(funcs):
             atlas.paste(fn(), (col * TILE, row * TILE))
-    atlas.save(out("tiles", "paper_tiles.png"))
+    paper_grain(atlas, 10).save(out("tiles", "paper_tiles.png"))
 
 
 # ---------------------------------------------------------------------- characters
@@ -493,17 +525,17 @@ def blob(img, circles, color, width=6, shade_amount=-34):
     w, h = img.size
     layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
+    mask = Image.new("L", layer.size, 0)
+    md = ImageDraw.Draw(mask)
     ow = width * 1.3
     for cx, cy, r in circles:
         R = (r + ow) * ss
         d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=INK)
     for cx, cy, r in circles:
         R = r * ss
-        d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=shade(color, shade_amount))
-    for cx, cy, r in circles:
-        R = r * ss * 0.86
-        oy = -r * 0.16 * ss
-        d.ellipse([cx * ss - R, cy * ss + oy - R, cx * ss + R, cy * ss + oy + R], fill=color)
+        md.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=255)
+    layer.paste(color[:3] + (255,), (0, 0), mask)
+    _volume_shade(layer, mask, color)
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
 
 
@@ -516,6 +548,19 @@ def tree(img, x, base_y, size, canopy=TEAL, cap=LILAC):
     blob(img, [(x - size * 0.16, cy - size * 0.3, size * 0.2), (x + size * 0.16, cy - size * 0.3, size * 0.2), (x, cy - size * 0.38, size * 0.22)], cap, width=4)
 
 
+def _sky_gradient(w, h, top, bottom):
+    """A soft vertical gradient with a warm glow around the sun, for depth."""
+    t = np.linspace(0.0, 1.0, h, dtype=np.float32)[:, None, None]
+    top_c = np.array(top[:3], np.float32)[None, None, :]
+    bottom_c = np.array(bottom[:3], np.float32)[None, None, :]
+    rgb = np.broadcast_to(top_c * (1 - t) + bottom_c * t, (h, w, 3)).copy()
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    glow = np.exp(-(((xx - 1460) / 520) ** 2 + ((yy - 210) / 380) ** 2))
+    rgb += glow[..., None] * np.array([40, 26, 0], np.float32)
+    alpha = np.full((h, w, 1), 255, np.float32)
+    return Image.fromarray(np.concatenate([np.clip(rgb, 0, 255), alpha], axis=-1).astype(np.uint8), "RGBA")
+
+
 def music_note(img, x, y, size, color):
     crayon_poly(img, ellipse_points(x, y, size * 0.32, size * 0.24, 14), color, width=2, shadow=False)
     ink_line(img, [(x + size * 0.28, y), (x + size * 0.28, y - size)], width=2)
@@ -524,7 +569,7 @@ def music_note(img, x, y, size, color):
 
 def build_backgrounds():
     w, h = 1920, 1080
-    img = Image.new("RGBA", (w, h), SKY)
+    img = _sky_gradient(w, h, shade(SKY, -18), shade(SKY, 22))
     # Page doodles: clover flowers and dots scattered over the lemon page.
     for _ in range(26):
         x, y = rng.uniform(40, w - 40), rng.uniform(40, 560)
@@ -552,7 +597,7 @@ def build_backgrounds():
                 for wrap in (-w, 0, w):
                     if -200 < tx + wrap < w + 200:
                         tree(img, tx + wrap, ty + 30, rng.uniform(130, 170))
-        crayon_poly(img, pts + [(w + 40, h + 40), (-40, h + 40)], color, width=6, smooth=False, shadow=False)
+        crayon_poly(img, pts + [(w + 40, h + 40), (-40, h + 40)], color, width=6, smooth=False, shadow=True)
         ink_line(img, [(x, y + 14) for x, y in pts], width=4, color=shade(color, 40))
         ink_line(img, pts, width=6)
     paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_thistledown.png"))
