@@ -59,7 +59,7 @@ tools/         Asset generators (Python) and Godot helper scripts
 
 | Command | What it does |
 | --- | --- |
-| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` to rebuild only the Chapter 2 art and the tile atlas, or `characters` to rebuild only the cast (`tools/art/character_art.py`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
+| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` to rebuild only the Chapter 2 art and the tile atlas, or `characters` to rebuild only the cast (`tools/art/character_art.py`, papercraft style from `docs/art/patch_turnaround.png`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
 | `python3 tools/art/generate_materials.py` | Regenerates the wood, paper and cardboard textures used by the 3D desk. |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). |
 | `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapter 1 automatically and checks that it works. CI runs this. |

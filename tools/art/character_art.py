@@ -1,10 +1,11 @@
-"""Detailed character art: Patch and the cast, drawn at twice the old size.
+"""Character art: Patch and the cast, in the papercraft style of Patch's
+turnaround sheet (docs/art/patch_turnaround.png).
 
-Each character is built from layered, softly shaded shapes (fur, cloth, shell)
-with fur and fabric texture strokes, real eyes with irises and highlights, and
-recognisable anatomy, so it is clear what each one is at a glance. The scenes
-show these textures at half scale, so they stay the same size on screen but
-look much sharper.
+Every character is cut and folded from paper: shapes are edged in a deep shade
+of their own colour and broken into flat facets that catch the light, with
+running stitches on mended seams and sewn-on button eyes. (The Soggies are the
+exception: their buttons washed away, so they glare.) Textures are drawn at
+twice the size the scenes show them, so they stay sharp.
 
 Run through generate_art.py (it calls build()).
 """
@@ -28,21 +29,10 @@ from generate_art import (
     shade,
 )
 
-FOX = (230, 116, 46, 255)
-FOX_DARK = (176, 74, 30, 255)
-FUR_WHITE = (252, 244, 228, 255)
-SOCK = (58, 40, 38, 255)
-AMBER = (246, 176, 40, 255)
-CORD = (150, 102, 68, 255)
-WAISTCOAT = (214, 166, 58, 255)
-SHIRT = (238, 234, 216, 255)
-SCARF = (214, 62, 66, 255)
-PATCH_CLOTH = (78, 150, 140, 255)
 WOOL = (246, 240, 226, 255)
 DAMP_WOOL = (196, 212, 230, 255)
 SHEEP_FACE = (64, 52, 50, 255)
 SHELL_TOP = (206, 142, 80, 255)
-TURTLE = (120, 170, 120, 255)
 NAVY = (52, 64, 110, 255)
 BRASS = (236, 186, 70, 255)
 SOGG_PAPER = (196, 210, 230, 255)
@@ -71,9 +61,94 @@ def organic(points, radius=16.0, steps=8):
     return result
 
 
-def part(img, points, color, width=6, radius=16.0, shadow=True):
-    """One body part or piece of clothing: a rounded, outlined, shaded shape."""
-    crayon_poly(img, organic(points, radius), color, width=width, smooth=False, shadow=shadow)
+def edge_color(color):
+    """Shapes are edged in a deep shade of their own colour, part-way to ink."""
+    dark = shade(color, -110)
+    return tuple(int(a * 0.55 + b * 0.45) for a, b in zip(dark[:3], INK[:3])) + (255,)
+
+
+def part(img, points, color, width=6, radius=16.0, shadow=True, seed=None):
+    """One body part, cut from paper: a rounded shape with a slightly torn edge, edged
+    in a darker shade of its colour and folded into flat facets that catch the light."""
+    pts = organic(points, radius)
+    r = random.Random(seed if seed is not None else int(sum(p[0] * 3.1 + p[1] for p in points[:4])))
+    pts = [(x + r.uniform(-0.9, 0.9), y + r.uniform(-0.9, 0.9)) for x, y in pts]
+    ss = _supersample(img)
+    w, h = img.size
+    hp = [(x * ss, y * ss) for x, y in pts]
+    layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    ow = max(2.0, width * 0.75) * ss
+    edge = edge_color(color)
+    d.line(hp + [hp[0], hp[1]], fill=edge, width=int(ow * 2), joint="curve")
+    for x, y in hp[:: max(1, len(hp) // 24)]:
+        d.ellipse([x - ow, y - ow, x + ow, y + ow], fill=edge)
+    mask = Image.new("L", layer.size, 0)
+    ImageDraw.Draw(mask).polygon(hp, fill=255)
+    layer.paste(color[:3] + (255,), (0, 0), mask)
+    img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
+    if shadow:
+        facets(img, mask.resize((w, h), Image.LANCZOS), r.random())
+
+
+def facets(img, mask, seed, cell=None):
+    """Folds the paper inside `mask` into flat, randomly angled facets: each catches the
+    top-left light a little differently, with faint creases where facets meet."""
+    box = mask.getbbox()
+    if box is None:
+        return
+    x0, y0, x1, y1 = box
+    bw, bh = x1 - x0, y1 - y0
+    if cell is None:
+        cell = min(40.0, max(11.0, min(bw, bh) / 2.3))
+    gen = np.random.default_rng(int(seed * 1e6))
+    gx = np.arange(x0 - cell, x1 + cell, cell)
+    gy = np.arange(y0 - cell, y1 + cell, cell)
+    px, py = np.meshgrid(gx, gy)
+    pts = np.stack([px.ravel(), py.ravel()], -1) + gen.uniform(-cell * 0.45, cell * 0.45, (px.size, 2))
+    yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float32)
+    d = (xx[..., None] - pts[None, None, :, 0]) ** 2 + (yy[..., None] - pts[None, None, :, 1]) ** 2
+    order = np.argsort(d, axis=-1)[..., :2]
+    nearest = order[..., 0]
+    d1 = np.sqrt(np.take_along_axis(d, order[..., :1], -1)[..., 0])
+    d2 = np.sqrt(np.take_along_axis(d, order[..., 1:2], -1)[..., 0])
+    # Each facet tilts at random; light comes from the top left.
+    tilt = gen.uniform(-1.0, 1.0, (len(pts), 2))
+    lightness = 0.93 + 0.09 * (-0.55 * tilt[:, 0] - 0.85 * tilt[:, 1]) + gen.uniform(-0.03, 0.03, len(pts))
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    lightness -= 0.07 * ((pts[:, 1] - cy) / max(1.0, bh)) + 0.03 * ((pts[:, 0] - cx) / max(1.0, bw))
+    factor = lightness[nearest]
+    gap = d2 - d1
+    factor = np.where(gap < 1.0, factor * 0.93, np.where(gap < 2.0, factor * 1.015, factor))
+    fibre = gen.normal(0.0, 0.022, factor.shape)
+    region = np.asarray(img.crop(box)).astype(np.float32)
+    m = np.asarray(mask.crop(box)).astype(np.float32) / 255.0
+    shaded = region[..., :3] * (factor + fibre)[..., None]
+    region[..., :3] = region[..., :3] * (1 - m[..., None]) + shaded * m[..., None]
+    img.paste(Image.fromarray(np.clip(region, 0, 255).astype(np.uint8)), box)
+
+
+def stitches(img, points, color=(242, 226, 190, 255), step=9.0, size=3.0):
+    """A line of short running stitches along a path, like a mended seam."""
+    for (ax, ay), (bx, by) in zip(points, points[1:]):
+        length = math.dist((ax, ay), (bx, by))
+        n = max(1, int(length / step))
+        for i in range(n):
+            t = (i + 0.5) / n
+            x, y = ax + (bx - ax) * t, ay + (by - ay) * t
+            nx, ny = -(by - ay) / max(1e-6, length), (bx - ax) / max(1e-6, length)
+            ink_line(img, [(x - nx * size, y - ny * size), (x + nx * size, y + ny * size)], width=1.5, wobble=0, color=color)
+
+
+def button(img, cx, cy, r, color=(36, 52, 132, 255), thread=(238, 196, 110, 255)):
+    """A sewn-on button eye: a domed button with a rim and an X of thread."""
+    crayon_poly(img, ellipse_points(cx, cy, r, r, 32), color, width=max(1.5, r * 0.12), smooth=False, shadow=True)
+    crayon_poly(img, ellipse_points(cx, cy, r * 0.72, r * 0.72, 28), shade(color, 18), outline=False, shadow=False)
+    ink_line(img, [(cx - r * 0.72, cy), (cx + r * 0.72, cy)], width=0.1, wobble=0, color=shade(color, 18))
+    k = r * 0.32
+    for sx in (-1, 1):
+        ink_line(img, [(cx - k, cy - k * sx), (cx + k, cy + k * sx)], width=max(1.4, r * 0.16), wobble=0, color=thread)
+    crayon_poly(img, ellipse_points(cx - r * 0.42, cy - r * 0.48, r * 0.2, r * 0.13, 12), (255, 255, 255, 200), outline=False, shadow=False)
 
 
 def texture(img, points, strokes, radius=16.0):
@@ -122,45 +197,18 @@ def ridges(img, points, color, x0, x1, step, angle=1.57, radius=16.0, dark=-40):
     texture(img, points, strokes, radius)
 
 
-def real_eye(img, cx, cy, rx, ry, iris, look=(1.0, 0.0), lid=0.0, width=3, bar=False):
-    """An almond eye with white, coloured iris, pupil and highlight. `lid` droops the top."""
+def real_eye(img, cx, cy, rx, ry, iris, look=(1.0, 0.0), width=3):
+    """An almond eye with white, coloured iris, pupil and highlight (for the Soggies,
+    whose button eyes were washed away)."""
     almond = [(cx - rx, cy, 0), (cx - rx * 0.3, cy - ry), (cx + rx * 0.6, cy - ry * 0.9), (cx + rx, cy, 0),
               (cx + rx * 0.4, cy + ry * 0.85), (cx - rx * 0.4, cy + ry * 0.8)]
-    part(img, almond, FUR_WHITE, width=width, radius=rx * 0.5, shadow=False)
+    part(img, almond, (252, 244, 228, 255), width=width, radius=rx * 0.5, shadow=False)
     ir = ry * 0.92
     ix, iy = cx + look[0] * rx * 0.28, cy + look[1] * ry * 0.2
     crayon_poly(img, ellipse_points(ix, iy, ir, ir, 20), iris, outline=False, shadow=False)
-    if bar:
-        # Sheep and goats have a wide, flat pupil.
-        crayon_poly(img, ellipse_points(ix, iy, ir * 0.72, ir * 0.26, 16), INK, outline=False, shadow=False)
-    else:
-        crayon_poly(img, ellipse_points(ix, iy, ir * 0.5, ir * 0.62, 16), INK, outline=False, shadow=False)
+    crayon_poly(img, ellipse_points(ix, iy, ir * 0.5, ir * 0.62, 16), INK, outline=False, shadow=False)
     crayon_poly(img, ellipse_points(ix - ir * 0.38, iy - ir * 0.38, ir * 0.3, ir * 0.3, 12), (255, 255, 255, 255), outline=False, shadow=False)
-    if lid > 0:
-        # A heavy eyelid shape drawn over the top of the eye.
-        lid_y = cy - ry + ry * 2 * lid
-        crayon_poly(img, organic([(cx - rx - 2, cy + 1, 0), (cx - rx * 0.3, cy - ry - 3), (cx + rx * 0.6, cy - ry - 3),
-                                  (cx + rx + 2, cy + 1, 0), (cx + rx * 0.5, lid_y), (cx - rx * 0.5, lid_y)], 5),
-                    lid_color(iris), width=width, smooth=False, shadow=False)
     ink_line(img, [(cx - rx - 1, cy + 1), (cx - rx * 0.3, cy - ry - 1), (cx + rx * 0.6, cy - ry * 0.9 - 1), (cx + rx + 1, cy)], width=width * 0.8, wobble=0)
-
-
-_LID = {}
-
-
-def lid_color(iris):
-    return _LID.get(iris[:3], shade(FOX, -10))
-
-
-def paw(img, x, y, size, facing=1.0, color=SOCK):
-    """A dark fox paw: a rounded mitten with two little toe creases."""
-    s = size
-    pts = [(x - s * 0.5 * facing, y - s * 0.55), (x + s * 0.55 * facing, y - s * 0.5), (x + s * 0.7 * facing, y + s * 0.1),
-           (x + s * 0.2 * facing, y + s * 0.6), (x - s * 0.55 * facing, y + s * 0.45)]
-    part(img, pts, color, width=4, radius=s * 0.35)
-    for k in (0.0, 0.3):
-        ink_line(img, [(x + (k + 0.1) * s * facing, y + s * 0.15), (x + (k + 0.25) * s * facing, y + s * 0.45)], width=1.6, wobble=0,
-                 color=shade(color, 45))
 
 
 # --------------------------------------------------------------------------- Patch
@@ -181,19 +229,24 @@ def _rot(points, pivot, angle):
 # (negative swings forward), plus how far the body drops so the feet stay planted.
 PATCH_POSES = [
     (0.0, 0.0, 0.0, 0.0, 0),        # 0 standing
-    (-0.38, 0.32, 0.34, -0.3, 5),   # 1 stride, near leg forward
-    (-0.04, 0.04, 0.02, -0.02, 0),  # 2 passing
-    (0.32, -0.38, -0.34, 0.3, 5),   # 3 stride, far leg forward
-    (-0.55, 0.25, -0.95, -0.7, 0),  # 4 jumping
+    (-0.42, 0.36, 0.42, -0.36, 4),  # 1 stride, near leg forward
+    (-0.04, 0.04, 0.03, -0.03, 0),  # 2 passing
+    (0.36, -0.42, -0.42, 0.36, 4),  # 3 stride, far leg forward
+    (-0.6, 0.3, -1.4, -1.1, 0),     # 4 jumping, arms up
 ]
-HIP_NEAR, HIP_FAR = (182, 210), (158, 210)
-SHOULDER_NEAR, SHOULDER_FAR = (196, 140), (166, 144)
+HIP_NEAR, HIP_FAR = (206, 252), (184, 252)
+SHOULDER_NEAR, SHOULDER_FAR = (208, 176), (180, 178)
+PATCH_ORANGE = (238, 120, 40, 255)
+PATCH_CREAM = (246, 222, 190, 255)
+BANDANA = (214, 44, 64, 255)
+TORN = (250, 244, 232, 255)
 
 
 def build_patch():
-    """Patch: a paper fox who walks on two legs, in a patched waistcoat, rolled
-    shirt sleeves, a red neckerchief and corduroy trousers. Side view facing right.
-    His tail was torn off in the flood, leaving a ragged paper stump.
+    """Patch, from his turnaround sheet (docs/art/patch_turnaround.png): a paper fox
+    folded from orange paper, big head and ears, stitched-on navy button eyes, a red
+    bandana, mitten paws, and a torn stump where his tail used to be. Side view
+    facing right.
 
     Saved as a strip of five frames (see PATCH_POSES) for a simple walk cycle."""
     size = 320
@@ -201,114 +254,77 @@ def build_patch():
     for i, pose in enumerate(PATCH_POSES):
         frame = _draw_patch(pose)
         strip.alpha_composite(frame, (i * size, pose[4]))
-    paper_grain(strip, 6).save(out("characters", "patch.png"))
+    paper_grain(strip, 5).save(out("characters", "patch.png"))
 
 
 def _draw_patch(pose):
     near_leg_a, far_leg_a, near_arm_a, far_arm_a, _ = pose
     img = Image.new("RGBA", (320, 320), (0, 0, 0, 0))
-    _LID[AMBER[:3]] = FOX
+    o = PATCH_ORANGE
+    back = shade(o, -26)
 
-    # Torn tail stump, poking out behind the waistcoat.
-    stump = [(150, 190), (120, 178), (96, 182), (78, 176, 0), (84, 188), (70, 194, 0), (84, 200), (74, 210, 0),
-             (92, 210), (88, 222, 0), (110, 216), (146, 214)]
-    part(img, stump, FOX, width=6, radius=10)
-    fur(img, stump, FOX, 40, 12, math.pi + 0.15, 11, radius=10)
-    # The torn edge shows the paper underneath.
-    ink_line(img, [(86, 186), (80, 194), (88, 202), (82, 210), (94, 214)], width=3, wobble=0, color=FUR_WHITE)
-
-    # Far leg and far foot.
+    # Far leg and foot.
     L = lambda pts: _rot(pts, HIP_FAR, far_leg_a)
-    far_leg = L([(140, 206), (176, 206), (168, 252), (160, 280), (136, 280), (138, 246)])
-    part(img, far_leg, shade(CORD, -22), width=6, radius=10)
-    ridges(img, far_leg, shade(CORD, -22), 100, 210, 6, angle=1.45, radius=10)
-    part(img, L([(132, 278), (166, 276), (190, 284), (192, 296), (130, 297)]), shade(SOCK, -10), width=5, radius=8)
-
+    part(img, L([(170, 244), (200, 244), (198, 284), (204, 298, 0), (166, 298, 0), (168, 280)]), back, width=5, radius=8, seed=1)
     # Far arm.
     A = lambda pts: _rot(pts, SHOULDER_FAR, far_arm_a)
-    far_arm = A([(158, 140), (178, 146), (172, 186), (158, 214), (142, 208), (150, 176)])
-    part(img, far_arm, shade(SHIRT, -40), width=5, radius=12)
-    px, py = A([(150, 216)])[0]
-    paw(img, px, py, 20, facing=1.0, color=shade(SOCK, -8))
+    part(img, A([(172, 172), (192, 170), (194, 214), (188, 232), (170, 232), (166, 210)]), back, width=5, radius=10, seed=2)
 
-    # Near leg: corduroy trousers with a rolled cuff, and a dark-socked foot.
+    # Torn tail stump with white paper fibres where it ripped.
+    stump = [(178, 226), (150, 214), (130, 218), (122, 228, 0), (128, 236), (120, 244, 0), (132, 250), (150, 252), (180, 250)]
+    part(img, stump, o, width=5, radius=8, seed=3)
+    tear = [(134, 216), (124, 226), (130, 233), (121, 243), (133, 251), (139, 244), (134, 236), (140, 228)]
+    crayon_poly(img, tear, TORN, width=1.5, smooth=False, shadow=False)
+    for fy in (222, 231, 240, 248):
+        ink_line(img, [(126, fy), (118, fy + 2)], width=1.2, wobble=0, color=TORN)
+
+    # Body: a stubby folded-paper torso.
+    body = [(172, 164), (230, 160), (240, 206), (236, 256), (176, 258), (166, 208)]
+    part(img, body, o, width=6, radius=14, seed=4)
+    stitches(img, [(224, 174), (232, 210), (230, 248)])
+    stitches(img, [(178, 236), (200, 240)], step=8)
+
+    # Near leg and foot, chunky and folded.
     L = lambda pts: _rot(pts, HIP_NEAR, near_leg_a)
-    near_leg = L([(160, 204), (204, 204), (202, 244), (196, 274), (166, 274), (164, 240)])
-    part(img, near_leg, CORD, width=6, radius=10)
-    ridges(img, near_leg, CORD, 130, 240, 6, angle=1.5, radius=10)
-    part(img, L([(162, 266), (200, 266), (202, 280), (160, 280)]), shade(CORD, 22), width=5, radius=5)
-    part(img, L([(160, 280), (198, 278), (228, 286), (232, 298), (158, 299)]), SOCK, width=5, radius=9)
-    for tx in (208, 218):
-        ink_line(img, L([(tx, 289), (tx + 3, 298)]), width=1.6, wobble=0, color=shade(SOCK, 45))
+    part(img, L([(192, 244), (226, 244), (228, 282), (244, 288), (246, 299, 0), (190, 299, 0), (192, 280)]), o, width=6, radius=8, seed=5)
+    ink_line(img, L([(194, 284), (226, 284)]), width=1.4, wobble=0, color=shade(o, -60))
 
-    # Shirt (seen at the collar and below the waistcoat) and the waistcoat itself.
-    shirt = [(152, 128), (204, 122), (220, 160), (214, 212), (150, 214), (146, 166)]
-    part(img, shirt, SHIRT, width=6, radius=18)
-    waistcoat = [(150, 134), (186, 128), (206, 170, 0), (216, 212), (200, 224, 0), (180, 214), (150, 216), (144, 172)]
-    part(img, waistcoat, WAISTCOAT, width=6, radius=12)
-    ridges(img, waistcoat, WAISTCOAT, 120, 230, 9, angle=0.9, radius=12, dark=-26)
-    # Lapel edge and buttons down the front.
-    ink_line(img, [(188, 132), (204, 170), (212, 210)], width=2.6, wobble=0, color=shade(WAISTCOAT, -70))
-    for by in (166, 184, 202):
-        crayon_poly(img, ellipse_points(201 + (by - 166) * 0.2, by, 4.5, 4.5, 14), shade(CARDBOARD, -60), width=2, smooth=False, shadow=False)
-    # A plaid patch sewn on with big stitches: Patch's own repairs.
-    cloth = [(152, 170), (178, 166), (180, 194), (154, 198)]
-    part(img, cloth, PATCH_CLOTH, width=4, radius=4)
-    texture(img, cloth, [([(150, y), (184, y - 3)], shade(PATCH_CLOTH, 50)[:3] + (170,), 2) for y in range(172, 200, 8)]
-            + [([(x, 160), (x + 2, 204)], shade(PATCH_CLOTH, -40)[:3] + (170,), 2) for x in range(156, 182, 8)], radius=4)
-    for sx in range(156, 178, 7):
-        ink_line(img, [(sx, 164), (sx + 3, 170)], width=1.6, wobble=0, color=CREAM)
-        ink_line(img, [(sx, 194), (sx + 3, 200)], width=1.6, wobble=0, color=CREAM)
+    # Red bandana: a band round the neck, knot at the back, point at the front.
+    part(img, [(174, 150), (236, 146), (240, 166), (176, 170)], BANDANA, width=5, radius=6, seed=6)
+    part(img, [(208, 156), (246, 156), (230, 196, 0)], BANDANA, width=5, radius=5, seed=7)
+    part(img, [(176, 152), (150, 140, 0), (156, 160), (144, 176, 0), (178, 168)], shade(BANDANA, -16), width=4, radius=4, seed=8)
+    crayon_poly(img, ellipse_points(174, 160, 9, 8, 16), shade(BANDANA, -30), width=2, smooth=False)
 
-    # Near arm: rolled shirt sleeve to the elbow, furry forearm, dark paw.
+    # Near arm with a mitten paw.
     A = lambda pts: _rot(pts, SHOULDER_NEAR, near_arm_a)
-    part(img, A([(186, 130), (210, 136), (218, 168), (198, 176), (184, 156)]), SHIRT, width=6, radius=12)
-    part(img, A([(194, 166), (220, 160), (224, 174), (198, 182)]), shade(SHIRT, -16), width=4, radius=6)
-    forearm = A([(198, 178), (220, 172), (232, 198), (222, 210), (208, 204)])
-    part(img, forearm, FOX, width=5, radius=10)
-    fur(img, forearm, FOX, 14, 9, 1.2 + near_arm_a, 4, radius=10)
-    px, py = A([(228, 212)])[0]
-    paw(img, px, py, 22, facing=1.0)
+    part(img, A([(198, 168), (222, 166), (230, 206), (234, 226), (218, 236), (204, 224), (200, 200)]), o, width=5, radius=10, seed=9)
+    ink_line(img, A([(220, 226), (226, 232)]), width=1.3, wobble=0, color=shade(o, -60))
 
-    # Neck and red neckerchief knotted at the side.
-    part(img, [(170, 108), (212, 104), (214, 130), (168, 134)], FUR_WHITE, width=5, radius=10)
-    part(img, [(160, 120), (218, 116), (222, 132), (190, 140), (160, 136)], SCARF, width=5, radius=8)
-    part(img, [(164, 128), (150, 152, 0), (166, 146), (174, 158, 0), (180, 134)], shade(SCARF, -20), width=4, radius=4)
-    texture(img, [(160, 120), (218, 116), (222, 132), (190, 140), (160, 136)],
-            [([(x, 114), (x - 6, 142)], CREAM[:3] + (150,), 2.2) for x in range(170, 224, 14)], radius=8)
-
-    # Head. Far ear first, behind the skull.
-    far_ear = [(166, 72), (170, 6, 0), (200, 52)]
-    part(img, far_ear, FOX_DARK, width=6, radius=6)
-    part(img, [(168, 32), (170, 6, 0), (179, 26)], SOCK, width=3, radius=3, shadow=False)
-    skull = [(168, 78), (184, 50), (220, 46), (246, 64), (286, 92, 0), (282, 104), (256, 116), (222, 126), (186, 120), (168, 100)]
-    part(img, skull, FOX, width=7, radius=20)
-    fur(img, [(170, 50), (240, 46), (250, 80), (176, 96)], FOX, 46, 11, math.pi + 0.35, 21, radius=20)
-    # White muzzle and cheek ruff with pointed tufts that sweep back.
-    ruff = [(220, 92), (252, 94), (282, 102), (270, 112), (246, 120), (224, 126), (200, 128, 0), (210, 118), (186, 120, 0),
-            (204, 108), (192, 102, 0)]
-    part(img, ruff, FUR_WHITE, width=5, radius=6)
-    fur(img, ruff, FUR_WHITE, 18, 8, math.pi - 0.1, 6, radius=6)
-    # Nose, mouth and whisker dots.
-    part(img, [(276, 88), (292, 90), (294, 100), (282, 104), (274, 98)], SOCK, width=3, radius=5, shadow=False)
-    crayon_poly(img, ellipse_points(284, 92, 3.0, 2.0, 10), (150, 130, 130, 255), outline=False, shadow=False)
-    ink_line(img, [(280, 108), (266, 112), (254, 110)], width=2.4, wobble=0)
-    for wx, wy in ((256, 100), (262, 103), (250, 104)):
-        crayon_poly(img, ellipse_points(wx, wy, 1.6, 1.6, 8), shade(FOX, -90), outline=False, shadow=False)
-    # Near ear, tall and alert, with a cream inner ear and black tip.
-    near_ear = [(190, 60), (210, 0, 0), (232, 54)]
-    part(img, near_ear, FOX, width=6, radius=6)
-    part(img, [(198, 56), (210, 16), (222, 54)], (250, 214, 190, 255), width=3, radius=6)
-    fur(img, [(198, 56), (210, 16), (222, 54)], FUR_WHITE, 10, 10, -1.6, 9, radius=6, spread=0.2)
-    part(img, [(203, 22), (210, 0, 0), (218, 20)], SOCK, width=3, radius=3, shadow=False)
-    # Amber eye with a bright highlight, and a confident brow.
-    real_eye(img, 238, 74, 13, 9, AMBER, look=(1.0, -0.1))
-    ink_line(img, [(226, 58), (238, 55), (252, 61)], width=2.6, wobble=0)
-    # A small stitched mend over the brow: he is a paper fox after all.
-    for sx in (184, 191, 198):
-        ink_line(img, [(sx, 68), (sx + 3, 76)], width=1.4, wobble=0, color=CREAM)
-
+    # Head: big and angular, with a pointed snout.
+    far_ear = [(150, 66), (160, 4, 0), (196, 50)]
+    part(img, far_ear, back, width=6, radius=5, seed=10)
+    head = [(132, 96), (142, 56), (174, 34), (220, 34), (252, 54), (270, 82), (300, 106, 0), (282, 122), (250, 140),
+            (210, 152), (164, 150), (138, 128)]
+    part(img, head, o, width=7, radius=14, seed=11)
+    # Cream muzzle under the snout.
+    part(img, [(244, 112), (296, 108, 0), (282, 122), (252, 138), (236, 130)], PATCH_CREAM, width=4, radius=8, seed=12)
+    # Open, grinning mouth with a little fang.
+    part(img, [(262, 118), (288, 116), (276, 132), (256, 136), (250, 126)], (110, 24, 36, 255), width=3.5, radius=6, shadow=False, seed=13)
+    crayon_poly(img, organic([(258, 128), (272, 130), (264, 136)], 3), (236, 110, 120, 255), outline=False, shadow=False)
+    crayon_poly(img, [(279, 117), (285, 117), (282, 126)], (255, 255, 255, 255), width=1.2, smooth=False, shadow=False)
+    # Nose.
+    part(img, [(290, 98), (304, 104, 0), (296, 112)], (30, 24, 30, 255), width=2.5, radius=4, shadow=False, seed=14)
+    # Near ear with a cream inside.
+    near_ear = [(176, 52), (204, 0, 0), (230, 44)]
+    part(img, near_ear, o, width=6, radius=5, seed=15)
+    part(img, [(188, 48), (204, 14, 0), (220, 44)], PATCH_CREAM, width=3, radius=5, seed=16)
+    # Stitched seam over the top of the head, and the button eye.
+    stitches(img, [(150, 92), (168, 60), (200, 46)], step=10)
+    button(img, 238, 84, 19)
     return img
+
+
+# --------------------------------------------------------------------- the flock
 
 
 def cloud(cx, cy, rx, ry, bumps, depth, phase=0.0):
@@ -388,10 +404,9 @@ def build_lost_sheep():
     part(img, [(186, 104), (178, 116, 0), (160, 124), (166, 112)], shade(face, 10), width=4, radius=6)
     head = [(198, 82), (230, 80), (262, 98), (272, 120), (262, 138), (238, 142), (208, 128), (196, 108)]
     part(img, head, face, width=6, radius=18)
-    fur(img, head, face, 18, 8, 0.25, 31, radius=18)
     part(img, [(224, 104), (246, 96), (240, 112, 0), (230, 116)], shade(face, 18), width=4, radius=5)
     wool(img, cloud(212, 82, 22, 15, 5, 4), DAMP_WOOL, 12, 3, size=5)
-    real_eye(img, 236, 104, 9, 6, (210, 180, 90, 255), bar=True, width=2.4)
+    button(img, 236, 102, 9, color=(214, 168, 72, 255), thread=(80, 50, 30, 255))
     ink_line(img, [(262, 112), (266, 118)], width=2, wobble=0, color=shade(face, 60))
     ink_line(img, [(266, 128), (256, 132), (248, 130)], width=2, wobble=0, color=shade(face, 60))
     paper_grain(img, 6).save(out("characters", "lost_sheep.png"))
@@ -427,11 +442,9 @@ def build_shepherd_fluff():
     part(img, [(112, 76), (100, 92, 0), (82, 98), (92, 84)], shade(face, 10), width=4, radius=6)
     head = [(110, 56), (142, 50), (176, 68), (190, 92), (180, 112), (154, 116), (124, 104), (110, 82)]
     part(img, head, face, width=6, radius=18)
-    fur(img, head, face, 16, 8, 0.25, 41, radius=18)
     part(img, [(144, 80), (164, 72), (160, 88, 0), (150, 92)], shade(face, 18), width=4, radius=5)
     wool(img, cloud(122, 54, 26, 18, 6, 5), WOOL, 16, 6, size=5)
-    _LID[(196, 160, 80)] = shade(face, 14)
-    real_eye(img, 154, 76, 9, 5, (196, 160, 80, 255), bar=True, width=2.4, lid=0.45)
+    button(img, 154, 76, 9, color=(214, 168, 72, 255), thread=(80, 50, 30, 255))
     for gx in (154,):
         ink_line(img, [(gx - 13, 76), (gx - 22, 72)], width=1.8, wobble=0, color=(220, 200, 150, 255))
     d = ImageDraw.Draw(img)
@@ -459,7 +472,7 @@ def build_dot():
     crayon_poly(img, ellipse_points(52, 46, 14, 8, 20), (130, 126, 170, 255), outline=False, shadow=False)
     crayon_poly(img, ellipse_points(46, 44, 5, 3, 12), (230, 230, 250, 255), outline=False, shadow=False)
     for ex in (60, 90):
-        real_eye(img, ex, 70, 12, 11, (120, 90, 60, 255), look=(0.6, 0.1), width=2)
+        button(img, ex, 70, 12, color=(244, 238, 222, 255), thread=(60, 50, 70, 255))
     ink_line(img, [(64, 96), (76, 101), (88, 96)], width=2.2, wobble=0, color=(200, 196, 220, 255))
     paper_grain(img, 6).save(out("characters", "dot.png"))
 
@@ -538,7 +551,6 @@ def build_corrugate():
     w, h = 280, 320
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     skin = (132, 160, 104, 255)
-    _LID[(150, 110, 60)] = shade(skin, -10)
     # Far leg.
     leg = lambda x, c: part(img, [(x - 20, 252), (x + 20, 252), (x + 24, 300), (x + 28, 312), (x - 24, 312), (x - 20, 296)], c, width=5, radius=8)
     leg(150, shade(skin, -24))
@@ -582,9 +594,8 @@ def build_corrugate():
     part(img, head, skin, width=6, radius=18)
     scales(img, head, skin, 4, size=8)
     part(img, [(250, 58), (272, 60), (266, 78, 0), (248, 74)], (226, 210, 160, 255), width=4, radius=4)
-    real_eye(img, 236, 52, 9, 6, (150, 110, 60, 255), width=2.4, lid=0.4)
+    button(img, 236, 52, 9, color=(120, 76, 44, 255))
     part(img, [(196, 70), (226, 76), (230, 96, 0), (214, 90), (206, 104, 0), (196, 88)], (246, 244, 236, 255), width=4, radius=6)
-    fur(img, [(196, 70), (226, 76), (230, 96), (206, 104), (196, 88)], (246, 244, 236, 255), 12, 8, 1.8, 7, radius=6)
     # Bottle-cap captain's hat with a crimped rim and a stiff peak.
     cap = []
     for i in range(29):
@@ -604,7 +615,6 @@ def build_crumple():
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     paper = LILAC_PAPER
     dark = shade(paper, -34)
-    _LID[(120, 200, 110)] = shade(paper, -8)
     # Tail curling round the front.
     tail = [(60, 214), (30, 200), (24, 170), (40, 150, 0), (44, 176), (58, 196), (150, 210), (172, 222, 0), (150, 232), (70, 232)]
     part(img, tail, dark, width=5, radius=10)
@@ -630,8 +640,11 @@ def build_crumple():
     part(img, [(198, 82), (226, 80), (222, 104), (200, 104)], (246, 244, 250, 255), width=4, radius=8)
     crayon_poly(img, [(218, 82), (228, 84), (222, 92)], (230, 120, 150, 255), width=2, smooth=False, shadow=False)
     ink_line(img, [(222, 94), (220, 100), (212, 102)], width=1.8, wobble=0)
-    real_eye(img, 196, 68, 11, 8, (120, 200, 110, 255), width=2.4, lid=0.55)
-    real_eye(img, 162, 66, 9, 7, (120, 200, 110, 255), width=2.4, lid=0.55, look=(0.6, 0))
+    button(img, 196, 68, 11, color=(84, 160, 92, 255))
+    button(img, 164, 66, 9, color=(70, 140, 80, 255))
+    # Half-shut, unimpressed lids folded over the buttons.
+    for ex, er in ((196, 11), (164, 9)):
+        part(img, [(ex - er - 2, 68 - er - 2), (ex + er + 2, 68 - er - 2), (ex + er + 2, 66), (ex - er - 2, 66)], paper, width=3, radius=3, seed=ex)
     for wy, dy in ((92, -4), (98, 2), (104, 8)):
         ink_line(img, [(214, wy), (238, wy + dy)], width=1.2, wobble=0, color=(250, 248, 250, 255))
     paper_grain(img, 6).save(out("characters", "crumple.png"))
@@ -665,9 +678,8 @@ def _doll(img, cx, base, dress, hair, style, skin, seed):
         part(img, [(cx - 44, base - 176), (cx - 42, base - 232), (cx, base - 250), (cx + 42, base - 232), (cx + 44, base - 176), (cx + 30, base - 182), (cx + 28, base - 218), (cx - 6, base - 222, 0), (cx - 28, base - 214), (cx - 30, base - 182)], hair, width=5, radius=12)
     else:
         part(img, [(cx - 40, base - 200), (cx - 34, base - 238), (cx, base - 250), (cx + 34, base - 238), (cx + 40, base - 200), (cx + 20, base - 226), (cx - 20, base - 226)], hair, width=5, radius=14)
-    fur(img, [(cx - 40, base - 250), (cx + 40, base - 250), (cx + 40, base - 200), (cx - 40, base - 200)], hair, 14, 14, 1.2, seed + 1, radius=1)
     for ex in (cx - 15, cx + 15):
-        real_eye(img, ex, base - 200, 9, 8, (90, 140, 200, 255), look=(0, 0.1), width=2.4)
+        button(img, ex, base - 200, 9, color=(52, 70, 140, 255))
     for chx in (cx - 22, cx + 22):
         crayon_poly(img, ellipse_points(chx, base - 184, 7, 4.5, 14), (246, 150, 150, 200), outline=False, shadow=False)
     ink_line(img, [(cx - 3, base - 192), (cx, base - 186)], width=1.6, wobble=0, color=shade(skin, -60))
