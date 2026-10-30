@@ -138,11 +138,17 @@ def _shifted(mask, dx, dy):
     return moved
 
 
-def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1.0, smooth=None, shadow=None):
-    """Draws a flat-colored shape with a thick dark outline and soft cartoon shading.
+def edge_color(color):
+    """Paper shapes are edged in a deep shade of their own colour, part-way to ink."""
+    dark = shade(color, -110)
+    return tuple(int(a * 0.55 + b * 0.45) for a, b in zip(dark[:3], INK[:3])) + (255,)
 
-    Shapes with an outline get rounded corners, a darker band along their underside
-    and a light rim at the top-left, like cel-shaded storybook art.
+
+def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1.0, smooth=None, shadow=None):
+    """Draws a shape cut from coloured paper, in the style of Patch's turnaround sheet.
+
+    Outlined shapes get rounded corners and a cut edge in a deep shade of their own
+    colour, and are folded into flat facets that catch the top-left light.
     """
     ss = _supersample(img)
     w, h = img.size
@@ -155,55 +161,65 @@ def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1
     layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     if outline:
-        ow = max(3.0, width * 1.3) * ss
-        d.line(hp + [hp[0], hp[1]], fill=INK, width=int(ow * 2), joint="curve")
+        ow = max(2.0, width * 0.9) * ss
+        edge = edge_color(color)
+        d.line(hp + [hp[0], hp[1]], fill=edge, width=int(ow * 2), joint="curve")
         for x, y in hp[:: max(1, len(hp) // 24)]:
-            d.ellipse([x - ow, y - ow, x + ow, y + ow], fill=INK)
+            d.ellipse([x - ow, y - ow, x + ow, y + ow], fill=edge)
     mask = Image.new("L", layer.size, 0)
     ImageDraw.Draw(mask).polygon(hp, fill=255)
     layer.paste(color[:3] + (255,), (0, 0), mask)
-    if shadow:
-        _volume_shade(layer, mask, color)
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
+    if shadow:
+        seed = (sum(int(x * 7 + y * 13) for x, y in pts[:6]) % 100000) / 100000.0
+        facets(img, mask.resize((w, h), Image.LANCZOS), seed)
 
 
-LIGHT = np.array([-0.45, -0.62, 0.64])
-LIGHT = LIGHT / np.linalg.norm(LIGHT)
-
-
-def _volume_shade(layer, mask, color):
-    """Shades a filled shape as a soft, rounded form lit from the top-left.
-
-    The shape's mask is blurred into a height field; its slope gives a surface
-    normal, and simple lighting turns that into gentle gradients, a darker
-    underside and a small glossy highlight, with a little paper grain on top.
-    """
-    box = mask.getbbox()
+def facets(img, mask, seed, cell=None, wrap=False, strength=1.0):
+    """Folds the paper inside `mask` into flat facets (a jittered-grid Voronoi pattern):
+    each facet tilts at random and catches the top-left light a little differently,
+    with faint creases where facets meet. With `wrap`, the pattern tiles seamlessly
+    (the image size must be a multiple of `cell`)."""
+    box = (0, 0) + img.size if wrap else mask.getbbox()
     if box is None:
         return
-    pad = 4
-    x0, y0 = max(0, box[0] - pad), max(0, box[1] - pad)
-    x1, y1 = min(mask.size[0], box[2] + pad), min(mask.size[1], box[3] + pad)
-    m = mask.crop((x0, y0, x1, y1))
-    size = min(x1 - x0, y1 - y0)
-    radius = max(2.0, size * 0.2)
-    height = np.asarray(m.filter(ImageFilter.GaussianBlur(radius))).astype(np.float32)
-    height = np.minimum(height, np.asarray(m).astype(np.float32))
-    gy, gx = np.gradient(height)
-    k = radius * 2.0 / 255.0
-    nx, ny, nz = -gx * k, -gy * k, np.ones_like(height)
-    length = np.sqrt(nx * nx + ny * ny + nz * nz)
-    lambert = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / length
-    shade_map = 0.62 + 0.5 * lambert
-    # Glossy highlight where the surface faces the light most directly.
-    spec = np.clip((lambert - 0.93) / 0.07, 0.0, 1.0) ** 2 * 0.35
-    grain = np.random.default_rng(int(size) + x0 * 7 + y0).normal(0.0, 0.025, height.shape)
-    base = np.array(color[:3], np.float32)
-    rgb = base[None, None, :] * (shade_map + grain)[..., None] + 255.0 * spec[..., None]
-    region = np.asarray(layer.crop((x0, y0, x1, y1))).copy()
-    inside = np.asarray(m) > 0
-    region[inside, :3] = np.clip(rgb[inside], 0, 255).astype(np.uint8)
-    layer.paste(Image.fromarray(region), (x0, y0))
+    x0, y0, x1, y1 = box
+    bw, bh = x1 - x0, y1 - y0
+    if cell is None:
+        cell = min(44.0, max(11.0, min(bw, bh) / 2.3))
+    gen = np.random.default_rng(int(seed * 1e6) + 1)
+    nx, ny = int(math.ceil(bw / cell)) + 2, int(math.ceil(bh / cell)) + 2
+    jitter = gen.uniform(-0.42, 0.42, (ny, nx, 2)) * cell
+    tilt = gen.uniform(-1.0, 1.0, (ny, nx, 2))
+    light = 0.93 + 0.08 * strength * (-0.55 * tilt[..., 0] - 0.85 * tilt[..., 1]) + gen.uniform(-0.025, 0.025, (ny, nx)) * strength
+    yy, xx = np.mgrid[0:bh, 0:bw].astype(np.float32)
+    ci, cj = np.floor(xx / cell).astype(int), np.floor(yy / cell).astype(int)
+    best = np.full((bh, bw), 1e9, np.float32)
+    second = np.full((bh, bw), 1e9, np.float32)
+    best_light = np.ones((bh, bw), np.float32)
+    for dj in (-1, 0, 1):
+        for di in (-1, 0, 1):
+            gi, gj = ci + di, cj + dj
+            if wrap:
+                ki, kj = gi % (bw // int(cell)), gj % (bh // int(cell))
+            else:
+                ki, kj = np.clip(gi + 1, 0, nx - 1), np.clip(gj + 1, 0, ny - 1)
+            px = (gi + 0.5) * cell + jitter[kj, ki, 0]
+            py = (gj + 0.5) * cell + jitter[kj, ki, 1]
+            dist = np.sqrt((xx - px) ** 2 + (yy - py) ** 2)
+            closer = dist < best
+            second = np.where(closer, best, np.minimum(second, dist))
+            best_light = np.where(closer, light[kj, ki], best_light)
+            best = np.where(closer, dist, best)
+    # Larger shapes are a little darker toward the bottom, as if lit from above.
+    best_light -= 0.05 * strength * (yy / max(1.0, bh) - 0.5)
+    gap = second - best
+    factor = np.where(gap < 1.0, best_light * (1 - 0.07 * strength), np.where(gap < 2.0, best_light * (1 + 0.015 * strength), best_light))
+    factor = factor + gen.normal(0.0, 0.018 * strength, factor.shape)
+    region = np.asarray(img.crop(box)).astype(np.float32)
+    m = np.asarray(mask.crop(box)).astype(np.float32)[..., None] / 255.0
+    region[..., :3] = region[..., :3] * (1 - m) + region[..., :3] * factor[..., None] * m
+    img.paste(Image.fromarray(np.clip(region, 0, 255).astype(np.uint8)), box[:2])
 
 
 def ink_line(img, points, width=5, wobble=1.6, closed=False, color=INK):
@@ -429,16 +445,16 @@ def blob(img, circles, color, width=6, shade_amount=-34):
     d = ImageDraw.Draw(layer)
     mask = Image.new("L", layer.size, 0)
     md = ImageDraw.Draw(mask)
-    ow = width * 1.3
+    ow = width * 0.9
     for cx, cy, r in circles:
         R = (r + ow) * ss
-        d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=INK)
+        d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=edge_color(color))
     for cx, cy, r in circles:
         R = r * ss
         md.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=255)
     layer.paste(color[:3] + (255,), (0, 0), mask)
-    _volume_shade(layer, mask, color)
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
+    facets(img, mask.resize((w, h), Image.LANCZOS), (sum(int(c[0] + c[1]) for c in circles) % 1000) / 1000.0)
 
 
 def _sky_gradient(w, h, top, bottom):

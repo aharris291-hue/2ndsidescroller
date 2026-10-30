@@ -22,7 +22,9 @@ from generate_art import (
     INK,
     _supersample,
     crayon_poly,
+    edge_color,
     ellipse_points,
+    facets,
     ink_line,
     out,
     paper_grain,
@@ -61,12 +63,6 @@ def organic(points, radius=16.0, steps=8):
     return result
 
 
-def edge_color(color):
-    """Shapes are edged in a deep shade of their own colour, part-way to ink."""
-    dark = shade(color, -110)
-    return tuple(int(a * 0.55 + b * 0.45) for a, b in zip(dark[:3], INK[:3])) + (255,)
-
-
 def part(img, points, color, width=6, radius=16.0, shadow=True, seed=None):
     """One body part, cut from paper: a rounded shape with a slightly torn edge, edged
     in a darker shade of its colour and folded into flat facets that catch the light."""
@@ -89,43 +85,6 @@ def part(img, points, color, width=6, radius=16.0, shadow=True, seed=None):
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
     if shadow:
         facets(img, mask.resize((w, h), Image.LANCZOS), r.random())
-
-
-def facets(img, mask, seed, cell=None):
-    """Folds the paper inside `mask` into flat, randomly angled facets: each catches the
-    top-left light a little differently, with faint creases where facets meet."""
-    box = mask.getbbox()
-    if box is None:
-        return
-    x0, y0, x1, y1 = box
-    bw, bh = x1 - x0, y1 - y0
-    if cell is None:
-        cell = min(40.0, max(11.0, min(bw, bh) / 2.3))
-    gen = np.random.default_rng(int(seed * 1e6))
-    gx = np.arange(x0 - cell, x1 + cell, cell)
-    gy = np.arange(y0 - cell, y1 + cell, cell)
-    px, py = np.meshgrid(gx, gy)
-    pts = np.stack([px.ravel(), py.ravel()], -1) + gen.uniform(-cell * 0.45, cell * 0.45, (px.size, 2))
-    yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float32)
-    d = (xx[..., None] - pts[None, None, :, 0]) ** 2 + (yy[..., None] - pts[None, None, :, 1]) ** 2
-    order = np.argsort(d, axis=-1)[..., :2]
-    nearest = order[..., 0]
-    d1 = np.sqrt(np.take_along_axis(d, order[..., :1], -1)[..., 0])
-    d2 = np.sqrt(np.take_along_axis(d, order[..., 1:2], -1)[..., 0])
-    # Each facet tilts at random; light comes from the top left.
-    tilt = gen.uniform(-1.0, 1.0, (len(pts), 2))
-    lightness = 0.93 + 0.09 * (-0.55 * tilt[:, 0] - 0.85 * tilt[:, 1]) + gen.uniform(-0.03, 0.03, len(pts))
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    lightness -= 0.07 * ((pts[:, 1] - cy) / max(1.0, bh)) + 0.03 * ((pts[:, 0] - cx) / max(1.0, bw))
-    factor = lightness[nearest]
-    gap = d2 - d1
-    factor = np.where(gap < 1.0, factor * 0.93, np.where(gap < 2.0, factor * 1.015, factor))
-    fibre = gen.normal(0.0, 0.022, factor.shape)
-    region = np.asarray(img.crop(box)).astype(np.float32)
-    m = np.asarray(mask.crop(box)).astype(np.float32) / 255.0
-    shaded = region[..., :3] * (factor + fibre)[..., None]
-    region[..., :3] = region[..., :3] * (1 - m[..., None]) + shaded * m[..., None]
-    img.paste(Image.fromarray(np.clip(region, 0, 255).astype(np.uint8)), box)
 
 
 def stitches(img, points, color=(242, 226, 190, 255), step=9.0, size=3.0):
