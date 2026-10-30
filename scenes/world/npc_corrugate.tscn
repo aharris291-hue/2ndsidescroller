@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/npc_corrugate.gd" id="1_cnr8k"]
+[ext_resource type="PackedScene" path="res://scenes/world/corrugate_companion.tscn" id="2_urfnu"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/corrugate.png" id="3_gn2nu"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wi7xp"]
+size = Vector2(220, 140)
+
+[node name="Corrugate" type="Area2D" unique_id=1158191393]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_cnr8k")
+idle_bob = 2.0
+companion_scene = ExtResource("2_urfnu")
+quest_id = "lost_cat"
+prompt_offset = Vector2(0, -200)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1625215635]
+position = Vector2(0, -90)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("3_gn2nu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=842831660]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_wi7xp")

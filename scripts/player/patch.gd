@@ -2,10 +2,11 @@ class_name Patch
 extends CharacterBody2D
 ## Patch the paper fox. One controller covers both page views:
 ## SIDE (a standing page: gravity, jumping, coyote time, jump buffering) and
-## TOP (a flat page or the Margin: eight-way movement). Attacks, dash, damage
-## and interaction work the same in both.
+## TOP (a flat page or the Margin: eight-way movement). Attacks, dash, Tape Tail,
+## damage and interaction work the same in both.
 
-enum State { NORMAL, DASH, ATTACK, HURT, DEAD }
+enum State { NORMAL, DASH, ATTACK, HURT, DEAD, GRAPPLE }
+enum Grapple { SHOOT, ZIP, RETRACT }
 
 @export_group("Side view")
 @export var run_speed := 430.0
@@ -33,6 +34,14 @@ enum State { NORMAL, DASH, ATTACK, HURT, DEAD }
 @export var dash_cooldown := 0.45
 @export var hurt_time := 0.28
 
+@export_group("Tape Tail")
+## How far the Tape Tail reaches to a GrapplePoint, in pixels.
+@export var grapple_range := 600.0
+@export var tape_shoot_speed := 2600.0
+@export var zip_speed := 1500.0
+## Side view: the hop Patch gets when he lets go of a ring.
+@export var zip_release_hop := -620.0
+
 var view_mode: PageView.Mode = PageView.Mode.SIDE: set = set_view_mode
 var facing := Vector2.RIGHT
 var input_enabled := true
@@ -49,6 +58,16 @@ var _dash_direction := Vector2.RIGHT
 var _was_on_floor := false
 var _last_safe_position := Vector2.ZERO
 var _anim_time := 0.0
+var _grapple_target: GrapplePoint
+var _grapple_phase := Grapple.SHOOT
+var _grapple_time := 0.0
+var _grapple_reach := 0.0
+var _grapple_start := Vector2.ZERO
+var _saved_mask := 1
+var _highlighted: GrapplePoint
+var _tape_line: Line2D
+## After letting go of a ring, Patch keeps his swing for a moment even with no input.
+var _carry_left := 0.0
 
 @onready var visual: Node2D = $Visual
 @onready var health: HealthComponent = $HealthComponent
@@ -71,6 +90,15 @@ func _ready() -> void:
 	EventBus.dialogue_finished.connect(_on_dialogue_finished)
 	EventBus.player_health_changed.emit(health.current, health.max_health)
 	_last_safe_position = global_position
+	_tape_line = Line2D.new()
+	_tape_line.top_level = true
+	_tape_line.width = 13.0
+	_tape_line.default_color = Color("f2dc96")
+	_tape_line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	_tape_line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	_tape_line.z_index = 4
+	_tape_line.visible = false
+	add_child(_tape_line)
 
 
 func set_view_mode(mode: PageView.Mode) -> void:
@@ -94,6 +122,8 @@ func _physics_process(delta: float) -> void:
 			_process_dash()
 		State.HURT:
 			_process_hurt(delta)
+		State.GRAPPLE:
+			_process_grapple(delta)
 		State.DEAD:
 			velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
 
@@ -125,8 +155,11 @@ func _process_normal(delta: float) -> void:
 		_start_attack()
 	elif _action_pressed(&"dash") and _dash_cooldown_left <= 0.0 and GameState.has_ability(&"fold_dash"):
 		_start_dash(input)
+	elif _action_pressed(&"grapple") and GameState.has_ability(&"tape_tail"):
+		try_grapple()
 	elif _action_pressed(&"interact"):
 		_try_interact()
+	_update_grapple_highlight()
 
 
 func _side_movement(input_x: float, delta: float) -> void:
@@ -136,6 +169,10 @@ func _side_movement(input_x: float, delta: float) -> void:
 	var rate := ground_acceleration if is_on_floor() else air_acceleration
 	if input_x == 0.0 and is_on_floor():
 		rate = ground_friction
+	_carry_left = 0.0 if is_on_floor() else maxf(_carry_left - delta, 0.0)
+	if _carry_left > 0.0 and (input_x == 0.0 or signf(input_x) == signf(velocity.x)):
+		# Keep the swing's speed instead of capping it to running speed.
+		rate = air_acceleration * 0.12
 	velocity.x = move_toward(velocity.x, target, rate * delta)
 	_apply_gravity(delta)
 
@@ -226,6 +263,125 @@ func _process_hurt(delta: float) -> void:
 		state = State.NORMAL
 
 
+# --- Tape Tail -------------------------------------------------------------
+
+## Fires the Tape Tail at the best GrapplePoint in reach. Returns false if none.
+func try_grapple() -> bool:
+	var target := _best_grapple_target()
+	if target == null:
+		return false
+	_grapple_target = target
+	_grapple_phase = Grapple.SHOOT
+	_grapple_time = 0.0
+	_grapple_reach = 0.0
+	_grapple_start = global_position
+	state = State.GRAPPLE
+	velocity = Vector2.ZERO
+	_tape_line.visible = true
+	AudioManager.play_sfx(&"grapple", randf_range(0.95, 1.05))
+	var dx := target.global_position.x - global_position.x
+	if view_mode == PageView.Mode.SIDE and dx != 0.0:
+		facing = Vector2(signf(dx), 0)
+	return true
+
+
+func _best_grapple_target() -> GrapplePoint:
+	var best: GrapplePoint = null
+	var best_score := INF
+	for node in get_tree().get_nodes_in_group(&"grapple_points"):
+		var point := node as GrapplePoint
+		if point == null or not point.can_grapple():
+			continue
+		var to_point := point.global_position - global_position
+		var distance := to_point.length()
+		if distance > grapple_range or distance < 90.0:
+			continue
+		# Prefer rings ahead of Patch, then the nearest.
+		var score := distance - to_point.normalized().dot(facing) * 220.0
+		if view_mode == PageView.Mode.SIDE and not _clear_line_to(point.global_position):
+			continue
+		if score < best_score:
+			best_score = score
+			best = point
+	return best
+
+
+func _clear_line_to(target: Vector2) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(global_position, target, 1, [get_rid()])
+	query.hit_from_inside = false
+	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()
+
+
+func _update_grapple_highlight() -> void:
+	var best: GrapplePoint = _best_grapple_target() if GameState.has_ability(&"tape_tail") else null
+	if best == _highlighted:
+		return
+	if _highlighted and is_instance_valid(_highlighted):
+		_highlighted.highlighted = false
+	_highlighted = best
+	if best:
+		best.highlighted = true
+
+
+func _process_grapple(delta: float) -> void:
+	if _grapple_target == null or not is_instance_valid(_grapple_target):
+		_end_grapple()
+		return
+	_grapple_time += delta
+	var anchor := _grapple_target.global_position
+	match _grapple_phase:
+		Grapple.SHOOT:
+			velocity = Vector2.ZERO
+			_grapple_reach += tape_shoot_speed * delta
+			var to_anchor := anchor - global_position
+			_draw_tape(global_position + to_anchor.limit_length(_grapple_reach))
+			if _grapple_reach >= to_anchor.length():
+				_squash(Vector2(0.85, 1.15))
+				if _grapple_target.mode == GrapplePoint.Mode.ZIP:
+					_grapple_phase = Grapple.ZIP
+					_grapple_time = 0.0
+					# Fly over water and gaps: ignore the world until he arrives.
+					_saved_mask = collision_mask
+					collision_mask = 0
+				else:
+					_grapple_target.yank()
+					_grapple_phase = Grapple.RETRACT
+					_grapple_time = 0.0
+		Grapple.ZIP:
+			var to_anchor := anchor + _grapple_target.land_offset - global_position
+			_draw_tape(anchor)
+			if to_anchor.length() < zip_speed * delta * 1.5 or _grapple_time > 1.5:
+				global_position = anchor + _grapple_target.land_offset
+				if view_mode == PageView.Mode.SIDE:
+					var swing := (anchor - _grapple_start).normalized()
+					velocity = Vector2(swing.x * zip_speed * 0.45, zip_release_hop)
+					_carry_left = 0.7
+				else:
+					velocity = Vector2.ZERO
+				_end_grapple()
+				return
+			velocity = to_anchor.normalized() * zip_speed
+		Grapple.RETRACT:
+			velocity = Vector2.ZERO
+			var t := clampf(1.0 - _grapple_time / 0.15, 0.0, 1.0)
+			_draw_tape(global_position.lerp(anchor, t))
+			if t <= 0.0:
+				_end_grapple()
+
+
+func _draw_tape(tip: Vector2) -> void:
+	_tape_line.points = PackedVector2Array([global_position + Vector2(-facing.x * 30.0, 0), tip])
+
+
+func _end_grapple() -> void:
+	if collision_mask == 0:
+		collision_mask = _saved_mask
+	_tape_line.visible = false
+	_grapple_target = null
+	if state == State.GRAPPLE:
+		state = State.NORMAL
+
+
 func _after_move() -> void:
 	if view_mode == PageView.Mode.SIDE:
 		var on_floor := is_on_floor()
@@ -261,6 +417,8 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 func _on_damaged(_amount: int, _from: Vector2) -> void:
 	if health.is_dead():
 		return
+	if state == State.GRAPPLE:
+		_end_grapple()
 	state = State.HURT
 	_state_left = hurt_time
 	attack_hitbox.active = false
@@ -273,6 +431,8 @@ func _on_health_changed(current: int, maximum: int) -> void:
 
 
 func _on_died() -> void:
+	if state == State.GRAPPLE:
+		_end_grapple()
 	state = State.DEAD
 	input_enabled = false
 	attack_hitbox.active = false

@@ -334,12 +334,85 @@ def tile_ink_puddle():
     return img
 
 
+COBBLE = (226, 178, 134, 255)
+HARBOR = (58, 104, 170, 255)
+SEABED = (78, 92, 150, 255)
+
+
+def tile_cobble():
+    """Lanternfold's paved streets, seen from above: warm flagstones with a few pebbles."""
+    img = Image.new("RGBA", (TILE, TILE), COBBLE)
+    ink_line(img, [(-4, 1), (TILE + 4, 1)], width=2, color=shade(COBBLE, -36))
+    ink_line(img, [(1, -4), (1, TILE + 4)], width=2, color=shade(COBBLE, -36))
+    d = ImageDraw.Draw(img)
+    for _ in range(3):
+        x, y, r = rng.uniform(12, 52), rng.uniform(12, 52), rng.uniform(2, 4)
+        d.ellipse([x - r * 1.3, y - r, x + r * 1.3, y + r], fill=shade(COBBLE, -30))
+        d.ellipse([x - r * 0.9, y - r, x + r * 0.3, y - r * 0.2], fill=shade(COBBLE, 26))
+    return img
+
+
+def tile_boardwalk():
+    img = Image.new("RGBA", (TILE, TILE), shade(WOOD, -50))
+    for i in range(4):
+        y = i * 16
+        crayon_poly(img, [(0, y + 1), (TILE, y + 1), (TILE, y + 14), (0, y + 14)], shade(WOOD, 20 - i * 6), outline=False, smooth=False, shadow=False)
+        ink_line(img, [(-4, y + 15), (TILE + 4, y + 15)], width=2, color=shade(WOOD, -70))
+    d = ImageDraw.Draw(img)
+    for x, y in ((10, 8), (54, 24), (22, 40), (44, 56)):
+        d.ellipse([x - 2, y - 2, x + 2, y + 2], fill=INK)
+    return img
+
+
+def tile_harbor_water():
+    img = Image.new("RGBA", (TILE, TILE), HARBOR)
+    for y, amp in ((16, 3), (44, 3)):
+        pts = [(x, y + math.sin(x / TILE * math.tau * 2) * amp) for x in range(-4, TILE + 5, 4)]
+        ink_line(img, pts, width=3, color=shade(HARBOR, 46))
+    return img
+
+
+def tile_seabed_top():
+    """The floor under the harbor flap: navy sand with a scalloped coral-pink rim."""
+    img = Image.new("RGBA", (TILE, TILE), SEABED)
+    edge = [(x, 16 + abs(math.sin(x / TILE * math.tau)) * 7) for x in range(TILE, -1, -2)]
+    crayon_poly(img, [(0, 2), (TILE, 2)] + edge, (246, 134, 150, 255), outline=False, smooth=False)
+    ink_line(img, [(p[0], p[1]) for p in edge], width=3)
+    ink_line(img, [(-4, 3), (TILE + 4, 3)], width=4)
+    d = ImageDraw.Draw(img)
+    for x, y in ((16, 44), (46, 52)):
+        d.ellipse([x - 3, y - 2, x + 3, y + 2], fill=shade(SEABED, 40))
+    return img
+
+
+def tile_seabed_fill():
+    img = Image.new("RGBA", (TILE, TILE), SEABED)
+    d = ImageDraw.Draw(img)
+    for _ in range(2):
+        x, y = rng.uniform(12, 52), rng.uniform(12, 52)
+        d.ellipse([x - 4, y - 3, x + 4, y + 3], fill=shade(SEABED, -30))
+        d.ellipse([x - 3, y - 3, x + 1, y - 1], fill=shade(SEABED, 36))
+    return img
+
+
+def tile_hedge():
+    """An autumn hedge: a solid wall on top-down pages."""
+    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
+    leaf = (232, 112, 58, 255)
+    crayon_poly(img, [(0, 0), (TILE, 0), (TILE, TILE), (0, TILE)], shade(leaf, -40), outline=False, smooth=False, shadow=False)
+    for cx, cy in ((16, 16), (48, 16), (16, 48), (48, 48), (32, 32)):
+        crayon_poly(img, ellipse_points(cx, cy, 15, 15, 14), shade(leaf, rng.randint(-10, 20)), width=2, shadow=False)
+    return img
+
+
 def build_tiles():
     makers = [
         [tile_ground_top, tile_ground_fill, tile_plank, tile_soggy],
         [tile_table_wood, tile_page_floor, tile_book_wall, tile_ink_puddle],
+        [tile_cobble, tile_boardwalk, tile_harbor_water, tile_seabed_top],
+        [tile_seabed_fill, tile_hedge],
     ]
-    atlas = Image.new("RGBA", (TILE * 4, TILE * 2), (0, 0, 0, 0))
+    atlas = Image.new("RGBA", (TILE * 4, TILE * 4), (0, 0, 0, 0))
     for row, funcs in enumerate(makers):
         for col, fn in enumerate(funcs):
             atlas.paste(fn(), (col * TILE, row * TILE))
@@ -862,6 +935,15 @@ def build_chapter1_art():
 
 
 if __name__ == "__main__":
+    import sys
+
+    import chapter2_art
+
+    if "chapter2" in sys.argv:
+        # Quick path: only the Chapter 2 art and the tile atlas.
+        build_tiles()
+        chapter2_art.build()
+        sys.exit(0)
     build_tiles()
     build_patch()
     build_soggy()
@@ -873,4 +955,5 @@ if __name__ == "__main__":
     build_desk()
     build_icon()
     build_chapter1_art()
+    chapter2_art.build()
     print("Art written to", ART)

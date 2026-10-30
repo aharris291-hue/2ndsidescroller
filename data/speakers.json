@@ -38,5 +38,25 @@
 		"name": "Gran",
 		"color": "#7a4a9a",
 		"pitch": 1.1
+	},
+	"corrugate": {
+		"name": "Corrugate",
+		"color": "#8a5a2a",
+		"pitch": 0.6
+	},
+	"lamplighters": {
+		"name": "The Lamplighter Sisters",
+		"color": "#c0392b",
+		"pitch": 1.6
+	},
+	"crumple": {
+		"name": "Crumple",
+		"color": "#6a5a9a",
+		"pitch": 2.2
+	},
+	"kraken": {
+		"name": "The Blotch Kraken",
+		"color": "#2c3470",
+		"pitch": 0.45
 	}
 }

@@ -128,7 +128,7 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 - `Bookmark` is a checkpoint: it sets the respawn point, heals Patch fully, and autosaves.
 - UI scenes use `resources/ui_theme.tres` (Patrick Hand font, paper-styled buttons and panels). Every menu takes controller focus.
 
-### Story flow (Prologue and Chapter 1)
+### Story flow (Prologue, Chapters 1 and 2)
 
 ```
 prologue/prologue_intro      CutscenePage: Nell and Dad at bedtime
@@ -137,7 +137,13 @@ ch1_thistledown/page_01      Meet Fluff (lost_flock quest) and Dot (joins as com
 ch1_thistledown/page_02      Windmill Hills: Windmill wheel, 3 LostSheep, doors to the race and arena
 ch1_thistledown/ribbon_regatta   BoatRace minigame (ribbon_regatta quest), returns to page 2
 ch1_thistledown/millwheel_arena  BossMillwheel fight, exit door to the interlude
-interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complete
+interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complete, turns to Chapter 2
+ch2_lanternfold/lanternfold_town   Top-down town: Lamplighter Sisters (festival_lanterns), Corrugate, Crumple (lost_cat)
+margin/tape_heist            Top-down 3D desk at night: the tape strip unlocks tape_tail
+ch2_lanternfold/shadow_theater     ShadowTheater rhythm minigame (shadow_show quest), returns to town
+ch2_lanternfold/under_the_flap     Side view ink sea: zip rings, the yank-open FlapGate, drip spawners
+ch2_lanternfold/kraken_arena       BossKraken fight, Drizzle reveal, exit door to the interlude
+interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2_complete
 ```
 
 ### Chapter 1 systems
@@ -149,6 +155,20 @@ interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complet
 - **NarratorTrigger** shows a one-time caption; `{jump}`, `{attack}`, `{dash}` and `{interact}` become the right button names.
 - **Windmill** spins a ring of `AnimatableBody2D` gondolas Patch can ride. A `PullTab` (now with an optional target) starts it.
 - **BossMillwheel:** pull the three mooring tabs to jam the sails, then hit the core. Every 3 hits it recovers, spins faster, and calls 2 Soggies. `EventBus.boss_started`, `boss_health_changed` and `boss_defeated` drive the HUD boss bar.
+
+### Chapter 2 systems
+
+- **Tape Tail** (`tape_tail` ability, `grapple` action) lives in `Patch`: `try_grapple()` picks the best `GrapplePoint` in `grapple_range` (ahead of Patch, with a clear line in side view) and enters the `GRAPPLE` state. The tape shoots out, then a **ZIP** ring reels Patch in (world collisions off until he lands at `land_offset`, then a hop and carried momentum in side view) and a **YANK** ring calls `yank()`, which slides its `target` and emits `yanked`. The ring Patch would hit pulses.
+- **Flag-gated doors:** `PageDoor.requires_flag` hides a door until a story flag is set (the Margin door needs `met_corrugate`, the harbor flap needs `corrugate_joined`).
+- **Companions:** `Page.COMPANIONS` maps a flag to a follower scene; each `DotCompanion` has `companion_flag`, `follow_offset` and `bob`, so Dot floats and Corrugate waddles.
+- **NPCCorrugate** runs his story in steps (needs tape, then the cat, then joins). `LostSheep` doubles as Crumple the cat via its `find_prompt`, captions and `leave_offset`.
+- **FestivalLantern** is an `Interactable` that advances `festival_lanterns` and stays lit across saves.
+- **ShadowTheater** is a rhythm game: a seeded chart of arrows on the beat, a hit window, and a win ratio. `autoplay` is for the smoke test.
+- **DripSpawner** drops `InkDrip`s along a width while Patch is near.
+- **BossKraken:** tentacles slam where Patch stands after a shadow warning. Yank both blotter rings to drop the blotters; it slumps with its eye in reach for `stun_time`. Every 3 hits it recovers, resets the rings, and calls 2 Soggies. When it dries out it plays `kraken_drizzle`, then opens the exit.
+- **Top-down town:** the page root and its containers use `y_sort_enabled` so Patch walks behind houses; tile layers sit on `z_index` -1.
+- **Tiles:** the atlas has a third and fourth row for Chapter 2: cobbles and boardwalk (floor), harbor water and hedges (solid on flat pages), and seabed top and fill (side view ground).
+
 - **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 2 bumps or fewer.
 
 ## Collision layers

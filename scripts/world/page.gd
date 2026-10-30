@@ -7,7 +7,11 @@ extends Node2D
 ## Expected children: a Patch instance (scenes/player/patch.tscn) and at least one
 ## Marker2D named "Start" in the "spawn_points" group.
 
-const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
+## Story flag -> the companion that follows Patch once it is set.
+const COMPANIONS := {
+	"met_dot": preload("res://scenes/world/dot_companion.tscn"),
+	"corrugate_joined": preload("res://scenes/world/corrugate_companion.tscn"),
+}
 
 @export var view_mode: PageView.Mode = PageView.Mode.SIDE
 @export var page_title := ""
@@ -40,10 +44,11 @@ func _ready() -> void:
 	if GameState.checkpoint_page.is_empty():
 		GameState.set_checkpoint(scene_file_path, player.global_position)
 
-	if GameState.get_flag("met_dot") and get_tree().get_first_node_in_group("companion") == null:
-		var dot := COMPANION_SCENE.instantiate() as Node2D
-		dot.position = player.position + Vector2(-70, -90)
-		add_child.call_deferred(dot)
+	for flag in COMPANIONS:
+		if GameState.get_flag(flag) and not _has_companion(flag):
+			var friend := (COMPANIONS[flag] as PackedScene).instantiate() as Node2D
+			friend.position = player.position + friend.get("follow_offset")
+			add_child.call_deferred(friend)
 
 	if music:
 		AudioManager.play_music(music)
@@ -53,6 +58,13 @@ func _ready() -> void:
 		GameState.set_flag(caption_flag)
 		DialogueUI.narrate(opening_caption)
 	EventBus.page_entered.emit(self)
+
+
+func _has_companion(flag: String) -> bool:
+	for friend in get_tree().get_nodes_in_group("companion"):
+		if friend.get("companion_flag") == flag:
+			return true
+	return false
 
 
 func _place_player(player: Patch) -> void:

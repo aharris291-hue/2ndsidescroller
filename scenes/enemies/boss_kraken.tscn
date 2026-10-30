@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/boss_kraken.gd" id="1_ri3od"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/kraken_body.png" id="2_x42vg"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_n3lhe"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/kraken_eye.png" id="4_ewbxi"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_dt1xj"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_oq0kk"]
+radius = 62.0
+
+[node name="BlotchKraken" type="Node2D" unique_id=1503614290]
+script = ExtResource("1_ri3od")
+
+[node name="Body" type="Sprite2D" parent="." unique_id=1057884669]
+position = Vector2(0, -200)
+texture = ExtResource("2_x42vg")
+
+[node name="Eye" type="Area2D" parent="." unique_id=1806252799]
+position = Vector2(0, -220)
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_n3lhe")
+
+[node name="Sprite2D" type="Sprite2D" parent="Eye" unique_id=52934186]
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("4_ewbxi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Eye" unique_id=612319098]
+shape = SubResource("CircleShape2D_oq0kk")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1504305241]
+script = ExtResource("5_dt1xj")
+max_health = 9
+invulnerability_time = 0.35

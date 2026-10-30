@@ -6,12 +6,15 @@
 
 [node name="Interlude01" type="Control" unique_id=1363028972]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_g83rd")
 conversation_id = "interlude_1"
 title_caption = "Meanwhile, at Gran's kitchen table..."
+next_page = "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"
 sets_flag = "chapter1_complete"
 music = ExtResource("2_wq1j1")
 save_on_finish = true

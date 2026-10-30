@@ -114,6 +114,7 @@ func _run() -> void:
 		_check(patch.global_position.y > start_y + 100.0, "Patch walks down in top-down view")
 
 	await _chapter_one(game_state, scene_manager, dialogue)
+	await _chapter_two(game_state, scene_manager, dialogue)
 
 	# Save and load.
 	game_state.add_scraps(5)
@@ -204,7 +205,7 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _frames(150)
 	_check(current_scene.get_node("Props/ToGransTable").visible, "the way to Gran's table opens")
 
-	# The interlude closes Chapter 1 and returns to the title.
+	# The interlude closes Chapter 1 and turns to Chapter 2.
 	await scene_manager.change_page("res://scenes/levels/interludes/interlude_01.tscn")
 	for i in 1200:
 		if dialogue.is_active():
@@ -213,6 +214,146 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _skip_dialogue(dialogue)
 	await _frames(90)
 	_check(game_state.get_flag("chapter1_complete"), "the interlude marks Chapter 1 complete")
+
+
+func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const CH2 := "res://scenes/levels/ch2_lanternfold/"
+	# Lanternfold: meet Corrugate (opens the way to the Margin) and the Lamplighter Sisters.
+	await scene_manager.change_page(CH2 + "lanternfold_town.tscn")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	_check(current_scene.name == "LanternfoldTown" and get_first_node_in_group("player").view_mode == 1, "Lanternfold Harbor loads as a top-down page")
+	current_scene.get_node("Actors/Corrugate").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(current_scene.get_node("Props/MarginDoor").is_open(), "meeting Corrugate opens the way to Gran's table")
+	_check(not current_scene.get_node("Props/HarborFlap").is_open(), "the harbor flap stays shut until Corrugate joins")
+	current_scene.get_node("Actors/LamplighterSisters").interact(null)
+	await _skip_dialogue(dialogue)
+	for lantern in current_scene.get_node("Props").get_children():
+		if lantern.name.begins_with("Lantern"):
+			lantern.interact(null)
+	_check(game_state.quest_progress("festival_lanterns") == 5, "all five festival lanterns can be lit")
+	current_scene.get_node("Actors/LamplighterSisters").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_done("festival_lanterns"), "the Lamplighter Sisters reward the lit lanterns")
+
+	# The Margin heist: the 3D desk, and the strip of real tape that becomes the Tape Tail.
+	await scene_manager.change_page("res://scenes/levels/margin/tape_heist.tscn", &"FromPage")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch = get_first_node_in_group("player")
+	_check(not current_scene.visible and current_scene.get_node_or_null("Diorama") != null, "the Margin heist is drawn as the 3D desk")
+	patch.global_position = current_scene.get_node("Pickups/TapeStrip").global_position
+	await _frames(20)
+	_check(game_state.has_ability(&"tape_tail"), "the tape strip gives Patch the Tape Tail")
+
+	# Back in town: zip across the harbor with the Tape Tail to fetch Crumple.
+	await scene_manager.change_page(CH2 + "lanternfold_town.tscn", &"FromMargin")
+	await _frames(30)
+	current_scene.get_node("Actors/Corrugate").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_started("lost_cat"), "Corrugate asks Patch to find his cat")
+	patch = get_first_node_in_group("player")
+	patch.global_position = Vector2(31 * 64, 28.8 * 64)
+	patch.facing = Vector2.RIGHT
+	await _frames(5)
+	_check(patch.try_grapple(), "the Tape Tail finds the island ring")
+	await _frames(60)
+	_check(patch.global_position.x > 38 * 64 and patch.state == 0, "zipping carries Patch across the water to the island")
+	current_scene.get_node("Actors/Crumple").interact(null)
+	_check(game_state.quest_progress("lost_cat") == 1, "Crumple the cat can be found")
+	current_scene.get_node("Actors/Corrugate").interact(null)
+	await _skip_dialogue(dialogue)
+	await _frames(10)
+	_check(game_state.get_flag("corrugate_joined") and current_scene.get_node("Props/HarborFlap").is_open(), "Corrugate joins and the harbor flap opens")
+	var companions := get_nodes_in_group("companion")
+	_check(companions.any(func(c: Node) -> bool: return c.get("companion_flag") == "corrugate_joined"), "Corrugate follows Patch")
+
+	# The shadow theater runs a whole show (autoplayed) and returns to town.
+	Engine.time_scale = 6.0
+	await scene_manager.change_page(CH2 + "shadow_theater.tscn")
+	var show := current_scene
+	show.autoplay = true
+	for i in 900:
+		await physics_frame
+		if not is_instance_valid(show) or show.is_finished():
+			break
+	_check(is_instance_valid(show) and show.is_finished() and game_state.quest_done("shadow_show"), "the shadow show can be played and won")
+	await _frames(200)
+	Engine.time_scale = 1.0
+	_check(current_scene.name == "LanternfoldTown", "the shadow show returns to town")
+
+	# Under the harbor flap: zip over the first ink gap, then yank the flap gate open.
+	await scene_manager.change_page(CH2 + "under_the_flap.tscn")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	patch.global_position = Vector2(16 * 64, 14 * 64 - 48)
+	patch.facing = Vector2.RIGHT
+	await _frames(5)
+	patch.try_grapple()
+	await _frames(150)
+	_check(patch.global_position.x > 25 * 64 and patch.is_on_floor(), "Patch zips over the first ink gap (x=%.0f)" % patch.global_position.x)
+	var gate := current_scene.get_node("Props/FlapGate") as Node2D
+	var gate_y := gate.position.y
+	patch.global_position = Vector2(44 * 64, 14 * 64 - 48)
+	patch.facing = Vector2.RIGHT
+	await _frames(10)
+	patch.try_grapple()
+	await _frames(70)
+	_check(gate.position.y < gate_y - 200.0, "yanking the gate ring lifts the flap gate")
+
+	# The Blotch Kraken: yank both blotters to stun it, swipe its eye, three times over.
+	await scene_manager.change_page(CH2 + "kraken_arena.tscn")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	var boss := current_scene.get_node("BlotchKraken")
+	boss.start_fight()
+	_check(boss.state == 1, "the Blotch Kraken fight starts")
+	# Soggies and late tentacles can knock Patch about, so keep at it until it's dry.
+	var stunned_once := false
+	for attempt in 40:
+		if boss.state == 3 or boss.health.is_dead():
+			break
+		if boss.state == 1:
+			for ring_name in ["BlotterRing1", "BlotterRing2"]:
+				current_scene.get_node("Props/" + ring_name).yank()
+			await _frames(40)
+			if not stunned_once:
+				stunned_once = true
+				_check(boss.state == 2, "dropping both blotters stuns the Kraken")
+		if boss.state == 2:
+			var eye := boss.get_node("Eye") as Node2D
+			patch.global_position = eye.global_position + Vector2(-74, 6)
+			patch.velocity = Vector2.ZERO
+			patch.facing = Vector2.RIGHT
+			await _frames(3)
+			Input.action_press(&"attack")
+			await _frames(2)
+			Input.action_release(&"attack")
+			await _frames(25)
+		else:
+			await _frames(20)
+	_check(game_state.get_flag("boss_kraken_defeated"), "the Blotch Kraken can be defeated")
+	for i in 400:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _frames(30)
+	_check(current_scene.get_node("Props/ToGransTable").visible, "the Drizzle reveal plays and the way out opens")
+
+	await scene_manager.change_page("res://scenes/levels/interludes/interlude_02.tscn")
+	for i in 1200:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _frames(90)
+	_check(game_state.get_flag("chapter2_complete"), "the second interlude marks Chapter 2 complete")
 
 
 func _skip_dialogue(dialogue: Node) -> void:

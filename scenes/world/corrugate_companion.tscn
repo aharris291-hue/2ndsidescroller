@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/dot_companion.gd" id="1_corr"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/corrugate.png" id="2_corr"]
+
+[node name="CorrugateCompanion" type="Node2D"]
+script = ExtResource("1_corr")
+follow_speed = 3.5
+follow_offset = Vector2(-160, -14)
+companion_flag = "corrugate_joined"
+bob = 3.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("2_corr")

@@ -62,7 +62,7 @@ func _on_body_entered(body: Node2D) -> void:
 		Kind.ABILITY:
 			GameState.unlock_ability(ability_id)
 			if not unlock_caption.is_empty():
-				DialogueUI.narrate(unlock_caption.replace("{dash}", InputGlyphs.hint(&"dash")))
+				DialogueUI.narrate(unlock_caption.replace("{dash}", InputGlyphs.hint(&"dash")).replace("{grapple}", InputGlyphs.hint(&"grapple")))
 	if _is_one_time():
 		GameState.mark_collected(_unique_id())
 	AudioManager.play_sfx(&"pickup", randf_range(0.95, 1.1) if kind == Kind.SCRAP else 0.85)

@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/lost_sheep.gd" id="1_u80ss"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/crumple.png" id="2_8xqw2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_po04l"]
+size = Vector2(140, 120)
+
+[node name="Crumple" type="Area2D" unique_id=845058002]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_u80ss")
+quest_id = "lost_cat"
+found_caption = "Crumple gave Patch a long, withering look, then let herself be carried. Back to the dock."
+find_prompt = "Scoop up"
+all_found_caption = " Corrugate will want her back."
+leave_offset = Vector2(0, -60)
+prompt_offset = Vector2(0, -150)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1503818010]
+position = Vector2(0, -56)
+texture = ExtResource("2_8xqw2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=281177097]
+position = Vector2(0, -50)
+shape = SubResource("RectangleShape2D_po04l")

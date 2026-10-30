@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_hmvhu"]
+[ext_resource type="Texture2D" path="res://assets/art/props/tape.png" id="2_reyl0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cq1fk"]
+radius = 36.0
+
+[node name="TapeStrip" type="Area2D" unique_id=229780550]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_hmvhu")
+kind = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1837987724]
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("2_reyl0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=767504307]
+shape = SubResource("CircleShape2D_cq1fk")

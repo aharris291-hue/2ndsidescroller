@@ -10,5 +10,23 @@
 		"description": "Win the paper-boat race down the ribbon stream.",
 		"goal": 1,
 		"reward_scraps": 20
+	},
+	"festival_lanterns": {
+		"title": "Light Up Lanternfold",
+		"description": "Relight the five festival lanterns the damp put out.",
+		"goal": 5,
+		"reward_scraps": 20
+	},
+	"lost_cat": {
+		"title": "The Captain's Cat",
+		"description": "Find Crumple, Corrugate's origami cat, somewhere out across the harbor.",
+		"goal": 1,
+		"reward_scraps": 10
+	},
+	"shadow_show": {
+		"title": "The Shadow Show",
+		"description": "Perform in the Lanternfold shadow-puppet theater and win the crowd.",
+		"goal": 1,
+		"reward_scraps": 25
 	}
 }

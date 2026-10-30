@@ -16,6 +16,8 @@ const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
 @export var idle_bob := 4.0
 ## After the first conversation this NPC leaves the page and follows Patch (Dot).
 @export var joins_as_companion := false
+## The follower that replaces this NPC when it joins.
+@export var companion_scene: PackedScene = COMPANION_SCENE
 
 @export_group("Quest")
 @export var quest_id := ""
@@ -47,7 +49,7 @@ func interact(_player: Patch) -> void:
 		GameState.set_flag(first_talk_flag)
 	if joins_as_companion:
 		await EventBus.dialogue_finished
-		var companion := COMPANION_SCENE.instantiate() as Node2D
+		var companion := companion_scene.instantiate() as Node2D
 		companion.global_position = global_position + Vector2(0, -60)
 		get_parent().add_child(companion)
 		queue_free()

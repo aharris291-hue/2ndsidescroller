@@ -2,7 +2,7 @@
 
 A whimsical storybook adventure in bold cartoon style made in **Godot 4.7.2**, written entirely in GDScript. You play Patch, a paper fox whose tail was torn off in a flood, as he mends a soggy pop-up book. The story, world and characters are original, and the full design is in the Story Bible.
 
-This repository holds the **core framework**, the **Prologue**, and all of **Chapter 1: Thistledown Meadow**:
+This repository holds the **core framework**, the **Prologue**, **Chapter 1: Thistledown Meadow** and **Chapter 2: Lanternfold Harbor**:
 
 - **Patch's controller**, with both page views: side-scrolling on a standing page (coyote time, jump buffering, variable jump height) and eight-way top-down on a flat page or in the Margin.
 - **Combat:** Crease Swipe (attack), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
@@ -13,7 +13,10 @@ This repository holds the **core framework**, the **Prologue**, and all of **Cha
 - **Controls:** keyboard + mouse and full controller support, with prompts that switch automatically between keyboard and controller labels.
 - **Prologue:** Nell and Dad at bedtime, then Patch escaping the rising ink flood off the page.
 - **Chapter 1, Thistledown Meadow:** the meadow, Windmill Hills (ride the windmill sails), the Ribbon Regatta paper-boat race, and the boss fight with the Old Millwheel, ending in an interlude at Gran's table.
-- **Side quests and companions:** Fluff's lost-sheep quest, the regatta, a quest log in the pause menu, and Dot the ladybird, who follows Patch once she joins.
+- **Side quests and companions:** Fluff's lost-sheep quest, the regatta, a quest log in the pause menu, and Dot the runaway full stop, who follows Patch once she joins.
+- **Chapter 2, Lanternfold Harbor:** a big top-down festival town (relight the lanterns, find Corrugate's cat, a shadow-puppet rhythm show), a night-time heist on Gran's table for real tape, the side-scrolling ink sea under the harbor flap, and the boss fight with the Blotch Kraken, ending with the Drizzle reveal and a second interlude.
+- **Tape Tail:** Patch's Chapter 2 ability. Throw it at brass rings to zip over gaps and water, or to yank things he can't reach.
+- **Corrugate**, the cardboard tortoise captain, joins as a second companion.
 - **The Margin:** a top-down page on Gran's kitchen table.
 - **Book view:** every page is drawn as an open pop-up book lying on a wooden desk (switch it off in the pause menu).
 - **3D desk:** the Margin (outside the book) is a real lit 3D desk with wood, books, a mug, pencils and soft shadows. Patch and friends stand on it as paper cutouts. This uses the Forward+ renderer, so it needs a graphics card that supports Vulkan, Direct3D 12 or Metal.
@@ -33,6 +36,7 @@ This repository holds the **core framework**, the **Prologue**, and all of **Cha
 | Jump (side view) | Space | A |
 | Crease Swipe (attack) | J / left click | X |
 | Fold Dash (once unlocked) | K / Shift / right click | B / right trigger |
+| Tape Tail (once unlocked) | L / Q / middle click | RB |
 | Talk, pull, open doors | E | Y |
 | Pause | Esc / P | Start |
 
@@ -55,13 +59,14 @@ tools/         Asset generators (Python) and Godot helper scripts
 
 | Command | What it does |
 | --- | --- |
-| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. |
+| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` to rebuild only the Chapter 2 art and the tile atlas. |
 | `python3 tools/art/generate_materials.py` | Regenerates the wood, paper and cardboard textures used by the 3D desk. |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). |
 | `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapter 1 automatically and checks that it works. CI runs this. |
 | `godot --headless --path . --script tools/godot/setup_input_map.gd` | Rewrites the input map in `project.godot`. |
 | `godot --headless --path . --script tools/godot/build_starter_content.gd` | **One-time bootstrap** that generated the starter scenes. Re-running it overwrites them, so once you edit scenes in the editor, leave it alone. |
 | `godot --headless --path . --script tools/godot/build_chapter1.gd` | **One-time bootstrap** that generated the Prologue and Chapter 1 scenes. Same warning: it overwrites them. |
+| `godot --headless --path . --script tools/godot/build_chapter2.gd` | **One-time bootstrap** that generated the Chapter 2 scenes and pointed the first interlude at them. Same warning: it overwrites them. |
 
 ## Credits
 

@@ -24,5 +24,43 @@
 			"speaker": "dad",
 			"text": "I'll do the next page tomorrow, all the same. You can help, if you want. Or just sit there and be angry. Both count."
 		}
+	],
+	"interlude_2": [
+		{
+			"speaker": "dad",
+			"text": "Harbor page. The lanterns came up better than I thought. The boat's held together with about a metre of tape, but it floats. Well. It would."
+		},
+		{
+			"speaker": "nell",
+			"text": "Dad."
+		},
+		{
+			"speaker": "dad",
+			"text": "There's a bit under the flap I can't get dry. The ink keeps running, no matter what I..."
+		},
+		{
+			"speaker": "nell",
+			"text": "Dad. Stop."
+		},
+		{
+			"speaker": "nell",
+			"text": "Just stop. It's never going to be the same. None of it. You can tape it and iron it all night and it's still going to be wrecked."
+		},
+		{
+			"speaker": "dad",
+			"text": "..."
+		},
+		{
+			"speaker": "gran",
+			"text": "Nell, love..."
+		},
+		{
+			"speaker": "nell",
+			"text": "No. I'm going to bed. Don't wait up for the book. It's not coming back."
+		},
+		{
+			"speaker": "dad",
+			"text": "...Goodnight, Nell."
+		}
 	]
 }

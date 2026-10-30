@@ -12,6 +12,7 @@ const SFX := {
 	&"tab_pull": preload("res://assets/audio/sfx/tab_pull.wav"),
 	&"enemy_pop": preload("res://assets/audio/sfx/enemy_pop.wav"),
 	&"voice_blip": preload("res://assets/audio/sfx/voice_blip.wav"),
+	&"grapple": preload("res://assets/audio/sfx/grapple.wav"),
 }
 const POOL_SIZE := 10
 const FADE_TIME := 0.8

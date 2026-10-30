@@ -418,14 +418,13 @@ func _update_mirrors() -> void:
 	var i := 0
 	while i < _mirrors.size():
 		var entry := _mirrors[i]
-		var source: CanvasItem = entry.source
-		var target: Node3D = entry.target
-		if not is_instance_valid(source) or not source.is_inside_tree():
-			if is_instance_valid(target):
-				target.queue_free()
+		# Check before typing: a freed pickup can't be assigned to a typed variable.
+		if not is_instance_valid(entry.source) or not (entry.source as CanvasItem).is_inside_tree():
+			if is_instance_valid(entry.target):
+				(entry.target as Node3D).queue_free()
 			_mirrors.remove_at(i)
 			continue
-		_sync(source, target)
+		_sync(entry.source, entry.target)
 		i += 1
 
 
