@@ -26,6 +26,7 @@ The autoloads load in this order (Project > Project Settings > Globals > Autoloa
 | `InputGlyphs` | script | Detects whether the player is on a controller or keyboard, for prompt labels. |
 | `AudioManager` | script | Crossfading music plus a pooled sound-effect player (`play_sfx(&"jump")`). Uses the `Music` and `SFX` buses. |
 | `SceneManager` | script (CanvasLayer) | Page-turn transitions, spawn placement, respawning, returning to the title screen. |
+| `BookFrame` | script (CanvasLayer 5) | Draws every page as an open book lying on a desk: a shader warps everything below layer 5 onto the pages in perspective, with a scalloped border, gutter, cover and shadow. Scenes with `in_book = false` (the Margin, cutscenes) fill the screen instead. The pause menu's Book view button turns it off. Keep clickable UI on layer 6 or above so it isn't warped. |
 | `HUD` | scene | Health tokens, Scraps, Lost Letter count, and the boss health bar. |
 | `DialogueUI` | scene | Conversations (typewriter + voice blips) and narrator captions. |
 | `PauseMenu` | scene | Pause, quest log, volume, fullscreen, save and quit. Runs while the tree is paused. |

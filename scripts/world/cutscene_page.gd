@@ -10,6 +10,8 @@ extends Control
 ## Story flag set when the cutscene finishes, e.g. "chapter1_complete".
 @export var sets_flag := ""
 @export var music: AudioStream
+## Cutscenes happen in the real world, outside the book, so they fill the screen.
+@export var in_book := false
 ## Save the game when this cutscene finishes (chapter ends).
 @export var save_on_finish := false
 

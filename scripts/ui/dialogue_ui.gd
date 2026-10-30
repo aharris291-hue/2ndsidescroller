@@ -44,6 +44,13 @@ func _ready() -> void:
 	_speakers = _load_json(SPEAKERS_FILE)
 	for path in DIALOGUE_FILES:
 		_conversations.merge(_load_json(path))
+	# Narrator captions print straight onto the page in bold capitals, like the book's own text.
+	caption.add_theme_stylebox_override(&"panel", StyleBoxEmpty.new())
+	caption_label.uppercase = true
+	caption_label.add_theme_font_size_override(&"font_size", 46)
+	caption_label.add_theme_color_override(&"font_color", Color("281e2e"))
+	caption_label.add_theme_color_override(&"font_outline_color", Color("fff8e2"))
+	caption_label.add_theme_constant_override(&"outline_size", 14)
 	box.visible = false
 	caption.visible = false
 	caption.modulate.a = 0.0

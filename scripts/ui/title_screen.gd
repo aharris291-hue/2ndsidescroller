@@ -15,6 +15,15 @@ const TITLE_MUSIC := preload("res://assets/audio/music/foldwick_lullaby.wav")
 func _ready() -> void:
 	GameState.in_gameplay = false
 	HUD.show_hud(false)
+	# The menu floats above the open book (BookFrame), so buttons stay flat and
+	# line up with the mouse; only the illustration is drawn onto the page.
+	var menu_layer := CanvasLayer.new()
+	menu_layer.layer = 6
+	add_child(menu_layer)
+	$Center.reparent(menu_layer)
+	title_label.add_theme_color_override(&"font_color", Color("281e2e"))
+	title_label.add_theme_color_override(&"font_outline_color", Color("fff8e2"))
+	title_label.add_theme_constant_override(&"outline_size", 22)
 	AudioManager.play_music(TITLE_MUSIC)
 	for i in slot_buttons.size():
 		slot_buttons[i].pressed.connect(_on_slot_pressed.bind(i))

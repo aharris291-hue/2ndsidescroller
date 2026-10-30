@@ -1,4 +1,4 @@
-"""Generates the placeholder ink-and-crayon art for Patch and the Pop-Up Kingdom.
+"""Generates the storybook cartoon art for Patch and the Pop-Up Kingdom.
 
 Every texture in assets/art is produced here so the look stays consistent and
 can be regenerated after tweaks. Run from the repo root:
@@ -18,18 +18,22 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ART = os.path.join(ROOT, "assets", "art")
 
-INK = (43, 33, 24, 255)
-PAPER = (247, 238, 214, 255)
-MARIGOLD = (242, 169, 59, 255)
-TOMATO = (222, 88, 61, 255)
-SAGE = (134, 170, 102, 255)
-GRASS = (104, 160, 72, 255)
-TAN = (214, 178, 128, 255)
-CARDBOARD = (190, 142, 92, 255)
-SOGGY = (126, 146, 164, 255)
-CREAM = (252, 246, 228, 255)
-SKY = (250, 226, 170, 255)
-WOOD = (176, 120, 72, 255)
+# Storybook cartoon palette: bright, saturated, flat colors under a thick dark outline.
+INK = (40, 30, 46, 255)
+PAPER = (255, 248, 226, 255)
+MARIGOLD = (255, 156, 44, 255)
+TOMATO = (240, 76, 92, 255)
+SAGE = (104, 208, 190, 255)
+GRASS = (112, 204, 84, 255)
+TAN = (240, 170, 104, 255)
+CARDBOARD = (222, 150, 86, 255)
+SOGGY = (118, 150, 200, 255)
+CREAM = (255, 252, 240, 255)
+SKY = (255, 234, 104, 255)
+WOOD = (196, 116, 62, 255)
+TEAL = (110, 214, 204, 255)
+LILAC = (150, 144, 196, 255)
+SKYBLUE = (96, 178, 240, 255)
 
 rng = random.Random(1987)
 
@@ -41,11 +45,13 @@ def out(*parts):
 
 
 def jitter(points, amount):
+    # The cartoon style wants clean shapes, so only a hint of hand-drawn wobble.
+    amount *= 0.25
     return [(x + rng.uniform(-amount, amount), y + rng.uniform(-amount, amount)) for x, y in points]
 
 
 def subdivide(points, closed=True, steps=6):
-    """Adds midpoints so outlines can wobble like a hand-drawn line."""
+    """Adds midpoints along each edge."""
     result = []
     count = len(points) if closed else len(points) - 1
     for i in range(count):
@@ -56,6 +62,49 @@ def subdivide(points, closed=True, steps=6):
             result.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
     if not closed:
         result.append(points[-1])
+    return result
+
+
+def chaikin(points, iterations=3, closed=True):
+    """Rounds a polygon's corners so shapes read as soft and chunky."""
+    pts = list(points)
+    for _ in range(iterations):
+        result = []
+        count = len(pts) if closed else len(pts) - 1
+        if not closed:
+            result.append(pts[0])
+        for i in range(count):
+            a = pts[i]
+            b = pts[(i + 1) % len(pts)]
+            result.append((a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25))
+            result.append((a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75))
+        if not closed:
+            result.append(pts[-1])
+        pts = result
+    return pts
+
+
+def round_corners(points, radius=7.0, steps=6):
+    """Softens each corner with a small curve while keeping the shape's silhouette."""
+    n = len(points)
+    if n < 3:
+        return list(points)
+    result = []
+    for i in range(n):
+        p0, p1, p2 = points[i - 1], points[i], points[(i + 1) % n]
+        la = math.dist(p0, p1)
+        lb = math.dist(p1, p2)
+        if la < 1e-6 or lb < 1e-6:
+            continue
+        r = min(radius, la * 0.45, lb * 0.45)
+        a = (p1[0] + (p0[0] - p1[0]) * r / la, p1[1] + (p0[1] - p1[1]) * r / la)
+        b = (p1[0] + (p2[0] - p1[0]) * r / lb, p1[1] + (p2[1] - p1[1]) * r / lb)
+        for k in range(steps + 1):
+            t = k / steps
+            result.append((
+                (1 - t) ** 2 * a[0] + 2 * (1 - t) * t * p1[0] + t * t * b[0],
+                (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * p1[1] + t * t * b[1],
+            ))
     return result
 
 
@@ -73,53 +122,81 @@ def shade(color, amount):
     )
 
 
+def _supersample(img):
+    """How much bigger to draw before scaling down, for smooth edges."""
+    return 4 if img.size[0] * img.size[1] <= 400_000 else 2
+
+
 def crayon_layer(size, color, density=1.0, angle=-0.6, stroke_len=(10, 26)):
-    """A full-size layer of waxy crayon strokes in one color."""
-    w, h = size
-    layer = Image.new("RGBA", size, shade(color, 18)[:3] + (235,))
+    """A full-size flat layer of one color (kept for the old call sites)."""
+    return Image.new("RGBA", size, color[:3] + (255,))
+
+
+def _shifted(mask, dx, dy):
+    moved = Image.new("L", mask.size, 0)
+    moved.paste(mask, (int(dx), int(dy)))
+    return moved
+
+
+def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1.0, smooth=None, shadow=None):
+    """Draws a flat-colored shape with a thick dark outline and soft cartoon shading.
+
+    Shapes with an outline get rounded corners, a darker band along their underside
+    and a light rim at the top-left, like cel-shaded storybook art.
+    """
+    ss = _supersample(img)
+    w, h = img.size
+    if smooth is None:
+        smooth = outline
+    if shadow is None:
+        shadow = outline
+    pts = round_corners(points, radius=max(3.0, width * 1.6)) if smooth and len(points) > 2 else list(points)
+    hp = [(x * ss, y * ss) for x, y in pts]
+    layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
-    strokes = int(w * h / 22 * density)
-    dx, dy = math.cos(angle), math.sin(angle)
-    for _ in range(strokes):
-        x, y = rng.uniform(-10, w + 10), rng.uniform(-10, h + 10)
-        length = rng.uniform(*stroke_len)
-        c = shade(color, rng.uniform(-22, 12))
-        d.line([(x, y), (x + dx * length, y + dy * length)], fill=c[:3] + (rng.randint(150, 255),), width=rng.choice([1, 2, 2, 3]))
-    # Wax skips: tiny paper-colored flecks that show the grain through.
-    arr = np.array(layer)
-    noise = np.random.default_rng(rng.randint(0, 99999)).random((h, w))
-    arr[noise > 0.965, :3] = np.array(shade(color, 45)[:3])
-    return Image.fromarray(arr)
-
-
-def crayon_poly(img, points, color, outline=True, width=5, wobble=1.6, density=1.0):
-    """Fills a polygon with crayon texture and inks its outline."""
-    mask = Image.new("L", img.size, 0)
-    ImageDraw.Draw(mask).polygon(points, fill=255)
-    fill = crayon_layer(img.size, color, density)
-    img.paste(fill, (0, 0), ImageChops.multiply(mask, fill.getchannel("A")))
     if outline:
-        ink_line(img, points, width=width, wobble=wobble, closed=True)
+        ow = max(3.0, width * 1.3) * ss
+        d.line(hp + [hp[0], hp[1]], fill=INK, width=int(ow * 2), joint="curve")
+        for x, y in hp[:: max(1, len(hp) // 24)]:
+            d.ellipse([x - ow, y - ow, x + ow, y + ow], fill=INK)
+    mask = Image.new("L", layer.size, 0)
+    ImageDraw.Draw(mask).polygon(hp, fill=255)
+    layer.paste(color[:3] + (255,), (0, 0), mask)
+    if shadow:
+        ys = [y for _, y in hp]
+        xs = [x for x, _ in hp]
+        size = min(max(ys) - min(ys), max(xs) - min(xs))
+        k = max(3 * ss, min(18 * ss, size * 0.16))
+        rim = ImageChops.subtract(mask, _shifted(mask, -k * 0.35, -k * 0.35))
+        layer.paste(shade(color, 34)[:3] + (255,), (0, 0), rim)
+        under = ImageChops.subtract(mask, _shifted(mask, 0, -k))
+        layer.paste(shade(color, -38)[:3] + (255,), (0, 0), under)
+    img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
 
 
 def ink_line(img, points, width=5, wobble=1.6, closed=False, color=INK):
-    d = ImageDraw.Draw(img)
-    pts = jitter(subdivide(points, closed=closed), wobble)
+    ss = _supersample(img)
+    w, h = img.size
+    layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    pts = [(x * ss, y * ss) for x, y in points]
     if closed:
         pts.append(pts[0])
-    d.line(pts, fill=color, width=width, joint="curve")
-    r = width / 2
+    lw = max(2.0, width * 1.2) * ss
+    d.line(pts, fill=color, width=int(lw), joint="curve")
+    r = lw / 2
     for x, y in (pts[0], pts[-1]):
         d.ellipse([x - r, y - r, x + r, y + r], fill=color)
+    img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
 
 
 def paper_grain(img, strength=10):
+    """A whisper of paper texture so flat colors still feel printed."""
     arr = np.array(img).astype(np.int16)
     gen = np.random.default_rng(7)
-    noise = gen.normal(0, strength, arr.shape[:2])
-    noise = np.array(Image.fromarray(((noise + 64).clip(0, 255)).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8))).astype(np.int16) - 64
+    noise = gen.normal(0, strength * 0.3, arr.shape[:2])
     for c in range(3):
-        arr[..., c] += noise
+        arr[..., c] += noise.astype(np.int16)
     return Image.fromarray(arr.clip(0, 255).astype(np.uint8))
 
 
@@ -135,83 +212,93 @@ def button_eye(img, cx, cy, r):
 TILE = 64
 
 
+def _flower(img, x, y, r, petal=CREAM, middle=MARIGOLD):
+    """A little four-petal clover flower, the page doodle seen all over the book."""
+    for a in range(4):
+        ang = a * math.pi / 2 + math.pi / 4
+        px, py = x + math.cos(ang) * r * 0.7, y + math.sin(ang) * r * 0.7
+        crayon_poly(img, ellipse_points(px, py, r * 0.62, r * 0.62, 14), petal, width=2, shadow=False)
+    crayon_poly(img, ellipse_points(x, y, r * 0.38, r * 0.38, 12), middle, width=1.5, shadow=False)
+
+
 def tile_ground_top():
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 10), (TILE, 10), (TILE, TILE), (0, TILE)], TAN, outline=False)
-    crayon_poly(img, [(0, 4), (TILE, 4), (TILE, 22), (0, 22)], GRASS, outline=False, density=1.4)
-    ink_line(img, [(0, 4), (TILE / 2, 3), (TILE, 4)], width=4, wobble=1.0)
+    img = Image.new("RGBA", (TILE, TILE), TAN)
+    # Grass band with a scalloped lower edge (two scallops per tile so it tiles seamlessly).
+    edge = [(x, 20 + abs(math.sin(x / TILE * math.tau)) * 8) for x in range(TILE, -1, -2)]
+    grass = [(0, 2), (TILE, 2)] + edge
+    crayon_poly(img, grass, GRASS, outline=False, smooth=False)
+    ink_line(img, [(p[0], p[1]) for p in edge], width=3)
+    ink_line(img, [(-4, 3), (TILE + 4, 3)], width=4)
+    ink_line(img, [(-4, 8), (TILE + 4, 8)], width=3, color=shade(GRASS, 45))
     d = ImageDraw.Draw(img)
-    for x in range(4, TILE, 9):
-        d.line([(x, 22), (x + rng.uniform(-2, 2), 27)], fill=shade(GRASS, -25), width=2)
+    for x, y in ((14, 46), (46, 52)):
+        d.ellipse([x - 3, y - 2, x + 3, y + 2], fill=shade(TAN, -40))
     return img
 
 
 def tile_ground_fill():
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 0), (TILE, 0), (TILE, TILE), (0, TILE)], TAN, outline=False)
+    img = Image.new("RGBA", (TILE, TILE), TAN)
     d = ImageDraw.Draw(img)
-    for _ in range(3):
-        x, y = rng.uniform(8, 56), rng.uniform(8, 56)
-        d.arc([x - 5, y - 3, x + 5, y + 3], 200, 340, fill=shade(TAN, -45), width=2)
+    for x, y in ((rng.uniform(12, 52), rng.uniform(12, 52)), (rng.uniform(12, 52), rng.uniform(12, 52))):
+        d.ellipse([x - 4, y - 3, x + 4, y + 3], fill=shade(TAN, -40))
+        d.ellipse([x - 3, y - 3, x + 1, y - 1], fill=shade(TAN, 30))
     return img
 
 
 def tile_plank():
     img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 2), (TILE, 2), (TILE, 20), (0, 20)], CARDBOARD, width=4, wobble=0.8)
-    d = ImageDraw.Draw(img)
-    for x in range(6, TILE, 8):
-        d.line([(x, 6), (x, 16)], fill=shade(CARDBOARD, -30), width=1)
+    crayon_poly(img, [(0, 4), (TILE, 4), (TILE, 26), (0, 26)], CARDBOARD, outline=False, smooth=False)
+    crayon_poly(img, [(0, 20), (TILE, 20), (TILE, 26), (0, 26)], shade(CARDBOARD, -36), outline=False, smooth=False)
+    ink_line(img, [(-4, 4), (TILE + 4, 4)], width=4)
+    ink_line(img, [(-4, 26), (TILE + 4, 26)], width=4)
+    for x in range(8, TILE, 16):
+        ink_line(img, [(x, 10), (x, 16)], width=2, color=shade(CARDBOARD, -60))
     return img
 
 
 def tile_soggy():
     img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 8), (TILE, 8), (TILE, TILE), (0, TILE)], SOGGY, outline=False)
-    ink_line(img, [(0, 8), (20, 11), (44, 7), (TILE, 10)], width=4, wobble=1.0, color=(52, 64, 82, 255))
-    d = ImageDraw.Draw(img)
-    for _ in range(4):
-        x, y = rng.uniform(6, 58), rng.uniform(20, 58)
-        d.ellipse([x - 4, y - 3, x + 4, y + 3], fill=(96, 118, 98, 200))
+    top = [(x, 10 + math.sin(x / TILE * math.tau * 2) * 3) for x in range(0, TILE + 1, 2)]
+    crayon_poly(img, top + [(TILE, TILE), (0, TILE)], SOGGY, outline=False, smooth=False)
+    ink_line(img, top, width=4)
+    for x, y, r in ((18, 34, 5), (44, 48, 4), (30, 56, 3)):
+        crayon_poly(img, ellipse_points(x, y, r, r, 12), shade(SOGGY, 40), width=1.5, shadow=False)
     return img
 
 
 def tile_table_wood():
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 0), (TILE, 0), (TILE, TILE), (0, TILE)], WOOD, outline=False, density=0.8)
-    d = ImageDraw.Draw(img)
-    for y in (14, 31, 50):
-        pts = [(x, y + math.sin(x / 9 + y) * 2) for x in range(0, TILE + 1, 4)]
-        d.line(pts, fill=shade(WOOD, -35), width=2)
+    img = Image.new("RGBA", (TILE, TILE), WOOD)
+    for y in (12, 34, 54):
+        pts = [(x, y + math.sin(x / TILE * math.tau + y) * 3) for x in range(-4, TILE + 5, 4)]
+        ink_line(img, pts, width=2, color=shade(WOOD, -40))
     return img
 
 
 def tile_page_floor():
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 0), (TILE, 0), (TILE, TILE), (0, TILE)], (200, 222, 150, 255), outline=False, density=0.6)
+    img = Image.new("RGBA", (TILE, TILE), SKY)
     d = ImageDraw.Draw(img)
-    for _ in range(5):
-        x, y = rng.uniform(4, 60), rng.uniform(6, 60)
-        d.line([(x, y), (x - 2, y - 6)], fill=shade(GRASS, -10), width=2)
-        d.line([(x, y), (x + 2, y - 5)], fill=shade(GRASS, -10), width=2)
+    if rng.random() < 0.9:
+        _flower(img, rng.uniform(18, 46), rng.uniform(18, 46), 7)
+    for _ in range(2):
+        x, y = rng.uniform(8, 56), rng.uniform(8, 56)
+        d.ellipse([x - 2, y - 2, x + 2, y + 2], fill=shade(SKY, -40))
     return img
 
 
 def tile_book_wall():
     img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    colors = [TOMATO, (96, 132, 186, 255), MARIGOLD]
     y = 2
-    for c in colors:
-        hgt = 20
-        crayon_poly(img, [(3, y), (TILE - 3, y), (TILE - 3, y + hgt - 1), (3, y + hgt - 1)], c, width=3, wobble=0.6)
-        y += hgt + 1
+    for c in (TOMATO, TEAL, MARIGOLD):
+        crayon_poly(img, [(4, y), (TILE - 4, y), (TILE - 4, y + 18), (4, y + 18)], c, width=3)
+        ink_line(img, [(14, y + 9), (24, y + 9)], width=2, color=shade(c, 60))
+        y += 21
     return img
 
 
 def tile_ink_puddle():
     img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    pts = jitter(ellipse_points(32, 32, 28, 22, 18), 3)
-    crayon_poly(img, pts, (60, 78, 112, 255), width=3, wobble=0.8, density=1.4)
+    crayon_poly(img, ellipse_points(32, 34, 27, 21, 24), (60, 70, 130, 255), width=3)
+    crayon_poly(img, ellipse_points(24, 28, 7, 4, 12), (130, 150, 220, 255), outline=False)
     return img
 
 
@@ -353,14 +440,19 @@ def build_props():
     ink_line(img, [(22, 62), (66, 62)], width=3, wobble=0.6)
     paper_grain(img).save(out("props", "page_corner_door.png"))
 
-    # Collectibles.
-    img = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
-    crayon_poly(img, [(6, 10), (30, 4), (36, 26), (14, 36)], CREAM, width=3)
-    crayon_poly(img, [(12, 14), (26, 10), (28, 24), (16, 28)], MARIGOLD, outline=False)
+    # Collectibles: a Scrap is a bright paper star, a Lost Letter is a sealed envelope.
+    img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    star = []
+    for i in range(10):
+        r = 20 if i % 2 == 0 else 9
+        a = -math.pi / 2 + i * math.pi / 5
+        star.append((24 + math.cos(a) * r, 25 + math.sin(a) * r))
+    crayon_poly(img, star, MARIGOLD, width=3)
     paper_grain(img).save(out("props", "scrap.png"))
 
-    img = Image.new("RGBA", (56, 56), (0, 0, 0, 0))
-    crayon_poly(img, jitter(ellipse_points(28, 28, 24, 24, 20), 1.2), CREAM, width=4)
+    img = Image.new("RGBA", (64, 56), (0, 0, 0, 0))
+    crayon_poly(img, [(6, 10), (58, 10), (58, 48), (6, 48)], CREAM, width=4)
+    ink_line(img, [(8, 12), (32, 22), (56, 12)], width=2.5)
     paper_grain(img).save(out("props", "lost_letter.png"))
 
     img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
@@ -395,44 +487,114 @@ def build_ui():
 # ------------------------------------------------------------------------ backgrounds
 
 
+def blob(img, circles, color, width=6, shade_amount=-34):
+    """A puffy shape made of overlapping circles with one outline around the whole thing."""
+    ss = _supersample(img)
+    w, h = img.size
+    layer = Image.new("RGBA", (w * ss, h * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    ow = width * 1.3
+    for cx, cy, r in circles:
+        R = (r + ow) * ss
+        d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=INK)
+    for cx, cy, r in circles:
+        R = r * ss
+        d.ellipse([cx * ss - R, cy * ss - R, cx * ss + R, cy * ss + R], fill=shade(color, shade_amount))
+    for cx, cy, r in circles:
+        R = r * ss * 0.86
+        oy = -r * 0.16 * ss
+        d.ellipse([cx * ss - R, cy * ss + oy - R, cx * ss + R, cy * ss + oy + R], fill=color)
+    img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
+
+
+def tree(img, x, base_y, size, canopy=TEAL, cap=LILAC):
+    """A lollipop storybook tree: stubby trunk, round canopy with a darker cap."""
+    tw = size * 0.22
+    crayon_poly(img, [(x - tw / 2, base_y - size * 0.75), (x + tw / 2, base_y - size * 0.75), (x + tw * 0.7, base_y), (x - tw * 0.7, base_y)], WOOD, width=4)
+    cy = base_y - size * 1.05
+    blob(img, [(x - size * 0.3, cy + size * 0.08, size * 0.34), (x + size * 0.3, cy + size * 0.08, size * 0.34), (x, cy - size * 0.05, size * 0.42)], canopy, width=5)
+    blob(img, [(x - size * 0.16, cy - size * 0.3, size * 0.2), (x + size * 0.16, cy - size * 0.3, size * 0.2), (x, cy - size * 0.38, size * 0.22)], cap, width=4)
+
+
+def music_note(img, x, y, size, color):
+    crayon_poly(img, ellipse_points(x, y, size * 0.32, size * 0.24, 14), color, width=2, shadow=False)
+    ink_line(img, [(x + size * 0.28, y), (x + size * 0.28, y - size)], width=2)
+    ink_line(img, [(x + size * 0.28, y - size), (x + size * 0.62, y - size * 0.72)], width=2)
+
+
 def build_backgrounds():
     w, h = 1920, 1080
     img = Image.new("RGBA", (w, h), SKY)
-    sky = crayon_layer((w, h), SKY, density=0.25, angle=-0.2, stroke_len=(30, 70))
-    img.alpha_composite(sky)
-    # Button sun.
-    crayon_poly(img, jitter(ellipse_points(1460, 220, 110, 110, 30), 2), MARIGOLD, width=7)
+    # Page doodles: clover flowers and dots scattered over the lemon page.
+    for _ in range(26):
+        x, y = rng.uniform(40, w - 40), rng.uniform(40, 560)
+        _flower(img, x, y, rng.uniform(8, 12))
     d = ImageDraw.Draw(img)
-    for hx, hy in ((1430, 190), (1490, 190), (1430, 250), (1490, 250)):
+    for _ in range(40):
+        x, y = rng.uniform(0, w), rng.uniform(0, 600)
+        d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=shade(SKY, -45))
+    for x, y in ((240, 330), (1020, 250), (1700, 420)):
+        music_note(img, x, y, 34, TEAL)
+    # Button sun.
+    crayon_poly(img, ellipse_points(1460, 210, 100, 100, 40), MARIGOLD, width=7)
+    for hx, hy in ((1432, 182), (1488, 182), (1432, 238), (1488, 238)):
         d.ellipse([hx - 10, hy - 10, hx + 10, hy + 10], fill=INK)
-    # Layered paper hills.
-    for base, amp, color, phase in ((760, 90, (182, 206, 128, 255), 0.0), (860, 70, SAGE, 1.7), (960, 50, GRASS, 3.1)):
-        # Whole-number frequencies over the width, so the image tiles seamlessly sideways.
-        pts = [(x, base - math.sin(x / w * math.tau * 2 + phase) * amp - math.sin(x / w * math.tau * 7 + phase) * 18) for x in range(-20, w + 40, 40)]
-        pts += [(w + 20, h + 20), (-20, h + 20)]
-        crayon_poly(img, pts, color, width=6, wobble=2.0, density=0.35)
-    # Cut-paper clouds.
-    for cx, cy in ((320, 200), (840, 140), (1180, 300)):
-        pts = []
-        for i, r in enumerate((60, 48, 70, 52)):
-            pts += ellipse_points(cx - 90 + i * 60, cy + (12 if i % 2 else 0), r, r * 0.7, 10)[5:]
-        crayon_poly(img, [(cx - 160, cy + 40), (cx + 150, cy + 40), (cx + 150, cy + 20), (cx - 160, cy + 20)], CREAM, outline=False)
-        for i, r in enumerate((60, 48, 70, 52)):
-            crayon_poly(img, jitter(ellipse_points(cx - 90 + i * 60, cy + (12 if i % 2 else 0), r, r * 0.7, 18), 1.5), CREAM, width=5, density=0.4)
+    # Puffy clouds.
+    for cx, cy in ((320, 190), (820, 130), (1180, 300)):
+        blob(img, [(cx - 70, cy + 10, 46), (cx, cy - 12, 60), (cx + 72, cy + 8, 48), (cx + 20, cy + 26, 44)], CREAM, width=5, shade_amount=-26)
+    # Rolling hills; whole-number frequencies so the picture tiles sideways.
+    layers = ((720, 80, TEAL, 0.0), (850, 60, shade(GRASS, 20), 1.7), (960, 40, GRASS, 3.1))
+    for n, (base, amp, color, phase) in enumerate(layers):
+        pts = [(x, base - math.sin(x / w * math.tau * 2 + phase) * amp - math.sin(x / w * math.tau * 5 + phase) * 14) for x in range(-40, w + 41, 20)]
+        if n == 1:
+            for tx in (160, 520, 980, 1340, 1760):
+                ty = base - math.sin(tx / w * math.tau * 2 + phase) * amp - math.sin(tx / w * math.tau * 5 + phase) * 14
+                for wrap in (-w, 0, w):
+                    if -200 < tx + wrap < w + 200:
+                        tree(img, tx + wrap, ty + 30, rng.uniform(130, 170))
+        crayon_poly(img, pts + [(w + 40, h + 40), (-40, h + 40)], color, width=6, smooth=False, shadow=False)
+        ink_line(img, [(x, y + 14) for x, y in pts], width=4, color=shade(color, 40))
+        ink_line(img, pts, width=6)
     paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_thistledown.png"))
 
     # The Margin: the giant real-world table, viewed from above with lamp light.
     img = Image.new("RGBA", (w, h), WOOD)
-    img.alpha_composite(crayon_layer((w, h), WOOD, density=0.25, angle=0.0, stroke_len=(60, 140)))
-    d = ImageDraw.Draw(img)
     for y in range(40, h, 70):
-        d.line([(x, y + math.sin(x / 140 + y) * 6) for x in range(0, w + 1, 20)], fill=shade(WOOD, -40), width=3)
+        ink_line(img, [(x, y + math.sin(x / 140 + y) * 6) for x in range(-20, w + 21, 20)], width=3, color=shade(WOOD, -36))
     glow = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(glow).ellipse([w * 0.2, -h * 0.4, w * 0.9, h * 0.8], fill=110)
+    ImageDraw.Draw(glow).ellipse([w * 0.2, -h * 0.4, w * 0.9, h * 0.8], fill=90)
     glow = glow.filter(ImageFilter.GaussianBlur(160))
-    warm = Image.new("RGBA", (w, h), (255, 226, 160, 255))
-    img = Image.composite(warm, img, glow)
+    img = Image.composite(Image.new("RGBA", (w, h), (255, 214, 140, 255)), img, glow)
     paper_grain(img, 6).convert("RGB").save(out("backgrounds", "bg_margin_table.png"))
+
+
+def build_desk():
+    """The real desk the open book lies on, framed around every page (BookFrame)."""
+    w, h = 1920, 1080
+    desk = (150, 86, 50, 255)
+    img = Image.new("RGBA", (w, h), desk)
+    for y in range(0, h, 90):
+        ink_line(img, [(-20, y), (w + 20, y)], width=3, color=shade(desk, -34))
+        for _ in range(3):
+            x0 = rng.uniform(0, w)
+            ink_line(img, [(x0 + i * 12, y + 45 + math.sin(i / 3) * 8) for i in range(14)], width=2, color=shade(desk, -22))
+    # Things lying on the desk: a pencil, paper clips, an eraser, a roll of tape.
+    crayon_poly(img, [(1330, 30), (1690, 70), (1686, 104), (1326, 64)], SKYBLUE, width=5)
+    crayon_poly(img, [(1690, 70), (1760, 92), (1686, 104)], (240, 210, 160, 255), width=5)
+    crayon_poly(img, [(1270, 24), (1330, 30), (1326, 64), (1266, 58)], TOMATO, width=5)
+    for cx, cy, col in ((120, 40, TOMATO), (1840, 1000, SKYBLUE), (60, 1010, MARIGOLD)):
+        ImageDraw.Draw(img)
+        ink_line(img, [(cx - 30, cy), (cx + 30, cy), (cx + 30, cy + 22), (cx - 24, cy + 22), (cx - 24, cy + 8), (cx + 18, cy + 8)], width=5, color=INK)
+        ink_line(img, [(cx - 30, cy), (cx + 30, cy), (cx + 30, cy + 22), (cx - 24, cy + 22), (cx - 24, cy + 8), (cx + 18, cy + 8)], width=3, color=col)
+    crayon_poly(img, [(40, 400), (130, 380), (150, 450), (60, 470)], (250, 170, 190, 255), width=5)
+    crayon_poly(img, ellipse_points(1850, 520, 70, 70, 36), (236, 226, 176, 255), width=6)
+    crayon_poly(img, ellipse_points(1850, 520, 32, 32, 24), desk, width=4, shadow=False)
+    # Warm lamp light falling across the middle of the desk.
+    glow = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(glow).ellipse([w * 0.1, -h * 0.3, w * 0.9, h * 0.9], fill=80)
+    glow = glow.filter(ImageFilter.GaussianBlur(200))
+    img = Image.composite(Image.new("RGBA", (w, h), (255, 200, 120, 255)), img, glow)
+    paper_grain(img, 6).convert("RGB").save(out("backgrounds", "bg_desk.png"))
 
 
 def build_icon():
@@ -564,6 +726,10 @@ def build_boat_race():
     top = [(x, 250 + math.sin(x / w * math.tau * 3) * 30) for x in range(-20, w + 40, 40)]
     bottom = [(x, 860 + math.sin(x / w * math.tau * 2 + 1) * 30) for x in range(w + 20, -40, -40)]
     crayon_poly(img, top + bottom, (110, 168, 214, 255), width=7, wobble=2.0, density=0.5)
+    for _ in range(30):
+        x = rng.uniform(20, w - 20)
+        y = rng.choice([rng.uniform(30, 200), rng.uniform(920, 1060)])
+        _flower(img, x, y, rng.uniform(9, 13))
     d = ImageDraw.Draw(img)
     for y in range(330, 820, 70):
         for x0 in range(0, w, 240):
@@ -659,6 +825,7 @@ if __name__ == "__main__":
     build_props()
     build_ui()
     build_backgrounds()
+    build_desk()
     build_icon()
     build_chapter1_art()
     print("Art written to", ART)

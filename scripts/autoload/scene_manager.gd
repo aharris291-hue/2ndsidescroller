@@ -86,6 +86,7 @@ func _turn_to(scene_path: String) -> void:
 	# The new scene is added at the end of this frame; wait for it to finish _ready.
 	await get_tree().process_frame
 	await get_tree().process_frame
+	BookFrame.refresh()
 
 	_edge.position = Vector2(size.x - 6, 0)
 	var reveal := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

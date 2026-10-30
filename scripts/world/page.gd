@@ -16,6 +16,9 @@ const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
 @export var music: AudioStream
 ## The playable area, in pixels. The camera never shows outside it.
 @export var bounds := Rect2(0, 0, 3840, 1080)
+## False for pages in the real world (the Margin): they fill the screen instead of
+## being drawn inside the open book (see BookFrame).
+@export var in_book := true
 
 
 func _ready() -> void:

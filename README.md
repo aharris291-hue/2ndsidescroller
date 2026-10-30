@@ -1,6 +1,6 @@
 # Patch and the Pop-Up Kingdom
 
-A whimsical ink-and-crayon storybook adventure made in **Godot 4.7.2**, written entirely in GDScript. You play Patch, a paper fox whose tail was torn off in a flood, as he mends a soggy pop-up book. The story, world and characters are original, and the full design is in the Story Bible.
+A whimsical storybook adventure in bold cartoon style made in **Godot 4.7.2**, written entirely in GDScript. You play Patch, a paper fox whose tail was torn off in a flood, as he mends a soggy pop-up book. The story, world and characters are original, and the full design is in the Story Bible.
 
 This repository holds the **core framework**, the **Prologue**, and all of **Chapter 1: Thistledown Meadow**:
 
@@ -15,6 +15,7 @@ This repository holds the **core framework**, the **Prologue**, and all of **Cha
 - **Chapter 1, Thistledown Meadow:** the meadow, Windmill Hills (ride the windmill sails), the Ribbon Regatta paper-boat race, and the boss fight with the Old Millwheel, ending in an interlude at Gran's table.
 - **Side quests and companions:** Fluff's lost-sheep quest, the regatta, a quest log in the pause menu, and Dot the ladybird, who follows Patch once she joins.
 - **The Margin:** a top-down page on Gran's kitchen table.
+- **Book view:** every page is drawn as an open pop-up book lying on a wooden desk (switch it off in the pause menu).
 - **Desktop builds:** export presets for Windows (.exe) and macOS (universal .app), and a GitHub Actions workflow that tests and builds both on every push.
 
 ## Quick start
@@ -53,7 +54,7 @@ tools/         Asset generators (Python) and Godot helper scripts
 
 | Command | What it does |
 | --- | --- |
-| `python3 tools/art/generate_art.py` | Regenerates all ink-and-crayon textures and the app icon (needs Pillow and numpy). |
+| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, flat colors) and the app icon (needs Pillow and numpy). |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). |
 | `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapter 1 automatically and checks that it works. CI runs this. |
 | `godot --headless --path . --script tools/godot/setup_input_map.gd` | Rewrites the input map in `project.godot`. |
