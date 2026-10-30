@@ -23,82 +23,6 @@ BRASS = (236, 180, 60, 255)
 DUSK = (120, 92, 168, 255)
 
 
-# ---------------------------------------------------------------------- characters
-
-
-def build_corrugate():
-    """Corrugate: a cardboard tortoise sea captain in a bottle-cap hat, facing right."""
-    w, h = 240, 200
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    for lx in (58, 92, 136, 166):
-        crayon_poly(img, [(lx, 140), (lx + 22, 140), (lx + 24, 188), (lx - 2, 188)], shade(SAGE, -30), width=4)
-    # Corrugated cardboard shell.
-    shell = ellipse_points(110, 120, 96, 72, 40)
-    shell = [(x, min(y, 150)) for x, y in shell]
-    crayon_poly(img, shell, CARDBOARD, width=6, smooth=False)
-    for x in range(34, 190, 16):
-        top = 120 - math.sqrt(max(0.0, 1 - ((x - 110) / 96) ** 2)) * 72 + 8
-        ink_line(img, [(x, top), (x + 4, 146)], width=2, wobble=0.4, color=shade(CARDBOARD, -60))
-    crayon_poly(img, [(14, 146), (206, 146), (204, 160), (16, 160)], shade(CARDBOARD, -30), width=4, smooth=False)
-    # Head and neck.
-    crayon_poly(img, [(170, 112), (200, 98), (226, 104), (234, 124), (222, 142), (190, 146), (168, 140)], SAGE, width=5)
-    button_eye(img, 210, 116, 6)
-    ink_line(img, [(214, 134), (228, 130)], width=3, wobble=0.3)
-    # Bottle-cap hat with a crimped rim.
-    cap = []
-    for i in range(25):
-        a = math.pi + i / 24 * math.pi
-        r = 30 if i % 2 == 0 else 26
-        cap.append((204 + math.cos(a) * r, 98 + math.sin(a) * r * 0.55))
-    crayon_poly(img, cap, TOMATO, width=4, smooth=False)
-    crayon_poly(img, [(180, 92), (228, 92), (226, 100), (182, 100)], shade(TOMATO, -30), width=3, smooth=False)
-    # A proud strip of tape over an old dent.
-    crayon_poly(img, [(80, 70), (140, 62), (144, 80), (84, 88)], (240, 232, 190, 230), width=3, wobble=0.6)
-    paper_grain(img).save(out("characters", "corrugate.png"))
-
-
-def _paper_doll(img, cx, base, dress, hair):
-    crayon_poly(img, [(cx - 28, base - 70), (cx + 28, base - 70), (cx + 36, base - 8), (cx - 36, base - 8)], dress, width=4)
-    for lx in (cx - 14, cx + 6):
-        crayon_poly(img, [(lx, base - 10), (lx + 8, base - 10), (lx + 8, base), (lx, base)], INK, outline=False)
-    crayon_poly(img, ellipse_points(cx, base - 96, 26, 28, 24), TAN, width=4)
-    crayon_poly(img, [(cx - 28, base - 104), (cx - 20, base - 128), (cx + 20, base - 128), (cx + 28, base - 104), (cx + 18, base - 112), (cx - 18, base - 112)], hair, width=3)
-    button_eye(img, cx - 9, base - 96, 4)
-    button_eye(img, cx + 9, base - 96, 4)
-    ink_line(img, [(cx - 7, base - 82), (cx, base - 78), (cx + 7, base - 82)], width=2, wobble=0.2)
-
-
-def build_lamplighters():
-    """The Lamplighter Sisters: three paper-doll triplets cut from one folded strip."""
-    w, h = 300, 220
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    base = 212
-    # The joined hands of a paper-doll chain.
-    crayon_poly(img, [(60, base - 62), (240, base - 62), (240, base - 50), (60, base - 50)], TAN, width=3, smooth=False)
-    for cx, dress, hair in ((70, MARIGOLD, (120, 70, 40, 255)), (150, TOMATO, (60, 40, 30, 255)), (230, TEAL, (180, 110, 50, 255))):
-        _paper_doll(img, cx, base, dress, hair)
-    # The middle sister holds up a lit lantern on a stick.
-    ink_line(img, [(176, base - 66), (196, base - 170)], width=4)
-    blob(img, [(198, base - 182, 18)], MARIGOLD, width=3, shade_amount=-20)
-    paper_grain(img).save(out("characters", "lamplighter_sisters.png"))
-
-
-def build_crumple():
-    """Crumple, Corrugate's origami ship's cat, sitting and very unimpressed."""
-    w, h = 120, 120
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    crayon_poly(img, [(22, 112), (34, 62), (86, 62), (98, 112)], LILAC, width=4, smooth=False)
-    crayon_poly(img, [(34, 62), (60, 112), (22, 112)], shade(LILAC, -24), width=3, smooth=False)
-    crayon_poly(img, [(96, 104), (114, 84), (110, 64), (104, 86), (90, 98)], LILAC, width=3, smooth=False)
-    crayon_poly(img, [(32, 66), (36, 22), (52, 38), (68, 38), (84, 22), (88, 66), (60, 76)], CREAM, width=4, smooth=False)
-    button_eye(img, 50, 52, 5)
-    button_eye(img, 70, 52, 5)
-    ink_line(img, [(42, 44), (56, 48)], width=2, wobble=0.2)
-    ink_line(img, [(78, 44), (64, 48)], width=2, wobble=0.2)
-    ink_line(img, [(56, 64), (60, 66), (64, 64)], width=2, wobble=0.2)
-    paper_grain(img).save(out("characters", "crumple.png"))
-
-
 def build_kraken():
     """The Blotch Kraken: a spilled-ink monster with a single furious eye."""
     w, h = 560, 440
@@ -355,9 +279,6 @@ def build_dad_table_late():
 
 
 def build():
-    build_corrugate()
-    build_lamplighters()
-    build_crumple()
     build_kraken()
     build_lanterns()
     build_grapple_ring()

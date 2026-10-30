@@ -70,6 +70,7 @@ var _tape_line: Line2D
 var _carry_left := 0.0
 
 @onready var visual: Node2D = $Visual
+@onready var sprite: Sprite2D = $Visual/Sprite2D
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var attack_hitbox: Hitbox = $AttackHitbox
@@ -475,6 +476,24 @@ func _on_dialogue_finished() -> void:
 
 # --- Paper-puppet animation --------------------------------------------------
 
+## Frames in patch.png: stand, stride, pass, other stride, jump.
+const WALK_CYCLE := [1, 2, 3, 2]
+const FRAME_STAND := 0
+const FRAME_JUMP := 4
+
+
+func _update_frame(moving: bool, grounded: bool) -> void:
+	if not grounded or state == State.GRAPPLE:
+		sprite.frame = FRAME_JUMP
+	elif state == State.DASH:
+		sprite.frame = 1
+	elif moving:
+		# Four steps per bob cycle so each stride lands on a bob.
+		sprite.frame = WALK_CYCLE[int(_anim_time / (PI / 2.0)) % WALK_CYCLE.size()]
+	else:
+		sprite.frame = FRAME_STAND
+
+
 func _squash(amount: Vector2) -> void:
 	var sign_x := signf(visual.scale.x) if visual.scale.x != 0.0 else 1.0
 	visual.scale = Vector2(amount.x * sign_x, amount.y)
@@ -496,6 +515,7 @@ func _update_visual(delta: float) -> void:
 	_anim_time += delta * (12.0 if moving else 3.0)
 	var bob := absf(sin(_anim_time)) * (7.0 if moving and grounded else 1.5)
 	visual.position.y = -bob
+	_update_frame(moving, grounded)
 	var tilt := 0.0
 	if view_mode == PageView.Mode.SIDE:
 		tilt = clampf(velocity.x / run_speed, -1.0, 1.0) * 0.08

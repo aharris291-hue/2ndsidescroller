@@ -18,7 +18,8 @@ quest_turn_in_dialogue = "lamplighters_done"
 prompt_offset = Vector2(0, -250)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1138396834]
-position = Vector2(0, -106)
+position = Vector2(0, -108)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_ukg0k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=11915019]

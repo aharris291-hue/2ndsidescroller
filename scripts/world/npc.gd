@@ -25,6 +25,7 @@ const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
 @export var quest_turn_in_dialogue := ""
 
 @onready var _sprite: Node2D = get_node_or_null("Sprite2D")
+@onready var _sprite_base_y := _sprite.position.y if _sprite else 0.0
 var _time := randf() * TAU
 
 
@@ -39,7 +40,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if _sprite:
 		_time += delta * 2.0
-		_sprite.position.y = -absf(sin(_time)) * idle_bob
+		_sprite.position.y = _sprite_base_y - absf(sin(_time)) * idle_bob
 
 
 func interact(_player: Patch) -> void:

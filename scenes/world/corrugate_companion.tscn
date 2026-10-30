@@ -11,5 +11,5 @@ companion_flag = "corrugate_joined"
 bob = 3.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.6, 0.6)
+scale = Vector2(0.36, 0.36)
 texture = ExtResource("2_corr")

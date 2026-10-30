@@ -45,7 +45,8 @@ func interact(_player: Patch) -> void:
 		caption += " (%d/%d found)" % [GameState.quest_progress(quest_id), GameState.quest_goal(quest_id)]
 	DialogueUI.narrate(caption)
 	var tween := create_tween()
-	tween.tween_property(sprite, "scale", Vector2(signf(leave_offset.x) if leave_offset.x != 0.0 else 1.0, 1), 0.15)
+	var flip := signf(leave_offset.x) if leave_offset.x != 0.0 else 1.0
+	tween.tween_property(sprite, "scale", Vector2(absf(sprite.scale.x) * flip, sprite.scale.y), 0.15)
 	tween.tween_property(self, "position", position + leave_offset, 1.2)
 	tween.parallel().tween_property(self, "modulate:a", 0.0, 1.2)
 	tween.tween_callback(queue_free)

@@ -419,99 +419,6 @@ def build_tiles():
     paper_grain(atlas, 10).save(out("tiles", "paper_tiles.png"))
 
 
-# ---------------------------------------------------------------------- characters
-
-
-def build_patch():
-    """Patch, the paper fox, side view facing right with a torn stump for a tail."""
-    s = 160
-    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    # Legs (behind body).
-    for lx in (52, 66, 98, 112):
-        crayon_poly(img, [(lx, 112), (lx + 10, 112), (lx + 11, 146), (lx - 1, 146)], shade(MARIGOLD, -30), width=4)
-        crayon_poly(img, [(lx - 2, 140), (lx + 13, 140), (lx + 13, 150), (lx - 3, 150)], INK, outline=False)
-    # Torn tail stump: a jagged paper edge.
-    stump = [(40, 84), (26, 78), (32, 86), (20, 88), (30, 94), (22, 100), (40, 104)]
-    crayon_poly(img, stump, MARIGOLD, width=4)
-    # Body.
-    body = [(36, 80), (70, 70), (112, 72), (130, 84), (128, 116), (96, 122), (52, 120), (36, 106)]
-    crayon_poly(img, body, MARIGOLD, width=5)
-    # Cream chest.
-    crayon_poly(img, [(104, 92), (126, 90), (124, 116), (106, 118)], CREAM, width=3)
-    # Head.
-    head = [(102, 44), (114, 14), (124, 40), (134, 38), (146, 12), (150, 46), (156, 58), (154, 72), (136, 84), (110, 82), (100, 64)]
-    crayon_poly(img, head, MARIGOLD, width=5)
-    # Inner ears.
-    crayon_poly(img, [(110, 40), (115, 24), (121, 40)], TOMATO, width=2, wobble=0.5)
-    crayon_poly(img, [(137, 38), (145, 22), (147, 42)], TOMATO, width=2, wobble=0.5)
-    # Cream muzzle and nose.
-    crayon_poly(img, [(132, 62), (156, 58), (154, 72), (136, 80)], CREAM, width=3)
-    d = ImageDraw.Draw(img)
-    d.ellipse([150, 56, 160, 64], fill=INK)
-    button_eye(img, 134, 52, 6)
-    # Stitch mark across the body: the first visible mend.
-    for i in range(3):
-        x = 76 + i * 9
-        ink_line(img, [(x, 88), (x + 4, 100)], width=2, wobble=0.4)
-    ink_line(img, [(73, 94), (104, 94)], width=2, wobble=0.6)
-    paper_grain(img).save(out("characters", "patch.png"))
-
-
-def build_soggy():
-    s = 112
-    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    blob = jitter(ellipse_points(56, 66, 46, 38, 22), 4)
-    crayon_poly(img, blob, SOGGY, width=5)
-    d = ImageDraw.Draw(img)
-    # Crumpled folds.
-    for _ in range(5):
-        x, y = rng.uniform(26, 86), rng.uniform(44, 92)
-        ink_line(img, [(x, y), (x + rng.uniform(-12, 12), y + rng.uniform(4, 12))], width=2, wobble=0.6, color=(70, 84, 104, 255))
-    # Mildew spots.
-    for _ in range(6):
-        x, y = rng.uniform(22, 90), rng.uniform(40, 96)
-        d.ellipse([x - 4, y - 4, x + 4, y + 4], fill=(108, 132, 96, 220))
-    # Drips.
-    for x in (30, 58, 84):
-        crayon_poly(img, [(x - 5, 96), (x + 5, 96), (x, 110)], (92, 120, 160, 255), width=2, wobble=0.4)
-    # Grumpy eyes.
-    button_eye(img, 42, 58, 7)
-    button_eye(img, 70, 58, 7)
-    ink_line(img, [(32, 46), (50, 52)], width=4, wobble=0.3)
-    ink_line(img, [(80, 46), (62, 52)], width=4, wobble=0.3)
-    ink_line(img, [(46, 80), (56, 76), (66, 80)], width=3, wobble=0.3)
-    paper_grain(img).save(out("characters", "soggy.png"))
-
-
-def build_sheep():
-    w, h = 128, 112
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    for lx in (38, 56, 74, 90):
-        crayon_poly(img, [(lx, 80), (lx + 8, 80), (lx + 8, 106), (lx, 106)], INK, outline=False)
-    for cx, cy, r in [(40, 56, 24), (64, 46, 26), (88, 56, 24), (52, 72, 22), (78, 72, 22)]:
-        crayon_poly(img, jitter(ellipse_points(cx, cy, r, r * 0.9, 16), 2), CREAM, width=4)
-    crayon_poly(img, jitter(ellipse_points(108, 52, 15, 18, 14), 1.5), (70, 58, 52, 255), width=4)
-    button_eye(img, 112, 48, 4)
-    # Tiny round spectacles: Shepherd Fluff is old and wise.
-    d = ImageDraw.Draw(img)
-    d.ellipse([105, 41, 119, 55], outline=CREAM, width=2)
-    paper_grain(img).save(out("characters", "shepherd_fluff.png"))
-
-
-def build_dot():
-    """Dot, the runaway full stop: a round ink blot with button eyes and tiny feet."""
-    s = 72
-    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    crayon_poly(img, jitter(ellipse_points(36, 32, 26, 26, 24), 0.8), (52, 44, 40, 255), width=4, density=1.6)
-    d = ImageDraw.Draw(img)
-    for ex in (27, 45):
-        d.ellipse([ex - 6, 22, ex + 6, 34], fill=CREAM)
-        d.ellipse([ex - 3, 26, ex + 3, 32], fill=INK)
-    ink_line(img, [(28, 58), (26, 68)], width=3, wobble=0.3)
-    ink_line(img, [(44, 58), (46, 68)], width=3, wobble=0.3)
-    paper_grain(img).save(out("characters", "dot.png"))
-
-
 # --------------------------------------------------------------------------- props
 
 
@@ -738,24 +645,6 @@ def build_icon():
 # ------------------------------------------------------------------ chapter 1 art
 
 
-def build_lost_sheep():
-    """A flock sheep swollen by the damp: puffier, bluer, and grumpy about it."""
-    w, h = 144, 128
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    wool = (190, 206, 220, 255)
-    for lx in (44, 62, 82, 98):
-        crayon_poly(img, [(lx, 94), (lx + 8, 94), (lx + 8, 120), (lx, 120)], INK, outline=False)
-    for cx, cy, r in [(42, 62, 30), (70, 48, 32), (100, 62, 30), (56, 84, 26), (88, 84, 26)]:
-        crayon_poly(img, jitter(ellipse_points(cx, cy, r, r * 0.9, 16), 2.5), wool, width=4)
-    for _ in range(5):
-        x, y = rng.uniform(34, 104), rng.uniform(40, 92)
-        ImageDraw.Draw(img).ellipse([x - 4, y - 4, x + 4, y + 4], fill=(120, 150, 180, 200))
-    crayon_poly(img, jitter(ellipse_points(124, 58, 15, 18, 14), 1.5), (70, 58, 52, 255), width=4)
-    button_eye(img, 128, 54, 4)
-    ink_line(img, [(118, 70), (126, 66), (134, 70)], width=2, wobble=0.3)
-    paper_grain(img).save(out("characters", "lost_sheep.png"))
-
-
 def build_windmill():
     w, h = 256, 400
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -926,7 +815,6 @@ def build_drip():
 
 def build_chapter1_art():
     build_drip()
-    build_lost_sheep()
     build_windmill()
     build_millwheel()
     build_boat_race()
@@ -938,17 +826,18 @@ if __name__ == "__main__":
     import sys
 
     import chapter2_art
+    import character_art
 
+    if "characters" in sys.argv:
+        # Quick path: only the cast (Patch, NPCs and Soggies).
+        character_art.build()
+        sys.exit(0)
     if "chapter2" in sys.argv:
         # Quick path: only the Chapter 2 art and the tile atlas.
         build_tiles()
         chapter2_art.build()
         sys.exit(0)
     build_tiles()
-    build_patch()
-    build_soggy()
-    build_sheep()
-    build_dot()
     build_props()
     build_ui()
     build_backgrounds()
@@ -956,4 +845,5 @@ if __name__ == "__main__":
     build_icon()
     build_chapter1_art()
     chapter2_art.build()
+    character_art.build()
     print("Art written to", ART)

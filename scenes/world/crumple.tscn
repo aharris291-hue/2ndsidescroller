@@ -19,6 +19,7 @@ prompt_offset = Vector2(0, -150)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1503818010]
 position = Vector2(0, -56)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_8xqw2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=281177097]
