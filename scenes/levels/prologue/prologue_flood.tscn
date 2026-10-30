@@ -30,7 +30,7 @@ size = Vector2(200, 200)
 [node name="PrologueFlood" type="Node2D" unique_id=963970258]
 script = ExtResource("1_38tsg")
 page_title = "The Title Page"
-opening_caption = "Patch the Magnificent was halfway through a very good boast when the page began to flood."
+opening_caption = "Patch the Magnificent was halfway through an excellent boast when the page began to drown."
 music = ExtResource("2_l8l1x")
 bounds = Rect2(0, 0, 1920, 3200)
 
@@ -90,7 +90,7 @@ position = Vector2(320, 256)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("7_5ap6s")
-caption = "Patch made it off the page. Most of him did. His beautiful tail was gone."
+caption = "Patch made it off the page. Most of him did. He told himself he would go back for the rest."
 
 [node name="Actors" type="Node2D" parent="." unique_id=1423761784]
 
@@ -125,7 +125,7 @@ collision_layer = 16
 collision_mask = 0
 monitoring = false
 script = ExtResource("15_sch5e")
-rise_speed = 34.0
+rise_speed = 44.0
 stop_y = 320.0
 knockback = 900.0
 

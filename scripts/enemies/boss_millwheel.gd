@@ -19,9 +19,9 @@ const DRIP_SCENE := preload("res://scenes/enemies/ink_drip.tscn")
 ## The fight starts when Patch walks into this area.
 @export var start_zone: Area2D
 ## Sail speed (radians/second) per phase, from full health down.
-@export var sail_speeds: Array[float] = [0.9, 1.3, 1.8]
-@export var jam_time := 6.0
-@export var drip_interval := 2.2
+@export var sail_speeds: Array[float] = [1.1, 1.6, 2.2]
+@export var jam_time := 4.5
+@export var drip_interval := 1.5
 @export var arena_left := 160.0
 @export var arena_right := 1180.0
 @export var floor_y := 896.0

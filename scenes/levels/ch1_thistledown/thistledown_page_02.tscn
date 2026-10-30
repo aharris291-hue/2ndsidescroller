@@ -39,7 +39,7 @@ size = Vector2(120, 600)
 [node name="ThistledownPage02" type="Node2D" unique_id=964156676]
 script = ExtResource("1_s2oh5")
 page_title = "Windmill Hills"
-opening_caption = "On the Windmill Hills the sails hung still and heavy, and somewhere up there three sheep were sulking."
+opening_caption = "On the Windmill Hills the sails hung dead in the damp air. Somewhere up there, three sheep were refusing to be rescued."
 music = ExtResource("2_mu5ur")
 bounds = Rect2(0, 0, 5760, 1088)
 

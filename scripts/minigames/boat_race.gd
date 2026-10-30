@@ -11,9 +11,9 @@ extends Node2D
 @export var return_spawn: StringName = &"FromRace"
 @export var quest_id := "ribbon_regatta"
 @export var course_length := 11000.0
-@export var start_speed := 420.0
-@export var end_speed := 560.0
-@export var max_bumps := 3
+@export var start_speed := 470.0
+@export var end_speed := 640.0
+@export var max_bumps := 2
 @export var course_seed := 7
 @export var river_top := 340.0
 @export var river_bottom := 800.0

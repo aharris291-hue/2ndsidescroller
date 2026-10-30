@@ -2,25 +2,37 @@
 	"prologue_intro": [
 		{
 			"speaker": "nell",
-			"text": "Dad? The water's coming under the door."
+			"text": "Dad. The water's under the door. Like, actually in the room."
 		},
 		{
 			"speaker": "dad",
-			"text": "Grab your coat, Nell. Just your coat. We have to go, right now."
+			"text": "Shoes, coat, phone. Nothing else, Nell. I mean it."
 		},
 		{
 			"speaker": "nell",
-			"text": "Wait! My book!"
+			"text": "The book's on the shelf. The one you made me. I'm not leaving it."
+		},
+		{
+			"speaker": "dad",
+			"text": "Nell, it's paper. We can't—"
+		},
+		{
+			"speaker": "nell",
+			"text": "Then I'll carry it, and you can carry the argument. Go."
 		}
 	],
 	"prologue_patch": [
 		{
 			"speaker": "patch",
-			"text": "Behold! Patch the Magnificent, hero of page one, finest tail in all of Foldwick!"
+			"text": "Behold! Patch the Magnificent. Hero of page one. Owner of the finest tail in Foldwick, possibly in literature."
 		},
 		{
 			"speaker": "patch",
-			"text": "...Why is the page wet? Why is the page MOVING?"
+			"text": "...Why is the page wet? Why is the page getting MORE wet?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Okay. Okay. Heroes don't run. Heroes stride away very quickly."
 		}
 	]
 }

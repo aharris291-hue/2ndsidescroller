@@ -6,9 +6,9 @@ extends CharacterBody2D
 
 const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 
-@export var patrol_speed := 110.0
-@export var chase_speed := 170.0
-@export var chase_range := 420.0
+@export var patrol_speed := 130.0
+@export var chase_speed := 235.0
+@export var chase_range := 540.0
 @export var gravity := 2000.0
 @export var scrap_drop := 2
 

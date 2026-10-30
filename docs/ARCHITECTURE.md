@@ -146,7 +146,7 @@ interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complet
 - **NarratorTrigger** shows a one-time caption; `{jump}`, `{attack}`, `{dash}` and `{interact}` become the right button names.
 - **Windmill** spins a ring of `AnimatableBody2D` gondolas Patch can ride. A `PullTab` (now with an optional target) starts it.
 - **BossMillwheel:** pull the three mooring tabs to jam the sails, then hit the core. Every 3 hits it recovers, spins faster, and calls 2 Soggies. `EventBus.boss_started`, `boss_health_changed` and `boss_defeated` drive the HUD boss bar.
-- **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 3 bumps or fewer.
+- **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 2 bumps or fewer.
 
 ## Collision layers
 

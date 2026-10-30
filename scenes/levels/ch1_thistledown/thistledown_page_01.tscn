@@ -27,7 +27,7 @@ normal = Vector2(-1, 0)
 [node name="ThistledownPage01" type="Node2D" unique_id=1296580335]
 script = ExtResource("1_si3jy")
 page_title = "Thistledown Meadow"
-opening_caption = "In Thistledown Meadow, the windmills had stopped turning. Something soggy was creeping over the hills."
+opening_caption = "In Thistledown Meadow the windmills had stopped, and something heavy and wet was walking over the hills."
 music = ExtResource("2_qgsa6")
 bounds = Rect2(0, 0, 5120, 1088)
 
