@@ -343,6 +343,7 @@ def tile_seabed_fill():
 
 def build_tiles():
     import chapter3_art
+    import finale_art
     import page_art
 
     snow_row, winter_row = chapter3_art.tiles()
@@ -352,6 +353,7 @@ def build_tiles():
         [page_art.tile_cobble, page_art.tile_boardwalk, page_art.tile_harbor_water, tile_seabed_top],
         [tile_seabed_fill, page_art.tile_hedge] + snow_row,
         winter_row,
+        finale_art.tiles(),
     ]
     atlas = Image.new("RGBA", (TILE * 4, TILE * len(makers)), (0, 0, 0, 0))
     for row, funcs in enumerate(makers):
@@ -725,6 +727,7 @@ if __name__ == "__main__":
     import chapter2_art
     import chapter3_art
     import character_art
+    import finale_art
 
     if "characters" in sys.argv:
         # Quick path: only the cast (Patch, NPCs and Soggies).
@@ -740,6 +743,13 @@ if __name__ == "__main__":
         build_tiles()
         chapter3_art.build()
         sys.exit(0)
+    if "finale" in sys.argv:
+        # Quick path: only the finale art, the tile atlas and Patch (with his new tail).
+        build_tiles()
+        finale_art.build()
+        character_art.build_patch()
+        character_art.build_patch(mended=True)
+        sys.exit(0)
     build_tiles()
     build_props()
     build_ui()
@@ -749,5 +759,6 @@ if __name__ == "__main__":
     build_chapter1_art()
     chapter2_art.build()
     chapter3_art.build()
+    finale_art.build()
     character_art.build()
     print("Art written to", ART)

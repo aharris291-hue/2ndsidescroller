@@ -1,0 +1,410 @@
+{
+	"gutter_arrival": [
+		{
+			"speaker": "narrator",
+			"text": "The Gutter. The deep fold where the pages meet. Every drop of the flood had run down here in the end, and it had nowhere left to go."
+		},
+		{
+			"speaker": "patch",
+			"text": "Hello? Dot? Corrugate?"
+		},
+		{
+			"speaker": "patch",
+			"text": "...Okay. Okay. No sidekicks. That's fine. Classic hero stuff. The lone fox walks into the dark."
+		},
+		{
+			"speaker": "patch",
+			"text": "The lone fox would really like a torch, though."
+		},
+		{
+			"speaker": "patch",
+			"text": "Right. The Sogg came down here, so there's only one way to go. Down and along. Story of my life, lately."
+		}
+	],
+	"gutter_echoes": [
+		{
+			"speaker": "narrator",
+			"text": "The water down here remembered everything it had soaked. Shapes kept rising out of it."
+		},
+		{
+			"speaker": "patch",
+			"text": "Every Soggy in the book must drain down here. Brilliant. It's like the world's worst bath."
+		}
+	],
+	"gutter_sogg_arrival": [
+		{
+			"speaker": "sogg",
+			"text": "You came down on your own. Your friends are up on the spine. Nobody's coming."
+		},
+		{
+			"speaker": "patch",
+			"text": "I noticed. I'm doing great, thanks for asking."
+		},
+		{
+			"speaker": "sogg",
+			"text": "Do you know what this place is, fox? It's where everything ends up. Every word that ran. Every page that wouldn't dry."
+		},
+		{
+			"speaker": "sogg",
+			"text": "Nobody fixes the middle of a book. They just close it."
+		},
+		{
+			"speaker": "patch",
+			"text": "Then I'll fix it. I've been told I'm very annoying about things like that."
+		}
+	],
+	"gutter_losing": [
+		{
+			"speaker": "patch",
+			"text": "...I can't. I can't get a hit in. The folds won't even stand up."
+		},
+		{
+			"speaker": "sogg",
+			"text": "Of course not. Down here, everything goes soft. You can stop now."
+		},
+		{
+			"speaker": "patch",
+			"text": "Dot was right, you know. Everybody tears."
+		},
+		{
+			"speaker": "sogg",
+			"text": "And then they stay torn."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Maybe. Maybe I just can't do this one on my own."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The Sogg closed over him like a wet blanket. Everything went dark and cold and heavy."
+		},
+		{
+			"speaker": "narrator",
+			"text": "And then, far above, at the very edge of the page, a light came on."
+		}
+	],
+	"warm_air_arrives": [
+		{
+			"speaker": "narrator",
+			"text": "Something came down out of the Margin into the Gutter: a huge pink nozzle, humming, and with it, a wind as warm as an oven door."
+		},
+		{
+			"speaker": "patch",
+			"text": "The Great Light has... a weather? Since when does the Great Light have a weather?"
+		},
+		{
+			"speaker": "sogg",
+			"text": "No. No! Turn it off. NOT WARM!"
+		},
+		{
+			"speaker": "patch",
+			"text": "Oh, you don't like that at all, do you."
+		},
+		{
+			"speaker": "patch",
+			"text": "Okay. Somebody out there is on my side. Let's go, Sogg. Round two."
+		}
+	],
+	"drizzle_dried": [
+		{
+			"speaker": "narrator",
+			"text": "The Sogg shrank, and shrank, until all that was left was a small white cloud, about the size of a fox, looking at the floor."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "...Hi."
+		},
+		{
+			"speaker": "patch",
+			"text": "Drizzle?"
+		},
+		{
+			"speaker": "drizzle",
+			"text": "I'm really sorry. About the whole... drowning everything. And the dragging. And the, um. Monologues."
+		},
+		{
+			"speaker": "patch",
+			"text": "The monologues were a lot, yeah."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "When the flood came, I soaked up so much of it. I kept getting heavier, and nobody could see me any more, just the wet. I thought, if I'm ruined, then everything should be."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "That way I wouldn't be the only one."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Yeah. I get that. When the water came, I ran. I spent three chapters telling everyone a thunderstorm did it."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "Did it work?"
+		},
+		{
+			"speaker": "patch",
+			"text": "No. A sheep saw. Then I told the truth, and it turned out my friends had tape on them too. Loads of it."
+		},
+		{
+			"speaker": "patch",
+			"text": "Everybody tears. Period. Somebody clever told me that."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "...Can I still be the Weather Page's rain? Just a bit of rain. Light. Occasional."
+		},
+		{
+			"speaker": "patch",
+			"text": "I think the meadow would like that. Come on. Let's go up. It's warm up there now."
+		}
+	],
+	"interlude_4": [
+		{
+			"speaker": "narrator",
+			"text": "Two in the morning. Dad was still asleep at the table. Nell had come down for a glass of water and hadn't gone back up."
+		},
+		{
+			"speaker": "nell",
+			"text": "Gran? You're awake."
+		},
+		{
+			"speaker": "gran",
+			"text": "Old ladies don't sleep, love. We just wait for the kettle."
+		},
+		{
+			"speaker": "nell",
+			"text": "Look at the middle of the book. It's still soaked. It's worse than yesterday. The fox's page is just... empty."
+		},
+		{
+			"speaker": "gran",
+			"text": "Mm."
+		},
+		{
+			"speaker": "nell",
+			"text": "Dad's going to wake up and try to fix it and it's not going to work, and he'll just keep trying anyway."
+		},
+		{
+			"speaker": "gran",
+			"text": "He will. He's like that. So was your grandad."
+		},
+		{
+			"speaker": "gran",
+			"text": "Nell. Mended isn't the same as broken. People think it's halfway back to new. It isn't. It's its own thing."
+		},
+		{
+			"speaker": "gran",
+			"text": "My mug's got three glue lines. It holds tea better than it ever did, because I'm careful with it now. That's what the glue's for. Not to hide the crack. To show you cared enough to fix it."
+		},
+		{
+			"speaker": "nell",
+			"text": "..."
+		},
+		{
+			"speaker": "nell",
+			"text": "That's such a Gran thing to say."
+		},
+		{
+			"speaker": "gran",
+			"text": "Thank you. I've been saving it."
+		},
+		{
+			"speaker": "nell",
+			"text": "...The plug's right next to the book. I'd have sworn it was over by the sink."
+		},
+		{
+			"speaker": "gran",
+			"text": "Funny, that."
+		},
+		{
+			"speaker": "narrator",
+			"text": "Nell plugged the hairdryer in, switched it to warm, and pointed it at the very middle of the book."
+		},
+		{
+			"speaker": "nell",
+			"text": "Okay, fox. Hang on. I'm coming."
+		}
+	],
+	"ending_table": [
+		{
+			"speaker": "narrator",
+			"text": "Morning. Sun came through the laundromat steam and across Gran's table."
+		},
+		{
+			"speaker": "dad",
+			"text": "Nell? Did you... You dried the Gutter."
+		},
+		{
+			"speaker": "nell",
+			"text": "Somebody had to. You were snoring on the winter page."
+		},
+		{
+			"speaker": "dad",
+			"text": "The middle's dry. It's all dry. It's lumpy. It's a bit warped. But it's..."
+		},
+		{
+			"speaker": "nell",
+			"text": "It's not the same."
+		},
+		{
+			"speaker": "dad",
+			"text": "No. It's not."
+		},
+		{
+			"speaker": "nell",
+			"text": "I think I like it anyway."
+		},
+		{
+			"speaker": "nell",
+			"text": "Dad, the envelope. 'Patch, tail.' Can we put it back on?"
+		},
+		{
+			"speaker": "dad",
+			"text": "I tried. It's just pulp now, love. The ink ran right through it."
+		},
+		{
+			"speaker": "nell",
+			"text": "Then we make him a new one. Hang on."
+		},
+		{
+			"speaker": "narrator",
+			"text": "Nell cut a strip from the Lanternfold harbour map, the corner that had never quite dried right, and folded it into a tail."
+		},
+		{
+			"speaker": "dad",
+			"text": "Tape on the inside, so it doesn't show?"
+		},
+		{
+			"speaker": "nell",
+			"text": "No. On the outside. So he can see it."
+		},
+		{
+			"speaker": "gran",
+			"text": "Good girl."
+		},
+		{
+			"speaker": "nell",
+			"text": "And there's a blank page at the back. It's been blank since I was born."
+		},
+		{
+			"speaker": "dad",
+			"text": "I never knew what to put there."
+		},
+		{
+			"speaker": "nell",
+			"text": "I do. Pass me the crayons."
+		},
+		{
+			"speaker": "narrator",
+			"text": "Dad laughed. Gran laughed. Nell told them to stop watching her draw, and then she laughed too."
+		}
+	],
+	"epilogue_arrival": [
+		{
+			"speaker": "patch",
+			"text": "Whoa. This page is new. It smells like crayon."
+		},
+		{
+			"speaker": "dot",
+			"text": "Patch! You're alive. You're dry. You're... what's that on your back?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Oh, this? Funny story. I fought a thunderstorm and..."
+		},
+		{
+			"speaker": "dot",
+			"text": "Patch."
+		},
+		{
+			"speaker": "patch",
+			"text": "Okay, okay. Somebody made it for me. It's a bit of the harbour map, and it's taped on, and the tape shows. On purpose."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Suits you, fox. A tail with a map on it. Now you'll always know where you've been."
+		},
+		{
+			"speaker": "patch",
+			"text": "That's actually really nice, Corrugate."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "I've been saving it."
+		},
+		{
+			"speaker": "dot",
+			"text": "Everyone's here. Go and say hello. Then it's the end of the book."
+		},
+		{
+			"speaker": "patch",
+			"text": "The end? Already? I was just getting good at this."
+		}
+	],
+	"epilogue_drizzle": [
+		{
+			"speaker": "drizzle",
+			"text": "Everyone keeps being nice to me. It's very confusing."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "Shepherd Fluff asked if I could do a light shower on Thursdays. For the grass. I said yes. I've never been booked before."
+		}
+	],
+	"epilogue_bindwell": [
+		{
+			"speaker": "bindwell",
+			"text": "The spine's restrung. Proper kettle stitch, all the way down. It'll hold another hundred years."
+		},
+		{
+			"speaker": "bindwell",
+			"text": "Mind you, so will that tail of yours. That's good tape, that. Real-world tape. Wear it with your chin up."
+		}
+	],
+	"epilogue_fluff": [
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Well, look at you. A tail again."
+		},
+		{
+			"speaker": "patch",
+			"text": "You can tell everyone the real story, by the way. The running away bit. I don't mind."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Already did, lad. Years ago. Well. Two chapters ago. Nobody thought less of you."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "Sheep don't care about tails. We care who comes back for us. You did."
+		}
+	],
+	"epilogue_lamplighters": [
+		{
+			"speaker": "lamplighters",
+			"text": "The festival's back on! Tonight! On this page, because it's the only one that's properly dry."
+		},
+		{
+			"speaker": "lamplighters",
+			"text": "Bring the cloud. She can do the misty bit over the lanterns. It'll be gorgeous."
+		}
+	],
+	"the_end": [
+		{
+			"speaker": "narrator",
+			"text": "On the last page of the book, under Dad's old handwriting, there was a new line, in crayon."
+		},
+		{
+			"speaker": "nell_hand",
+			"text": "THE POP-UP KINGDOM OF FOLDWICK. Soaked, torn, dried, taped, and finished."
+		},
+		{
+			"speaker": "nell_hand",
+			"text": "Made by Dad. Mended by Dad, Gran, and Nell. And a fox."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The End."
+		}
+	]
+}

@@ -23,6 +23,8 @@ const COMPANIONS := {
 ## False for pages in the real world (the Margin): they fill the screen instead of
 ## being drawn inside the open book (see BookFrame).
 @export var in_book := true
+## No companions follow Patch here, even if they've joined (he's alone in the Gutter).
+@export var no_companions := false
 
 
 func _ready() -> void:
@@ -45,6 +47,8 @@ func _ready() -> void:
 		GameState.set_checkpoint(scene_file_path, player.global_position)
 
 	for flag in COMPANIONS:
+		if no_companions:
+			break
 		if GameState.get_flag(flag) and not _has_companion(flag):
 			var friend := (COMPANIONS[flag] as PackedScene).instantiate() as Node2D
 			friend.position = player.position + friend.get("follow_offset")

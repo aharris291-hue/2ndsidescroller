@@ -116,6 +116,7 @@ func _run() -> void:
 	await _chapter_one(game_state, scene_manager, dialogue)
 	await _chapter_two(game_state, scene_manager, dialogue)
 	await _chapter_three(game_state, scene_manager, dialogue)
+	await _finale(game_state, scene_manager, dialogue)
 
 	# Save and load.
 	game_state.add_scraps(5)
@@ -532,6 +533,160 @@ func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	await _skip_dialogue(dialogue)
 	await _frames(90)
 	_check(game_state.get_flag("chapter3_complete"), "the third interlude marks Chapter 3 complete")
+
+
+func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const FIN := "res://scenes/levels/finale/"
+	# The third interlude now turns the page down into the Gutter.
+	await _wait_for_scene("TheGutter", 900)
+	_check(current_scene.name == "TheGutter", "the third interlude turns down into the Gutter")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player")
+	_check(get_nodes_in_group("companion").is_empty(), "Patch is alone in the Gutter")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+
+	# The gauntlet: each lock seals its gates until every wave is cleared.
+	for lock_name in ["LockOne", "LockTwo"]:
+		var lock := current_scene.get_node("Story/" + lock_name)
+		var gate := current_scene.get_node("Props/%sGate1" % lock_name) as Node2D
+		patch.global_position = lock.global_position + Vector2(0, 150)
+		patch.velocity = Vector2.ZERO
+		await _frames(10)
+		_check(lock.is_running() and gate.visible, "walking into %s seals its gates" % lock_name)
+		var waves_seen := 0
+		for i in 40:
+			if not lock.is_running():
+				break
+			await _frames(30)
+			for actor in current_scene.get_node("Story").get_children():
+				if actor is CharacterBody2D:
+					waves_seen += 1
+					actor.queue_free()
+		await _frames(40)
+		_check(not lock.is_running() and not gate.visible and waves_seen >= 6, "clearing every wave of %s opens it (%d Soggies)" % [lock_name, waves_seen])
+		await _skip_dialogue(dialogue)
+		if lock_name == "LockOne":
+			# The drowned gap: zip from the floor's edge to the ring by the page bundle.
+			for actor in current_scene.get_node("Actors").get_children():
+				actor.free()
+			patch.global_position = Vector2(29.5 * 64, 16 * 64 - 48)
+			patch.velocity = Vector2.ZERO
+			patch.facing = Vector2.RIGHT
+			await _frames(20)
+			await _skip_dialogue(dialogue)
+			_check(patch.try_grapple(), "the Tape Tail finds the ring over the drowned gap")
+			await _frames(120)
+			_check(patch.global_position.x > 39 * 64 and patch.global_position.y < 13 * 64 and patch.is_on_floor(),
+				"zipping to the ring lands Patch on the page bundle (%.0f, %.0f)" % [patch.global_position.x, patch.global_position.y])
+
+	var fold := current_scene.get_node("Props/LastFold")
+	patch.global_position = fold.global_position + Vector2(0, -48)
+	patch.velocity = Vector2.ZERO
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_press(&"slam")
+	await _frames(90)
+	_check(fold.is_up, "a slam springs the last fold mark up to the high ledge")
+
+	# The deepest fold, first time: Patch can't win, and it cuts to Gran's table.
+	await scene_manager.change_page(FIN + "deepest_fold.tscn")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	var boss := current_scene.get_node("TheSogg")
+	patch.global_position = current_scene.get_node("Story/FightStart").global_position + Vector2(0, 150)
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(boss.state != 0 and patch.health.floor_health == 1, "the last fight starts, and Patch can't be beaten in it")
+	patch.health._invulnerable_left = 0.0
+	patch.health.take_damage(99, patch.global_position)
+	_check(patch.health.current == 1 and not patch.health.is_dead(), "the Sogg wears Patch down to his last scrap")
+	for i in 300:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _wait_for_scene("Interlude04", 600)
+	_check(current_scene.name == "Interlude04", "losing to the Sogg cuts to Nell at Gran's table")
+	for i in 1200:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _wait_for_scene("DeepestFold", 600)
+	_check(game_state.get_flag("nell_has_dryer") and current_scene.name == "DeepestFold", "Nell picks up the hairdryer and the fight goes on")
+
+	# Second time: the warm air follows Patch and dries the Sogg wherever it comes down.
+	await _frames(20)
+	for i in 300:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _frames(20)
+	patch = get_first_node_in_group("player")
+	boss = current_scene.get_node("TheSogg")
+	var beam := current_scene.get_node("HairdryerBeam")
+	_check(boss.state != 0 and beam.active and beam.visible, "the hairdryer switches on over the page")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	var shrank := false
+	for attempt in 900:
+		if boss.state == 6 or boss.health.is_dead():
+			break
+		if boss._sections_left < 4:
+			shrank = true
+		# Stay near the Sogg, so the warm air that follows Patch lands on it.
+		patch.global_position = Vector2(clampf(boss.global_position.x - 160.0, 3 * 64, 27 * 64), 14 * 64 - 48)
+		patch.velocity = Vector2.ZERO
+		await _frames(10)
+	_check(shrank, "the Sogg dries out a section at a time")
+	_check(game_state.get_flag("sogg_dried"), "the warm air dries the Sogg out completely")
+	for i in 600:
+		if is_instance_valid(boss) and boss.body.texture.resource_path.ends_with("drizzle.png") and dialogue.is_active():
+			break
+		await _frames(1)
+	_check(is_instance_valid(boss) and boss.body.texture.resource_path.ends_with("drizzle.png"), "the Sogg shrinks back into Drizzle (%s, dialogue %s)" % [boss.body.texture.resource_path if is_instance_valid(boss) else "freed", dialogue.is_active()])
+	await _skip_dialogue(dialogue)
+	await _wait_for_scene("EndingTable", 600)
+	_check(current_scene.name == "EndingTable", "morning comes at Gran's table")
+	for i in 1200:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+
+	# Nell's page: Patch's new tail, his friends, and the last page.
+	await _wait_for_scene("NellsPage", 600)
+	await _frames(30)
+	patch = get_first_node_in_group("player")
+	_check(current_scene.name == "NellsPage" and game_state.get_flag("has_new_tail"), "the ending turns to Nell's crayon page")
+	_check(patch.sprite.texture.resource_path.ends_with("patch_mended.png"), "Patch has his new map-and-tape tail")
+	_check(get_nodes_in_group("companion").size() >= 2, "Dot and Corrugate are back with Patch")
+	patch.global_position = current_scene.get_node("Story/ArrivalTalk").global_position + Vector2(0, 150)
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	current_scene.get_node("Actors/Drizzle").interact(null)
+	await _frames(4)
+	_check(dialogue.is_active(), "Drizzle can be talked to on Nell's page")
+	await _skip_dialogue(dialogue)
+	await scene_manager.change_page("res://scenes/levels/interludes/the_end.tscn")
+	for i in 1200:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _wait_for_scene("TitleScreen", 900)
+	_check(game_state.get_flag("game_complete") and current_scene.name == "TitleScreen", "the last page finishes the game and returns to the title")
+
+
+func _wait_for_scene(scene_name: String, max_frames: int) -> void:
+	for i in max_frames:
+		if current_scene and current_scene.name == scene_name:
+			return
+		await _frames(1)
 
 
 func _press(action: StringName) -> void:

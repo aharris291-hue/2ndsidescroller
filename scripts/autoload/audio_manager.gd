@@ -14,6 +14,7 @@ const SFX := {
 	&"voice_blip": preload("res://assets/audio/sfx/voice_blip.wav"),
 	&"grapple": preload("res://assets/audio/sfx/grapple.wav"),
 	&"slam": preload("res://assets/audio/sfx/slam.wav"),
+	&"dryer": preload("res://assets/audio/sfx/dryer.wav"),
 }
 const POOL_SIZE := 10
 const FADE_TIME := 0.8

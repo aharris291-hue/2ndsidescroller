@@ -2,7 +2,7 @@
 
 A whimsical storybook adventure in bold cartoon style made in **Godot 4.7.2**, written entirely in GDScript. You play Patch, a paper fox whose tail was torn off in a flood, as he mends a soggy pop-up book. The story, world and characters are original, and the full design is in the Story Bible.
 
-This repository holds the **core framework**, the **Prologue**, **Chapter 1: Thistledown Meadow**, **Chapter 2: Lanternfold Harbor** and **Chapter 3: The Spine Peaks**:
+This repository holds the **whole game**: the core framework, the **Prologue**, **Chapter 1: Thistledown Meadow**, **Chapter 2: Lanternfold Harbor**, **Chapter 3: The Spine Peaks** and **the Finale: The Gutter**:
 
 - **Patch's controller**, with both page views: side-scrolling on a standing page (coyote time, jump buffering, variable jump height) and eight-way top-down on a flat page or in the Margin.
 - **Combat:** Crease Swipe (attack), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
@@ -19,6 +19,7 @@ This repository holds the **core framework**, the **Prologue**, **Chapter 1: Thi
 - **Corrugate**, the cardboard tortoise captain, joins as a second companion.
 - **Chapter 3, The Spine Peaks:** the snowy winter page of Frostfold (spring paper peaks to climb, crack ice walls), the same page laid flat to walk round a sheer cliff, a late-night Margin heist for a paperclip and the hairdryer plug, the climb up the book's stitched spine with Old Bindwell's paperclip pitons, the low point where Patch finally tells the truth about his tail, and phases 1 and 2 of the Sogg, which ends with Patch dragged into the Gutter and a third interlude.
 - **Pop-Up Slam:** Patch's Chapter 3 ability. Slam down to spring fold marks into paper peaks (which carry him up), shatter ice and flatten Soggies.
+- **Finale, The Gutter:** Patch alone in the drowned crease at the middle of the book, a gauntlet of locks that seal shut until every wave of Soggies is cleared, and the Sogg's last stand, which he can't win alone. At Gran's table Nell picks up the hairdryer, and in the rematch its warm air follows Patch around the page and dries the Sogg back into Drizzle. Then the morning after, Patch's new tail (a strip of the harbour map, taped on), Nell's crayon page where everyone gathers, and the last page of the book.
 - **The Margin:** a top-down page on Gran's kitchen table.
 - **Book view:** every level is drawn as an open, hand-made paper book lying on a wooden desk, in the same papercraft style as the characters: two separate pages curving into the spine, torn page edges, stitched borders, a folded navy paper cover and a ribbon bookmark (switch it off in the pause menu).
 - **3D desk:** the Margin (outside the book) is a real lit 3D desk with wood, books, a mug, pencils and soft shadows. Patch and friends stand on it as paper cutouts. This uses the Forward+ renderer, so it needs a graphics card that supports Vulkan, Direct3D 12 or Metal.
@@ -62,15 +63,16 @@ tools/         Asset generators (Python) and Godot helper scripts
 
 | Command | What it does |
 | --- | --- |
-| `python3 tools/art/generate_art.py` | Regenerates all the papercraft textures (shapes cut from coloured paper, folded into facets) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` or `chapter3` to rebuild only that chapter's art and the tile atlas, or `characters` to rebuild only the cast (`tools/art/character_art.py`, papercraft style from `docs/art/patch_turnaround.png`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
+| `python3 tools/art/generate_art.py` | Regenerates all the papercraft textures (shapes cut from coloured paper, folded into facets) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2`, `chapter3` or `finale` to rebuild only that chapter's art and the tile atlas (the finale also redraws Patch, with and without his new tail), or `characters` to rebuild only the cast (`tools/art/character_art.py`, papercraft style from `docs/art/patch_turnaround.png`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
 | `python3 tools/art/generate_materials.py` | Regenerates the wood, paper and cardboard textures used by the 3D desk. |
-| `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). Add `chapter3` to rebuild only the Spine Peaks theme and the slam sound. |
-| `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapters 1 to 3 automatically and checks that it works. CI runs this. |
+| `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). Add `chapter3` to rebuild only the Spine Peaks theme and the slam sound, or `finale` for the last two themes and the hairdryer. |
+| `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the whole game, Prologue to the last page, automatically and checks that it works. CI runs this. |
 | `godot --headless --path . --script tools/godot/setup_input_map.gd` | Rewrites the input map in `project.godot`. |
 | `godot --headless --path . --script tools/godot/build_starter_content.gd` | **One-time bootstrap** that generated the starter scenes. Re-running it overwrites them, so once you edit scenes in the editor, leave it alone. |
 | `godot --headless --path . --script tools/godot/build_chapter1.gd` | **One-time bootstrap** that generated the Prologue and Chapter 1 scenes. Same warning: it overwrites them. |
 | `godot --headless --path . --script tools/godot/build_chapter2.gd` | **One-time bootstrap** that generated the Chapter 2 scenes and pointed the first interlude at them. Same warning: it overwrites them. |
 | `godot --headless --path . --script tools/godot/build_chapter3.gd` | **One-time bootstrap** that generated the Chapter 3 scenes, added the winter tiles, and pointed the second interlude at them. Same warning: it overwrites them. |
+| `godot --headless --path . --script tools/godot/build_finale.gd` | **One-time bootstrap** that generated the Finale scenes and the ending, added the Gutter and crayon tiles, and pointed the third interlude down into the Gutter. Same warning: it overwrites them. |
 
 ## Credits
 

@@ -6,12 +6,15 @@
 
 [node name="Interlude03" type="Control" unique_id=1951624437]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_npy8g")
 conversation_id = "interlude_3"
 title_caption = "Much later, at Gran's kitchen table..."
+next_page = "res://scenes/levels/finale/the_gutter.tscn"
 sets_flag = "chapter3_complete"
 music = ExtResource("2_t8ctg")
 save_on_finish = true

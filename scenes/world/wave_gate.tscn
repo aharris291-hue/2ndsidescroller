@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/props/gutter_gate.png" id="1_ra0eg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vvnap"]
+size = Vector2(96, 330)
+
+[node name="WaveGate" type="StaticBody2D" unique_id=524339573]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=114743612]
+texture = ExtResource("1_ra0eg")
+centered = false
+offset = Vector2(-56, -330)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=107427587]
+position = Vector2(0, -165)
+shape = SubResource("RectangleShape2D_vvnap")

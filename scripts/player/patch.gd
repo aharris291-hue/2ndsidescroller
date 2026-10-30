@@ -8,6 +8,9 @@ extends CharacterBody2D
 enum State { NORMAL, DASH, ATTACK, HURT, DEAD, GRAPPLE, SLAM }
 enum Grapple { SHOOT, ZIP, RETRACT }
 
+## After the finale Patch has a new tail: a strip of the Lanternfold map, taped on.
+const MENDED_TEXTURE := preload("res://assets/art/characters/patch_mended.png")
+
 @export_group("Side view")
 @export var run_speed := 430.0
 @export var ground_acceleration := 2800.0
@@ -91,6 +94,8 @@ var _slam_phase := 0
 
 func _ready() -> void:
 	add_to_group("player")
+	if GameState.get_flag("has_new_tail"):
+		sprite.texture = MENDED_TEXTURE
 	health.max_health = GameState.max_health
 	health.set_health(GameState.health)
 	health.changed.connect(_on_health_changed)

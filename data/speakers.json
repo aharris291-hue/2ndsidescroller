@@ -68,5 +68,15 @@
 		"name": "The Sogg",
 		"color": "#3e4c80",
 		"pitch": 0.5
+	},
+	"drizzle": {
+		"name": "Drizzle",
+		"color": "#5a8ac8",
+		"pitch": 1.7
+	},
+	"nell_hand": {
+		"name": "",
+		"color": "#3a6ea5",
+		"pitch": 1.5
 	}
 }

@@ -10,6 +10,9 @@ signal died
 @export var max_health := 6
 @export var invulnerability_time := 0.8
 
+## Damage never takes health below this (0 = can die). For scripted fights that must
+## end in a cutscene, not a game over.
+var floor_health := 0
 var current := 0
 var _invulnerable_left := 0.0
 
@@ -35,7 +38,7 @@ func is_dead() -> bool:
 func take_damage(amount: int, from_position: Vector2) -> bool:
 	if is_dead() or is_invulnerable() or amount <= 0:
 		return false
-	current = maxi(current - amount, 0)
+	current = maxi(current - amount, floor_health)
 	_invulnerable_left = invulnerability_time
 	changed.emit(current, max_health)
 	damaged.emit(amount, from_position)

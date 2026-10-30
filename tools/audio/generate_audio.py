@@ -224,6 +224,93 @@ def build_chapter3_sfx():
     write("sfx/slam.wav", (thump + crunch) * 0.75)
 
 
+def build_warm_air():
+    """'Warm Air', the last phase of the Sogg fight: the Sogg's slow, soggy theme sped
+    back up and lifted into F major, with strings pushing underneath and the music
+    box racing on top, like everything warming up at once (116 bpm, 3/4)."""
+    beat = 60 / 116
+    melody = [
+        (72, 1), (74, 1), (76, 1), (77, 2), (76, 1), (74, 1), (72, 1), (69, 1), (72, 3),
+        (70, 1), (72, 1), (74, 1), (76, 2), (74, 1), (72, 1), (70, 1), (67, 1), (69, 3),
+        (72, 1), (74, 1), (76, 1), (77, 2), (79, 1), (81, 2), (79, 1), (77, 3),
+        (76, 1), (74, 1), (72, 1), (74, 2), (76, 1), (77, 3), (77, 3),
+    ]
+    chords = [(41, 48), (46, 53), (43, 50), (36, 43), (41, 48), (38, 45), (46, 53), (36, 48)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for midi, dur in melody:
+        n = music_box_note(midi, 1.4)
+        c = celesta_note(midi - 12, 1.2) * 0.6
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        out[i:i + len(c)] += c
+        pos += dur * beat
+    bars = int(total_beats // 3)
+    for bar in range(bars):
+        start = int(bar * 3 * beat * RATE)
+        for m in chords[bar % len(chords)]:
+            n = string_note(m, beat * 3.2)
+            out[start:start + len(n)] += n
+        # A pulsing low note on every beat drives it on.
+        for b in range(3):
+            n = music_box_note(chords[bar % len(chords)][0], 0.5) * (0.5 if b == 0 else 0.25)
+            j = start + int(b * beat * RATE)
+            out[j:j + len(n)] += n
+    write("music/warm_air.wav", _loop(out, length) * 0.8)
+
+
+def build_mended():
+    """'Mended', the ending: the Foldwick lullaby once more, slower and warmer, with
+    every chapter's instrument joining in turn: music box, then woodwind-soft strings,
+    accordion, glockenspiel and celesta all together by the end (84 bpm, 3/4)."""
+    beat = 60 / 84
+    melody = [
+        (72, 1), (74, 1), (76, 1), (77, 2), (76, 1), (74, 1), (72, 1), (69, 1), (72, 3),
+        (70, 1), (72, 1), (74, 1), (76, 2), (74, 1), (72, 1), (70, 1), (67, 1), (69, 3),
+        (72, 1), (74, 1), (76, 1), (77, 2), (79, 1), (81, 2), (79, 1), (77, 3),
+        (76, 1), (74, 1), (72, 1), (74, 2), (76, 1), (77, 3), (77, 3),
+    ]
+    chords = [(53, 60, 65), (58, 62, 65), (53, 60, 64), (48, 55, 64), (50, 57, 65), (46, 53, 62), (48, 55, 64), (53, 60, 65)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for k, (midi, dur) in enumerate(melody):
+        i = int(pos * RATE)
+        n = music_box_note(midi, 1.8)
+        out[i:i + len(n)] += n
+        if k >= 9:
+            g = glock_note(midi + 12, 0.9) * 0.6
+            out[i:i + len(g)] += g
+        if k >= 18:
+            c = celesta_note(midi - 12, 1.4) * 0.7
+            out[i:i + len(c)] += c
+        pos += dur * beat
+    bars = int(total_beats // 3)
+    for bar in range(bars):
+        start = int(bar * 3 * beat * RATE)
+        chord = chords[bar % len(chords)]
+        for m in chord:
+            n = string_note(m - 12, beat * 3.2) * 0.8
+            out[start:start + len(n)] += n
+        if bar >= 4:
+            for m in chord:
+                a = accordion_note(m, beat * 3.0) * 0.8
+                out[start:start + len(a)] += a
+    write("music/mended.wav", _loop(out, length) * 0.75)
+
+
+def build_finale_sfx():
+    # The hairdryer: a motor hum under a soft rush of warm air, swelling in.
+    x = t(1.2)
+    hum = (np.sin(2 * np.pi * 110 * x) + 0.5 * np.sin(2 * np.pi * 220 * x)) * 0.12
+    rush = np.convolve(gen.normal(0, 1, len(x)), np.ones(14) / 14, mode="same") * 0.9
+    env = np.minimum(1.0, x / 0.25) * np.minimum(1.0, (1.2 - x) / 0.3)
+    write("sfx/dryer.wav", (hum + rush) * env * 0.7)
+
+
 def sweep(f0, f1, length, wave_fn=np.sin, decay=8.0):
     x = t(length)
     freq = np.linspace(f0, f1, len(x))
@@ -263,10 +350,19 @@ if __name__ == "__main__":
         build_spine_peaks()
         build_chapter3_sfx()
         sys.exit(0)
+    if "finale" in sys.argv:
+        # Quick path: only the finale music and sounds.
+        build_warm_air()
+        build_mended()
+        build_finale_sfx()
+        sys.exit(0)
     build_theme()
     build_sfx()
     build_lanternfold()
     build_ink_deep()
     build_spine_peaks()
     build_chapter3_sfx()
+    build_warm_air()
+    build_mended()
+    build_finale_sfx()
     print("Audio written to", AUDIO)

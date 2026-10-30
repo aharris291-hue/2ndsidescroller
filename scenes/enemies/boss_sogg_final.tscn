@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/boss_sogg_final.gd" id="1_8m3bq"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/sogg_body.png" id="2_msxab"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_47oq4"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/drizzle_heart.png" id="4_oga62"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="5_temme"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="6_425a8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fxukf"]
+radius = 64.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_coqii"]
+size = Vector2(400, 230)
+
+[node name="TheSogg" type="Node2D" unique_id=2024499742]
+script = ExtResource("1_8m3bq")
+
+[node name="Body" type="Sprite2D" parent="." unique_id=1820252124]
+position = Vector2(0, -196)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_msxab")
+
+[node name="Heart" type="Area2D" parent="." unique_id=1637645455]
+z_index = 1
+position = Vector2(0, -200)
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_47oq4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Heart" unique_id=297164668]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("4_oga62")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Heart" unique_id=1524116230]
+shape = SubResource("CircleShape2D_fxukf")
+
+[node name="ContactHitbox" type="Area2D" parent="." unique_id=475430281]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("5_temme")
+damage = 2
+knockback = 760.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox" unique_id=538411716]
+position = Vector2(0, -115)
+shape = SubResource("RectangleShape2D_coqii")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1917482963]
+script = ExtResource("6_425a8")
+max_health = 16
+invulnerability_time = 0.3

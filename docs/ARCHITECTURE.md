@@ -128,7 +128,7 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 - `Bookmark` is a checkpoint: it sets the respawn point, heals Patch fully, and autosaves.
 - UI scenes use `resources/ui_theme.tres` (Patrick Hand font, paper-styled buttons and panels). Every menu takes controller focus.
 
-### Story flow (Prologue, Chapters 1 to 3)
+### Story flow (Prologue to the Finale)
 
 ```
 prologue/prologue_intro      CutscenePage: Nell and Dad at bedtime
@@ -149,7 +149,14 @@ ch3_spine/frostfold_flat     The same page top-down: Bindwell (restring_spine), 
 margin/paperclip_heist       3D desk, very late: the paperclip (has_paperclip) and the plug ring (plug_moved)
 ch3_spine/the_spine          Tall side-view climb: pitons, thread bridges, spools, the low point (patch_told_truth)
 ch3_spine/sogg_arena         BossSogg phases 1-2; the Sogg drags Patch away into the interlude
-interludes/interlude_03      CutscenePage: Dad asleep, Nell and Gran and the torn spine, sets chapter3_complete
+interludes/interlude_03      CutscenePage: Dad asleep, Nell and Gran and the torn spine, sets chapter3_complete, turns to the Gutter
+finale/the_gutter            Side view, no companions: two WaveLocks, the ring over the drowned gap, the last fold mark
+finale/deepest_fold          BossSoggFinal, first try: unwinnable; Patch is worn down and it cuts to the interlude
+interludes/interlude_04      CutscenePage: Gran and Nell at 2am, Nell plugs in the hairdryer, sets nell_has_dryer
+finale/deepest_fold          BossSoggFinal again: the HairdryerBeam dries the Sogg into Drizzle (sogg_dried)
+interludes/ending_table      CutscenePage: the morning after, Patch's new tail, sets has_new_tail
+finale/nell_page             Side view on Nell's crayon page: Drizzle, Fluff, the Lamplighters, Bindwell
+interludes/the_end           CutscenePage: the last line, in Nell's handwriting, sets game_complete, back to the title
 ```
 
 ### Chapter 1 systems
@@ -186,6 +193,17 @@ interludes/interlude_03      CutscenePage: Dad asleep, Nell and Gran and the tor
 - **BossSogg:** drifts high and rains drips, then warns with a wet shadow and dives where Patch stands, soaking there for `soak_time`. A `FoldMark` popping within `catch_range` of it pins it, exposing Drizzle in its chest (the `Heart` hurtbox). 3 hits or `stun_time` and it tears free. At half health it enters phase 2 (bigger, faster, more rain, Soggies). At zero it plays `sogg_drags_patch`, swallows Patch, saves, and turns to `next_page` (the third interlude).
 - **Tiles:** row 4 holds snow top and frozen-rock fill (side view ground); row 5 holds thread bridges (one-way), ice (solid), snowfield (flat floor) and snowdrifts (solid on flat pages).
 
+### Finale systems
+
+- **Page.no_companions** keeps Dot and Corrugate off a page even when their flags are set (Patch is alone in the Gutter).
+- **WaveLock:** an `Area2D` that, when Patch walks in, closes its `gates` (`wave_gate.tscn`, collision on) and raises `waves` of Soggies along a span of floor, one wave after another. When the last wave is gone the gates sag open, and the lock stays cleared across saves.
+- **HealthComponent.floor_health:** damage can't take health below it. The first finale fight sets Patch's to 1, so it ends in a cutscene, not a game over.
+- **HairdryerBeam:** the hairdryer nozzle at the top of the page and a column of warm air (an additive sprite) that follows Patch's x at `follow_speed`, a little behind him. `covers(x, extra)` says whether the warm air reaches a point.
+- **BossSoggFinal** (extends `BossSogg`): played twice. Without `nell_has_dryer` the fold marks only buckle against it, its chest stays shut, and after `hold_out_time` or when Patch is down to his last point it closes over him, plays `gutter_losing`, refills his health and turns to `lose_page` (Interlude 4). With the flag, it plays `warm_air_arrives` and switches the beam on: whenever it's down (dive, soak or pinned) inside the warm air it loses `dry_rate` wetness a second, steaming, and each quarter dried shrinks it, narrates a `section_lines` caption and splashes off a Soggy. Pinning it and swiping Drizzle still works. Dried out, it shrinks into `drizzle.png`, plays `drizzle_dried`, saves and turns to the ending.
+- **Patch's new tail:** with the `has_new_tail` flag set, `Patch` swaps his sprite strip for `patch_mended.png`.
+- **Speakers:** `nell_hand` has no name and Nell's colour, for the last line written in her handwriting.
+- **Tiles:** row 6 holds soaked Gutter top and fill, and Nell's crayon grass and earth (all solid, side view ground).
+
 - **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 2 bumps or fewer.
 
 ## Collision layers
@@ -211,6 +229,8 @@ interludes/interlude_03      CutscenePage: Dad asleep, Nell and Gran and the tor
 | (1,1) | Page floor (top-down) | None |
 | (2,1) | Book stack (top-down wall) | Solid |
 | (3,1) | Ink puddle (art) | None (place an `ink_puddle_hazard.tscn` for damage) |
+| (0,5), (1,5) | Gutter top and fill (finale) | Solid |
+| (2,5), (3,5) | Crayon grass and earth (Nell's page) | Solid |
 
 ## Adding content
 

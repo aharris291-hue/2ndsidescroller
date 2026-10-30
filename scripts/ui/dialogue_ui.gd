@@ -13,6 +13,7 @@ const DIALOGUE_FILES: Array[String] = [
 	"res://data/dialogue/ch1_thistledown.json",
 	"res://data/dialogue/ch2_lanternfold.json",
 	"res://data/dialogue/ch3_spine.json",
+	"res://data/dialogue/finale.json",
 	"res://data/dialogue/margin.json",
 	"res://data/dialogue/prologue.json",
 	"res://data/dialogue/interludes.json",

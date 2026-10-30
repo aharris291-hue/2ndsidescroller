@@ -201,22 +201,59 @@ BANDANA = (214, 44, 64, 255)
 TORN = (250, 244, 232, 255)
 
 
-def build_patch():
+def build_patch(mended=False):
     """Patch, from his turnaround sheet (docs/art/patch_turnaround.png): a paper fox
     folded from orange paper, big head and ears, stitched-on navy button eyes, a red
     bandana, mitten paws, and a torn stump where his tail used to be. Side view
     facing right.
 
-    Saved as a strip of five frames (see PATCH_POSES) for a simple walk cycle."""
+    Saved as a strip of five frames (see PATCH_POSES) for a simple walk cycle.
+    mended=True draws him after the finale (patch_mended.png), with the new tail Dad
+    and Nell made him: a strip of map from the Lanternfold page, taped on proudly."""
     size = 320
     strip = Image.new("RGBA", (size * len(PATCH_POSES), size), (0, 0, 0, 0))
     for i, pose in enumerate(PATCH_POSES):
-        frame = _draw_patch(pose)
+        frame = _draw_patch(pose, mended)
         strip.alpha_composite(frame, (i * size, pose[4]))
-    paper_grain(strip, 5).save(out("characters", "patch.png"))
+    paper_grain(strip, 5).save(out("characters", "patch_mended.png" if mended else "patch.png"))
 
 
-def _draw_patch(pose):
+MAP_PAPER = (240, 222, 168, 255)
+TAPE = (250, 236, 160, 235)
+
+
+def _draw_new_tail(img, swing):
+    """The mended tail: a big bushy fox tail cut from a strip of the Lanternfold map
+    (a blue river, a red dotted path, a compass corner), sewn to the stump and
+    wrapped in two bands of tape that are meant to show."""
+    pivot = (160, 236)
+    T = lambda pts: _rot(pts, pivot, swing)
+    part(img, T([(180, 226), (140, 204), (100, 178), (72, 140), (62, 100), (68, 74, 0), (92, 96), (118, 126),
+                 (150, 160), (184, 196), (184, 252), (146, 256), (112, 238), (88, 210)]), MAP_PAPER, width=5, radius=14, seed=40)
+    # Map printing: a river, a dotted path and a little compass star.
+    ink_line(img, T([(84, 196), (100, 176), (96, 150), (110, 130), (104, 108)]), width=3.2, wobble=0.6, color=(70, 130, 200, 255))
+    for k, (x, y) in enumerate(T([(150, 232), (138, 218), (126, 204), (118, 188), (112, 172), (110, 156)])):
+        crayon_poly(img, ellipse_points(x, y, 2.6, 2.6, 8), (214, 60, 70, 255), outline=False, shadow=False)
+    cx, cy = T([(90, 120)])[0][:2]
+    for a in range(4):
+        ang = a * math.pi / 2 + swing
+        ink_line(img, [(cx, cy), (cx + math.cos(ang) * 10, cy + math.sin(ang) * 10)], width=1.6, wobble=0, color=(60, 50, 60, 255))
+    # A cream paper tip, like a real fox's.
+    part(img, T([(62, 100), (68, 74, 0), (90, 94), (84, 110), (70, 112)]), PATCH_CREAM, width=4, radius=8, seed=41)
+
+
+def _tape_new_tail(img, swing):
+    """Two bands of tape over the join, drawn after the stump so its torn edge shows."""
+    pivot = (160, 236)
+    T = lambda pts: _rot(pts, pivot, swing)
+    for band in (([(176, 222), (190, 226), (186, 258), (170, 256)]), ([(150, 210), (164, 214), (156, 254), (142, 252)])):
+        layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        crayon_poly(layer, T(band), TAPE, width=2, smooth=False, shadow=False)
+        img.alpha_composite(layer)
+    stitches(img, T([(172, 228), (166, 252)]), color=(52, 64, 110, 255), step=7, size=2.5)
+
+
+def _draw_patch(pose, mended=False):
     near_leg_a, far_leg_a, near_arm_a, far_arm_a, _ = pose
     img = Image.new("RGBA", (320, 320), (0, 0, 0, 0))
     o = PATCH_ORANGE
@@ -229,6 +266,10 @@ def _draw_patch(pose):
     A = lambda pts: _rot(pts, SHOULDER_FAR, far_arm_a)
     part(img, A([(172, 172), (192, 170), (194, 214), (188, 232), (170, 232), (166, 210)]), back, width=5, radius=10, seed=2)
 
+    swing = 0.08 * math.sin(near_leg_a * 3.0) - (0.18 if near_arm_a < -1.0 else 0.0)
+    if mended:
+        _draw_new_tail(img, swing)
+
     # Torn tail stump with white paper fibres where it ripped.
     stump = [(178, 226), (150, 214), (130, 218), (122, 228, 0), (128, 236), (120, 244, 0), (132, 250), (150, 252), (180, 250)]
     part(img, stump, o, width=5, radius=8, seed=3)
@@ -236,6 +277,8 @@ def _draw_patch(pose):
     crayon_poly(img, tear, TORN, width=1.5, smooth=False, shadow=False)
     for fy in (222, 231, 240, 248):
         ink_line(img, [(126, fy), (118, fy + 2)], width=1.2, wobble=0, color=TORN)
+    if mended:
+        _tape_new_tail(img, swing)
 
     # Body: a stubby folded-paper torso.
     body = [(172, 164), (230, 160), (240, 206), (236, 256), (176, 258), (166, 208)]
@@ -679,6 +722,7 @@ def build_lamplighters():
 
 def build():
     build_patch()
+    build_patch(mended=True)
     build_lost_sheep()
     build_shepherd_fluff()
     build_dot()

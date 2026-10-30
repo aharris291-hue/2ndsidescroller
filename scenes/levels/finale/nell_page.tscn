@@ -1,0 +1,189 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_a3m8y"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/mended.wav" id="2_1ghv4"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_nell_page.png" id="3_bsek0"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_v8ol0"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_1e3s7"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="6_s3fkh"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="7_cjs3p"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="8_txy7m"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="9_wqgci"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_drizzle.tscn" id="10_22ddv"]
+[ext_resource type="Script" path="res://scripts/world/npc.gd" id="11_vhsx5"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_shepherd_fluff.tscn" id="12_2hd01"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_lamplighters.tscn" id="13_l120g"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_bindwell.tscn" id="14_7f5bg"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_15bud"]
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="16_s5bvf"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="17_j8st1"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="18_s5ah2"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_3o5y5"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0odax"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v8lfa"]
+size = Vector2(120, 600)
+
+[node name="NellsPage" type="Node2D" unique_id=524193988]
+script = ExtResource("1_a3m8y")
+page_title = "Nell's Page"
+opening_caption = "This page wasn't in the book before. Nell drew it this morning. The crayon was still warm."
+music = ExtResource("2_1ghv4")
+bounds = Rect2(0, 0, 3072, 1088)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=358260261]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(2005.3334, 0)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=1556775345]
+scale = Vector2(1.0444444, 1.0444444)
+texture = ExtResource("3_bsek0")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=732994242]
+tile_map_data = PackedByteArray("AAAUAAwAAAACAAUAAAAVAAwAAAACAAUAAAAWAAwAAAACAAUAAAAXAAwAAAACAAUAAAAYAAwAAAACAAUAAAAZAAwAAAACAAUAAAAaAAwAAAACAAUAAAAbAAwAAAACAAUAAAAcAAwAAAACAAUAAAAdAAwAAAACAAUAAAAMAA0AAAACAAUAAAANAA0AAAACAAUAAAAOAA0AAAACAAUAAAAPAA0AAAACAAUAAAAQAA0AAAACAAUAAAARAA0AAAACAAUAAAASAA0AAAACAAUAAAATAA0AAAACAAUAAAAUAA0AAAADAAUAAAAVAA0AAAADAAUAAAAWAA0AAAADAAUAAAAXAA0AAAADAAUAAAAYAA0AAAADAAUAAAAZAA0AAAADAAUAAAAaAA0AAAADAAUAAAAbAA0AAAADAAUAAAAcAA0AAAADAAUAAAAdAA0AAAADAAUAAAAeAA0AAAACAAUAAAAfAA0AAAACAAUAAAAgAA0AAAACAAUAAAAhAA0AAAACAAUAAAAiAA0AAAACAAUAAAAjAA0AAAACAAUAAAAkAA0AAAACAAUAAAAlAA0AAAACAAUAAAAAAA4AAAACAAUAAAABAA4AAAACAAUAAAACAA4AAAACAAUAAAADAA4AAAACAAUAAAAEAA4AAAACAAUAAAAFAA4AAAACAAUAAAAGAA4AAAACAAUAAAAHAA4AAAACAAUAAAAIAA4AAAACAAUAAAAJAA4AAAACAAUAAAAKAA4AAAACAAUAAAALAA4AAAACAAUAAAAMAA4AAAADAAUAAAANAA4AAAADAAUAAAAOAA4AAAADAAUAAAAPAA4AAAADAAUAAAAQAA4AAAADAAUAAAARAA4AAAADAAUAAAASAA4AAAADAAUAAAATAA4AAAADAAUAAAAUAA4AAAADAAUAAAAVAA4AAAADAAUAAAAWAA4AAAADAAUAAAAXAA4AAAADAAUAAAAYAA4AAAADAAUAAAAZAA4AAAADAAUAAAAaAA4AAAADAAUAAAAbAA4AAAADAAUAAAAcAA4AAAADAAUAAAAdAA4AAAADAAUAAAAeAA4AAAADAAUAAAAfAA4AAAADAAUAAAAgAA4AAAADAAUAAAAhAA4AAAADAAUAAAAiAA4AAAADAAUAAAAjAA4AAAADAAUAAAAkAA4AAAADAAUAAAAlAA4AAAADAAUAAAAmAA4AAAACAAUAAAAnAA4AAAACAAUAAAAoAA4AAAACAAUAAAApAA4AAAACAAUAAAAqAA4AAAACAAUAAAArAA4AAAACAAUAAAAsAA4AAAACAAUAAAAtAA4AAAACAAUAAAAuAA4AAAACAAUAAAAvAA4AAAACAAUAAAAAAA8AAAADAAUAAAABAA8AAAADAAUAAAACAA8AAAADAAUAAAADAA8AAAADAAUAAAAEAA8AAAADAAUAAAAFAA8AAAADAAUAAAAGAA8AAAADAAUAAAAHAA8AAAADAAUAAAAIAA8AAAADAAUAAAAJAA8AAAADAAUAAAAKAA8AAAADAAUAAAALAA8AAAADAAUAAAAMAA8AAAADAAUAAAANAA8AAAADAAUAAAAOAA8AAAADAAUAAAAPAA8AAAADAAUAAAAQAA8AAAADAAUAAAARAA8AAAADAAUAAAASAA8AAAADAAUAAAATAA8AAAADAAUAAAAUAA8AAAADAAUAAAAVAA8AAAADAAUAAAAWAA8AAAADAAUAAAAXAA8AAAADAAUAAAAYAA8AAAADAAUAAAAZAA8AAAADAAUAAAAaAA8AAAADAAUAAAAbAA8AAAADAAUAAAAcAA8AAAADAAUAAAAdAA8AAAADAAUAAAAeAA8AAAADAAUAAAAfAA8AAAADAAUAAAAgAA8AAAADAAUAAAAhAA8AAAADAAUAAAAiAA8AAAADAAUAAAAjAA8AAAADAAUAAAAkAA8AAAADAAUAAAAlAA8AAAADAAUAAAAmAA8AAAADAAUAAAAnAA8AAAADAAUAAAAoAA8AAAADAAUAAAApAA8AAAADAAUAAAAqAA8AAAADAAUAAAArAA8AAAADAAUAAAAsAA8AAAADAAUAAAAtAA8AAAADAAUAAAAuAA8AAAADAAUAAAAvAA8AAAADAAUAAAAAABAAAAADAAUAAAABABAAAAADAAUAAAACABAAAAADAAUAAAADABAAAAADAAUAAAAEABAAAAADAAUAAAAFABAAAAADAAUAAAAGABAAAAADAAUAAAAHABAAAAADAAUAAAAIABAAAAADAAUAAAAJABAAAAADAAUAAAAKABAAAAADAAUAAAALABAAAAADAAUAAAAMABAAAAADAAUAAAANABAAAAADAAUAAAAOABAAAAADAAUAAAAPABAAAAADAAUAAAAQABAAAAADAAUAAAARABAAAAADAAUAAAASABAAAAADAAUAAAATABAAAAADAAUAAAAUABAAAAADAAUAAAAVABAAAAADAAUAAAAWABAAAAADAAUAAAAXABAAAAADAAUAAAAYABAAAAADAAUAAAAZABAAAAADAAUAAAAaABAAAAADAAUAAAAbABAAAAADAAUAAAAcABAAAAADAAUAAAAdABAAAAADAAUAAAAeABAAAAADAAUAAAAfABAAAAADAAUAAAAgABAAAAADAAUAAAAhABAAAAADAAUAAAAiABAAAAADAAUAAAAjABAAAAADAAUAAAAkABAAAAADAAUAAAAlABAAAAADAAUAAAAmABAAAAADAAUAAAAnABAAAAADAAUAAAAoABAAAAADAAUAAAApABAAAAADAAUAAAAqABAAAAADAAUAAAArABAAAAADAAUAAAAsABAAAAADAAUAAAAtABAAAAADAAUAAAAuABAAAAADAAUAAAAvABAAAAADAAUAAAA=")
+tile_set = ExtResource("4_v8ol0")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=659184567]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1623018557]
+shape = SubResource("WorldBoundaryShape2D_3o5y5")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=458050492]
+position = Vector2(3072, 0)
+shape = SubResource("WorldBoundaryShape2D_0odax")
+
+[node name="Start" type="Marker2D" parent="." unique_id=719456371 groups=["spawn_points"]]
+position = Vector2(192, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=440304366]
+
+[node name="ArrivalTalk" type="Area2D" parent="Story" unique_id=118677455]
+position = Vector2(384, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_1e3s7")
+dialogue_id = "epilogue_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/ArrivalTalk" unique_id=1670160905]
+shape = SubResource("RectangleShape2D_v8lfa")
+
+[node name="Props" type="Node2D" parent="." unique_id=655826538]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("6_s3fkh")]
+position = Vector2(128, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_cjs3p")
+respawn_offset = Vector2(0, -48)
+
+[node name="CloseTheBook" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("8_txy7m")]
+position = Vector2(2944, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("9_wqgci")
+target_page = "res://scenes/levels/interludes/the_end.tscn"
+door_prompt = "Turn to the last page"
+prompt_offset = Vector2(0, -170)
+
+[node name="Actors" type="Node2D" parent="." unique_id=1035365682]
+
+[node name="Drizzle" type="Area2D" parent="Actors" unique_id=1498701604 instance=ExtResource("10_22ddv")]
+position = Vector2(960, 832)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("11_vhsx5")
+dialogue_id = "epilogue_drizzle"
+idle_bob = 10.0
+prompt_offset = Vector2(0, -230)
+
+[node name="ShepherdFluff" type="Area2D" parent="Actors" unique_id=834342193 instance=ExtResource("12_2hd01")]
+position = Vector2(1472, 768)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("11_vhsx5")
+dialogue_id = "epilogue_fluff"
+prompt_offset = Vector2(0, -150)
+
+[node name="Lamplighters" type="Area2D" parent="Actors" unique_id=422193376 instance=ExtResource("13_l120g")]
+position = Vector2(2048, 832)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("11_vhsx5")
+dialogue_id = "epilogue_lamplighters"
+quest_progress_dialogue = "lamplighters_progress"
+quest_turn_in_dialogue = "lamplighters_done"
+prompt_offset = Vector2(0, -250)
+
+[node name="Bindwell" type="Area2D" parent="Actors" unique_id=1065785455 instance=ExtResource("14_7f5bg")]
+position = Vector2(2624, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("11_vhsx5")
+dialogue_id = "epilogue_bindwell"
+idle_bob = 3.0
+quest_progress_dialogue = "bindwell_progress"
+quest_turn_in_dialogue = "bindwell_done"
+prompt_offset = Vector2(0, -250)
+
+[node name="Pickups" type="Node2D" parent="." unique_id=304524213]
+
+[node name="Scrap0" type="Area2D" parent="Pickups" unique_id=703028243 instance=ExtResource("15_15bud")]
+position = Vector2(1536, 570)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap1" type="Area2D" parent="Pickups" unique_id=231687291 instance=ExtResource("15_15bud")]
+position = Vector2(1593.6, 590)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap2" type="Area2D" parent="Pickups" unique_id=847465705 instance=ExtResource("15_15bud")]
+position = Vector2(1651.2, 610)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap3" type="Area2D" parent="Pickups" unique_id=773915327 instance=ExtResource("15_15bud")]
+position = Vector2(1708.8, 630)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap4" type="Area2D" parent="Pickups" unique_id=1285277199 instance=ExtResource("15_15bud")]
+position = Vector2(1766.4, 630)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap5" type="Area2D" parent="Pickups" unique_id=1141477033 instance=ExtResource("15_15bud")]
+position = Vector2(1824, 610)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap6" type="Area2D" parent="Pickups" unique_id=1536722833 instance=ExtResource("15_15bud")]
+position = Vector2(1881.6, 590)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Scrap7" type="Area2D" parent="Pickups" unique_id=2094879544 instance=ExtResource("15_15bud")]
+position = Vector2(1939.2, 570)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("16_s5bvf")
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("17_j8st1")]
+position = Vector2(192, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("18_s5ah2")
