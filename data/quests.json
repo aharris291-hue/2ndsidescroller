@@ -28,5 +28,11 @@
 		"description": "Perform in the Lanternfold shadow-puppet theater and win the crowd.",
 		"goal": 1,
 		"reward_scraps": 25
+	},
+	"restring_spine": {
+		"title": "Restring the Spine",
+		"description": "Find Old Bindwell's three spools of bookbinding thread on the climb up the spine.",
+		"goal": 3,
+		"reward_scraps": 20
 	}
 }

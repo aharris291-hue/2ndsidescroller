@@ -6,12 +6,13 @@
 
 [node name="Interlude02" type="Control" unique_id=813938317]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_ywy70")
 conversation_id = "interlude_2"
 title_caption = "Later that night, at Gran's kitchen table..."
+next_page = "res://scenes/levels/ch3_spine/frostfold_slopes.tscn"
 sets_flag = "chapter2_complete"
 music = ExtResource("2_xq1ub")
 save_on_finish = true

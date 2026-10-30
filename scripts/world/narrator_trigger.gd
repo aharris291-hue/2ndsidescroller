@@ -1,7 +1,7 @@
 class_name NarratorTrigger
 extends Area2D
 ## Shows a narrator caption the first time Patch walks through. Used for tutorials
-## and story beats. "{jump}", "{attack}", "{dash}", "{interact}" become button names.
+## and story beats. "{jump}", "{attack}", "{dash}", "{grapple}", "{slam}" and "{interact}" become button names.
 
 @export_multiline var caption := ""
 
@@ -15,6 +15,6 @@ func _on_body_entered(body: Node2D) -> void:
 	if body is Patch and not GameState.get_flag(flag):
 		GameState.set_flag(flag)
 		var text := caption
-		for action in [&"jump", &"attack", &"dash", &"interact"]:
+		for action in [&"jump", &"attack", &"dash", &"grapple", &"slam", &"interact"]:
 			text = text.replace("{%s}" % action, InputGlyphs.hint(action))
 		DialogueUI.narrate(text)

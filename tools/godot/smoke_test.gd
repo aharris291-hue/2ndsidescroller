@@ -115,6 +115,7 @@ func _run() -> void:
 
 	await _chapter_one(game_state, scene_manager, dialogue)
 	await _chapter_two(game_state, scene_manager, dialogue)
+	await _chapter_three(game_state, scene_manager, dialogue)
 
 	# Save and load.
 	game_state.add_scraps(5)
@@ -356,8 +357,191 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	_check(game_state.get_flag("chapter2_complete"), "the second interlude marks Chapter 2 complete")
 
 
-func _skip_dialogue(dialogue: Node) -> void:
-	for i in 40:
+func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const CH3 := "res://scenes/levels/ch3_spine/"
+	# The second interlude now turns the page to Frostfold.
+	_check(current_scene.name == "FrostfoldSlopes", "the second interlude turns to Chapter 3 (now on %s)" % current_scene.name)
+
+	# Frostfold Slopes: pick up the Pop-Up Slam, spring a fold mark, ride the peak up.
+	await scene_manager.change_page(CH3 + "frostfold_slopes.tscn")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var patch = get_first_node_in_group("player")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	patch.global_position = current_scene.get_node("Pickups/PopUpSlamPage").global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"pop_up_slam"), "the folded page gives Patch the Pop-Up Slam")
+	var fold := current_scene.get_node("Props/FoldA")
+	patch.global_position = fold.global_position + Vector2(0, -48)
+	patch.velocity = Vector2.ZERO
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var ground_y: float = patch.global_position.y
+	await _press(&"slam")
+	await _frames(70)
+	_check(fold.is_up, "a Pop-Up Slam on a fold mark springs the peak")
+	_check(patch.global_position.y < ground_y - 180.0, "the peak carries Patch up (rose %.0f px)" % (ground_y - patch.global_position.y))
+	var ice := current_scene.get_node("Props/IceWall23")
+	patch.global_position = Vector2(26.6 * 64, 26 * 64 - 48)
+	patch.velocity = Vector2.ZERO
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	await _press(&"slam")
+	await _frames(60)
+	_check(not is_instance_valid(ice), "slamming next to the ice wall shatters it")
+	_check(current_scene.get_node("Props/LayPageFlat").is_open(), "the cliff can be laid flat")
+
+	# Laid flat: a top-down snowfield. Bindwell opens the Margin; slam breaks the ice gap.
+	await scene_manager.change_page(CH3 + "frostfold_flat.tscn", &"FromSlopes")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	_check(current_scene.name == "FrostfoldFlat" and patch.view_mode == 1, "laying the page flat turns it top-down")
+	_check(not current_scene.get_node("Props/MarginDoor").is_open(), "the Margin stays shut until Patch meets Bindwell")
+	current_scene.get_node("Actors/Bindwell").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_started("restring_spine") and current_scene.get_node("Props/MarginDoor").is_open(), "Bindwell gives her quest and points to the Margin")
+	_check(not current_scene.get_node("Props/StandUpBeyond").is_open(), "the far side stays flat until Patch has a paperclip")
+	patch.global_position = Vector2(19 * 64, 21.5 * 64)
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	await _press(&"slam")
+	await _frames(60)
+	var gap_left := 0
+	for child in current_scene.get_node("Props").get_children():
+		if child.name.begins_with("GapIce"):
+			gap_left += 1
+	_check(gap_left == 0, "a top-down slam breaks the ice sealing the way round (%d left)" % gap_left)
+
+	# The paperclip heist: the clip, and the hairdryer plug hauled over to the book.
+	await scene_manager.change_page("res://scenes/levels/margin/paperclip_heist.tscn", &"FromPage")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	_check(not current_scene.visible and current_scene.get_node_or_null("Diorama") != null, "the paperclip heist is drawn as the 3D desk")
+	var plug := current_scene.get_node("Props/HairdryerPlug") as Node2D
+	var plug_x := plug.position.x
+	current_scene.get_node("Props/PlugRing").yank()
+	await _frames(90)
+	await _skip_dialogue(dialogue)
+	_check(game_state.get_flag("plug_moved") and plug.position.x < plug_x - 300.0, "yanking the plug ring hauls the plug toward the book")
+	patch.global_position = current_scene.get_node("Pickups/Paperclip").global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.get_flag("has_paperclip"), "Patch takes the paperclip")
+	_check(current_scene.get_node("Props/BackIntoTheBook").is_open(), "the way back into the book opens")
+
+	await scene_manager.change_page(CH3 + "frostfold_flat.tscn", &"FromMargin")
+	await _frames(30)
+	_check(current_scene.get_node("Props/StandUpBeyond").is_open(), "with the paperclip, the page can be stood up past the cliff")
+	await scene_manager.change_page(CH3 + "frostfold_slopes.tscn", &"FromFlat")
+	await _frames(30)
+	patch = get_first_node_in_group("player")
+	_check(patch.global_position.x > 49 * 64, "standing the page up puts Patch beyond the cliff")
+
+	# The Spine: zip to a piton, gather Bindwell's spools, and the low point by the fire.
+	await scene_manager.change_page(CH3 + "the_spine.tscn")
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	# Clear the Soggies so none of them knock Patch off the tape mid-zip.
+	for actor in current_scene.get_node("Actors").get_children():
+		if actor.name.begins_with("Soggy"):
+			actor.free()
+	patch.global_position = Vector2(31 * 64, 39 * 64 - 48)
+	patch.facing = Vector2.LEFT
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(patch.try_grapple(), "the Tape Tail finds the shelf piton")
+	await _frames(120)
+	_check(patch.global_position.x < 27 * 64 and patch.global_position.y < 33 * 64 and patch.is_on_floor(), "zipping to the piton lands Patch on the shelf (%.0f, %.0f)" % [patch.global_position.x, patch.global_position.y])
+	for spool_name in ["Spool1", "Spool2", "Spool3"]:
+		current_scene.get_node("Actors/" + spool_name).interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_progress("restring_spine") == 3, "all three spools can be found")
+	current_scene.get_node("Actors/Bindwell").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_done("restring_spine"), "Bindwell takes the spools and pays up")
+	_check(not current_scene.get_node("Props/ToTheSummit").is_open(), "the summit waits for the scene by the fire")
+	patch.global_position = current_scene.get_node("Story/LowPoint").global_position + Vector2(0, 150)
+	await _frames(10)
+	_check(dialogue.is_active(), "the low point plays by the campfire")
+	await _skip_dialogue(dialogue, 80)
+	_check(game_state.get_flag("patch_told_truth") and current_scene.get_node("Props/ToTheSummit").is_open(), "Patch tells the truth and the way to the summit opens")
+
+	# The Sogg: lure it down by a fold mark, spring the peak into it, swipe Drizzle.
+	await scene_manager.change_page(CH3 + "sogg_arena.tscn")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	var boss := current_scene.get_node("TheSogg")
+	boss.start_fight()
+	await _skip_dialogue(dialogue)
+	_check(boss.state == 1, "the Sogg fight starts")
+	var mark := current_scene.get_node("Props/Fold2")
+	var stunned_once := false
+	for attempt in 600:
+		if boss.state == 6 or boss.health.is_dead():
+			break
+		if boss.state == 1 or boss.state == 2 or boss.state == 3:
+			# Stand by the middle fold mark so it dives there.
+			patch.global_position = mark.global_position + Vector2(0, -48)
+			patch.velocity = Vector2.ZERO
+			await _frames(10)
+		elif boss.state == 4:
+			mark.fold_away()
+			await _frames(40)
+			mark.pop()
+			await _frames(30)
+			if not stunned_once and boss.state == 5:
+				stunned_once = true
+				_check(true, "springing a peak under the soaking Sogg pins it")
+		elif boss.state == 5:
+			var heart := boss.get_node("Heart") as Node2D
+			patch.global_position = heart.global_position + Vector2(-74, 6)
+			patch.velocity = Vector2.ZERO
+			patch.facing = Vector2.RIGHT
+			await _frames(2)
+			Input.action_press(&"attack")
+			await _frames(2)
+			Input.action_release(&"attack")
+			await _frames(25)
+		else:
+			await _frames(10)
+	_check(stunned_once, "the Sogg can be pinned by a peak")
+	_check(not is_instance_valid(boss) or boss.phase == 1, "the Sogg swells into its second phase at half health")
+	_check(game_state.get_flag("boss_sogg_phase2_done"), "the Sogg's first two phases can be won (health %d)" % (boss.health.current if is_instance_valid(boss) else 0))
+	for i in 400:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	for i in 600:
+		if current_scene and current_scene.name == "Interlude03":
+			break
+		await _frames(1)
+	_check(current_scene.name == "Interlude03", "the Sogg drags Patch into the Gutter and the third interlude plays")
+	for i in 1200:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	await _frames(90)
+	_check(game_state.get_flag("chapter3_complete"), "the third interlude marks Chapter 3 complete")
+
+
+func _press(action: StringName) -> void:
+	Input.action_press(action)
+	await _frames(2)
+	Input.action_release(action)
+
+
+func _skip_dialogue(dialogue: Node, max_lines := 40) -> void:
+	for i in max_lines:
 		if not dialogue.is_active():
 			return
 		var press := InputEventAction.new()

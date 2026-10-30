@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/fold_mark.gd" id="1_kokvt"]
+[ext_resource type="Texture2D" path="res://assets/art/props/popup_peak.png" id="2_k4goe"]
+[ext_resource type="Texture2D" path="res://assets/art/props/fold_mark.png" id="3_76yvq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sfsg0"]
+size = Vector2(132, 256)
+
+[node name="FoldMark" type="Node2D" unique_id=978518567]
+script = ExtResource("1_kokvt")
+
+[node name="Peak" type="AnimatableBody2D" parent="." unique_id=1641773365]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Peak" unique_id=116374813]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_k4goe")
+centered = false
+offset = Vector2(-120, 0)
+region_enabled = true
+region_rect = Rect2(0, 0, 240, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Peak" unique_id=1525024666]
+position = Vector2(0, 128)
+shape = SubResource("RectangleShape2D_sfsg0")
+
+[node name="Mark" type="Sprite2D" parent="." unique_id=387589561]
+z_index = 1
+position = Vector2(0, -16)
+texture = ExtResource("3_76yvq")

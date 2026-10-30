@@ -165,6 +165,65 @@ def build_ink_deep():
     write("music/ink_deep.wav", _loop(out + rumble, length) * 0.85)
 
 
+def celesta_note(midi, length=1.4):
+    """A celesta: a soft struck bar with a bell-like octave, rounder than the music box."""
+    x = t(length)
+    f = note_freq(midi)
+    tone = np.sin(2 * np.pi * f * x) + 0.3 * np.sin(2 * np.pi * f * 2 * x) * np.exp(-x * 5) + 0.08 * np.sin(2 * np.pi * f * 4.1 * x) * np.exp(-x * 14)
+    return tone * np.minimum(1.0, x * 400) * np.exp(-x * 2.4) * 0.24
+
+
+def string_note(midi, length):
+    """A low bowed string: detuned saws, a slow bow attack and a gentle vibrato."""
+    x = t(length)
+    f = note_freq(midi) * (1 + 0.003 * np.sin(2 * np.pi * 5.2 * x) * np.minimum(1.0, x))
+    phase = np.cumsum(f) / RATE
+    saw = sum(((phase * d) % 1.0) * 2 - 1 for d in (1.0, 1.003, 0.998)) / 3
+    smooth = np.convolve(saw, np.ones(10) / 10, mode="same")
+    env = np.minimum(1.0, x / 0.5) * np.minimum(1.0, (length - x) / 0.6)
+    return smooth * env * 0.16
+
+
+def build_spine_peaks():
+    """'The Long Climb', the Spine Peaks theme: a celesta melody in E minor over low
+    strings (84 bpm, 4/4), with the music box answering high up, like snow falling."""
+    beat = 60 / 84
+    melody = [
+        (64, 2), (67, 1), (71, 1), (69, 3), (67, 1), (66, 2), (67, 1), (69, 1), (71, 4),
+        (72, 2), (71, 1), (69, 1), (67, 3), (64, 1), (66, 2), (67, 1), (66, 1), (64, 4),
+        (64, 2), (67, 1), (71, 1), (76, 3), (74, 1), (72, 2), (71, 1), (69, 1), (71, 4),
+        (72, 2), (74, 1), (72, 1), (71, 3), (67, 1), (69, 2), (66, 2), (64, 4),
+    ]
+    chords = [(40, 47), (36, 43), (38, 45), (35, 42), (36, 43), (40, 47), (38, 45), (40, 47)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for k, (midi, dur) in enumerate(melody):
+        n = celesta_note(midi + 12, 1.6)
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        if dur >= 4:
+            echo = music_box_note(midi + 24, 1.4) * 0.35
+            j = i + int(beat * 2 * RATE)
+            out[j:j + len(echo)] += echo
+        pos += dur * beat
+    bars = int(total_beats // 4)
+    for bar in range(bars):
+        start = int(bar * 4 * beat * RATE)
+        for m in chords[bar % len(chords)]:
+            n = string_note(m, beat * 4.2)
+            out[start:start + len(n)] += n
+    write("music/spine_peaks.wav", _loop(out, length) * 0.85)
+
+
+def build_chapter3_sfx():
+    # Pop-Up Slam: a deep cardboard thump with a crunch of folding paper on top.
+    thump = sweep(140, 40, 0.4, decay=7) * 0.8
+    crunch = np.convolve(gen.normal(0, 1, int(RATE * 0.4)), np.ones(3) / 3, mode="same") * np.exp(-t(0.4) * 14) * 0.5
+    write("sfx/slam.wav", (thump + crunch) * 0.75)
+
+
 def sweep(f0, f1, length, wave_fn=np.sin, decay=8.0):
     x = t(length)
     freq = np.linspace(f0, f1, len(x))
@@ -197,8 +256,17 @@ def build_sfx():
 
 
 if __name__ == "__main__":
+    import sys
+
+    if "chapter3" in sys.argv:
+        # Quick path: only the Chapter 3 music and sounds.
+        build_spine_peaks()
+        build_chapter3_sfx()
+        sys.exit(0)
     build_theme()
     build_sfx()
     build_lanternfold()
     build_ink_deep()
+    build_spine_peaks()
+    build_chapter3_sfx()
     print("Audio written to", AUDIO)

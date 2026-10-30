@@ -62,5 +62,51 @@
 			"speaker": "dad",
 			"text": "...Goodnight, Nell."
 		}
+	],
+	"interlude_3": [
+		{
+			"speaker": "narrator",
+			"text": "Dad had fallen asleep at the table. The lamp was still on. The book lay open at the winter page, its spine split down the middle."
+		},
+		{
+			"speaker": "nell",
+			"text": "...Dad?"
+		},
+		{
+			"speaker": "gran",
+			"text": "Let him sleep, love. He's been up every night since we got here."
+		},
+		{
+			"speaker": "nell",
+			"text": "It's worse. Look. The middle's coming apart. The fox is just... gone. The page he was on is empty."
+		},
+		{
+			"speaker": "gran",
+			"text": "Mm. It'll need more than one pair of hands, that bit."
+		},
+		{
+			"speaker": "nell",
+			"text": "..."
+		},
+		{
+			"speaker": "nell",
+			"text": "He kept the torn bit. The fox's tail. It's in an envelope. He wrote 'Patch, tail' on it."
+		},
+		{
+			"speaker": "gran",
+			"text": "Your dad doesn't throw out the bits that come off. Never has."
+		},
+		{
+			"speaker": "nell",
+			"text": "..."
+		},
+		{
+			"speaker": "narrator",
+			"text": "Nell looked at the hairdryer at the end of the table for a long time. She didn't pick it up. Not yet."
+		},
+		{
+			"speaker": "narrator",
+			"text": "To be continued in the Gutter."
+		}
 	]
 }

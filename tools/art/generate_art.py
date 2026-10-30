@@ -342,15 +342,18 @@ def tile_seabed_fill():
 
 
 def build_tiles():
+    import chapter3_art
     import page_art
 
+    snow_row, winter_row = chapter3_art.tiles()
     makers = [
         [page_art.tile_ground_top, page_art.tile_ground_fill, page_art.tile_plank, tile_soggy],
         [tile_table_wood, tile_page_floor, tile_book_wall, tile_ink_puddle],
         [page_art.tile_cobble, page_art.tile_boardwalk, page_art.tile_harbor_water, tile_seabed_top],
-        [tile_seabed_fill, page_art.tile_hedge],
+        [tile_seabed_fill, page_art.tile_hedge] + snow_row,
+        winter_row,
     ]
-    atlas = Image.new("RGBA", (TILE * 4, TILE * 4), (0, 0, 0, 0))
+    atlas = Image.new("RGBA", (TILE * 4, TILE * len(makers)), (0, 0, 0, 0))
     for row, funcs in enumerate(makers):
         for col, fn in enumerate(funcs):
             atlas.paste(fn(), (col * TILE, row * TILE))
@@ -720,6 +723,7 @@ if __name__ == "__main__":
     import sys
 
     import chapter2_art
+    import chapter3_art
     import character_art
 
     if "characters" in sys.argv:
@@ -731,6 +735,11 @@ if __name__ == "__main__":
         build_tiles()
         chapter2_art.build()
         sys.exit(0)
+    if "chapter3" in sys.argv:
+        # Quick path: only the Chapter 3 art and the tile atlas.
+        build_tiles()
+        chapter3_art.build()
+        sys.exit(0)
     build_tiles()
     build_props()
     build_ui()
@@ -739,5 +748,6 @@ if __name__ == "__main__":
     build_icon()
     build_chapter1_art()
     chapter2_art.build()
+    chapter3_art.build()
     character_art.build()
     print("Art written to", ART)

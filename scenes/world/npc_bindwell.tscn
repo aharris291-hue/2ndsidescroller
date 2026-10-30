@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/npc.gd" id="1_ekufq"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/bindwell.png" id="2_onlli"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_x443c"]
+size = Vector2(180, 140)
+
+[node name="Bindwell" type="Area2D" unique_id=1065785455]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_ekufq")
+dialogue_id = "bindwell_intro"
+repeat_dialogue_id = "bindwell_repeat"
+first_talk_flag = "met_bindwell"
+idle_bob = 3.0
+quest_id = "restring_spine"
+quest_progress_dialogue = "bindwell_progress"
+quest_turn_in_dialogue = "bindwell_done"
+prompt_offset = Vector2(0, -250)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2087002308]
+position = Vector2(0, -105)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_onlli")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=881760387]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_x443c")

@@ -1,0 +1,303 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_uo7p5"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/spine_peaks.wav" id="2_ysbxk"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_frostfold.png" id="3_x25b5"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_f6axt"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_5ynay"]
+[ext_resource type="PackedScene" path="res://scenes/world/narrator_trigger.tscn" id="6_brkpw"]
+[ext_resource type="Script" path="res://scripts/world/narrator_trigger.gd" id="7_177ib"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="8_x5g3c"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="9_st1ow"]
+[ext_resource type="PackedScene" path="res://scenes/world/fold_mark.tscn" id="10_hcu24"]
+[ext_resource type="Script" path="res://scripts/world/fold_mark.gd" id="11_bkljk"]
+[ext_resource type="PackedScene" path="res://scenes/world/ice_block.tscn" id="12_1rax1"]
+[ext_resource type="Script" path="res://scripts/world/slam_breakable.gd" id="13_5qe2d"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="14_2704y"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="15_aa750"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="16_tju3i"]
+[ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="17_rti06"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="18_41lpf"]
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="19_3hmq4"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="20_fuv38"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="21_x0dwr"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="22_dstkn"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="23_fpa4m"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="24_kl05x"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_2bo5e"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vrrup"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_50e1s"]
+size = Vector2(120, 600)
+
+[node name="FrostfoldSlopes" type="Node2D" unique_id=1099946366]
+script = ExtResource("1_uo7p5")
+page_title = "Frostfold"
+opening_caption = "Winter had always been Nell's favourite page. Now the snow was grey at the edges, and the mountains sagged."
+music = ExtResource("2_ysbxk")
+bounds = Rect2(0, 0, 4096, 2176)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=1776531386]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(2198.7556, 0)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=215020202]
+scale = Vector2(1.1451852, 1.1451852)
+texture = ExtResource("3_x25b5")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=570314796]
+tile_map_data = PackedByteArray("AAAvAAAAAAACAAMAAAAwAAAAAAACAAMAAAAxAAAAAAACAAMAAAAvAAEAAAADAAMAAAAwAAEAAAADAAMAAAAxAAEAAAADAAMAAAAvAAIAAAADAAMAAAAwAAIAAAADAAMAAAAxAAIAAAADAAMAAAAvAAMAAAADAAMAAAAwAAMAAAADAAMAAAAxAAMAAAADAAMAAAAvAAQAAAADAAMAAAAwAAQAAAADAAMAAAAxAAQAAAADAAMAAAAvAAUAAAADAAMAAAAwAAUAAAADAAMAAAAxAAUAAAADAAMAAAAvAAYAAAADAAMAAAAwAAYAAAADAAMAAAAxAAYAAAADAAMAAAAvAAcAAAADAAMAAAAwAAcAAAADAAMAAAAxAAcAAAADAAMAAAAvAAgAAAADAAMAAAAwAAgAAAADAAMAAAAxAAgAAAADAAMAAAAvAAkAAAADAAMAAAAwAAkAAAADAAMAAAAxAAkAAAADAAMAAAAvAAoAAAADAAMAAAAwAAoAAAADAAMAAAAxAAoAAAADAAMAAAAvAAsAAAADAAMAAAAwAAsAAAADAAMAAAAxAAsAAAADAAMAAAAvAAwAAAADAAMAAAAwAAwAAAADAAMAAAAxAAwAAAADAAMAAAAvAA0AAAADAAMAAAAwAA0AAAADAAMAAAAxAA0AAAADAAMAAAAvAA4AAAADAAMAAAAwAA4AAAADAAMAAAAxAA4AAAADAAMAAAA4AA4AAAAAAAQAAAA5AA4AAAAAAAQAAAA6AA4AAAAAAAQAAAA7AA4AAAAAAAQAAAA8AA4AAAAAAAQAAAA9AA4AAAAAAAQAAAA+AA4AAAAAAAQAAAA/AA4AAAAAAAQAAAAvAA8AAAADAAMAAAAwAA8AAAADAAMAAAAxAA8AAAADAAMAAAAvABAAAAADAAMAAAAwABAAAAADAAMAAAAxABAAAAADAAMAAAAyABAAAAAAAAQAAAAzABAAAAAAAAQAAAA0ABAAAAAAAAQAAAA1ABAAAAAAAAQAAAA2ABAAAAAAAAQAAAA3ABAAAAAAAAQAAAAvABEAAAADAAMAAAAwABEAAAADAAMAAAAxABEAAAADAAMAAAAvABIAAAADAAMAAAAwABIAAAADAAMAAAAxABIAAAADAAMAAAA4ABIAAAAAAAQAAAA5ABIAAAAAAAQAAAA6ABIAAAAAAAQAAAA7ABIAAAAAAAQAAAA8ABIAAAAAAAQAAAA9ABIAAAAAAAQAAAA+ABIAAAAAAAQAAAA/ABIAAAAAAAQAAAAvABMAAAADAAMAAAAwABMAAAADAAMAAAAxABMAAAADAAMAAAAvABQAAAADAAMAAAAwABQAAAADAAMAAAAxABQAAAADAAMAAAAvABUAAAADAAMAAAAwABUAAAADAAMAAAAxABUAAAADAAMAAAAjABYAAAACAAMAAAAkABYAAAACAAMAAAAlABYAAAACAAMAAAAmABYAAAACAAMAAAAnABYAAAACAAMAAAAoABYAAAACAAMAAAApABYAAAACAAMAAAAqABYAAAACAAMAAAArABYAAAACAAMAAAAsABYAAAACAAMAAAAtABYAAAACAAMAAAAuABYAAAACAAMAAAAvABYAAAADAAMAAAAwABYAAAADAAMAAAAxABYAAAADAAMAAAAyABYAAAACAAMAAAAzABYAAAACAAMAAAA0ABYAAAACAAMAAAA1ABYAAAACAAMAAAA2ABYAAAACAAMAAAA3ABYAAAACAAMAAAA4ABYAAAACAAMAAAA5ABYAAAACAAMAAAA6ABYAAAACAAMAAAA7ABYAAAACAAMAAAA8ABYAAAACAAMAAAA9ABYAAAACAAMAAAA+ABYAAAACAAMAAAA/ABYAAAACAAMAAAAjABcAAAADAAMAAAAkABcAAAADAAMAAAAlABcAAAADAAMAAAAmABcAAAADAAMAAAAnABcAAAADAAMAAAAoABcAAAADAAMAAAApABcAAAADAAMAAAAqABcAAAADAAMAAAArABcAAAADAAMAAAAsABcAAAADAAMAAAAtABcAAAADAAMAAAAuABcAAAADAAMAAAAvABcAAAADAAMAAAAwABcAAAADAAMAAAAxABcAAAADAAMAAAAyABcAAAADAAMAAAAzABcAAAADAAMAAAA0ABcAAAADAAMAAAA1ABcAAAADAAMAAAA2ABcAAAADAAMAAAA3ABcAAAADAAMAAAA4ABcAAAADAAMAAAA5ABcAAAADAAMAAAA6ABcAAAADAAMAAAA7ABcAAAADAAMAAAA8ABcAAAADAAMAAAA9ABcAAAADAAMAAAA+ABcAAAADAAMAAAA/ABcAAAADAAMAAAAjABgAAAADAAMAAAAkABgAAAADAAMAAAAlABgAAAADAAMAAAAmABgAAAADAAMAAAAnABgAAAADAAMAAAAoABgAAAADAAMAAAApABgAAAADAAMAAAAqABgAAAADAAMAAAArABgAAAADAAMAAAAsABgAAAADAAMAAAAtABgAAAADAAMAAAAuABgAAAADAAMAAAAvABgAAAADAAMAAAAwABgAAAADAAMAAAAxABgAAAADAAMAAAAyABgAAAADAAMAAAAzABgAAAADAAMAAAA0ABgAAAADAAMAAAA1ABgAAAADAAMAAAA2ABgAAAADAAMAAAA3ABgAAAADAAMAAAA4ABgAAAADAAMAAAA5ABgAAAADAAMAAAA6ABgAAAADAAMAAAA7ABgAAAADAAMAAAA8ABgAAAADAAMAAAA9ABgAAAADAAMAAAA+ABgAAAADAAMAAAA/ABgAAAADAAMAAAArABkAAAADAAMAAAAsABkAAAADAAMAAAAtABkAAAADAAMAAAAuABkAAAADAAMAAAAvABkAAAADAAMAAAAwABkAAAADAAMAAAAxABkAAAADAAMAAAAyABkAAAADAAMAAAAzABkAAAADAAMAAAA0ABkAAAADAAMAAAA1ABkAAAADAAMAAAA2ABkAAAADAAMAAAA3ABkAAAADAAMAAAA4ABkAAAADAAMAAAA5ABkAAAADAAMAAAA6ABkAAAADAAMAAAA7ABkAAAADAAMAAAA8ABkAAAADAAMAAAA9ABkAAAADAAMAAAA+ABkAAAADAAMAAAA/ABkAAAADAAMAAAASABoAAAACAAMAAAATABoAAAACAAMAAAAUABoAAAACAAMAAAAVABoAAAACAAMAAAAWABoAAAACAAMAAAAXABoAAAACAAMAAAAYABoAAAACAAMAAAAZABoAAAACAAMAAAAaABoAAAACAAMAAAAbABoAAAACAAMAAAAcABoAAAACAAMAAAAdABoAAAACAAMAAAAeABoAAAACAAMAAAAfABoAAAACAAMAAAAgABoAAAACAAMAAAAhABoAAAACAAMAAAAiABoAAAACAAMAAAAjABoAAAACAAMAAAArABoAAAADAAMAAAAsABoAAAADAAMAAAAtABoAAAADAAMAAAAuABoAAAADAAMAAAAvABoAAAADAAMAAAAwABoAAAADAAMAAAAxABoAAAADAAMAAAAyABoAAAADAAMAAAAzABoAAAADAAMAAAA0ABoAAAADAAMAAAA1ABoAAAADAAMAAAA2ABoAAAADAAMAAAA3ABoAAAADAAMAAAA4ABoAAAADAAMAAAA5ABoAAAADAAMAAAA6ABoAAAADAAMAAAA7ABoAAAADAAMAAAA8ABoAAAADAAMAAAA9ABoAAAADAAMAAAA+ABoAAAADAAMAAAA/ABoAAAADAAMAAAASABsAAAADAAMAAAATABsAAAADAAMAAAAUABsAAAADAAMAAAAVABsAAAADAAMAAAAWABsAAAADAAMAAAAXABsAAAADAAMAAAAYABsAAAADAAMAAAAZABsAAAADAAMAAAAaABsAAAADAAMAAAAbABsAAAADAAMAAAAcABsAAAADAAMAAAAdABsAAAADAAMAAAAeABsAAAADAAMAAAAfABsAAAADAAMAAAAgABsAAAADAAMAAAAhABsAAAADAAMAAAAiABsAAAADAAMAAAAjABsAAAADAAMAAAArABsAAAADAAMAAAAsABsAAAADAAMAAAAtABsAAAADAAMAAAAuABsAAAADAAMAAAAvABsAAAADAAMAAAAwABsAAAADAAMAAAAxABsAAAADAAMAAAAyABsAAAADAAMAAAAzABsAAAADAAMAAAA0ABsAAAADAAMAAAA1ABsAAAADAAMAAAA2ABsAAAADAAMAAAA3ABsAAAADAAMAAAA4ABsAAAADAAMAAAA5ABsAAAADAAMAAAA6ABsAAAADAAMAAAA7ABsAAAADAAMAAAA8ABsAAAADAAMAAAA9ABsAAAADAAMAAAA+ABsAAAADAAMAAAA/ABsAAAADAAMAAAAyABwAAAADAAMAAAAzABwAAAADAAMAAAA0ABwAAAADAAMAAAA1ABwAAAADAAMAAAA2ABwAAAADAAMAAAA3ABwAAAADAAMAAAA4ABwAAAADAAMAAAA5ABwAAAADAAMAAAA6ABwAAAADAAMAAAA7ABwAAAADAAMAAAA8ABwAAAADAAMAAAA9ABwAAAADAAMAAAA+ABwAAAADAAMAAAA/ABwAAAADAAMAAAAyAB0AAAADAAMAAAAzAB0AAAADAAMAAAA0AB0AAAADAAMAAAA1AB0AAAADAAMAAAA2AB0AAAADAAMAAAA3AB0AAAADAAMAAAA4AB0AAAADAAMAAAA5AB0AAAADAAMAAAA6AB0AAAADAAMAAAA7AB0AAAADAAMAAAA8AB0AAAADAAMAAAA9AB0AAAADAAMAAAA+AB0AAAADAAMAAAA/AB0AAAADAAMAAAAAAB4AAAACAAMAAAABAB4AAAACAAMAAAACAB4AAAACAAMAAAADAB4AAAACAAMAAAAEAB4AAAACAAMAAAAFAB4AAAACAAMAAAAGAB4AAAACAAMAAAAHAB4AAAACAAMAAAAIAB4AAAACAAMAAAAJAB4AAAACAAMAAAAKAB4AAAACAAMAAAALAB4AAAACAAMAAAAMAB4AAAACAAMAAAANAB4AAAACAAMAAAAOAB4AAAACAAMAAAAPAB4AAAACAAMAAAAQAB4AAAACAAMAAAARAB4AAAACAAMAAAASAB4AAAACAAMAAAATAB4AAAACAAMAAAAUAB4AAAACAAMAAAAVAB4AAAACAAMAAAAWAB4AAAACAAMAAAAXAB4AAAACAAMAAAAYAB4AAAACAAMAAAAZAB4AAAACAAMAAAAaAB4AAAACAAMAAAAbAB4AAAACAAMAAAAcAB4AAAACAAMAAAAdAB4AAAACAAMAAAAeAB4AAAACAAMAAAAfAB4AAAACAAMAAAAgAB4AAAACAAMAAAAhAB4AAAACAAMAAAAiAB4AAAACAAMAAAAjAB4AAAACAAMAAAAkAB4AAAACAAMAAAAlAB4AAAACAAMAAAAmAB4AAAACAAMAAAAnAB4AAAACAAMAAAAoAB4AAAACAAMAAAApAB4AAAACAAMAAAAqAB4AAAACAAMAAAArAB4AAAACAAMAAAAsAB4AAAACAAMAAAAtAB4AAAACAAMAAAAuAB4AAAACAAMAAAAvAB4AAAACAAMAAAAwAB4AAAACAAMAAAAxAB4AAAACAAMAAAAyAB4AAAADAAMAAAAzAB4AAAADAAMAAAA0AB4AAAADAAMAAAA1AB4AAAADAAMAAAA2AB4AAAADAAMAAAA3AB4AAAADAAMAAAA4AB4AAAADAAMAAAA5AB4AAAADAAMAAAA6AB4AAAADAAMAAAA7AB4AAAADAAMAAAA8AB4AAAADAAMAAAA9AB4AAAADAAMAAAA+AB4AAAADAAMAAAA/AB4AAAADAAMAAAAAAB8AAAADAAMAAAABAB8AAAADAAMAAAACAB8AAAADAAMAAAADAB8AAAADAAMAAAAEAB8AAAADAAMAAAAFAB8AAAADAAMAAAAGAB8AAAADAAMAAAAHAB8AAAADAAMAAAAIAB8AAAADAAMAAAAJAB8AAAADAAMAAAAKAB8AAAADAAMAAAALAB8AAAADAAMAAAAMAB8AAAADAAMAAAANAB8AAAADAAMAAAAOAB8AAAADAAMAAAAPAB8AAAADAAMAAAAQAB8AAAADAAMAAAARAB8AAAADAAMAAAASAB8AAAADAAMAAAATAB8AAAADAAMAAAAUAB8AAAADAAMAAAAVAB8AAAADAAMAAAAWAB8AAAADAAMAAAAXAB8AAAADAAMAAAAYAB8AAAADAAMAAAAZAB8AAAADAAMAAAAaAB8AAAADAAMAAAAbAB8AAAADAAMAAAAcAB8AAAADAAMAAAAdAB8AAAADAAMAAAAeAB8AAAADAAMAAAAfAB8AAAADAAMAAAAgAB8AAAADAAMAAAAhAB8AAAADAAMAAAAiAB8AAAADAAMAAAAjAB8AAAADAAMAAAAkAB8AAAADAAMAAAAlAB8AAAADAAMAAAAmAB8AAAADAAMAAAAnAB8AAAADAAMAAAAoAB8AAAADAAMAAAApAB8AAAADAAMAAAAqAB8AAAADAAMAAAArAB8AAAADAAMAAAAsAB8AAAADAAMAAAAtAB8AAAADAAMAAAAuAB8AAAADAAMAAAAvAB8AAAADAAMAAAAwAB8AAAADAAMAAAAxAB8AAAADAAMAAAAyAB8AAAADAAMAAAAzAB8AAAADAAMAAAA0AB8AAAADAAMAAAA1AB8AAAADAAMAAAA2AB8AAAADAAMAAAA3AB8AAAADAAMAAAA4AB8AAAADAAMAAAA5AB8AAAADAAMAAAA6AB8AAAADAAMAAAA7AB8AAAADAAMAAAA8AB8AAAADAAMAAAA9AB8AAAADAAMAAAA+AB8AAAADAAMAAAA/AB8AAAADAAMAAAAAACAAAAADAAMAAAABACAAAAADAAMAAAACACAAAAADAAMAAAADACAAAAADAAMAAAAEACAAAAADAAMAAAAFACAAAAADAAMAAAAGACAAAAADAAMAAAAHACAAAAADAAMAAAAIACAAAAADAAMAAAAJACAAAAADAAMAAAAKACAAAAADAAMAAAALACAAAAADAAMAAAAMACAAAAADAAMAAAANACAAAAADAAMAAAAOACAAAAADAAMAAAAPACAAAAADAAMAAAAQACAAAAADAAMAAAARACAAAAADAAMAAAASACAAAAADAAMAAAATACAAAAADAAMAAAAUACAAAAADAAMAAAAVACAAAAADAAMAAAAWACAAAAADAAMAAAAXACAAAAADAAMAAAAYACAAAAADAAMAAAAZACAAAAADAAMAAAAaACAAAAADAAMAAAAbACAAAAADAAMAAAAcACAAAAADAAMAAAAdACAAAAADAAMAAAAeACAAAAADAAMAAAAfACAAAAADAAMAAAAgACAAAAADAAMAAAAhACAAAAADAAMAAAAiACAAAAADAAMAAAAjACAAAAADAAMAAAAkACAAAAADAAMAAAAlACAAAAADAAMAAAAmACAAAAADAAMAAAAnACAAAAADAAMAAAAoACAAAAADAAMAAAApACAAAAADAAMAAAAqACAAAAADAAMAAAArACAAAAADAAMAAAAsACAAAAADAAMAAAAtACAAAAADAAMAAAAuACAAAAADAAMAAAAvACAAAAADAAMAAAAwACAAAAADAAMAAAAxACAAAAADAAMAAAAyACAAAAADAAMAAAAzACAAAAADAAMAAAA0ACAAAAADAAMAAAA1ACAAAAADAAMAAAA2ACAAAAADAAMAAAA3ACAAAAADAAMAAAA4ACAAAAADAAMAAAA5ACAAAAADAAMAAAA6ACAAAAADAAMAAAA7ACAAAAADAAMAAAA8ACAAAAADAAMAAAA9ACAAAAADAAMAAAA+ACAAAAADAAMAAAA/ACAAAAADAAMAAAAAACEAAAADAAMAAAABACEAAAADAAMAAAACACEAAAADAAMAAAADACEAAAADAAMAAAAEACEAAAADAAMAAAAFACEAAAADAAMAAAAGACEAAAADAAMAAAAHACEAAAADAAMAAAAIACEAAAADAAMAAAAJACEAAAADAAMAAAAKACEAAAADAAMAAAALACEAAAADAAMAAAAMACEAAAADAAMAAAANACEAAAADAAMAAAAOACEAAAADAAMAAAAPACEAAAADAAMAAAAQACEAAAADAAMAAAARACEAAAADAAMAAAASACEAAAADAAMAAAATACEAAAADAAMAAAAUACEAAAADAAMAAAAVACEAAAADAAMAAAAWACEAAAADAAMAAAAXACEAAAADAAMAAAAYACEAAAADAAMAAAAZACEAAAADAAMAAAAaACEAAAADAAMAAAAbACEAAAADAAMAAAAcACEAAAADAAMAAAAdACEAAAADAAMAAAAeACEAAAADAAMAAAAfACEAAAADAAMAAAAgACEAAAADAAMAAAAhACEAAAADAAMAAAAiACEAAAADAAMAAAAjACEAAAADAAMAAAAkACEAAAADAAMAAAAlACEAAAADAAMAAAAmACEAAAADAAMAAAAnACEAAAADAAMAAAAoACEAAAADAAMAAAApACEAAAADAAMAAAAqACEAAAADAAMAAAArACEAAAADAAMAAAAsACEAAAADAAMAAAAtACEAAAADAAMAAAAuACEAAAADAAMAAAAvACEAAAADAAMAAAAwACEAAAADAAMAAAAxACEAAAADAAMAAAAyACEAAAADAAMAAAAzACEAAAADAAMAAAA0ACEAAAADAAMAAAA1ACEAAAADAAMAAAA2ACEAAAADAAMAAAA3ACEAAAADAAMAAAA4ACEAAAADAAMAAAA5ACEAAAADAAMAAAA6ACEAAAADAAMAAAA7ACEAAAADAAMAAAA8ACEAAAADAAMAAAA9ACEAAAADAAMAAAA+ACEAAAADAAMAAAA/ACEAAAADAAMAAAA=")
+tile_set = ExtResource("4_f6axt")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=215399862]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=843219201]
+shape = SubResource("WorldBoundaryShape2D_2bo5e")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=426395285]
+position = Vector2(4096, 0)
+shape = SubResource("WorldBoundaryShape2D_vrrup")
+
+[node name="Start" type="Marker2D" parent="." unique_id=956770149 groups=["spawn_points"]]
+position = Vector2(192, 1872)
+
+[node name="FromFlatBack" type="Marker2D" parent="." unique_id=1264300001 groups=["spawn_points"]]
+position = Vector2(2816, 1360)
+
+[node name="FromFlat" type="Marker2D" parent="." unique_id=584418368 groups=["spawn_points"]]
+position = Vector2(3328, 1360)
+
+[node name="Story" type="Node2D" parent="." unique_id=2143528042]
+
+[node name="ArrivalTalk" type="Area2D" parent="Story" unique_id=1763389464]
+position = Vector2(384, 1720)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_5ynay")
+dialogue_id = "frostfold_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/ArrivalTalk" unique_id=479919195]
+shape = SubResource("RectangleShape2D_50e1s")
+
+[node name="FoldHint" type="Area2D" parent="Story" unique_id=2041830658 instance=ExtResource("6_brkpw")]
+position = Vector2(896, 1920)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_177ib")
+caption = "A dashed fold line, printed in the snow. Stand on it and Pop-Up Slam with {slam}!"
+
+[node name="IceHint" type="Area2D" parent="Story" unique_id=972394391 instance=ExtResource("6_brkpw")]
+position = Vector2(1536, 1664)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_177ib")
+caption = "A wall of ice paper. A swipe won't scratch it. A slam might."
+
+[node name="CliffHint" type="Area2D" parent="Story" unique_id=173261635 instance=ExtResource("6_brkpw")]
+position = Vector2(2688, 1408)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_177ib")
+caption = "A cliff as sheer as a page edge. Too high to climb. From above, though, it would only be a line."
+
+[node name="Props" type="Node2D" parent="." unique_id=587246402]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("8_x5g3c")]
+position = Vector2(128, 1920)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_st1ow")
+respawn_offset = Vector2(0, -48)
+
+[node name="Bookmark2" type="Area2D" parent="Props" unique_id=1328971165 instance=ExtResource("8_x5g3c")]
+position = Vector2(2368, 1408)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_st1ow")
+respawn_offset = Vector2(0, -48)
+
+[node name="Bookmark3" type="Area2D" parent="Props" unique_id=1115658492 instance=ExtResource("8_x5g3c")]
+position = Vector2(3264, 1408)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_st1ow")
+respawn_offset = Vector2(0, -48)
+
+[node name="FoldA" type="Node2D" parent="Props" unique_id=978518567 instance=ExtResource("10_hcu24")]
+position = Vector2(1024, 1920)
+script = ExtResource("11_bkljk")
+
+[node name="FoldB" type="Node2D" parent="Props" unique_id=2045366747 instance=ExtResource("10_hcu24")]
+position = Vector2(2112, 1664)
+script = ExtResource("11_bkljk")
+
+[node name="FoldC" type="Node2D" parent="Props" unique_id=1866468803 instance=ExtResource("10_hcu24")]
+position = Vector2(3456, 1408)
+script = ExtResource("11_bkljk")
+
+[node name="IceWall23" type="StaticBody2D" parent="Props" unique_id=1181054003 instance=ExtResource("12_1rax1")]
+position = Vector2(1792, 1472)
+script = ExtResource("13_5qe2d")
+
+[node name="IceWall25" type="StaticBody2D" parent="Props" unique_id=1501182101 instance=ExtResource("12_1rax1")]
+position = Vector2(1792, 1600)
+script = ExtResource("13_5qe2d")
+
+[node name="AlcoveIce" type="StaticBody2D" parent="Props" unique_id=858919447 instance=ExtResource("12_1rax1")]
+position = Vector2(2944, 1856)
+script = ExtResource("13_5qe2d")
+
+[node name="LayPageFlat" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("14_2704y")]
+position = Vector2(2880, 1408)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("15_aa750")
+target_page = "res://scenes/levels/ch3_spine/frostfold_flat.tscn"
+target_spawn = &"FromSlopes"
+door_prompt = "Lay the page flat"
+prompt_offset = Vector2(0, -170)
+
+[node name="ToTheSpine" type="Area2D" parent="Props" unique_id=78673102 instance=ExtResource("14_2704y")]
+position = Vector2(3968, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("15_aa750")
+target_page = "res://scenes/levels/ch3_spine/the_spine.tscn"
+target_spawn = &"Start"
+door_prompt = "Climb toward the spine"
+prompt_offset = Vector2(0, -170)
+
+[node name="Actors" type="Node2D" parent="." unique_id=1209788355]
+
+[node name="Soggy0" type="CharacterBody2D" parent="Actors" unique_id=187063361 instance=ExtResource("16_tju3i")]
+position = Vector2(1536, 1880)
+collision_layer = 4
+script = ExtResource("17_rti06")
+
+[node name="Soggy1" type="CharacterBody2D" parent="Actors" unique_id=985766370 instance=ExtResource("16_tju3i")]
+position = Vector2(2176, 1880)
+collision_layer = 4
+script = ExtResource("17_rti06")
+
+[node name="Soggy2" type="CharacterBody2D" parent="Actors" unique_id=944702805 instance=ExtResource("16_tju3i")]
+position = Vector2(1472, 1624)
+collision_layer = 4
+script = ExtResource("17_rti06")
+
+[node name="Soggy3" type="CharacterBody2D" parent="Actors" unique_id=1282158803 instance=ExtResource("16_tju3i")]
+position = Vector2(2624, 1368)
+collision_layer = 4
+script = ExtResource("17_rti06")
+
+[node name="Soggy4" type="CharacterBody2D" parent="Actors" unique_id=441248802 instance=ExtResource("16_tju3i")]
+position = Vector2(3776, 1368)
+collision_layer = 4
+script = ExtResource("17_rti06")
+
+[node name="Pickups" type="Node2D" parent="." unique_id=216418974]
+
+[node name="PopUpSlamPage" type="Area2D" parent="Pickups" unique_id=1546455649 instance=ExtResource("18_41lpf")]
+position = Vector2(640, 1850)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+kind = 3
+ability_id = &"pop_up_slam"
+unlock_caption = "A page folded into a perfect pop-up! Patch stamped on it to see what it would do, and a hill sprang up under his feet. Press {slam} (or attack while holding down in mid-air) to Pop-Up Slam: it springs fold marks, cracks ice and flattens Soggies."
+
+[node name="LetterS" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("20_fuv38")]
+position = Vector2(3072, 1860)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+kind = 1
+letter = "S"
+
+[node name="LetterP" type="Area2D" parent="Pickups" unique_id=1384429868 instance=ExtResource("20_fuv38")]
+position = Vector2(3264, 964)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+kind = 1
+letter = "P"
+
+[node name="Tape" type="Area2D" parent="Pickups" unique_id=1710296588 instance=ExtResource("21_x0dwr")]
+position = Vector2(1920, 1604)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+kind = 2
+amount = 2
+
+[node name="Scrap0" type="Area2D" parent="Pickups" unique_id=703028243 instance=ExtResource("22_dstkn")]
+position = Vector2(1024, 1632)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="Scrap1" type="Area2D" parent="Pickups" unique_id=984851012 instance=ExtResource("22_dstkn")]
+position = Vector2(1024, 1568)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="Scrap2" type="Area2D" parent="Pickups" unique_id=156291150 instance=ExtResource("22_dstkn")]
+position = Vector2(1024, 1504)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="Scrap3" type="Area2D" parent="Pickups" unique_id=1872944662 instance=ExtResource("22_dstkn")]
+position = Vector2(1024, 1440)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="Scrap4" type="Area2D" parent="Pickups" unique_id=1488460243 instance=ExtResource("22_dstkn")]
+position = Vector2(1024, 1376)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="BridgeScrap0" type="Area2D" parent="Pickups" unique_id=308006072 instance=ExtResource("22_dstkn")]
+position = Vector2(3648, 1102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="BridgeScrap1" type="Area2D" parent="Pickups" unique_id=1645695943 instance=ExtResource("22_dstkn")]
+position = Vector2(3737.6, 1102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="BridgeScrap2" type="Area2D" parent="Pickups" unique_id=2113388039 instance=ExtResource("22_dstkn")]
+position = Vector2(3827.2, 1102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="BridgeScrap3" type="Area2D" parent="Pickups" unique_id=249731475 instance=ExtResource("22_dstkn")]
+position = Vector2(3916.8, 1102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="BridgeScrap4" type="Area2D" parent="Pickups" unique_id=1041085420 instance=ExtResource("22_dstkn")]
+position = Vector2(4006.4, 1102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_3hmq4")
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("23_fpa4m")]
+position = Vector2(192, 1872)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("24_kl05x")

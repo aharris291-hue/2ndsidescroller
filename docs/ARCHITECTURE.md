@@ -128,7 +128,7 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 - `Bookmark` is a checkpoint: it sets the respawn point, heals Patch fully, and autosaves.
 - UI scenes use `resources/ui_theme.tres` (Patrick Hand font, paper-styled buttons and panels). Every menu takes controller focus.
 
-### Story flow (Prologue, Chapters 1 and 2)
+### Story flow (Prologue, Chapters 1 to 3)
 
 ```
 prologue/prologue_intro      CutscenePage: Nell and Dad at bedtime
@@ -143,7 +143,13 @@ margin/tape_heist            Top-down 3D desk at night: the tape strip unlocks t
 ch2_lanternfold/shadow_theater     ShadowTheater rhythm minigame (shadow_show quest), returns to town
 ch2_lanternfold/under_the_flap     Side view ink sea: zip rings, the yank-open FlapGate, drip spawners
 ch2_lanternfold/kraken_arena       BossKraken fight, Drizzle reveal, exit door to the interlude
-interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2_complete
+interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2_complete, turns to Chapter 3
+ch3_spine/frostfold_slopes   Side view: pop_up_slam page, fold marks, ice walls, the cliff (LayPageFlat door)
+ch3_spine/frostfold_flat     The same page top-down: Bindwell (restring_spine), slam the ice gap, StandUpBeyond door
+margin/paperclip_heist       3D desk, very late: the paperclip (has_paperclip) and the plug ring (plug_moved)
+ch3_spine/the_spine          Tall side-view climb: pitons, thread bridges, spools, the low point (patch_told_truth)
+ch3_spine/sogg_arena         BossSogg phases 1-2; the Sogg drags Patch away into the interlude
+interludes/interlude_03      CutscenePage: Dad asleep, Nell and Gran and the torn spine, sets chapter3_complete
 ```
 
 ### Chapter 1 systems
@@ -168,6 +174,17 @@ interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2
 - **BossKraken:** tentacles slam where Patch stands after a shadow warning. Yank both blotter rings to drop the blotters; it slumps with its eye in reach for `stun_time`. Every 3 hits it recovers, resets the rings, and calls 2 Soggies. When it dries out it plays `kraken_drizzle`, then opens the exit.
 - **Top-down town:** the page root and its containers use `y_sort_enabled` so Patch walks behind houses; tile layers sit on `z_index` -1.
 - **Tiles:** the atlas has a third and fourth row for Chapter 2: cobbles and boardwalk (floor), harbor water and hedges (solid on flat pages), and seabed top and fill (side view ground).
+
+### Chapter 3 systems
+
+- **Pop-Up Slam** (`pop_up_slam` ability, `slam` action, or attack while holding down in mid-air) lives in `Patch`'s `SLAM` state: a hop, a plunge (immune to hits), then an impact that spawns a short-lived shockwave `Hitbox` and calls `on_slam(position, view_mode)` on everything in the `slam_listeners` group.
+- **FoldMark:** a printed fold line with a pop-up peak (`Peak`, an `AnimatableBody2D`) folded flat underneath. A slam within `trigger_radius` springs it up by `rise_height`, carrying Patch; the sprite is region-clipped so only the part above ground shows, and the peak is only solid while it's up. `stay_up_time` folds it away again (the boss arena uses this). Emits `popped`.
+- **SlamBreakable:** ice walls that only a slam can break, on standing or flat pages, and that stay broken across saves.
+- **View flipping:** the Slopes and the Flat page are the same page in two views. `PageDoor`s with "Lay the page flat" / "Stand the page up" prompts move between them at matching spawn points, so the cliff that blocks the side view is just a line to walk round from above.
+- **Key items:** `Collectible.Kind.KEY_ITEM` sets a story `flag` (the paperclip sets `has_paperclip`). A YANK `GrapplePoint` can set `sets_flag` and show `yank_caption` (the hairdryer plug sets `plug_moved` for the finale), and stays yanked after loading.
+- **Pitons** are `GrapplePoint`s with paperclip art.
+- **BossSogg:** drifts high and rains drips, then warns with a wet shadow and dives where Patch stands, soaking there for `soak_time`. A `FoldMark` popping within `catch_range` of it pins it, exposing Drizzle in its chest (the `Heart` hurtbox). 3 hits or `stun_time` and it tears free. At half health it enters phase 2 (bigger, faster, more rain, Soggies). At zero it plays `sogg_drags_patch`, swallows Patch, saves, and turns to `next_page` (the third interlude).
+- **Tiles:** row 4 holds snow top and frozen-rock fill (side view ground); row 5 holds thread bridges (one-way), ice (solid), snowfield (flat floor) and snowdrifts (solid on flat pages).
 
 - **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 2 bumps or fewer.
 

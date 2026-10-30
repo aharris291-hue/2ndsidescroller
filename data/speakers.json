@@ -58,5 +58,15 @@
 		"name": "The Blotch Kraken",
 		"color": "#2c3470",
 		"pitch": 0.45
+	},
+	"bindwell": {
+		"name": "Old Bindwell",
+		"color": "#2f7a6e",
+		"pitch": 1.15
+	},
+	"sogg": {
+		"name": "The Sogg",
+		"color": "#3e4c80",
+		"pitch": 0.5
 	}
 }

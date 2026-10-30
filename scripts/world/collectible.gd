@@ -1,9 +1,10 @@
 class_name Collectible
 extends Area2D
-## Pickups: Scraps (currency), Lost Letters, tape (healing), and ability pages.
-## Letters, tape and abilities are one-time: once collected they stay gone across saves.
+## Pickups: Scraps (currency), Lost Letters, tape (healing), ability pages, and key
+## items (real things from the Margin, like the paperclip, which set a story flag).
+## Everything but Scraps is one-time: once collected it stays gone across saves.
 
-enum Kind { SCRAP, LOST_LETTER, TAPE, ABILITY }
+enum Kind { SCRAP, LOST_LETTER, TAPE, ABILITY, KEY_ITEM }
 
 @export var kind := Kind.SCRAP
 @export var amount := 1
@@ -11,6 +12,8 @@ enum Kind { SCRAP, LOST_LETTER, TAPE, ABILITY }
 @export var letter := "A"
 ## For ABILITY: the ability id, e.g. &"fold_dash".
 @export var ability_id: StringName = &""
+## For KEY_ITEM: the story flag set on pickup, e.g. "has_paperclip".
+@export var flag := ""
 @export_multiline var unlock_caption := ""
 ## Dropped pickups (from enemies) are never saved as collected.
 @export var persistent := true
@@ -62,7 +65,14 @@ func _on_body_entered(body: Node2D) -> void:
 		Kind.ABILITY:
 			GameState.unlock_ability(ability_id)
 			if not unlock_caption.is_empty():
-				DialogueUI.narrate(unlock_caption.replace("{dash}", InputGlyphs.hint(&"dash")).replace("{grapple}", InputGlyphs.hint(&"grapple")))
+				var text := unlock_caption
+				for action in [&"dash", &"grapple", &"slam", &"attack", &"jump"]:
+					text = text.replace("{%s}" % action, InputGlyphs.hint(action))
+				DialogueUI.narrate(text)
+		Kind.KEY_ITEM:
+			GameState.set_flag(flag)
+			if not unlock_caption.is_empty():
+				DialogueUI.narrate(unlock_caption)
 	if _is_one_time():
 		GameState.mark_collected(_unique_id())
 	AudioManager.play_sfx(&"pickup", randf_range(0.95, 1.1) if kind == Kind.SCRAP else 0.85)
