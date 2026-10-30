@@ -253,41 +253,6 @@ def _flower(img, x, y, r, petal=CREAM, middle=MARIGOLD):
     crayon_poly(img, ellipse_points(x, y, r * 0.38, r * 0.38, 12), middle, width=1.5, shadow=False)
 
 
-def tile_ground_top():
-    img = Image.new("RGBA", (TILE, TILE), TAN)
-    # Grass band with a scalloped lower edge (two scallops per tile so it tiles seamlessly).
-    edge = [(x, 20 + abs(math.sin(x / TILE * math.tau)) * 8) for x in range(TILE, -1, -2)]
-    grass = [(0, 2), (TILE, 2)] + edge
-    crayon_poly(img, grass, GRASS, outline=False, smooth=False)
-    ink_line(img, [(p[0], p[1]) for p in edge], width=3)
-    ink_line(img, [(-4, 3), (TILE + 4, 3)], width=4)
-    ink_line(img, [(-4, 8), (TILE + 4, 8)], width=3, color=shade(GRASS, 45))
-    d = ImageDraw.Draw(img)
-    for x, y in ((14, 46), (46, 52)):
-        d.ellipse([x - 3, y - 2, x + 3, y + 2], fill=shade(TAN, -40))
-    return img
-
-
-def tile_ground_fill():
-    img = Image.new("RGBA", (TILE, TILE), TAN)
-    d = ImageDraw.Draw(img)
-    for x, y in ((rng.uniform(12, 52), rng.uniform(12, 52)), (rng.uniform(12, 52), rng.uniform(12, 52))):
-        d.ellipse([x - 4, y - 3, x + 4, y + 3], fill=shade(TAN, -40))
-        d.ellipse([x - 3, y - 3, x + 1, y - 1], fill=shade(TAN, 30))
-    return img
-
-
-def tile_plank():
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    crayon_poly(img, [(0, 4), (TILE, 4), (TILE, 26), (0, 26)], CARDBOARD, outline=False, smooth=False)
-    crayon_poly(img, [(0, 20), (TILE, 20), (TILE, 26), (0, 26)], shade(CARDBOARD, -36), outline=False, smooth=False)
-    ink_line(img, [(-4, 4), (TILE + 4, 4)], width=4)
-    ink_line(img, [(-4, 26), (TILE + 4, 26)], width=4)
-    for x in range(8, TILE, 16):
-        ink_line(img, [(x, 10), (x, 16)], width=2, color=shade(CARDBOARD, -60))
-    return img
-
-
 def tile_soggy():
     img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
     top = [(x, 10 + math.sin(x / TILE * math.tau * 2) * 3) for x in range(0, TILE + 1, 2)]
@@ -334,42 +299,7 @@ def tile_ink_puddle():
     return img
 
 
-COBBLE = (226, 178, 134, 255)
-HARBOR = (58, 104, 170, 255)
 SEABED = (78, 92, 150, 255)
-
-
-def tile_cobble():
-    """Lanternfold's paved streets, seen from above: warm flagstones with a few pebbles."""
-    img = Image.new("RGBA", (TILE, TILE), COBBLE)
-    ink_line(img, [(-4, 1), (TILE + 4, 1)], width=2, color=shade(COBBLE, -36))
-    ink_line(img, [(1, -4), (1, TILE + 4)], width=2, color=shade(COBBLE, -36))
-    d = ImageDraw.Draw(img)
-    for _ in range(3):
-        x, y, r = rng.uniform(12, 52), rng.uniform(12, 52), rng.uniform(2, 4)
-        d.ellipse([x - r * 1.3, y - r, x + r * 1.3, y + r], fill=shade(COBBLE, -30))
-        d.ellipse([x - r * 0.9, y - r, x + r * 0.3, y - r * 0.2], fill=shade(COBBLE, 26))
-    return img
-
-
-def tile_boardwalk():
-    img = Image.new("RGBA", (TILE, TILE), shade(WOOD, -50))
-    for i in range(4):
-        y = i * 16
-        crayon_poly(img, [(0, y + 1), (TILE, y + 1), (TILE, y + 14), (0, y + 14)], shade(WOOD, 20 - i * 6), outline=False, smooth=False, shadow=False)
-        ink_line(img, [(-4, y + 15), (TILE + 4, y + 15)], width=2, color=shade(WOOD, -70))
-    d = ImageDraw.Draw(img)
-    for x, y in ((10, 8), (54, 24), (22, 40), (44, 56)):
-        d.ellipse([x - 2, y - 2, x + 2, y + 2], fill=INK)
-    return img
-
-
-def tile_harbor_water():
-    img = Image.new("RGBA", (TILE, TILE), HARBOR)
-    for y, amp in ((16, 3), (44, 3)):
-        pts = [(x, y + math.sin(x / TILE * math.tau * 2) * amp) for x in range(-4, TILE + 5, 4)]
-        ink_line(img, pts, width=3, color=shade(HARBOR, 46))
-    return img
 
 
 def tile_seabed_top():
@@ -395,22 +325,14 @@ def tile_seabed_fill():
     return img
 
 
-def tile_hedge():
-    """An autumn hedge: a solid wall on top-down pages."""
-    img = Image.new("RGBA", (TILE, TILE), (0, 0, 0, 0))
-    leaf = (232, 112, 58, 255)
-    crayon_poly(img, [(0, 0), (TILE, 0), (TILE, TILE), (0, TILE)], shade(leaf, -40), outline=False, smooth=False, shadow=False)
-    for cx, cy in ((16, 16), (48, 16), (16, 48), (48, 48), (32, 32)):
-        crayon_poly(img, ellipse_points(cx, cy, 15, 15, 14), shade(leaf, rng.randint(-10, 20)), width=2, shadow=False)
-    return img
-
-
 def build_tiles():
+    import page_art
+
     makers = [
-        [tile_ground_top, tile_ground_fill, tile_plank, tile_soggy],
+        [page_art.tile_ground_top, page_art.tile_ground_fill, page_art.tile_plank, tile_soggy],
         [tile_table_wood, tile_page_floor, tile_book_wall, tile_ink_puddle],
-        [tile_cobble, tile_boardwalk, tile_harbor_water, tile_seabed_top],
-        [tile_seabed_fill, tile_hedge],
+        [page_art.tile_cobble, page_art.tile_boardwalk, page_art.tile_harbor_water, tile_seabed_top],
+        [tile_seabed_fill, page_art.tile_hedge],
     ]
     atlas = Image.new("RGBA", (TILE * 4, TILE * 4), (0, 0, 0, 0))
     for row, funcs in enumerate(makers):
@@ -519,15 +441,6 @@ def blob(img, circles, color, width=6, shade_amount=-34):
     img.alpha_composite(layer.resize((w, h), Image.LANCZOS))
 
 
-def tree(img, x, base_y, size, canopy=TEAL, cap=LILAC):
-    """A lollipop storybook tree: stubby trunk, round canopy with a darker cap."""
-    tw = size * 0.22
-    crayon_poly(img, [(x - tw / 2, base_y - size * 0.75), (x + tw / 2, base_y - size * 0.75), (x + tw * 0.7, base_y), (x - tw * 0.7, base_y)], WOOD, width=4)
-    cy = base_y - size * 1.05
-    blob(img, [(x - size * 0.3, cy + size * 0.08, size * 0.34), (x + size * 0.3, cy + size * 0.08, size * 0.34), (x, cy - size * 0.05, size * 0.42)], canopy, width=5)
-    blob(img, [(x - size * 0.16, cy - size * 0.3, size * 0.2), (x + size * 0.16, cy - size * 0.3, size * 0.2), (x, cy - size * 0.38, size * 0.22)], cap, width=4)
-
-
 def _sky_gradient(w, h, top, bottom):
     """A soft vertical gradient with a warm glow around the sun, for depth."""
     t = np.linspace(0.0, 1.0, h, dtype=np.float32)[:, None, None]
@@ -541,46 +454,11 @@ def _sky_gradient(w, h, top, bottom):
     return Image.fromarray(np.concatenate([np.clip(rgb, 0, 255), alpha], axis=-1).astype(np.uint8), "RGBA")
 
 
-def music_note(img, x, y, size, color):
-    crayon_poly(img, ellipse_points(x, y, size * 0.32, size * 0.24, 14), color, width=2, shadow=False)
-    ink_line(img, [(x + size * 0.28, y), (x + size * 0.28, y - size)], width=2)
-    ink_line(img, [(x + size * 0.28, y - size), (x + size * 0.62, y - size * 0.72)], width=2)
-
-
 def build_backgrounds():
+    import page_art
+
     w, h = 1920, 1080
-    img = _sky_gradient(w, h, shade(SKY, -18), shade(SKY, 22))
-    # Page doodles: clover flowers and dots scattered over the lemon page.
-    for _ in range(26):
-        x, y = rng.uniform(40, w - 40), rng.uniform(40, 560)
-        _flower(img, x, y, rng.uniform(8, 12))
-    d = ImageDraw.Draw(img)
-    for _ in range(40):
-        x, y = rng.uniform(0, w), rng.uniform(0, 600)
-        d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=shade(SKY, -45))
-    for x, y in ((240, 330), (1020, 250), (1700, 420)):
-        music_note(img, x, y, 34, TEAL)
-    # Button sun.
-    crayon_poly(img, ellipse_points(1460, 210, 100, 100, 40), MARIGOLD, width=7)
-    for hx, hy in ((1432, 182), (1488, 182), (1432, 238), (1488, 238)):
-        d.ellipse([hx - 10, hy - 10, hx + 10, hy + 10], fill=INK)
-    # Puffy clouds.
-    for cx, cy in ((320, 190), (820, 130), (1180, 300)):
-        blob(img, [(cx - 70, cy + 10, 46), (cx, cy - 12, 60), (cx + 72, cy + 8, 48), (cx + 20, cy + 26, 44)], CREAM, width=5, shade_amount=-26)
-    # Rolling hills; whole-number frequencies so the picture tiles sideways.
-    layers = ((720, 80, TEAL, 0.0), (850, 60, shade(GRASS, 20), 1.7), (960, 40, GRASS, 3.1))
-    for n, (base, amp, color, phase) in enumerate(layers):
-        pts = [(x, base - math.sin(x / w * math.tau * 2 + phase) * amp - math.sin(x / w * math.tau * 5 + phase) * 14) for x in range(-40, w + 41, 20)]
-        if n == 1:
-            for tx in (160, 520, 980, 1340, 1760):
-                ty = base - math.sin(tx / w * math.tau * 2 + phase) * amp - math.sin(tx / w * math.tau * 5 + phase) * 14
-                for wrap in (-w, 0, w):
-                    if -200 < tx + wrap < w + 200:
-                        tree(img, tx + wrap, ty + 30, rng.uniform(130, 170))
-        crayon_poly(img, pts + [(w + 40, h + 40), (-40, h + 40)], color, width=6, smooth=False, shadow=True)
-        ink_line(img, [(x, y + 14) for x, y in pts], width=4, color=shade(color, 40))
-        ink_line(img, pts, width=6)
-    paper_grain(img, 8).convert("RGB").save(out("backgrounds", "bg_thistledown.png"))
+    page_art.build_thistledown()
 
     # The Margin: the giant real-world table, viewed from above with lamp light.
     img = Image.new("RGBA", (w, h), WOOD)

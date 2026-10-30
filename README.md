@@ -18,7 +18,7 @@ This repository holds the **core framework**, the **Prologue**, **Chapter 1: Thi
 - **Tape Tail:** Patch's Chapter 2 ability. Throw it at brass rings to zip over gaps and water, or to yank things he can't reach.
 - **Corrugate**, the cardboard tortoise captain, joins as a second companion.
 - **The Margin:** a top-down page on Gran's kitchen table.
-- **Book view:** every page is drawn as an open pop-up book lying on a wooden desk (switch it off in the pause menu).
+- **Book view:** every level is drawn as an open hardcover book lying on a wooden desk: two separate pages curving into the spine, printed page frames, aged paper, stacked page edges, a cloth cover and a ribbon bookmark (switch it off in the pause menu).
 - **3D desk:** the Margin (outside the book) is a real lit 3D desk with wood, books, a mug, pencils and soft shadows. Patch and friends stand on it as paper cutouts. This uses the Forward+ renderer, so it needs a graphics card that supports Vulkan, Direct3D 12 or Metal.
 - **Desktop builds:** export presets for Windows (.exe) and macOS (universal .app), and a GitHub Actions workflow that tests and builds both on every push.
 
@@ -59,7 +59,7 @@ tools/         Asset generators (Python) and Godot helper scripts
 
 | Command | What it does |
 | --- | --- |
-| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` to rebuild only the Chapter 2 art and the tile atlas, or `characters` to rebuild only the cast (`tools/art/character_art.py`; Patch is a five-frame walk strip). |
+| `python3 tools/art/generate_art.py` | Regenerates all the cartoon textures (thick outlines, soft rounded lighting) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2` to rebuild only the Chapter 2 art and the tile atlas, or `characters` to rebuild only the cast (`tools/art/character_art.py`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
 | `python3 tools/art/generate_materials.py` | Regenerates the wood, paper and cardboard textures used by the 3D desk. |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). |
 | `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the Prologue and Chapter 1 automatically and checks that it works. CI runs this. |
