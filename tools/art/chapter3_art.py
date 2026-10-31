@@ -464,9 +464,24 @@ def build_dad_table_night():
     crayon_poly(img, [(900, 750), (1260, 780), (1260, 930), (900, 900)], (236, 238, 248, 255), width=6)
     crayon_poly(img, [(620, 840), (690, 780), (760, 840)], (170, 184, 220, 255), width=4)
     ink_line(img, [(880, 740), (896, 790), (884, 840), (900, 900)], width=4, wobble=1.5, color=(60, 40, 40, 255))
-    # Dad asleep, head on folded arms beside the book.
-    crayon_poly(img, [(240, 700), (520, 690), (540, 820), (220, 830)], (110, 120, 150, 255), width=6)
-    crayon_poly(img, ellipse_points(370, 660, 80, 62, 30), (96, 70, 56, 255), width=6)
+    # Gran sitting up with him.
+    from finale_art import SKIN, _person
+    _person(img, 1180, 700, 320, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun", mouth="flat", glasses=True)
+    # Dad asleep, head on folded arms beside the book, in the cast's papercraft style.
+    shirt, hair = (110, 120, 150, 255), (96, 70, 56, 255)
+    part(img, [(200, 830, 0), (230, 700), (330, 650), (470, 660), (540, 720), (560, 830, 0)], shirt, width=6, radius=40, seed=31)
+    stitches(img, [(250, 740), (520, 750)], color=shade(shirt, 40), step=12, size=3)
+    part(img, [(240, 790), (300, 740), (520, 740), (560, 800), (520, 830), (260, 830)], shade(shirt, 14), width=5, radius=26, seed=32)
+    crayon_poly(img, ellipse_points(520, 800, 26, 22, 18), SKIN, width=4)
+    part(img, [(290, 700), (330, 610), (420, 600), (470, 650), (460, 740), (360, 760)], SKIN, width=5, radius=34, seed=33)
+    part(img, [(286, 706), (318, 604), (420, 592), (476, 640), (440, 640, 0), (360, 650, 0), (320, 700, 0)], hair, width=4, radius=30, seed=34)
+    # Eyes stitched shut in sleep, and a little open mouth.
+    for ex, ey in ((372, 682), (424, 676)):
+        ink_line(img, [(ex - 12, ey), (ex, ey + 6), (ex + 12, ey)], width=3, wobble=0, color=(40, 40, 70, 255))
+    crayon_poly(img, ellipse_points(404, 716, 7, 9, 12), (150, 60, 66, 255), width=2)
+    crayon_poly(img, ellipse_points(452, 700, 9, 6, 12), (236, 140, 140, 150), outline=False, shadow=False)
+    for k, (zx, zy) in enumerate(((480, 580), (510, 540), (546, 494))):
+        ink_line(img, [(zx, zy), (zx + 14 + k * 4, zy), (zx, zy + 14 + k * 4), (zx + 14 + k * 4, zy + 14 + k * 4)], width=3, wobble=0, color=(230, 220, 250, 255))
     # The hairdryer, unplugged, on the table edge.
     crayon_poly(img, [(1360, 860), (1520, 840), (1530, 900), (1370, 920)], (230, 120, 150, 255), width=5)
     crayon_poly(img, [(1400, 900), (1440, 900), (1450, 990), (1410, 990)], (230, 120, 150, 255), width=5)

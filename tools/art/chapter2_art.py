@@ -255,6 +255,10 @@ def build_dad_table_late():
     img = Image.composite(Image.new("RGBA", (w, h), (255, 206, 140, 255)), img, glow)
     crayon_poly(img, [(840, 0), (860, 0), (860, 150), (840, 150)], INK, outline=False)
     crayon_poly(img, [(740, 150), (960, 150), (1010, 280), (690, 280)], MARIGOLD, width=7)
+    # Dad, tired, and Gran beside him. Nell's chair is pushed back.
+    from finale_art import _person
+    _person(img, 640, 720, 380, (110, 120, 150, 255), (96, 70, 56, 255), mouth="flat")
+    _person(img, 1360, 700, 320, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun", mouth="flat", glasses=True)
     crayon_poly(img, [(560, 760), (950, 730), (950, 890), (560, 920)], CREAM, width=6)
     crayon_poly(img, [(950, 730), (1340, 760), (1340, 920), (950, 890)], (244, 236, 214, 255), width=6)
     # The harbor page: a little blue sea and a lantern.
