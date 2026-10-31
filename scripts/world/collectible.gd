@@ -60,6 +60,8 @@ func _on_body_entered(body: Node2D) -> void:
 		Kind.LOST_LETTER:
 			GameState.collect_letter(letter)
 			DialogueUI.narrate("A Lost Letter! \"%s\" is back where it belongs." % letter)
+			if GameState.letters.size() >= GameState.LETTER_TOTAL:
+				DialogueUI.narrate("That's all twenty-six! Every Lost Letter is home. At the very back of the book, a line of Dad's has come back.")
 		Kind.TAPE:
 			player.health.heal(amount)
 		Kind.ABILITY:

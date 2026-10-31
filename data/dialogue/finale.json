@@ -406,5 +406,39 @@
 			"speaker": "narrator",
 			"text": "The End."
 		}
+	],
+	"the_end_all_letters": [
+		{
+			"speaker": "narrator",
+			"text": "On the last page of the book, under Dad's old handwriting, there was a new line, in crayon."
+		},
+		{
+			"speaker": "nell_hand",
+			"text": "THE POP-UP KINGDOM OF FOLDWICK. Soaked, torn, dried, taped, and finished."
+		},
+		{
+			"speaker": "nell_hand",
+			"text": "Made by Dad. Mended by Dad, Gran, and Nell. And a fox."
+		},
+		{
+			"speaker": "narrator",
+			"text": "And above it, where the flood had washed the page blank, every Lost Letter had found its way home. Letter by letter, an older line came back: the first thing Dad ever wrote in the book."
+		},
+		{
+			"speaker": "dad_hand",
+			"text": "FOR NELL, ON THE DAY YOU WERE BORN."
+		},
+		{
+			"speaker": "dad_hand",
+			"text": "Everything in here can be folded, and unfolded, and folded again. Nothing in here is ever really ruined. Neither are you."
+		},
+		{
+			"speaker": "dad_hand",
+			"text": "Love, Dad."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The End."
+		}
 	]
 }

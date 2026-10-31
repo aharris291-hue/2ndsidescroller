@@ -278,6 +278,10 @@ script = ExtResource("22_l1ipt")
 kind = 2
 amount = 2
 
+[node name="LetterW" parent="Pickups" unique_id=540574849 instance=ExtResource("21_uil23")]
+position = Vector2(4384, 740)
+letter = "W"
+
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("25_471vn")]
 position = Vector2(128, 848)
 collision_layer = 2

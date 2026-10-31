@@ -358,6 +358,10 @@ collision_layer = 0
 collision_mask = 2
 script = ExtResource("20_j338p")
 
+[node name="LetterK" parent="Pickups" unique_id=374604011 instance=ExtResource("19_i627k")]
+position = Vector2(2016, 644)
+letter = "K"
+
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("23_ignu0")]
 position = Vector2(192, 848)
 collision_layer = 2

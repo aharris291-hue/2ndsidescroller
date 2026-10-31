@@ -11,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_x3xao")
 conversation_id = "the_end"
+all_letters_conversation_id = "the_end_all_letters"
 sets_flag = "game_complete"
 music = ExtResource("2_20aat")
 save_on_finish = true

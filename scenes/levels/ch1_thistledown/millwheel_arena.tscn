@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/enemies/boss_millwheel.gd" id="13_x4avv"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="14_lhgjp"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="15_6yqwq"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_sfwd6"]
 normal = Vector2(1, 0)
@@ -127,6 +128,12 @@ exit_door = NodePath("../Props/ToGransTable")
 start_zone = NodePath("../Story/FightStart")
 arena_left = 128.0
 arena_right = 1280.0
+
+[node name="Pickups" type="Node2D" parent="." unique_id=1390116109]
+
+[node name="LetterY" parent="Pickups" unique_id=1028696181 instance=ExtResource("90_letter")]
+position = Vector2(1120, 708)
+letter = "Y"
 
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("14_lhgjp")]
 position = Vector2(128, 848)

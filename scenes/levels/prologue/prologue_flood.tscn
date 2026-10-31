@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/world/rising_water.gd" id="15_sch5e"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="16_gtv5h"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="17_gjvxv"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_d01hr"]
 normal = Vector2(1, 0)
@@ -128,6 +129,12 @@ script = ExtResource("15_sch5e")
 rise_speed = 44.0
 stop_y = 320.0
 knockback = 900.0
+
+[node name="Pickups" type="Node2D" parent="." unique_id=535407952]
+
+[node name="LetterH" parent="Pickups" unique_id=1704795771 instance=ExtResource("90_letter")]
+position = Vector2(1504, 2500)
+letter = "H"
 
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("16_gtv5h")]
 position = Vector2(192, 3024)

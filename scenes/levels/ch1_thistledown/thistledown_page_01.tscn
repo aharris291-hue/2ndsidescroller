@@ -148,6 +148,10 @@ position = Vector2(4544, 698)
 ability_id = &"fold_dash"
 unlock_caption = "Patch remembered how to fold himself into a paper dart! Press {dash} to Fold Dash."
 
+[node name="LetterM" parent="Pickups" unique_id=1516238234 instance=ExtResource("19_leeu5")]
+position = Vector2(1824, 708)
+letter = "M"
+
 [node name="Patch" parent="." unique_id=84479202 instance=ExtResource("22_utcvu")]
 position = Vector2(192, 848)
 

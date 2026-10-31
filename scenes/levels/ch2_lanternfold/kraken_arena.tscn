@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/world/page_door.gd" id="15_3lei5"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="16_7l0u2"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="17_dh1xj"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_14kpl"]
 normal = Vector2(1, 0)
@@ -143,6 +144,12 @@ script = ExtResource("15_3lei5")
 target_page = "res://scenes/levels/interludes/interlude_02.tscn"
 door_prompt = "Close Chapter 2"
 prompt_offset = Vector2(0, -170)
+
+[node name="Pickups" type="Node2D" parent="." unique_id=1741560432]
+
+[node name="LetterQ" parent="Pickups" unique_id=1767152960 instance=ExtResource("90_letter")]
+position = Vector2(1024, 580)
+letter = "Q"
 
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("16_7l0u2")]
 position = Vector2(128, 848)

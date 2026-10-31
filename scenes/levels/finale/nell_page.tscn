@@ -18,6 +18,7 @@
 [ext_resource type="Script" path="res://scripts/world/collectible.gd" id="16_s5bvf"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="17_j8st1"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="18_s5ah2"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_3o5y5"]
 normal = Vector2(1, 0)
@@ -180,6 +181,10 @@ position = Vector2(1939.2, 570)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("16_s5bvf")
+
+[node name="LetterZ" parent="Pickups" unique_id=1668030779 instance=ExtResource("90_letter")]
+position = Vector2(1888, 700)
+letter = "Z"
 
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("17_j8st1")]
 position = Vector2(192, 848)

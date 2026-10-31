@@ -78,5 +78,10 @@
 		"name": "",
 		"color": "#3a6ea5",
 		"pitch": 1.5
+	},
+	"dad_hand": {
+		"name": "",
+		"color": "#5a3d24",
+		"pitch": 0.8
 	}
 }

@@ -5,6 +5,8 @@ extends Control
 ## the interlude at Gran's table between chapters.
 
 @export var conversation_id := ""
+## Played instead of conversation_id once all 26 Lost Letters are found (the last page).
+@export var all_letters_conversation_id := ""
 @export_multiline var title_caption := ""
 @export_file("*.tscn") var next_page := ""
 ## Story flag set when the cutscene finishes, e.g. "chapter1_complete".
@@ -37,8 +39,11 @@ func _ready() -> void:
 		fade.tween_interval(2.2)
 		fade.tween_property(title_label, "modulate:a", 0.0, 0.8)
 		await fade.finished
-	if not conversation_id.is_empty():
-		DialogueUI.start(conversation_id)
+	var talk := conversation_id
+	if not all_letters_conversation_id.is_empty() and GameState.letters.size() >= GameState.LETTER_TOTAL:
+		talk = all_letters_conversation_id
+	if not talk.is_empty():
+		DialogueUI.start(talk)
 		await EventBus.dialogue_finished
 	_finish()
 

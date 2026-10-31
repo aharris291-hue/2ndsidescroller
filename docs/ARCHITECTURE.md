@@ -124,7 +124,7 @@ Soggy (CharacterBody2D, soggy.gd)          layer: enemies   mask: world
 ### Interactables, pickups and UI
 
 - `Interactable` (an Area2D on layer `interactables`, mask `player`) is the base class for `NPC`, `PullTab` and `PageDoor`. Each one shows a "[E] Talk"-style prompt when Patch is near.
-- `Collectible` (an Area2D, mask `player`) handles `SCRAP`, `LOST_LETTER`, `TAPE` and `ABILITY`. One-time pickups are remembered in the save by scene path and node path.
+- `Collectible` (an Area2D, mask `player`) handles `SCRAP`, `LOST_LETTER`, `TAPE` and `ABILITY`. One-time pickups are remembered in the save by scene path and node path. There is one Lost Letter for each of the 26 letters (`GameState.LETTER_TOTAL`); with all of them, `CutscenePage.all_letters_conversation_id` swaps The End for `the_end_all_letters`.
 - `Bookmark` is a checkpoint: it sets the respawn point, heals Patch fully, and autosaves.
 - UI scenes use `resources/ui_theme.tres` (Patrick Hand font, paper-styled buttons and panels). Every menu takes controller focus.
 
