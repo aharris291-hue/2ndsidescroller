@@ -691,6 +691,11 @@ def build_dad_table():
     # Lamp.
     crayon_poly(img, [(840, 0), (860, 0), (860, 150), (840, 150)], INK, outline=False)
     crayon_poly(img, [(740, 150), (960, 150), (1010, 280), (690, 280)], MARIGOLD, width=7)
+    # Dad, Nell and Gran round the table (drawn with the cast's papercraft people).
+    from finale_art import HAIR, NELL, _person
+    _person(img, 330, 720, 380, (110, 120, 150, 255), (96, 70, 56, 255))
+    _person(img, 1460, 700, 360, NELL, HAIR, hair_style="long", mouth="flat")
+    _person(img, 1760, 720, 320, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun", glasses=True)
     # The open, taped pop-up book.
     crayon_poly(img, [(520, 760), (950, 720), (950, 900), (520, 940)], CREAM, width=6, density=0.5)
     crayon_poly(img, [(950, 720), (1380, 760), (1380, 940), (950, 900)], (244, 236, 214, 255), width=6, density=0.5)
