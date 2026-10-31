@@ -299,23 +299,70 @@ def _open_book(img, left_tone=(244, 240, 226, 255), right_tone=(240, 236, 222, 2
             crayon_poly(img, [(x, y), (x + 70, y - 6), (x + 72, y + 16), (x + 2, y + 22)], (246, 230, 160, 220), width=2, smooth=False, shadow=False)
 
 
-def _person(img, cx, base, height, shirt, hair, skin=SKIN, hair_style="short", arm=None):
-    """A simple cut-paper figure from the waist up, sitting or standing at the table."""
+def _person(img, cx, base, height, shirt, hair, skin=SKIN, hair_style="short", arm=None, mouth="smile", glasses=False):
+    """A cut-paper person from the waist up, sitting or standing at the table, in the
+    same papercraft style as the cast: faceted paper parts edged in a darker shade,
+    stitched seams and sewn-on button eyes."""
+    s = height / 380.0
     top = base - height
-    crayon_poly(img, [(cx - 80, base), (cx - 70, top + 110), (cx, top + 90), (cx + 70, top + 110), (cx + 80, base)], shirt, width=6)
-    crayon_poly(img, ellipse_points(cx, top + 50, 48, 56, 30), skin, width=5)
+    hy = top + 80 * s
+    hw, hh = 70 * s, 76 * s
+    sh = top + 44 * s  # where the shoulders start, below the big chibi head
+    seed = int(cx * 7 + base)
+    # Long hair hangs behind the shoulders, so it goes down first.
     if hair_style == "long":
-        crayon_poly(img, [(cx - 54, top + 40), (cx - 40, top - 4), (cx + 40, top - 4), (cx + 54, top + 40), (cx + 50, top + 130),
-                          (cx + 30, top + 120), (cx + 34, top + 30), (cx - 34, top + 30), (cx - 30, top + 120), (cx - 50, top + 130)], hair, width=5)
-    elif hair_style == "bun":
-        crayon_poly(img, ellipse_points(cx, top - 12, 26, 22, 20), hair, width=4)
-        crayon_poly(img, [(cx - 50, top + 40), (cx - 40, top), (cx + 40, top), (cx + 50, top + 40), (cx + 36, top + 22), (cx - 36, top + 22)], hair, width=4)
+        part(img, [(cx - hw - 8 * s, hy - 10 * s), (cx - hw + 4 * s, hy - hh - 4 * s), (cx + hw - 4 * s, hy - hh - 4 * s),
+                   (cx + hw + 8 * s, hy - 10 * s), (cx + hw + 14 * s, hy + 120 * s), (cx + hw - 8 * s, hy + 134 * s, 0),
+                   (cx - hw + 8 * s, hy + 134 * s, 0), (cx - hw - 14 * s, hy + 120 * s)], hair, width=5, radius=40 * s, seed=seed)
+    # Body: rounded shoulders down to the table edge, with a collar and a stitched placket.
+    body = [(cx - 92 * s, base, 0), (cx - 88 * s, sh + 150 * s), (cx - 60 * s, sh + 122 * s), (cx, sh + 112 * s),
+            (cx + 60 * s, sh + 122 * s), (cx + 88 * s, sh + 150 * s), (cx + 92 * s, base, 0)]
+    part(img, body, shirt, width=6, radius=26 * s, seed=seed + 1)
+    part(img, [(cx - 14 * s, hy + 40 * s), (cx + 14 * s, hy + 40 * s), (cx + 16 * s, sh + 124 * s), (cx - 16 * s, sh + 124 * s)],
+         shade(skin, -14), width=3, radius=6 * s, shadow=False, seed=seed + 2)
+    collar = shade(shirt, 28)
+    part(img, [(cx - 40 * s, sh + 116 * s), (cx - 2 * s, sh + 122 * s), (cx - 12 * s, sh + 150 * s, 0)], collar, width=3, radius=5 * s, seed=seed + 3)
+    part(img, [(cx + 40 * s, sh + 116 * s), (cx + 2 * s, sh + 122 * s), (cx + 12 * s, sh + 150 * s, 0)], collar, width=3, radius=5 * s, seed=seed + 4)
+    stitches(img, [(cx, sh + 152 * s), (cx, base - 10)], color=shade(shirt, 50), step=12 * s, size=3 * s)
+    stitches(img, [(cx - 70 * s, sh + 140 * s), (cx - 58 * s, base - 10)], color=shade(shirt, 40), step=12 * s, size=2.5 * s)
+    # Head, with ears.
+    for ex in (cx - hw + 2 * s, cx + hw - 2 * s):
+        crayon_poly(img, ellipse_points(ex, hy + 6 * s, 10 * s, 14 * s, 14), skin, width=3)
+    part(img, [(cx - hw, hy - 18 * s), (cx - hw * 0.62, hy - hh), (cx + hw * 0.62, hy - hh), (cx + hw, hy - 18 * s),
+               (cx + hw * 0.86, hy + hh * 0.62), (cx, hy + hh), (cx - hw * 0.86, hy + hh * 0.62)], skin, width=5, radius=22 * s, seed=seed + 5)
+    # Hair on top.
+    if hair_style == "bun":
+        part(img, [(cx - 24 * s, hy - hh - 22 * s), (cx + 24 * s, hy - hh - 22 * s), (cx + 22 * s, hy - hh + 8 * s), (cx - 22 * s, hy - hh + 8 * s)],
+             hair, width=4, radius=14 * s, seed=seed + 6)
+        part(img, [(cx - hw - 4 * s, hy - 4 * s), (cx - hw + 6 * s, hy - hh + 2 * s), (cx + hw - 6 * s, hy - hh + 2 * s), (cx + hw + 4 * s, hy - 4 * s),
+                   (cx + hw - 10 * s, hy - 26 * s, 0), (cx - hw + 10 * s, hy - 26 * s, 0)], hair, width=4, radius=40 * s, seed=seed + 7)
+    elif hair_style == "long":
+        part(img, [(cx - hw - 6 * s, hy + 10 * s), (cx - hw + 2 * s, hy - hh), (cx + hw - 2 * s, hy - hh), (cx + hw + 6 * s, hy + 10 * s),
+                   (cx + hw - 8 * s, hy - 22 * s, 0), (cx + 4 * s, hy - 30 * s, 0), (cx - hw + 8 * s, hy - 18 * s, 0)], hair, width=4, radius=40 * s, seed=seed + 8)
     else:
-        crayon_poly(img, [(cx - 50, top + 36), (cx - 40, top + 2), (cx + 40, top + 2), (cx + 50, top + 36), (cx + 30, top + 20), (cx - 30, top + 20)], hair, width=4)
-    for ex in (cx - 16, cx + 16):
-        crayon_poly(img, ellipse_points(ex, top + 50, 5, 6, 10), INK, outline=False, shadow=False)
+        part(img, [(cx - hw - 4 * s, hy - 6 * s), (cx - hw + 4 * s, hy - hh - 2 * s), (cx + hw - 4 * s, hy - hh - 2 * s), (cx + hw + 4 * s, hy - 6 * s),
+                   (cx + hw - 8 * s, hy - 30 * s, 0), (cx - 6 * s, hy - 36 * s, 0), (cx - hw + 8 * s, hy - 26 * s, 0)], hair, width=4, radius=40 * s, seed=seed + 9)
+    # Face: button eyes, rosy cheeks and a mouth.
+    for ex in (cx - 26 * s, cx + 26 * s):
+        button(img, ex, hy + 2 * s, 12 * s, color=(36, 52, 132, 255))
+        crayon_poly(img, ellipse_points(ex + (8 if ex > cx else -8) * s, hy + 22 * s, 9 * s, 6 * s, 14), (236, 140, 140, 150), outline=False, shadow=False)
+    if glasses:
+        d = ImageDraw.Draw(img)
+        for ex in (cx - 26 * s, cx + 26 * s):
+            d.ellipse([ex - 19 * s, hy - 17 * s, ex + 19 * s, hy + 21 * s], outline=(232, 200, 120, 255), width=max(2, int(3 * s)))
+        ink_line(img, [(cx - 7 * s, hy + 2 * s), (cx + 7 * s, hy + 2 * s)], width=2.5 * s, wobble=0, color=(232, 200, 120, 255))
+    lip = (150, 60, 66, 255)
+    if mouth == "laugh":
+        part(img, [(cx - 16 * s, hy + 28 * s), (cx + 16 * s, hy + 28 * s), (cx, hy + 46 * s)], lip, width=3, radius=6 * s, shadow=False, seed=seed + 10)
+    elif mouth == "flat":
+        ink_line(img, [(cx - 10 * s, hy + 34 * s), (cx + 10 * s, hy + 34 * s)], width=3 * s, wobble=0, color=lip)
+    else:
+        ink_line(img, [(cx - 12 * s, hy + 30 * s), (cx, hy + 36 * s), (cx + 12 * s, hy + 30 * s)], width=3 * s, wobble=0, color=lip)
     if arm:
-        crayon_poly(img, arm, shirt, width=5)
+        part(img, arm, shirt, width=5, radius=12 * s, seed=seed + 11)
+        hx = (arm[2][0] + arm[3][0]) / 2
+        hy2 = (arm[2][1] + arm[3][1]) / 2
+        crayon_poly(img, ellipse_points(hx, hy2, 20 * s, 18 * s, 18), skin, width=4)
 
 
 def build_nell_dryer():
@@ -326,14 +373,14 @@ def build_nell_dryer():
     _lamp(img)
     # Gran in her chair on the left, with her glued-together mug.
     crayon_poly(img, [(150, 360), (380, 360), (400, 700), (130, 700)], (120, 80, 120, 255), width=6)
-    _person(img, 265, 700, 300, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun")
+    _person(img, 265, 700, 300, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun", glasses=True)
     crayon_poly(img, [(400, 600), (460, 600), (456, 680), (404, 680)], (240, 236, 220, 255), width=5)
     for y in (620, 640, 660):
         ink_line(img, [(406, y), (452, y + 6)], width=1.6, wobble=0.6, color=(200, 160, 60, 255))
     _open_book(img)
     # Nell standing over the book, hairdryer in both hands.
-    _person(img, 1220, 760, 420, NELL, HAIR, hair_style="long",
-            arm=[(1170, 470), (1120, 560), (1060, 620), (1090, 650), (1160, 590), (1220, 500)])
+    _person(img, 1220, 760, 420, NELL, HAIR, hair_style="long", mouth="flat",
+            arm=[(1170, 540), (1120, 590), (1080, 630), (1110, 660), (1170, 620), (1230, 560)])
     crayon_poly(img, [(960, 560), (1120, 520), (1140, 600), (980, 640)], DRYER, width=6)
     crayon_poly(img, [(1080, 600), (1120, 600), (1130, 700), (1090, 700)], DRYER, width=5)
     crayon_poly(img, ellipse_points(960, 600, 20, 40, 20), (60, 40, 50, 255), width=4)
@@ -361,15 +408,11 @@ def build_morning_table():
     ink_line(img, [(1500, 80), (1500, 460)], width=8, wobble=0, color=(150, 100, 70, 255))
     ink_line(img, [(1300, 270), (1700, 270)], width=8, wobble=0, color=(150, 100, 70, 255))
     crayon_poly(img, ellipse_points(1600, 170, 40, 40, 24), (255, 236, 140, 255), width=3)
-    # Dad, Nell and Gran round the table.
-    _person(img, 360, 700, 380, (110, 120, 150, 255), (96, 70, 56, 255),
+    # Dad, Nell and Gran round the table, laughing.
+    _person(img, 360, 700, 380, (110, 120, 150, 255), (96, 70, 56, 255), mouth="laugh",
             arm=[(420, 520), (520, 600), (600, 690), (560, 710), (480, 640), (400, 580)])
-    _person(img, 960, 660, 360, NELL, HAIR, hair_style="long")
-    _person(img, 1520, 700, 330, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun")
-    # Everyone's mouths open laughing.
-    for cx, base, height in ((360, 700, 380), (960, 660, 360), (1520, 700, 330)):
-        top = base - height
-        crayon_poly(img, [(cx - 16, top + 70), (cx + 16, top + 70), (cx, top + 86)], (150, 50, 60, 255), width=2, smooth=False, shadow=False)
+    _person(img, 960, 660, 360, NELL, HAIR, hair_style="long", mouth="laugh")
+    _person(img, 1520, 700, 330, (150, 110, 170, 255), (220, 220, 230, 255), hair_style="bun", mouth="laugh", glasses=True)
     # The mended book, lumpy and proud.
     crayon_poly(img, [(600, 760), (940, 720), (950, 900), (590, 940)], (250, 244, 226, 255), width=6)
     crayon_poly(img, [(960, 724), (1320, 770), (1320, 940), (960, 900)], LEMON, width=6)
