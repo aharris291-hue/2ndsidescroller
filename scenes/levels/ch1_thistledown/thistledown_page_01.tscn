@@ -5,24 +5,18 @@
 [ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_eiybi"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_ewv5y"]
 [ext_resource type="PackedScene" path="res://scenes/world/npc_shepherd_fluff.tscn" id="5_qlgpq"]
-[ext_resource type="Script" path="res://scripts/world/npc.gd" id="6_tm6nt"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="7_06te3"]
-[ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="8_bu06g"]
 [ext_resource type="PackedScene" path="res://scenes/world/npc_dot.tscn" id="9_fkx24"]
 [ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="10_n0m54"]
-[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="11_nlu8a"]
 [ext_resource type="PackedScene" path="res://scenes/world/moving_platform.tscn" id="12_kglvi"]
 [ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="13_81pof"]
-[ext_resource type="Script" path="res://scripts/world/pull_tab.gd" id="14_ukkmp"]
 [ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="15_tnclq"]
 [ext_resource type="Script" path="res://scripts/world/page_door.gd" id="16_avhnl"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="17_0bdwn"]
-[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="18_rbuot"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="19_leeu5"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="20_tb5qj"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="21_8hbb7"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="22_utcvu"]
-[ext_resource type="Script" path="res://scripts/player/patch.gd" id="23_60nue"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0q65d"]
 normal = Vector2(1, 0)
@@ -33,7 +27,7 @@ normal = Vector2(-1, 0)
 [node name="ThistledownPage01" type="Node2D" unique_id=1296580335]
 script = ExtResource("1_si3jy")
 page_title = "Thistledown Meadow"
-opening_caption = "In Thistledown Meadow, the windmills had stopped turning. Something soggy was creeping over the hills."
+opening_caption = "In Thistledown Meadow the windmills had stopped, and something heavy and wet was walking over the hills."
 music = ExtResource("2_qgsa6")
 bounds = Rect2(0, 0, 5120, 1088)
 
@@ -67,62 +61,37 @@ position = Vector2(4736, 720)
 
 [node name="Actors" type="Node2D" parent="." unique_id=678808117]
 
-[node name="ShepherdFluff" type="Area2D" parent="Actors" unique_id=834342193 instance=ExtResource("5_qlgpq")]
+[node name="ShepherdFluff" parent="Actors" unique_id=834342193 instance=ExtResource("5_qlgpq")]
 position = Vector2(576, 896)
-collision_layer = 32
-collision_mask = 2
-script = ExtResource("6_tm6nt")
-dialogue_id = "fluff_intro"
-repeat_dialogue_id = "fluff_repeat"
-first_talk_flag = "met_shepherd_fluff"
-prompt_offset = Vector2(0, -150)
+quest_id = "lost_flock"
+quest_progress_dialogue = "fluff_quest_progress"
+quest_turn_in_dialogue = "fluff_quest_done"
 
-[node name="Soggy1" type="CharacterBody2D" parent="Actors" unique_id=187063361 instance=ExtResource("7_06te3")]
+[node name="Soggy1" parent="Actors" unique_id=187063361 instance=ExtResource("7_06te3")]
 position = Vector2(1984, 856)
-collision_layer = 4
-script = ExtResource("8_bu06g")
 
-[node name="Soggy2" type="CharacterBody2D" parent="Actors" unique_id=169193207 instance=ExtResource("7_06te3")]
+[node name="Soggy2" parent="Actors" unique_id=169193207 instance=ExtResource("7_06te3")]
 position = Vector2(3200, 984)
-collision_layer = 4
-script = ExtResource("8_bu06g")
 
-[node name="Soggy3" type="CharacterBody2D" parent="Actors" unique_id=1776552392 instance=ExtResource("7_06te3")]
+[node name="Soggy3" parent="Actors" unique_id=1776552392 instance=ExtResource("7_06te3")]
 position = Vector2(4352, 728)
-collision_layer = 4
-script = ExtResource("8_bu06g")
 
-[node name="Dot" type="Area2D" parent="Actors" unique_id=878314417 instance=ExtResource("9_fkx24")]
+[node name="Dot" parent="Actors" unique_id=878314417 instance=ExtResource("9_fkx24")]
 position = Vector2(3840, 768)
-collision_layer = 32
-collision_mask = 2
-script = ExtResource("6_tm6nt")
-dialogue_id = "dot_meet"
-first_talk_flag = "met_dot"
-idle_bob = 12.0
-prompt_offset = Vector2(0, -130)
+joins_as_companion = true
 
 [node name="Props" type="Node2D" parent="." unique_id=716046801]
 
-[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("10_n0m54")]
+[node name="Bookmark1" parent="Props" unique_id=809914190 instance=ExtResource("10_n0m54")]
 position = Vector2(2496, 768)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("11_nlu8a")
-respawn_offset = Vector2(0, -48)
 
-[node name="TabBridge" type="AnimatableBody2D" parent="Props" unique_id=397074299 instance=ExtResource("12_kglvi")]
+[node name="TabBridge" parent="Props" unique_id=397074299 instance=ExtResource("12_kglvi")]
 position = Vector2(3200, 976)
-collision_mask = 0
 
-[node name="BridgeTab" type="Area2D" parent="Props" unique_id=869769784 node_paths=PackedStringArray("target") instance=ExtResource("13_81pof")]
+[node name="BridgeTab" parent="Props" unique_id=869769784 node_paths=PackedStringArray("target") instance=ExtResource("13_81pof")]
 position = Vector2(2752, 768)
-collision_layer = 32
-collision_mask = 2
-script = ExtResource("14_ukkmp")
 target = NodePath("../TabBridge")
 move_offset = Vector2(0, -192)
-prompt_offset = Vector2(0, -90)
 
 [node name="MarginDoor" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("15_tnclq")]
 position = Vector2(4928, 768)
@@ -134,78 +103,57 @@ target_spawn = &"FromPage"
 door_prompt = "Peek outside the page"
 prompt_offset = Vector2(0, -170)
 
+[node name="OnwardDoor" type="Area2D" parent="Props" unique_id=1475435477 instance=ExtResource("15_tnclq")]
+position = Vector2(5032, 768)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("16_avhnl")
+target_page = "res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn"
+target_spawn = &"Start"
+door_prompt = "Turn the page"
+prompt_offset = Vector2(0, -170)
+
 [node name="Pickups" type="Node2D" parent="." unique_id=258614214]
 
-[node name="Scrap0" type="Area2D" parent="Pickups" unique_id=703028243 instance=ExtResource("17_0bdwn")]
+[node name="Scrap0" parent="Pickups" unique_id=703028243 instance=ExtResource("17_0bdwn")]
 position = Vector2(768, 836)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="Scrap1" type="Area2D" parent="Pickups" unique_id=1902060429 instance=ExtResource("17_0bdwn")]
+[node name="Scrap1" parent="Pickups" unique_id=1902060429 instance=ExtResource("17_0bdwn")]
 position = Vector2(864, 836)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="Scrap2" type="Area2D" parent="Pickups" unique_id=1758833821 instance=ExtResource("17_0bdwn")]
+[node name="Scrap2" parent="Pickups" unique_id=1758833821 instance=ExtResource("17_0bdwn")]
 position = Vector2(960, 836)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="Scrap3" type="Area2D" parent="Pickups" unique_id=1623474621 instance=ExtResource("17_0bdwn")]
+[node name="Scrap3" parent="Pickups" unique_id=1623474621 instance=ExtResource("17_0bdwn")]
 position = Vector2(1056, 836)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="PlankScrap0" type="Area2D" parent="Pickups" unique_id=1063454737 instance=ExtResource("17_0bdwn")]
+[node name="PlankScrap0" parent="Pickups" unique_id=1063454737 instance=ExtResource("17_0bdwn")]
 position = Vector2(1632, 718)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="PlankScrap1" type="Area2D" parent="Pickups" unique_id=1753299005 instance=ExtResource("17_0bdwn")]
+[node name="PlankScrap1" parent="Pickups" unique_id=1753299005 instance=ExtResource("17_0bdwn")]
 position = Vector2(1696, 718)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="PlankScrap2" type="Area2D" parent="Pickups" unique_id=1065743337 instance=ExtResource("17_0bdwn")]
+[node name="PlankScrap2" parent="Pickups" unique_id=1065743337 instance=ExtResource("17_0bdwn")]
 position = Vector2(1760, 718)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
 
-[node name="LetterF" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("19_leeu5")]
+[node name="LetterF" parent="Pickups" unique_id=839357957 instance=ExtResource("19_leeu5")]
 position = Vector2(4128, 452)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
-kind = 1
 letter = "F"
 
-[node name="Tape" type="Area2D" parent="Pickups" unique_id=1710296588 instance=ExtResource("20_tb5qj")]
+[node name="Tape" parent="Pickups" unique_id=1710296588 instance=ExtResource("20_tb5qj")]
 position = Vector2(4224, 708)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
-kind = 2
-amount = 2
 
-[node name="FoldDashPage" type="Area2D" parent="Pickups" unique_id=1546455649 instance=ExtResource("21_8hbb7")]
+[node name="FoldDashPage" parent="Pickups" unique_id=1546455649 instance=ExtResource("21_8hbb7")]
 position = Vector2(4544, 698)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("18_rbuot")
-kind = 3
 ability_id = &"fold_dash"
 unlock_caption = "Patch remembered how to fold himself into a paper dart! Press {dash} to Fold Dash."
 
-[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("22_utcvu")]
+[node name="LetterM" parent="Pickups" unique_id=1516238234 instance=ExtResource("19_leeu5")]
+position = Vector2(1824, 708)
+letter = "M"
+
+[node name="Patch" parent="." unique_id=84479202 instance=ExtResource("22_utcvu")]
 position = Vector2(192, 848)
-collision_layer = 2
-floor_max_angle = 0.87266463
-floor_snap_length = 12.0
-script = ExtResource("23_60nue")
+
+[node name="FromHills" type="Marker2D" parent="." unique_id=301082115 groups=["spawn_points"]]
+position = Vector2(4864, 720)

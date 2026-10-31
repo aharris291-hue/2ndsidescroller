@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/slam_breakable.gd" id="1_15u0g"]
+[ext_resource type="Texture2D" path="res://assets/art/tiles/paper_tiles.png" id="2_7r6dy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tnrtd"]
+size = Vector2(128, 128)
+
+[node name="IceBlock" type="StaticBody2D" unique_id=1181054003]
+script = ExtResource("1_15u0g")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1259805798]
+scale = Vector2(2, 2)
+texture = ExtResource("2_7r6dy")
+region_enabled = true
+region_rect = Rect2(64, 256, 64, 64)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1546552513]
+shape = SubResource("RectangleShape2D_tnrtd")

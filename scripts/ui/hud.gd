@@ -9,6 +9,9 @@ const TORN := preload("res://assets/art/ui/health_torn.png")
 @onready var tokens: HBoxContainer = $Root/Top/Tokens
 @onready var scraps_label: Label = $Root/Top/ScrapsLabel
 @onready var letters_label: Label = $Root/Top/LettersLabel
+@onready var boss_bar: Control = $Root/BossBar
+@onready var boss_name: Label = $Root/BossBar/BossName
+@onready var boss_health: ProgressBar = $Root/BossBar/BossHealth
 
 
 func _ready() -> void:
@@ -17,6 +20,11 @@ func _ready() -> void:
 	EventBus.player_health_changed.connect(_on_health_changed)
 	EventBus.scraps_changed.connect(func(total: int) -> void: scraps_label.text = "x %d" % total)
 	EventBus.letter_collected.connect(func(_l: String, total: int) -> void: _set_letters(total))
+	EventBus.boss_started.connect(_on_boss_started)
+	EventBus.boss_health_changed.connect(func(current: int, _max: int) -> void: boss_health.value = current)
+	EventBus.boss_defeated.connect(func() -> void: boss_bar.visible = false)
+	EventBus.page_entered.connect(func(_page: Node) -> void: boss_bar.visible = false)
+	boss_bar.visible = false
 
 
 func show_hud(show: bool) -> void:
@@ -45,3 +53,10 @@ func _on_health_changed(current: int, maximum: int) -> void:
 		var points := clampi(current - i * 2, 0, 2)
 		var icon := tokens.get_child(i) as TextureRect
 		icon.texture = [TORN, CREASED, CRISP][points]
+
+
+func _on_boss_started(display_name: String, max_health: int) -> void:
+	boss_name.text = display_name
+	boss_health.max_value = max_health
+	boss_health.value = max_health
+	boss_bar.visible = true

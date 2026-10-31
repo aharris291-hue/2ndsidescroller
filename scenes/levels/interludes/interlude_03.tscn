@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/cutscene_page.gd" id="1_npy8g"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_t8ctg"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_dad_table_night.png" id="3_ficme"]
+
+[node name="Interlude03" type="Control" unique_id=1951624437]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_npy8g")
+conversation_id = "interlude_3"
+title_caption = "Much later, at Gran's kitchen table..."
+next_page = "res://scenes/levels/finale/the_gutter.tscn"
+sets_flag = "chapter3_complete"
+music = ExtResource("2_t8ctg")
+save_on_finish = true
+
+[node name="Background" type="TextureRect" parent="." unique_id=621955391]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("3_ficme")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1120766567]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"TitleLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

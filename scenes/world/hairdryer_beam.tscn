@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hairdryer_beam.gd" id="1_ci8dr"]
+[ext_resource type="Texture2D" path="res://assets/art/props/warm_beam.png" id="2_vos46"]
+[ext_resource type="Texture2D" path="res://assets/art/props/hairdryer.png" id="3_n7sah"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_8vee5"]
+blend_mode = 1
+
+[node name="HairdryerBeam" type="Node2D" unique_id=1798965625]
+z_index = 3
+script = ExtResource("1_ci8dr")
+
+[node name="Air" type="Sprite2D" parent="." unique_id=705358944]
+material = SubResource("CanvasItemMaterial_8vee5")
+position = Vector2(0, 812)
+texture = ExtResource("2_vos46")
+
+[node name="Nozzle" type="Sprite2D" parent="." unique_id=1284261595]
+z_index = 2
+position = Vector2(0, 148)
+texture = ExtResource("3_n7sah")

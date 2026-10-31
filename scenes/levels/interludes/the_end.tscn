@@ -1,0 +1,34 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/cutscene_page.gd" id="1_x3xao"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/mended.wav" id="2_20aat"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_morning_table.png" id="3_t236b"]
+
+[node name="TheEnd" type="Control" unique_id=959767795]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_x3xao")
+conversation_id = "the_end"
+all_letters_conversation_id = "the_end_all_letters"
+sets_flag = "game_complete"
+music = ExtResource("2_20aat")
+save_on_finish = true
+
+[node name="Background" type="TextureRect" parent="." unique_id=277105395]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("3_t236b")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TitleLabel" type="Label" parent="." unique_id=661510273]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_type_variation = &"TitleLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

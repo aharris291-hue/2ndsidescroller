@@ -1,0 +1,107 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/boss_millwheel.gd" id="1_vim4s"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_body.png" id="2_6p8a6"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_sails.png" id="3_l7ky0"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_jyr75"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="5_2er5y"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_core.png" id="6_wvixp"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="7_uqtjs"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kow6f"]
+size = Vector2(230, 56)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6dd0i"]
+size = Vector2(230, 56)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sgxha"]
+size = Vector2(230, 56)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8wpbw"]
+size = Vector2(230, 56)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_i7anm"]
+radius = 60.0
+
+[node name="OldMillwheel" type="Node2D" unique_id=1725122712]
+script = ExtResource("1_vim4s")
+
+[node name="Body" type="Sprite2D" parent="." unique_id=832004296]
+position = Vector2(0, -176)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_6p8a6")
+
+[node name="Sails" type="Node2D" parent="." unique_id=1239051782]
+position = Vector2(0, -300)
+
+[node name="Sprite2D" type="Sprite2D" parent="Sails" unique_id=1129714521]
+texture = ExtResource("3_l7ky0")
+
+[node name="Blade0" type="Area2D" parent="Sails" unique_id=565688617]
+position = Vector2(147.5396, 52.35521)
+rotation = 0.2
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_jyr75")
+damage = 2
+knockback = 700.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sails/Blade0" unique_id=210250286]
+shape = SubResource("RectangleShape2D_kow6f")
+
+[node name="Blade1" type="Area2D" parent="Sails" unique_id=1277761528]
+position = Vector2(-52.355206, 147.5396)
+rotation = 1.7707963
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_jyr75")
+damage = 2
+knockback = 700.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sails/Blade1" unique_id=1995026864]
+shape = SubResource("RectangleShape2D_6dd0i")
+
+[node name="Blade2" type="Area2D" parent="Sails" unique_id=714986202]
+position = Vector2(-147.5396, -52.355194)
+rotation = 3.3415926
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_jyr75")
+damage = 2
+knockback = 700.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sails/Blade2" unique_id=1987040369]
+shape = SubResource("RectangleShape2D_sgxha")
+
+[node name="Blade3" type="Area2D" parent="Sails" unique_id=1080049076]
+position = Vector2(52.355183, -147.5396)
+rotation = 4.912389
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_jyr75")
+damage = 2
+knockback = 700.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sails/Blade3" unique_id=197368983]
+shape = SubResource("RectangleShape2D_8wpbw")
+
+[node name="Core" type="Area2D" parent="." unique_id=1090589702]
+position = Vector2(0, -150)
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("5_2er5y")
+
+[node name="Sprite2D" type="Sprite2D" parent="Core" unique_id=1792251710]
+texture = ExtResource("6_wvixp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Core" unique_id=1635321965]
+shape = SubResource("CircleShape2D_i7anm")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=266404805]
+script = ExtResource("7_uqtjs")
+max_health = 9
+invulnerability_time = 0.35

@@ -1,0 +1,159 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_heot0"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/ink_deep.wav" id="2_765ir"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_ink_sea.png" id="3_takoa"]
+[ext_resource type="Texture2D" path="res://assets/art/props/rising_water.png" id="4_dimgi"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="5_guq7w"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="6_ws5pc"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_kraken.tscn" id="7_jsejw"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_kraken.gd" id="8_7x2vf"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="9_46pge"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="10_q80nh"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="11_45w0o"]
+[ext_resource type="Script" path="res://scripts/world/grapple_point.gd" id="12_5nv1n"]
+[ext_resource type="Texture2D" path="res://assets/art/props/blotter.png" id="13_j7fl6"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="14_3ejxq"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="15_3lei5"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="16_7l0u2"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="17_dh1xj"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_14kpl"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_nvjil"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iifox"]
+size = Vector2(120, 600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cqcru"]
+size = Vector2(120, 600)
+
+[node name="KrakenArena" type="Node2D" unique_id=270915426]
+script = ExtResource("1_heot0")
+page_title = "The Ink Deep"
+music = ExtResource("2_765ir")
+bounds = Rect2(0, 0, 1920, 1088)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=217327030]
+scroll_scale = Vector2(0.25, 0.1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=491117155]
+texture = ExtResource("3_takoa")
+centered = false
+
+[node name="InkSea" type="ColorRect" parent="." unique_id=1320370900]
+offset_left = -200.0
+offset_top = 985.6
+offset_right = 2120.0
+offset_bottom = 2385.6
+mouse_filter = 2
+color = Color(0.078431375, 0.08627451, 0.20392157, 1)
+
+[node name="InkSurface" type="Sprite2D" parent="." unique_id=2081251162]
+modulate = Color(0.3, 0.32, 0.6, 1)
+texture_repeat = 2
+position = Vector2(-200, 951.6)
+texture = ExtResource("4_dimgi")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 2320, 128)
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=936005134]
+tile_map_data = PackedByteArray("AAAEAAoAAAACAAAAAAAFAAoAAAACAAAAAAAGAAoAAAACAAAAAAAHAAoAAAACAAAAAAAOAAoAAAACAAAAAAAPAAoAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAAAAA4AAAADAAIAAAABAA4AAAADAAIAAAACAA4AAAADAAIAAAADAA4AAAADAAIAAAAEAA4AAAADAAIAAAAFAA4AAAADAAIAAAAGAA4AAAADAAIAAAAHAA4AAAADAAIAAAAIAA4AAAADAAIAAAAJAA4AAAADAAIAAAAKAA4AAAADAAIAAAALAA4AAAADAAIAAAAMAA4AAAADAAIAAAANAA4AAAADAAIAAAAOAA4AAAADAAIAAAAPAA4AAAADAAIAAAAQAA4AAAADAAIAAAARAA4AAAADAAIAAAASAA4AAAADAAIAAAATAA4AAAADAAIAAAAUAA4AAAADAAIAAAAVAA4AAAADAAIAAAAWAA4AAAADAAIAAAAXAA4AAAADAAIAAAAAAA8AAAAAAAMAAAABAA8AAAAAAAMAAAACAA8AAAAAAAMAAAADAA8AAAAAAAMAAAAEAA8AAAAAAAMAAAAFAA8AAAAAAAMAAAAGAA8AAAAAAAMAAAAHAA8AAAAAAAMAAAAIAA8AAAAAAAMAAAAJAA8AAAAAAAMAAAAKAA8AAAAAAAMAAAALAA8AAAAAAAMAAAAMAA8AAAAAAAMAAAANAA8AAAAAAAMAAAAOAA8AAAAAAAMAAAAPAA8AAAAAAAMAAAAQAA8AAAAAAAMAAAARAA8AAAAAAAMAAAASAA8AAAAAAAMAAAATAA8AAAAAAAMAAAAUAA8AAAAAAAMAAAAVAA8AAAAAAAMAAAAWAA8AAAAAAAMAAAAXAA8AAAAAAAMAAAAAABAAAAAAAAMAAAABABAAAAAAAAMAAAACABAAAAAAAAMAAAADABAAAAAAAAMAAAAEABAAAAAAAAMAAAAFABAAAAAAAAMAAAAGABAAAAAAAAMAAAAHABAAAAAAAAMAAAAIABAAAAAAAAMAAAAJABAAAAAAAAMAAAAKABAAAAAAAAMAAAALABAAAAAAAAMAAAAMABAAAAAAAAMAAAANABAAAAAAAAMAAAAOABAAAAAAAAMAAAAPABAAAAAAAAMAAAAQABAAAAAAAAMAAAARABAAAAAAAAMAAAASABAAAAAAAAMAAAATABAAAAAAAAMAAAAUABAAAAAAAAMAAAAVABAAAAAAAAMAAAAWABAAAAAAAAMAAAAXABAAAAAAAAMAAAA=")
+tile_set = ExtResource("5_guq7w")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=695544738]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1777454659]
+shape = SubResource("WorldBoundaryShape2D_14kpl")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=2022079047]
+position = Vector2(1504, 0)
+shape = SubResource("WorldBoundaryShape2D_nvjil")
+
+[node name="Start" type="Marker2D" parent="." unique_id=2062942543 groups=["spawn_points"]]
+position = Vector2(128, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=1750029701]
+
+[node name="KrakenTalk" type="Area2D" parent="Story" unique_id=1028470715]
+position = Vector2(256, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("6_ws5pc")
+dialogue_id = "kraken_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/KrakenTalk" unique_id=2095792941]
+shape = SubResource("RectangleShape2D_iifox")
+
+[node name="FightStart" type="Area2D" parent="Story" unique_id=1379390731]
+position = Vector2(512, 696)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/FightStart" unique_id=1812652632]
+shape = SubResource("RectangleShape2D_cqcru")
+
+[node name="BlotchKraken" type="Node2D" parent="." unique_id=1503614290 node_paths=PackedStringArray("rings", "blotters", "exit_door", "start_zone") instance=ExtResource("7_jsejw")]
+position = Vector2(1664, 896)
+script = ExtResource("8_7x2vf")
+rings = [NodePath("../Props/BlotterRing1"), NodePath("../Props/BlotterRing2")]
+blotters = [NodePath("../Props/Blotter1"), NodePath("../Props/Blotter2")]
+exit_door = NodePath("../Props/ToGransTable")
+start_zone = NodePath("../Story/FightStart")
+
+[node name="Props" type="Node2D" parent="." unique_id=1244617515]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("9_46pge")]
+position = Vector2(80, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_q80nh")
+respawn_offset = Vector2(0, -48)
+
+[node name="BlotterRing1" type="Node2D" parent="Props" unique_id=1984090780 instance=ExtResource("11_45w0o")]
+position = Vector2(384, 288)
+script = ExtResource("12_5nv1n")
+mode = 1
+
+[node name="BlotterRing2" type="Node2D" parent="Props" unique_id=532454149 instance=ExtResource("11_45w0o")]
+position = Vector2(1024, 288)
+script = ExtResource("12_5nv1n")
+mode = 1
+
+[node name="Blotter1" type="Node2D" parent="Props" unique_id=1494163083]
+position = Vector2(1376, 20)
+
+[node name="Sprite2D" type="Sprite2D" parent="Props/Blotter1" unique_id=1882328156]
+texture = ExtResource("13_j7fl6")
+
+[node name="Blotter2" type="Node2D" parent="Props" unique_id=1742102001]
+position = Vector2(1664, 20)
+
+[node name="Sprite2D" type="Sprite2D" parent="Props/Blotter2" unique_id=884101169]
+texture = ExtResource("13_j7fl6")
+
+[node name="ToGransTable" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("14_3ejxq")]
+position = Vector2(1344, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("15_3lei5")
+target_page = "res://scenes/levels/interludes/interlude_02.tscn"
+door_prompt = "Close Chapter 2"
+prompt_offset = Vector2(0, -170)
+
+[node name="Pickups" type="Node2D" parent="." unique_id=1741560432]
+
+[node name="LetterQ" parent="Pickups" unique_id=1767152960 instance=ExtResource("90_letter")]
+position = Vector2(1024, 580)
+letter = "Q"
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("16_7l0u2")]
+position = Vector2(128, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("17_dh1xj")

@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/npc.gd" id="1_1g0px"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/lamplighter_sisters.png" id="2_ukg0k"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tkutc"]
+size = Vector2(300, 140)
+
+[node name="LamplighterSisters" type="Area2D" unique_id=422193376]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_1g0px")
+dialogue_id = "lamplighters_intro"
+repeat_dialogue_id = "lamplighters_repeat"
+quest_id = "festival_lanterns"
+quest_progress_dialogue = "lamplighters_progress"
+quest_turn_in_dialogue = "lamplighters_done"
+prompt_offset = Vector2(0, -250)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1138396834]
+position = Vector2(0, -108)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_ukg0k")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=11915019]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_tkutc")

@@ -1,0 +1,290 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_s2oh5"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_mu5ur"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_kkj48"]
+[ext_resource type="PackedScene" path="res://scenes/world/windmill.tscn" id="4_4dp25"]
+[ext_resource type="Script" path="res://scripts/world/windmill.gd" id="5_4urya"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="6_cjojo"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="7_ja06w"]
+[ext_resource type="PackedScene" path="res://scenes/world/narrator_trigger.tscn" id="8_27c4p"]
+[ext_resource type="Script" path="res://scripts/world/narrator_trigger.gd" id="9_mvvl0"]
+[ext_resource type="PackedScene" path="res://scenes/world/windmill_wheel.tscn" id="10_wdlkg"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="11_v1dj4"]
+[ext_resource type="Script" path="res://scripts/world/pull_tab.gd" id="12_vpfd4"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="13_wur1o"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="14_usaje"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="15_rvevf"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="16_kjpto"]
+[ext_resource type="PackedScene" path="res://scenes/world/lost_sheep.tscn" id="17_dloky"]
+[ext_resource type="Script" path="res://scripts/world/lost_sheep.gd" id="18_x0nxo"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="19_l3fjy"]
+[ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="20_uk52x"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="21_uil23"]
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="22_l1ipt"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="23_jxeky"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="24_e7mtv"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="25_471vn"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="26_e2h8u"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_wlbjs"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_nvo8j"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_itkcd"]
+size = Vector2(120, 600)
+
+[node name="ThistledownPage02" type="Node2D" unique_id=964156676]
+script = ExtResource("1_s2oh5")
+page_title = "Windmill Hills"
+opening_caption = "On the Windmill Hills the sails hung dead in the damp air. Somewhere up there, three sheep were refusing to be rescued."
+music = ExtResource("2_mu5ur")
+bounds = Rect2(0, 0, 5760, 1088)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=126621296]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(1920, 0)
+repeat_times = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=95678746]
+texture = ExtResource("3_kkj48")
+centered = false
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1676350884]
+
+[node name="Windmill10" type="Node2D" parent="Scenery" unique_id=557455106 instance=ExtResource("4_4dp25")]
+modulate = Color(0.85, 0.85, 0.85, 0.8)
+position = Vector2(640, 896)
+script = ExtResource("5_4urya")
+spinning = true
+spin_speed = 0.25
+
+[node name="Windmill22" type="Node2D" parent="Scenery" unique_id=1409948828 instance=ExtResource("4_4dp25")]
+modulate = Color(0.85, 0.85, 0.85, 0.8)
+position = Vector2(1408, 896)
+script = ExtResource("5_4urya")
+spinning = true
+spin_speed = 0.25
+
+[node name="Windmill52" type="Node2D" parent="Scenery" unique_id=458867451 instance=ExtResource("4_4dp25")]
+modulate = Color(0.85, 0.85, 0.85, 0.8)
+position = Vector2(3328, 896)
+script = ExtResource("5_4urya")
+spinning = true
+spin_speed = 0.25
+
+[node name="Windmill80" type="Node2D" parent="Scenery" unique_id=1504678867 instance=ExtResource("4_4dp25")]
+modulate = Color(0.85, 0.85, 0.85, 0.8)
+position = Vector2(5120, 896)
+script = ExtResource("5_4urya")
+spinning = true
+spin_speed = 0.25
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=529963791]
+tile_map_data = PackedByteArray("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AAAqAA8AAAABAAAAAAArAA8AAAABAAAAAAAsAA8AAAABAAAAAAAtAA8AAAABAAAAAAAuAA8AAAABAAAAAAAvAA8AAAABAAAAAAAwAA8AAAABAAAAAAAxAA8AAAABAAAAAAAyAA8AAAABAAAAAAAzAA8AAAABAAAAAAA0AA8AAAABAAAAAAA1AA8AAAABAAAAAAA2AA8AAAABAAAAAAA3AA8AAAABAAAAAAA4AA8AAAABAAAAAAA5AA8AAAABAAAAAAA6AA8AAAABAAAAAAA7AA8AAAABAAAAAAA8AA8AAAABAAAAAAA9AA8AAAABAAAAAAA+AA8AAAABAAAAAAA/AA8AAAABAAAAAABGAA8AAAABAAAAAABHAA8AAAABAAAAAABIAA8AAAABAAAAAABJAA8AAAABAAAAAABKAA8AAAABAAAAAABLAA8AAAABAAAAAABMAA8AAAABAAAAAABNAA8AAAABAAAAAABOAA8AAAABAAAAAABPAA8AAAABAAAAAABQAA8AAAABAAAAAABRAA8AAAABAAAAAABSAA8AAAABAAAAAABTAA8AAAABAAAAAABUAA8AAAABAAAAAABVAA8AAAABAAAAAABWAA8AAAABAAAAAABXAA8AAAABAAAAAABYAA8AAAABAAAAAABZAA8AAAABAAAAAAAAABAAAAABAAAAAAABABAAAAABAAAAAAACABAAAAABAAAAAAADABAAAAABAAAAAAAEABAAAAABAAAAAAAFABAAAAABAAAAAAAGABAAAAABAAAAAAAHABAAAAABAAAAAAAIABAAAAABAAAAAAAJABAAAAABAAAAAAAKABAAAAABAAAAAAALABAAAAABAAAAAAAMABAAAAABAAAAAAANABAAAAABAAAAAAAOABAAAAABAAAAAAAPABAAAAABAAAAAAAQABAAAAABAAAAAAARABAAAAABAAAAAAASABAAAAABAAAAAAATABAAAAABAAAAAAAUABAAAAABAAAAAAAVABAAAAABAAAAAAAWABAAAAABAAAAAAAXABAAAAABAAAAAAAYABAAAAABAAAAAAAZABAAAAABAAAAAAAaABAAAAABAAAAAAAbABAAAAABAAAAAAAcABAAAAABAAAAAAAdABAAAAABAAAAAAAeABAAAAABAAAAAAAfABAAAAABAAAAAAAgABAAAAABAAAAAAAhABAAAAABAAAAAAAiABAAAAABAAAAAAAjABAAAAABAAAAAAAkABAAAAABAAAAAAAlABAAAAABAAAAAAAmABAAAAABAAAAAAAnABAAAAABAAAAAAAoABAAAAABAAAAAAApABAAAAABAAAAAAAqABAAAAABAAAAAAArABAAAAABAAAAAAAsABAAAAABAAAAAAAtABAAAAABAAAAAAAuABAAAAABAAAAAAAvABAAAAABAAAAAAAwABAAAAABAAAAAAAxABAAAAABAAAAAAAyABAAAAABAAAAAAAzABAAAAABAAAAAAA0ABAAAAABAAAAAAA1ABAAAAABAAAAAAA2ABAAAAABAAAAAAA3ABAAAAABAAAAAAA4ABAAAAABAAAAAAA5ABAAAAABAAAAAAA6ABAAAAABAAAAAAA7ABAAAAABAAAAAAA8ABAAAAABAAAAAAA9ABAAAAABAAAAAAA+ABAAAAABAAAAAAA/ABAAAAABAAAAAABAABAAAAADAAAAAABBABAAAAADAAAAAABCABAAAAADAAAAAABDABAAAAADAAAAAABEABAAAAADAAAAAABFABAAAAADAAAAAABGABAAAAABAAAAAABHABAAAAABAAAAAABIABAAAAABAAAAAABJABAAAAABAAAAAABKABAAAAABAAAAAABLABAAAAABAAAAAABMABAAAAABAAAAAABNABAAAAABAAAAAABOABAAAAABAAAAAABPABAAAAABAAAAAABQABAAAAABAAAAAABRABAAAAABAAAAAABSABAAAAABAAAAAABTABAAAAABAAAAAABUABAAAAABAAAAAABVABAAAAABAAAAAABWABAAAAABAAAAAABXABAAAAABAAAAAABYABAAAAABAAAAAABZABAAAAABAAAAAAA=")
+tile_set = ExtResource("6_cjojo")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=1542384854]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=559069253]
+shape = SubResource("WorldBoundaryShape2D_wlbjs")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=669959628]
+position = Vector2(5760, 0)
+shape = SubResource("WorldBoundaryShape2D_nvo8j")
+
+[node name="Start" type="Marker2D" parent="." unique_id=168668285 groups=["spawn_points"]]
+position = Vector2(128, 848)
+
+[node name="FromRace" type="Marker2D" parent="." unique_id=365467580 groups=["spawn_points"]]
+position = Vector2(3648, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=719257262]
+
+[node name="HillsTalk" type="Area2D" parent="Story" unique_id=1757634946]
+position = Vector2(320, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_ja06w")
+dialogue_id = "windmill_hills_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/HillsTalk" unique_id=64190084]
+shape = SubResource("RectangleShape2D_itkcd")
+
+[node name="WheelHint" type="Area2D" parent="Story" unique_id=2041830658 instance=ExtResource("8_27c4p")]
+position = Vector2(1664, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_mvvl0")
+caption = "The big windmill's tab still works. Pull it, then ride the sails up."
+
+[node name="DashHint" type="Area2D" parent="Story" unique_id=2047401640 instance=ExtResource("8_27c4p")]
+position = Vector2(3904, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_mvvl0")
+caption = "A soggy gap, too wide to jump. Jump, then Fold Dash across with {dash}!"
+
+[node name="Props" type="Node2D" parent="." unique_id=983063956]
+
+[node name="BigWindmill" type="Node2D" parent="Props" unique_id=1597017457 node_paths=PackedStringArray("tab") instance=ExtResource("10_wdlkg")]
+position = Vector2(2080, 896)
+script = ExtResource("5_4urya")
+spin_speed = 0.5
+gondola_count = 4
+radius = 170.0
+tab = NodePath("../WindTab")
+
+[node name="WindTab" type="Area2D" parent="Props" unique_id=869769784 instance=ExtResource("11_v1dj4")]
+position = Vector2(1792, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("12_vpfd4")
+one_shot = true
+prompt_offset = Vector2(0, -90)
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("13_wur1o")]
+position = Vector2(3264, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("14_usaje")
+respawn_offset = Vector2(0, -48)
+
+[node name="RegattaDock" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("15_rvevf")]
+position = Vector2(3712, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("16_kjpto")
+target_page = "res://scenes/levels/ch1_thistledown/ribbon_regatta.tscn"
+door_prompt = "Race the paper boat"
+prompt_offset = Vector2(0, -170)
+
+[node name="ToTheMill" type="Area2D" parent="Props" unique_id=474085282 instance=ExtResource("15_rvevf")]
+position = Vector2(5568, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("16_kjpto")
+target_page = "res://scenes/levels/ch1_thistledown/millwheel_arena.tscn"
+target_spawn = &"Start"
+door_prompt = "Head for the old mill"
+prompt_offset = Vector2(0, -170)
+
+[node name="BackDoor" type="Area2D" parent="Props" unique_id=1191052076 instance=ExtResource("15_rvevf")]
+position = Vector2(64, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("16_kjpto")
+target_page = "res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn"
+target_spawn = &"FromHills"
+door_prompt = "Turn back a page"
+prompt_offset = Vector2(0, -170)
+
+[node name="Actors" type="Node2D" parent="." unique_id=1987289989]
+
+[node name="Sheep1" type="Area2D" parent="Actors" unique_id=1602423081 instance=ExtResource("17_dloky")]
+position = Vector2(1152, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("18_x0nxo")
+prompt_offset = Vector2(0, -150)
+
+[node name="Sheep2" type="Area2D" parent="Actors" unique_id=968389369 instance=ExtResource("17_dloky")]
+position = Vector2(2816, 448)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("18_x0nxo")
+prompt_offset = Vector2(0, -150)
+
+[node name="Sheep3" type="Area2D" parent="Actors" unique_id=943743765 instance=ExtResource("17_dloky")]
+position = Vector2(4800, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("18_x0nxo")
+prompt_offset = Vector2(0, -150)
+
+[node name="Soggy14" type="CharacterBody2D" parent="Actors" unique_id=187063361 instance=ExtResource("19_l3fjy")]
+position = Vector2(896, 856)
+collision_layer = 4
+script = ExtResource("20_uk52x")
+
+[node name="Soggy22" type="CharacterBody2D" parent="Actors" unique_id=984374986 instance=ExtResource("19_l3fjy")]
+position = Vector2(1408, 856)
+collision_layer = 4
+script = ExtResource("20_uk52x")
+
+[node name="Soggy42" type="CharacterBody2D" parent="Actors" unique_id=224926830 instance=ExtResource("19_l3fjy")]
+position = Vector2(2688, 408)
+collision_layer = 4
+script = ExtResource("20_uk52x")
+
+[node name="Soggy72" type="CharacterBody2D" parent="Actors" unique_id=1636561637 instance=ExtResource("19_l3fjy")]
+position = Vector2(4608, 856)
+collision_layer = 4
+script = ExtResource("20_uk52x")
+
+[node name="Pickups" type="Node2D" parent="." unique_id=1945382013]
+
+[node name="LetterT" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("21_uil23")]
+position = Vector2(3008, 388)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+kind = 1
+letter = "T"
+
+[node name="Scrap0" type="Area2D" parent="Pickups" unique_id=703028243 instance=ExtResource("23_jxeky")]
+position = Vector2(4128, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Scrap1" type="Area2D" parent="Pickups" unique_id=1922778353 instance=ExtResource("23_jxeky")]
+position = Vector2(4192, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Scrap2" type="Area2D" parent="Pickups" unique_id=1223964598 instance=ExtResource("23_jxeky")]
+position = Vector2(4256, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Scrap3" type="Area2D" parent="Pickups" unique_id=775944366 instance=ExtResource("23_jxeky")]
+position = Vector2(4320, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Scrap4" type="Area2D" parent="Pickups" unique_id=1332586669 instance=ExtResource("23_jxeky")]
+position = Vector2(4384, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Scrap5" type="Area2D" parent="Pickups" unique_id=2134208396 instance=ExtResource("23_jxeky")]
+position = Vector2(4448, 716)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+
+[node name="Tape" type="Area2D" parent="Pickups" unique_id=1710296588 instance=ExtResource("24_e7mtv")]
+position = Vector2(3392, 836)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("22_l1ipt")
+kind = 2
+amount = 2
+
+[node name="LetterW" parent="Pickups" unique_id=540574849 instance=ExtResource("21_uil23")]
+position = Vector2(4384, 740)
+letter = "W"
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("25_471vn")]
+position = Vector2(128, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("26_e2h8u")

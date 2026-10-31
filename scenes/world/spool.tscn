@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/lost_sheep.gd" id="1_ekhi2"]
+[ext_resource type="Texture2D" path="res://assets/art/props/spool.png" id="2_0djy5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xsoil"]
+size = Vector2(110, 100)
+
+[node name="Spool" type="Area2D" unique_id=521736724]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_ekhi2")
+quest_id = "restring_spine"
+found_caption = "A spool of Bindwell's bookbinding thread, a bit frozen but still good."
+find_prompt = "Pick up"
+all_found_caption = " That's all three. Bindwell is waiting near the top."
+leave_offset = Vector2(0, -50)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=447995726]
+position = Vector2(0, -40)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_0djy5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=79813677]
+position = Vector2(0, -40)
+shape = SubResource("RectangleShape2D_xsoil")

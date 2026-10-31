@@ -1,7 +1,87 @@
 {
-	"patch": {"name": "Patch", "color": "#c8641e", "pitch": 1.35},
-	"dot": {"name": "Dot", "color": "#2b2118", "pitch": 1.9},
-	"shepherd_fluff": {"name": "Shepherd Fluff", "color": "#6b5a4a", "pitch": 0.75},
-	"mayor_gumption": {"name": "Mayor Gumption", "color": "#7a4a9a", "pitch": 0.95},
-	"narrator": {"name": "", "color": "#2b2118", "pitch": 1.0}
+	"patch": {
+		"name": "Patch",
+		"color": "#c8641e",
+		"pitch": 1.35
+	},
+	"dot": {
+		"name": "Dot",
+		"color": "#2b2118",
+		"pitch": 1.9
+	},
+	"shepherd_fluff": {
+		"name": "Shepherd Fluff",
+		"color": "#6b5a4a",
+		"pitch": 0.75
+	},
+	"mayor_gumption": {
+		"name": "Mayor Gumption",
+		"color": "#7a4a9a",
+		"pitch": 0.95
+	},
+	"narrator": {
+		"name": "",
+		"color": "#2b2118",
+		"pitch": 1.0
+	},
+	"nell": {
+		"name": "Nell",
+		"color": "#3a6ea5",
+		"pitch": 1.5
+	},
+	"dad": {
+		"name": "Dad",
+		"color": "#5a3d24",
+		"pitch": 0.8
+	},
+	"gran": {
+		"name": "Gran",
+		"color": "#7a4a9a",
+		"pitch": 1.1
+	},
+	"corrugate": {
+		"name": "Corrugate",
+		"color": "#8a5a2a",
+		"pitch": 0.6
+	},
+	"lamplighters": {
+		"name": "The Lamplighter Sisters",
+		"color": "#c0392b",
+		"pitch": 1.6
+	},
+	"crumple": {
+		"name": "Crumple",
+		"color": "#6a5a9a",
+		"pitch": 2.2
+	},
+	"kraken": {
+		"name": "The Blotch Kraken",
+		"color": "#2c3470",
+		"pitch": 0.45
+	},
+	"bindwell": {
+		"name": "Old Bindwell",
+		"color": "#2f7a6e",
+		"pitch": 1.15
+	},
+	"sogg": {
+		"name": "The Sogg",
+		"color": "#3e4c80",
+		"pitch": 0.5
+	},
+	"drizzle": {
+		"name": "Drizzle",
+		"color": "#5a8ac8",
+		"pitch": 1.7
+	},
+	"nell_hand": {
+		"name": "",
+		"color": "#3a6ea5",
+		"pitch": 1.5
+	},
+	"dad_hand": {
+		"name": "",
+		"color": "#5a3d24",
+		"pitch": 0.8
+	}
 }

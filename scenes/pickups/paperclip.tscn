@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_qdt3j"]
+[ext_resource type="Texture2D" path="res://assets/art/props/paperclip.png" id="2_noudc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_skd1v"]
+radius = 70.0
+
+[node name="Paperclip" type="Area2D" unique_id=699902500]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_qdt3j")
+kind = 4
+flag = "has_paperclip"
+unlock_caption = "A real steel paperclip, as long as Patch. Bindwell can bend this into pitons."
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1483818626]
+texture = ExtResource("2_noudc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=390210975]
+shape = SubResource("CircleShape2D_skd1v")

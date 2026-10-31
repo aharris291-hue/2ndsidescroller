@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/lantern.gd" id="1_am08j"]
+[ext_resource type="Texture2D" path="res://assets/art/props/lantern_off.png" id="2_shxs5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2uyoq"]
+size = Vector2(150, 120)
+
+[node name="Lantern" type="Area2D" unique_id=1723862906]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1_am08j")
+prompt_offset = Vector2(0, -200)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=632931904]
+position = Vector2(0, -88)
+texture = ExtResource("2_shxs5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1223095447]
+position = Vector2(0, -40)
+shape = SubResource("RectangleShape2D_2uyoq")

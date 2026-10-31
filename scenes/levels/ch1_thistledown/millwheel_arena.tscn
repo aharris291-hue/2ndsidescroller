@@ -1,0 +1,143 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_qsh8x"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_qgpj2"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_qgbmx"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_x5fwb"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_ya7ih"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="6_ydiid"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="7_cjxva"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="8_unc5d"]
+[ext_resource type="Script" path="res://scripts/world/pull_tab.gd" id="9_ny3yw"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="10_w3rx3"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="11_mgngx"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_millwheel.tscn" id="12_ubd61"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_millwheel.gd" id="13_x4avv"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="14_lhgjp"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="15_6yqwq"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="90_letter"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_sfwd6"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ydkpm"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lg7go"]
+size = Vector2(120, 600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lag6t"]
+size = Vector2(120, 600)
+
+[node name="MillwheelArena" type="Node2D" unique_id=1219717032]
+script = ExtResource("1_qsh8x")
+page_title = "The Old Mill"
+music = ExtResource("2_qgpj2")
+bounds = Rect2(0, 0, 1920, 1088)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=441334745]
+scroll_scale = Vector2(0.25, 0.1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=272369079]
+texture = ExtResource("3_qgbmx")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=252221911]
+tile_map_data = PackedByteArray("AAAPAAwAAAACAAAAAAAQAAwAAAACAAAAAAARAAwAAAACAAAAAAASAAwAAAACAAAAAAATAAwAAAACAAAAAAAAAA4AAAAAAAAAAAABAA4AAAAAAAAAAAACAA4AAAAAAAAAAAADAA4AAAAAAAAAAAAEAA4AAAAAAAAAAAAFAA4AAAAAAAAAAAAGAA4AAAAAAAAAAAAHAA4AAAAAAAAAAAAIAA4AAAAAAAAAAAAJAA4AAAAAAAAAAAAKAA4AAAAAAAAAAAALAA4AAAAAAAAAAAAMAA4AAAAAAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAAAAAAAAAAQAA4AAAAAAAAAAAARAA4AAAAAAAAAAAASAA4AAAAAAAAAAAATAA4AAAAAAAAAAAAUAA4AAAAAAAAAAAAVAA4AAAAAAAAAAAAWAA4AAAAAAAAAAAAXAA4AAAAAAAAAAAAYAA4AAAAAAAAAAAAZAA4AAAAAAAAAAAAaAA4AAAAAAAAAAAAbAA4AAAAAAAAAAAAcAA4AAAAAAAAAAAAdAA4AAAAAAAAAAAAAAA8AAAABAAAAAAABAA8AAAABAAAAAAACAA8AAAABAAAAAAADAA8AAAABAAAAAAAEAA8AAAABAAAAAAAFAA8AAAABAAAAAAAGAA8AAAABAAAAAAAHAA8AAAABAAAAAAAIAA8AAAABAAAAAAAJAA8AAAABAAAAAAAKAA8AAAABAAAAAAALAA8AAAABAAAAAAAMAA8AAAABAAAAAAANAA8AAAABAAAAAAAOAA8AAAABAAAAAAAPAA8AAAABAAAAAAAQAA8AAAABAAAAAAARAA8AAAABAAAAAAASAA8AAAABAAAAAAATAA8AAAABAAAAAAAUAA8AAAABAAAAAAAVAA8AAAABAAAAAAAWAA8AAAABAAAAAAAXAA8AAAABAAAAAAAYAA8AAAABAAAAAAAZAA8AAAABAAAAAAAaAA8AAAABAAAAAAAbAA8AAAABAAAAAAAcAA8AAAABAAAAAAAdAA8AAAABAAAAAAAAABAAAAABAAAAAAABABAAAAABAAAAAAACABAAAAABAAAAAAADABAAAAABAAAAAAAEABAAAAABAAAAAAAFABAAAAABAAAAAAAGABAAAAABAAAAAAAHABAAAAABAAAAAAAIABAAAAABAAAAAAAJABAAAAABAAAAAAAKABAAAAABAAAAAAALABAAAAABAAAAAAAMABAAAAABAAAAAAANABAAAAABAAAAAAAOABAAAAABAAAAAAAPABAAAAABAAAAAAAQABAAAAABAAAAAAARABAAAAABAAAAAAASABAAAAABAAAAAAATABAAAAABAAAAAAAUABAAAAABAAAAAAAVABAAAAABAAAAAAAWABAAAAABAAAAAAAXABAAAAABAAAAAAAYABAAAAABAAAAAAAZABAAAAABAAAAAAAaABAAAAABAAAAAAAbABAAAAABAAAAAAAcABAAAAABAAAAAAAdABAAAAABAAAAAAA=")
+tile_set = ExtResource("4_x5fwb")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=1172596344]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1304479033]
+shape = SubResource("WorldBoundaryShape2D_sfwd6")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1371524612]
+position = Vector2(1920, 0)
+shape = SubResource("WorldBoundaryShape2D_ydkpm")
+
+[node name="Start" type="Marker2D" parent="." unique_id=1682077598 groups=["spawn_points"]]
+position = Vector2(128, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=1943892482]
+
+[node name="MillTalk" type="Area2D" parent="Story" unique_id=1257211693]
+position = Vector2(256, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_ya7ih")
+dialogue_id = "millwheel_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/MillTalk" unique_id=240075822]
+shape = SubResource("RectangleShape2D_lg7go")
+
+[node name="FightStart" type="Area2D" parent="Story" unique_id=1370581194]
+position = Vector2(512, 696)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/FightStart" unique_id=1480250141]
+shape = SubResource("RectangleShape2D_lag6t")
+
+[node name="Props" type="Node2D" parent="." unique_id=1632620108]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("6_ydiid")]
+position = Vector2(80, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_cjxva")
+respawn_offset = Vector2(0, -48)
+
+[node name="MooringTab1" type="Area2D" parent="Props" unique_id=869769784 instance=ExtResource("8_unc5d")]
+position = Vector2(320, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("9_ny3yw")
+one_shot = true
+prompt_offset = Vector2(0, -90)
+
+[node name="MooringTab2" type="Area2D" parent="Props" unique_id=1920739857 instance=ExtResource("8_unc5d")]
+position = Vector2(704, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("9_ny3yw")
+one_shot = true
+prompt_offset = Vector2(0, -90)
+
+[node name="MooringTab3" type="Area2D" parent="Props" unique_id=1182121704 instance=ExtResource("8_unc5d")]
+position = Vector2(1120, 768)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("9_ny3yw")
+one_shot = true
+prompt_offset = Vector2(0, -90)
+
+[node name="ToGransTable" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("10_w3rx3")]
+position = Vector2(1728, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("11_mgngx")
+target_page = "res://scenes/levels/interludes/interlude_01.tscn"
+door_prompt = "Close Chapter 1"
+prompt_offset = Vector2(0, -170)
+
+[node name="OldMillwheel" type="Node2D" parent="." unique_id=1725122712 node_paths=PackedStringArray("tabs", "exit_door", "start_zone") instance=ExtResource("12_ubd61")]
+position = Vector2(1536, 896)
+script = ExtResource("13_x4avv")
+tabs = [NodePath("../Props/MooringTab1"), NodePath("../Props/MooringTab2"), NodePath("../Props/MooringTab3")]
+exit_door = NodePath("../Props/ToGransTable")
+start_zone = NodePath("../Story/FightStart")
+arena_left = 128.0
+arena_right = 1280.0
+
+[node name="Pickups" type="Node2D" parent="." unique_id=1390116109]
+
+[node name="LetterY" parent="Pickups" unique_id=1028696181 instance=ExtResource("90_letter")]
+position = Vector2(1120, 708)
+letter = "Y"
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("14_lhgjp")]
+position = Vector2(128, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("15_6yqwq")

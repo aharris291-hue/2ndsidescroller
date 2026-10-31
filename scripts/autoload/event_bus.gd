@@ -12,3 +12,7 @@ signal dialogue_started
 signal dialogue_finished
 signal page_entered(page: Node)
 signal game_saved(slot: int)
+signal quest_updated(quest_id: String)
+signal boss_started(boss_name: String, max_health: int)
+signal boss_health_changed(current: int, maximum: int)
+signal boss_defeated

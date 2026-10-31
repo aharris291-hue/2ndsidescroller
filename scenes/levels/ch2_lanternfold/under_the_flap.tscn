@@ -1,0 +1,370 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_prqrb"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/ink_deep.wav" id="2_muth8"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_ink_sea.png" id="3_ovvf4"]
+[ext_resource type="Texture2D" path="res://assets/art/props/rising_water.png" id="4_2blvt"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="5_l14ef"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="6_6uj0u"]
+[ext_resource type="PackedScene" path="res://scenes/world/narrator_trigger.tscn" id="7_4287b"]
+[ext_resource type="Script" path="res://scripts/world/narrator_trigger.gd" id="8_ir5ws"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="9_umb08"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="10_ycmvj"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="11_v88s6"]
+[ext_resource type="Script" path="res://scripts/world/grapple_point.gd" id="12_vsfqn"]
+[ext_resource type="Texture2D" path="res://assets/art/props/flap_gate.png" id="13_0evrl"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="14_5eybx"]
+[ext_resource type="Script" path="res://scripts/world/page_door.gd" id="15_2yx0a"]
+[ext_resource type="Script" path="res://scripts/world/drip_spawner.gd" id="16_qdp67"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="17_hcxv7"]
+[ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="18_7g5c2"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="19_i627k"]
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="20_j338p"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="21_y6r3o"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="22_22f3q"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="23_ignu0"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="24_wxr5g"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_m67ss"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_aqcag"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i420b"]
+size = Vector2(120, 600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_s44m2"]
+size = Vector2(128, 320)
+
+[node name="UnderTheFlap" type="Node2D" unique_id=1388291854]
+script = ExtResource("1_prqrb")
+page_title = "Under the Harbor Flap"
+opening_caption = "Under the harbor flap, the sea had turned to ink. It dripped from the paper sky and pooled in every gap."
+music = ExtResource("2_muth8")
+bounds = Rect2(0, 0, 7040, 1088)
+
+[node name="Background" type="Parallax2D" parent="." unique_id=1876902871]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(1920, 0)
+repeat_times = 4
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=304195019]
+texture = ExtResource("3_ovvf4")
+centered = false
+
+[node name="InkSea" type="ColorRect" parent="." unique_id=556805099]
+offset_left = -200.0
+offset_top = 985.6
+offset_right = 7240.0
+offset_bottom = 2385.6
+mouse_filter = 2
+color = Color(0.078431375, 0.08627451, 0.20392157, 1)
+
+[node name="InkSurface" type="Sprite2D" parent="." unique_id=2123274496]
+modulate = Color(0.3, 0.32, 0.6, 1)
+texture_repeat = 2
+position = Vector2(-200, 951.6)
+texture = ExtResource("4_2blvt")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 7440, 128)
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1230335197]
+tile_map_data = PackedByteArray("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")
+tile_set = ExtResource("5_l14ef")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=1107072943]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=1546548035]
+shape = SubResource("WorldBoundaryShape2D_m67ss")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=87279008]
+position = Vector2(7040, 0)
+shape = SubResource("WorldBoundaryShape2D_aqcag")
+
+[node name="Start" type="Marker2D" parent="." unique_id=972158867 groups=["spawn_points"]]
+position = Vector2(192, 848)
+
+[node name="FromArena" type="Marker2D" parent="." unique_id=281451181 groups=["spawn_points"]]
+position = Vector2(6720, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=293734824]
+
+[node name="ArrivalTalk" type="Area2D" parent="Story" unique_id=1056333966]
+position = Vector2(384, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("6_6uj0u")
+dialogue_id = "flap_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/ArrivalTalk" unique_id=1567947310]
+shape = SubResource("RectangleShape2D_i420b")
+
+[node name="ZipHint" type="Area2D" parent="Story" unique_id=2041830658 instance=ExtResource("7_4287b")]
+position = Vector2(896, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_ir5ws")
+caption = "A gap full of ink. Jump, then press {grapple} near the brass ring to zip across!"
+
+[node name="GateHint" type="Area2D" parent="Story" unique_id=1632213458 instance=ExtResource("7_4287b")]
+position = Vector2(2624, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_ir5ws")
+caption = "A soggy flap blocks the way, too heavy to push. That ring on it, though..."
+
+[node name="ChainHint" type="Area2D" parent="Story" unique_id=1196607621 instance=ExtResource("7_4287b")]
+position = Vector2(3840, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_ir5ws")
+caption = "Two rings over a wide gap. Zip to the first, then throw the tape again in mid-air."
+
+[node name="Props" type="Node2D" parent="." unique_id=1731805034]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("9_umb08")]
+position = Vector2(128, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_ycmvj")
+respawn_offset = Vector2(0, -48)
+
+[node name="Bookmark2" type="Area2D" parent="Props" unique_id=773418267 instance=ExtResource("9_umb08")]
+position = Vector2(3200, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_ycmvj")
+respawn_offset = Vector2(0, -48)
+
+[node name="Bookmark3" type="Area2D" parent="Props" unique_id=1476085615 instance=ExtResource("9_umb08")]
+position = Vector2(4864, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_ycmvj")
+respawn_offset = Vector2(0, -48)
+
+[node name="GapRing" type="Node2D" parent="Props" unique_id=1984090780 instance=ExtResource("11_v88s6")]
+position = Vector2(1344, 576)
+script = ExtResource("12_vsfqn")
+
+[node name="FlapGate" type="AnimatableBody2D" parent="Props" unique_id=672235476]
+position = Vector2(3008, 736)
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Props/FlapGate" unique_id=1570223585]
+texture = ExtResource("13_0evrl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/FlapGate" unique_id=1051298981]
+shape = SubResource("RectangleShape2D_s44m2")
+
+[node name="GateRing" type="Node2D" parent="Props" unique_id=249432277 node_paths=PackedStringArray("target") instance=ExtResource("11_v88s6")]
+position = Vector2(2918.4, 640)
+script = ExtResource("12_vsfqn")
+mode = 1
+target = NodePath("../FlapGate")
+move_offset = Vector2(0, -330)
+
+[node name="LedgeRing" type="Node2D" parent="Props" unique_id=134567434 instance=ExtResource("11_v88s6")]
+position = Vector2(3520, 288)
+script = ExtResource("12_vsfqn")
+
+[node name="WideRing1" type="Node2D" parent="Props" unique_id=264314110 instance=ExtResource("11_v88s6")]
+position = Vector2(4224, 576)
+script = ExtResource("12_vsfqn")
+
+[node name="WideRing2" type="Node2D" parent="Props" unique_id=1444033975 instance=ExtResource("11_v88s6")]
+position = Vector2(4512, 576)
+script = ExtResource("12_vsfqn")
+
+[node name="ToTheKraken" type="Area2D" parent="Props" unique_id=1424784169 instance=ExtResource("14_5eybx")]
+position = Vector2(6848, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("15_2yx0a")
+target_page = "res://scenes/levels/ch2_lanternfold/kraken_arena.tscn"
+target_spawn = &"Start"
+door_prompt = "Swim toward the eye"
+prompt_offset = Vector2(0, -170)
+
+[node name="BackUp" type="Area2D" parent="Props" unique_id=1356585237 instance=ExtResource("14_5eybx")]
+position = Vector2(64, 896)
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("15_2yx0a")
+target_page = "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"
+target_spawn = &"FromFlap"
+door_prompt = "Climb back up to the harbor"
+prompt_offset = Vector2(0, -170)
+
+[node name="Hazards" type="Node2D" parent="." unique_id=412184446]
+
+[node name="Drips0" type="Node2D" parent="Hazards" unique_id=155790220]
+position = Vector2(1728, 0)
+script = ExtResource("16_qdp67")
+width = 832.0
+
+[node name="Drips1" type="Node2D" parent="Hazards" unique_id=501676467]
+position = Vector2(4928, 0)
+script = ExtResource("16_qdp67")
+width = 832.0
+
+[node name="Actors" type="Node2D" parent="." unique_id=184982172]
+
+[node name="Soggy0" type="CharacterBody2D" parent="Actors" unique_id=187063361 instance=ExtResource("17_hcxv7")]
+position = Vector2(1920, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Soggy1" type="CharacterBody2D" parent="Actors" unique_id=1393696454 instance=ExtResource("17_hcxv7")]
+position = Vector2(2368, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Soggy2" type="CharacterBody2D" parent="Actors" unique_id=1675010629 instance=ExtResource("17_hcxv7")]
+position = Vector2(3392, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Soggy3" type="CharacterBody2D" parent="Actors" unique_id=1987095958 instance=ExtResource("17_hcxv7")]
+position = Vector2(5184, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Soggy4" type="CharacterBody2D" parent="Actors" unique_id=1934307795 instance=ExtResource("17_hcxv7")]
+position = Vector2(5632, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Soggy5" type="CharacterBody2D" parent="Actors" unique_id=2054471750 instance=ExtResource("17_hcxv7")]
+position = Vector2(6144, 856)
+collision_layer = 4
+script = ExtResource("18_7g5c2")
+
+[node name="Pickups" type="Node2D" parent="." unique_id=811815588]
+
+[node name="LetterN" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("19_i627k")]
+position = Vector2(3808, 324)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+kind = 1
+letter = "N"
+
+[node name="Tape" type="Area2D" parent="Pickups" unique_id=1710296588 instance=ExtResource("21_y6r3o")]
+position = Vector2(5696, 836)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+kind = 2
+amount = 2
+
+[node name="Tape2" type="Area2D" parent="Pickups" unique_id=1206553648 instance=ExtResource("21_y6r3o")]
+position = Vector2(3104, 836)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+kind = 2
+amount = 2
+
+[node name="GapScrap0" type="Area2D" parent="Pickups" unique_id=703028243 instance=ExtResource("22_22f3q")]
+position = Vector2(1216, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="GapScrap1" type="Area2D" parent="Pickups" unique_id=2006545959 instance=ExtResource("22_22f3q")]
+position = Vector2(1312, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="GapScrap2" type="Area2D" parent="Pickups" unique_id=344043047 instance=ExtResource("22_22f3q")]
+position = Vector2(1408, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="GapScrap3" type="Area2D" parent="Pickups" unique_id=1940176003 instance=ExtResource("22_22f3q")]
+position = Vector2(1504, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="GapScrap4" type="Area2D" parent="Pickups" unique_id=1898943833 instance=ExtResource("22_22f3q")]
+position = Vector2(1600, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap0" type="Area2D" parent="Pickups" unique_id=1054940955 instance=ExtResource("22_22f3q")]
+position = Vector2(4096, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap1" type="Area2D" parent="Pickups" unique_id=466522080 instance=ExtResource("22_22f3q")]
+position = Vector2(4192, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap2" type="Area2D" parent="Pickups" unique_id=1411679932 instance=ExtResource("22_22f3q")]
+position = Vector2(4288, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap3" type="Area2D" parent="Pickups" unique_id=344795219 instance=ExtResource("22_22f3q")]
+position = Vector2(4384, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap4" type="Area2D" parent="Pickups" unique_id=1182210443 instance=ExtResource("22_22f3q")]
+position = Vector2(4480, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="WideScrap5" type="Area2D" parent="Pickups" unique_id=503381134 instance=ExtResource("22_22f3q")]
+position = Vector2(4576, 704)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="LedgeScrap0" type="Area2D" parent="Pickups" unique_id=953844559 instance=ExtResource("22_22f3q")]
+position = Vector2(3616, 334)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="LedgeScrap1" type="Area2D" parent="Pickups" unique_id=2058379104 instance=ExtResource("22_22f3q")]
+position = Vector2(3680, 334)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="LedgeScrap2" type="Area2D" parent="Pickups" unique_id=560364939 instance=ExtResource("22_22f3q")]
+position = Vector2(3744, 334)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="LedgeScrap3" type="Area2D" parent="Pickups" unique_id=2006012459 instance=ExtResource("22_22f3q")]
+position = Vector2(3808, 334)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("20_j338p")
+
+[node name="LetterK" parent="Pickups" unique_id=374604011 instance=ExtResource("19_i627k")]
+position = Vector2(2016, 644)
+letter = "K"
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("23_ignu0")]
+position = Vector2(192, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("24_wxr5g")

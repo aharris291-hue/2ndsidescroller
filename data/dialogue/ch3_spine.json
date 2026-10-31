@@ -1,0 +1,260 @@
+{
+	"frostfold_arrival": [
+		{
+			"speaker": "patch",
+			"text": "Snow! Okay, this I can work with. Snowball fights. Sledging. A heroic fox silhouetted against a mountain."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Fox. I'm made of cardboard. Snow is just water that's waiting."
+		},
+		{
+			"speaker": "dot",
+			"text": "Spine. Up there."
+		},
+		{
+			"speaker": "patch",
+			"text": "The big stitched thing holding the book together? Why's it... creaking?"
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Because the Sogg's in the binding. If the spine goes, every page in this book comes loose. Us included."
+		},
+		{
+			"speaker": "patch",
+			"text": "Right. So we climb a mountain made of book. Fine. Love that. Very normal Tuesday."
+		}
+	],
+	"flat_arrival": [
+		{
+			"speaker": "patch",
+			"text": "Whoa. Everything's gone flat. The mountains are just... drawings on the snow."
+		},
+		{
+			"speaker": "dot",
+			"text": "Page lies down. World lies down."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "And that cliff that had us beat is a line on the ground. Walk round it. I'll be over here, enjoying not climbing anything."
+		}
+	],
+	"bindwell_intro": [
+		{
+			"speaker": "bindwell",
+			"text": "Mind the stitches, dear. Oh. A fox. With a tape tail. Well, aren't you a modern sort of mend."
+		},
+		{
+			"speaker": "patch",
+			"text": "Patch the Magnificent. And you're a... needle?"
+		},
+		{
+			"speaker": "bindwell",
+			"text": "Old Bindwell. I keep the spine sewn. Have done since the man at the table first threaded me, the year the little girl was born."
+		},
+		{
+			"speaker": "bindwell",
+			"text": "The Sogg's got into the binding. The thread's going soft, and the spine's too sheer to climb without pitons. Something stiff and steel."
+		},
+		{
+			"speaker": "dot",
+			"text": "Paperclip. Gran's table."
+		},
+		{
+			"speaker": "bindwell",
+			"text": "Clever stop. Fetch me a clip from out there and I'll bend you pitons, and stand the page back up on the far side of the cliff."
+		},
+		{
+			"speaker": "bindwell",
+			"text": "And if you find my spools on the way up, I dropped three of them in the wind. Bring them to me at the top and I'll pay you for your trouble."
+		}
+	],
+	"bindwell_progress": [
+		{
+			"speaker": "bindwell",
+			"text": "Still three spools out there, dear, frozen to the spine. And don't forget my paperclip. The page corner by me goes out onto the table."
+		}
+	],
+	"bindwell_done": [
+		{
+			"speaker": "bindwell",
+			"text": "All three! Look at that. A bit frosty, but thread forgives you if you're patient with it."
+		},
+		{
+			"speaker": "bindwell",
+			"text": "There. I'll restring what I can while you're up top. Take these Scraps. And fox?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Yeah?"
+		},
+		{
+			"speaker": "bindwell",
+			"text": "Nothing that's been stitched is ever as smooth as it was. It's stronger where the stitches are. Remember that up there."
+		}
+	],
+	"bindwell_repeat": [
+		{
+			"speaker": "bindwell",
+			"text": "Off you go, dear. I'll keep the thread warm."
+		}
+	],
+	"clip_heist_arrival": [
+		{
+			"speaker": "patch",
+			"text": "Gran's table again. Later. Darker. The Great Light's buzzing like it's tired."
+		},
+		{
+			"speaker": "dot",
+			"text": "Clip. Far side."
+		},
+		{
+			"speaker": "dot",
+			"text": "And the plug. Hairdryer. Pull it near the book."
+		},
+		{
+			"speaker": "patch",
+			"text": "Why the plug?"
+		},
+		{
+			"speaker": "dot",
+			"text": "Warm air. Later. Trust me."
+		},
+		{
+			"speaker": "patch",
+			"text": "You're very mysterious for a full stop."
+		}
+	],
+	"spine_arrival": [
+		{
+			"speaker": "patch",
+			"text": "Okay. That's a lot of up."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Bindwell's pitons are in. Good, solid work. You zip, I'll... be lifted, somehow, with dignity."
+		},
+		{
+			"speaker": "dot",
+			"text": "Meltwater. Above. Careful."
+		}
+	],
+	"spine_lowpoint": [
+		{
+			"speaker": "narrator",
+			"text": "Near the top, a shelf of wet snow broke loose above Patch. Corrugate shoved him clear, and took all of it."
+		},
+		{
+			"speaker": "patch",
+			"text": "Corrugate! Corrugate, are you okay?"
+		},
+		{
+			"speaker": "corrugate",
+			"text": "...Soaked through. Both sides. It's fine. It's fine, fox. Give me a minute by the fire."
+		},
+		{
+			"speaker": "patch",
+			"text": "You didn't have to do that. That was... why would you do that?"
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Because you'd have done it for me. You're a liar, fox, but you're not a coward."
+		},
+		{
+			"speaker": "patch",
+			"text": "..."
+		},
+		{
+			"speaker": "patch",
+			"text": "I am, though."
+		},
+		{
+			"speaker": "dot",
+			"text": "Patch."
+		},
+		{
+			"speaker": "patch",
+			"text": "No. Listen. I didn't lose my tail to a thunderstorm. Or a dragon. Or a bet with the moon."
+		},
+		{
+			"speaker": "patch",
+			"text": "When the water came onto the title page, I ran. I didn't help anybody. I just ran, and the page tore, and I left part of me back there in the flood."
+		},
+		{
+			"speaker": "patch",
+			"text": "And ever since, I keep thinking... what if that's it? What if I'm just broken now, and everyone can see it, and all the stories are just me trying to make the tear look cool."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Fox. Look at me. I'm a box. I've been wet four times. I've got tape on my tape. My left side's never been straight since a cat sat on it."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "I'm still a captain."
+		},
+		{
+			"speaker": "dot",
+			"text": "Everybody tears."
+		},
+		{
+			"speaker": "dot",
+			"text": "Period."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Did you just make a punctuation joke at my lowest moment?"
+		},
+		{
+			"speaker": "dot",
+			"text": "Yes."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Thanks. Really. Okay. Okay. Let's go and stop the Sogg. Properly, this time. No stories."
+		}
+	],
+	"sogg_arrival": [
+		{
+			"speaker": "sogg",
+			"text": "Little fox. You ran from me once."
+		},
+		{
+			"speaker": "patch",
+			"text": "Yeah. I did. I'm not running now."
+		},
+		{
+			"speaker": "sogg",
+			"text": "Everything gets wet eventually. Everything sags. Why keep standing up?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Because someone keeps standing us up. Every night. With a hairdryer and an iron and way too much tape."
+		},
+		{
+			"speaker": "dot",
+			"text": "Fold marks. Down there. Slam them."
+		}
+	],
+	"sogg_drags_patch": [
+		{
+			"speaker": "sogg",
+			"text": "Enough. ENOUGH. If I can't stop the rain, then nobody stays dry."
+		},
+		{
+			"speaker": "sogg",
+			"text": "Come down, little fox. Down to the Gutter, where it's quiet and nothing has to be fixed."
+		},
+		{
+			"speaker": "patch",
+			"text": "Dot! Corrugate!"
+		},
+		{
+			"speaker": "dot",
+			"text": "PATCH!"
+		},
+		{
+			"speaker": "narrator",
+			"text": "The Sogg tore through the spine's last stitches and dragged Patch down into the Gutter, the drowned crease at the very middle of the book."
+		}
+	]
+}

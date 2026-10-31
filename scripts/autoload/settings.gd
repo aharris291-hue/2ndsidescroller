@@ -1,11 +1,13 @@
 extends Node
-## Player preferences (volume, fullscreen), stored apart from save slots in user://settings.cfg.
+## Player preferences (volume, fullscreen, book view), stored apart from save slots in user://settings.cfg.
 
 const PATH := "user://settings.cfg"
 
 var music_volume := 0.8
 var sfx_volume := 0.9
 var fullscreen := false
+## Show pages as an open book on a desk (BookFrame). Off = flat full-screen page.
+var book_view := true
 
 
 func _ready() -> void:
@@ -14,6 +16,7 @@ func _ready() -> void:
 		music_volume = config.get_value("audio", "music_volume", music_volume)
 		sfx_volume = config.get_value("audio", "sfx_volume", sfx_volume)
 		fullscreen = config.get_value("video", "fullscreen", fullscreen)
+		book_view = config.get_value("video", "book_view", book_view)
 	apply()
 
 
@@ -31,12 +34,19 @@ func save() -> void:
 	config.set_value("audio", "music_volume", music_volume)
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("video", "fullscreen", fullscreen)
+	config.set_value("video", "book_view", book_view)
 	config.save(PATH)
 
 
 func toggle_fullscreen() -> void:
 	fullscreen = not fullscreen
 	apply()
+	save()
+
+
+func toggle_book_view() -> void:
+	book_view = not book_view
+	BookFrame.refresh()
 	save()
 
 

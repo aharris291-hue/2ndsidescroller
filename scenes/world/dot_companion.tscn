@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/dot_companion.gd" id="1_xjsc2"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/dot.png" id="2_e0f07"]
+
+[node name="DotCompanion" type="Node2D" unique_id=573310225]
+script = ExtResource("1_xjsc2")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=13597662]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_e0f07")

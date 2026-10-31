@@ -4,9 +4,11 @@ extends CanvasLayer
 @onready var panel: Control = $Root
 @onready var resume_button: Button = $Root/Panel/Margin/VBox/ResumeButton
 @onready var fullscreen_button: Button = $Root/Panel/Margin/VBox/FullscreenButton
+@onready var book_view_button: Button = $Root/Panel/Margin/VBox/BookViewButton
 @onready var music_slider: HSlider = $Root/Panel/Margin/VBox/MusicRow/MusicSlider
 @onready var sfx_slider: HSlider = $Root/Panel/Margin/VBox/SfxRow/SfxSlider
 @onready var quit_button: Button = $Root/Panel/Margin/VBox/QuitButton
+@onready var quest_log: Label = $Root/Panel/Margin/VBox/QuestLog
 
 
 func _ready() -> void:
@@ -15,6 +17,7 @@ func _ready() -> void:
 	panel.visible = false
 	resume_button.pressed.connect(close)
 	fullscreen_button.pressed.connect(Settings.toggle_fullscreen)
+	book_view_button.pressed.connect(_on_book_view)
 	quit_button.pressed.connect(_on_quit)
 	music_slider.value = Settings.music_volume
 	sfx_slider.value = Settings.sfx_volume
@@ -35,6 +38,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func open() -> void:
+	var lines := GameState.quest_log()
+	quest_log.text = "Side quests:\n" + "\n".join(lines) if not lines.is_empty() else "No side quests yet."
+	_update_book_view_label()
 	panel.visible = true
 	get_tree().paused = true
 	resume_button.grab_focus()
@@ -44,6 +50,15 @@ func close() -> void:
 	panel.visible = false
 	get_tree().paused = false
 	Settings.save()
+
+
+func _on_book_view() -> void:
+	Settings.toggle_book_view()
+	_update_book_view_label()
+
+
+func _update_book_view_label() -> void:
+	book_view_button.text = "Book view: on" if Settings.book_view else "Book view: off"
 
 
 func _on_volume_changed(value: float, is_music: bool) -> void:

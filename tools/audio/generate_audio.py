@@ -79,6 +79,238 @@ def build_theme():
     write("music/foldwick_lullaby.wav", out * 0.8)
 
 
+def accordion_note(midi, length):
+    """A soft reedy squeeze-box chord tone: detuned saws with a slow swell."""
+    x = t(length)
+    f = note_freq(midi)
+    saw = sum(((x * f * d) % 1.0) * 2 - 1 for d in (1.0, 1.004, 0.997)) / 3
+    env = np.minimum(1.0, x * 6) * np.exp(-x * 0.9) * (1 + 0.08 * np.sin(2 * np.pi * 5 * x))
+    smooth = np.convolve(saw, np.ones(6) / 6, mode="same")
+    return smooth * env * 0.12
+
+
+def glock_note(midi, length=1.0):
+    x = t(length)
+    f = note_freq(midi)
+    return (np.sin(2 * np.pi * f * x) + 0.25 * np.sin(2 * np.pi * f * 2.76 * x) * np.exp(-x * 12)) * np.exp(-x * 4.5) * 0.22
+
+
+def _loop(out, length):
+    loop_len = int(length * RATE)
+    tail = out[loop_len:]
+    out = out[:loop_len]
+    out[:len(tail)] += tail
+    return out
+
+
+def build_lanternfold():
+    """'Lanterns on the Water', a 3/4 harbor waltz in D minor turning to F (112 bpm):
+    music box melody, accordion chords, glockenspiel sparkle."""
+    beat = 60 / 112
+    melody = [
+        (69, 2), (74, 1), (72, 2), (70, 1), (69, 2), (65, 1), (67, 3),
+        (69, 2), (70, 1), (72, 2), (74, 1), (76, 3), (77, 3),
+        (77, 2), (76, 1), (74, 2), (72, 1), (70, 2), (69, 1), (67, 3),
+        (65, 2), (67, 1), (69, 2), (70, 1), (69, 3), (74, 3),
+    ]
+    chords = [(50, 57, 62), (46, 53, 58), (48, 55, 60), (53, 57, 60), (50, 57, 62), (46, 53, 58), (45, 52, 61), (50, 57, 62)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 3)))
+    pos = 0.0
+    for midi, dur in melody:
+        n = music_box_note(midi, 1.8)
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        if dur >= 3:
+            g = glock_note(midi + 12, 1.0)
+            out[i:i + len(g)] += g
+        pos += dur * beat
+    bars = int(total_beats // 3)
+    for bar in range(bars):
+        chord = chords[bar % len(chords)]
+        start = int(bar * 3 * beat * RATE)
+        root = accordion_note(chord[0], beat * 1.0) * 1.3
+        out[start:start + len(root)] += root
+        for b in (1, 2):
+            i = start + int(b * beat * RATE)
+            for m in chord[1:]:
+                n = accordion_note(m + 12, beat * 0.9)
+                out[i:i + len(n)] += n
+    write("music/lanternfold_waltz.wav", _loop(out, length) * 0.8)
+
+
+def build_ink_deep():
+    """The Sogg's theme: the Foldwick lullaby on a waterlogged music box, too slow and too low."""
+    beat = 60 / 64
+    melody = [(67, 1), (69, 1), (71, 1), (72, 2), (71, 1), (69, 1), (67, 1), (64, 1), (67, 3),
+              (65, 1), (67, 1), (69, 1), (71, 2), (69, 1), (67, 1), (65, 1), (62, 1), (64, 3)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 3)))
+    pos = 0.0
+    for midi, dur in melody:
+        n = music_box_note(midi - 5, 2.6)
+        # A little pitch sag on every note, like a soggy spring.
+        n = np.interp(np.arange(len(n)) * (1 - 0.012 * np.linspace(0, 1, len(n))), np.arange(len(n)), n)
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        pos += dur * beat
+    for b in range(int(total_beats)):
+        if b % 3 == 0:
+            n = music_box_note(43 if (b // 9) % 2 == 0 else 41, 2.0) * 0.6
+            i = int(b * beat * RATE)
+            out[i:i + len(n)] += n
+    rumble = np.convolve(gen.normal(0, 1, len(out)), np.ones(400) / 400, mode="same") * 0.6
+    write("music/ink_deep.wav", _loop(out + rumble, length) * 0.85)
+
+
+def celesta_note(midi, length=1.4):
+    """A celesta: a soft struck bar with a bell-like octave, rounder than the music box."""
+    x = t(length)
+    f = note_freq(midi)
+    tone = np.sin(2 * np.pi * f * x) + 0.3 * np.sin(2 * np.pi * f * 2 * x) * np.exp(-x * 5) + 0.08 * np.sin(2 * np.pi * f * 4.1 * x) * np.exp(-x * 14)
+    return tone * np.minimum(1.0, x * 400) * np.exp(-x * 2.4) * 0.24
+
+
+def string_note(midi, length):
+    """A low bowed string: detuned saws, a slow bow attack and a gentle vibrato."""
+    x = t(length)
+    f = note_freq(midi) * (1 + 0.003 * np.sin(2 * np.pi * 5.2 * x) * np.minimum(1.0, x))
+    phase = np.cumsum(f) / RATE
+    saw = sum(((phase * d) % 1.0) * 2 - 1 for d in (1.0, 1.003, 0.998)) / 3
+    smooth = np.convolve(saw, np.ones(10) / 10, mode="same")
+    env = np.minimum(1.0, x / 0.5) * np.minimum(1.0, (length - x) / 0.6)
+    return smooth * env * 0.16
+
+
+def build_spine_peaks():
+    """'The Long Climb', the Spine Peaks theme: a celesta melody in E minor over low
+    strings (84 bpm, 4/4), with the music box answering high up, like snow falling."""
+    beat = 60 / 84
+    melody = [
+        (64, 2), (67, 1), (71, 1), (69, 3), (67, 1), (66, 2), (67, 1), (69, 1), (71, 4),
+        (72, 2), (71, 1), (69, 1), (67, 3), (64, 1), (66, 2), (67, 1), (66, 1), (64, 4),
+        (64, 2), (67, 1), (71, 1), (76, 3), (74, 1), (72, 2), (71, 1), (69, 1), (71, 4),
+        (72, 2), (74, 1), (72, 1), (71, 3), (67, 1), (69, 2), (66, 2), (64, 4),
+    ]
+    chords = [(40, 47), (36, 43), (38, 45), (35, 42), (36, 43), (40, 47), (38, 45), (40, 47)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for k, (midi, dur) in enumerate(melody):
+        n = celesta_note(midi + 12, 1.6)
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        if dur >= 4:
+            echo = music_box_note(midi + 24, 1.4) * 0.35
+            j = i + int(beat * 2 * RATE)
+            out[j:j + len(echo)] += echo
+        pos += dur * beat
+    bars = int(total_beats // 4)
+    for bar in range(bars):
+        start = int(bar * 4 * beat * RATE)
+        for m in chords[bar % len(chords)]:
+            n = string_note(m, beat * 4.2)
+            out[start:start + len(n)] += n
+    write("music/spine_peaks.wav", _loop(out, length) * 0.85)
+
+
+def build_chapter3_sfx():
+    # Pop-Up Slam: a deep cardboard thump with a crunch of folding paper on top.
+    thump = sweep(140, 40, 0.4, decay=7) * 0.8
+    crunch = np.convolve(gen.normal(0, 1, int(RATE * 0.4)), np.ones(3) / 3, mode="same") * np.exp(-t(0.4) * 14) * 0.5
+    write("sfx/slam.wav", (thump + crunch) * 0.75)
+
+
+def build_warm_air():
+    """'Warm Air', the last phase of the Sogg fight: the Sogg's slow, soggy theme sped
+    back up and lifted into F major, with strings pushing underneath and the music
+    box racing on top, like everything warming up at once (116 bpm, 3/4)."""
+    beat = 60 / 116
+    melody = [
+        (72, 1), (74, 1), (76, 1), (77, 2), (76, 1), (74, 1), (72, 1), (69, 1), (72, 3),
+        (70, 1), (72, 1), (74, 1), (76, 2), (74, 1), (72, 1), (70, 1), (67, 1), (69, 3),
+        (72, 1), (74, 1), (76, 1), (77, 2), (79, 1), (81, 2), (79, 1), (77, 3),
+        (76, 1), (74, 1), (72, 1), (74, 2), (76, 1), (77, 3), (77, 3),
+    ]
+    chords = [(41, 48), (46, 53), (43, 50), (36, 43), (41, 48), (38, 45), (46, 53), (36, 48)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for midi, dur in melody:
+        n = music_box_note(midi, 1.4)
+        c = celesta_note(midi - 12, 1.2) * 0.6
+        i = int(pos * RATE)
+        out[i:i + len(n)] += n
+        out[i:i + len(c)] += c
+        pos += dur * beat
+    bars = int(total_beats // 3)
+    for bar in range(bars):
+        start = int(bar * 3 * beat * RATE)
+        for m in chords[bar % len(chords)]:
+            n = string_note(m, beat * 3.2)
+            out[start:start + len(n)] += n
+        # A pulsing low note on every beat drives it on.
+        for b in range(3):
+            n = music_box_note(chords[bar % len(chords)][0], 0.5) * (0.5 if b == 0 else 0.25)
+            j = start + int(b * beat * RATE)
+            out[j:j + len(n)] += n
+    write("music/warm_air.wav", _loop(out, length) * 0.8)
+
+
+def build_mended():
+    """'Mended', the ending: the Foldwick lullaby once more, slower and warmer, with
+    every chapter's instrument joining in turn: music box, then woodwind-soft strings,
+    accordion, glockenspiel and celesta all together by the end (84 bpm, 3/4)."""
+    beat = 60 / 84
+    melody = [
+        (72, 1), (74, 1), (76, 1), (77, 2), (76, 1), (74, 1), (72, 1), (69, 1), (72, 3),
+        (70, 1), (72, 1), (74, 1), (76, 2), (74, 1), (72, 1), (70, 1), (67, 1), (69, 3),
+        (72, 1), (74, 1), (76, 1), (77, 2), (79, 1), (81, 2), (79, 1), (77, 3),
+        (76, 1), (74, 1), (72, 1), (74, 2), (76, 1), (77, 3), (77, 3),
+    ]
+    chords = [(53, 60, 65), (58, 62, 65), (53, 60, 64), (48, 55, 64), (50, 57, 65), (46, 53, 62), (48, 55, 64), (53, 60, 65)]
+    total_beats = sum(d for _, d in melody)
+    length = total_beats * beat
+    out = np.zeros(int(RATE * (length + 4)))
+    pos = 0.0
+    for k, (midi, dur) in enumerate(melody):
+        i = int(pos * RATE)
+        n = music_box_note(midi, 1.8)
+        out[i:i + len(n)] += n
+        if k >= 9:
+            g = glock_note(midi + 12, 0.9) * 0.6
+            out[i:i + len(g)] += g
+        if k >= 18:
+            c = celesta_note(midi - 12, 1.4) * 0.7
+            out[i:i + len(c)] += c
+        pos += dur * beat
+    bars = int(total_beats // 3)
+    for bar in range(bars):
+        start = int(bar * 3 * beat * RATE)
+        chord = chords[bar % len(chords)]
+        for m in chord:
+            n = string_note(m - 12, beat * 3.2) * 0.8
+            out[start:start + len(n)] += n
+        if bar >= 4:
+            for m in chord:
+                a = accordion_note(m, beat * 3.0) * 0.8
+                out[start:start + len(a)] += a
+    write("music/mended.wav", _loop(out, length) * 0.75)
+
+
+def build_finale_sfx():
+    # The hairdryer: a motor hum under a soft rush of warm air, swelling in.
+    x = t(1.2)
+    hum = (np.sin(2 * np.pi * 110 * x) + 0.5 * np.sin(2 * np.pi * 220 * x)) * 0.12
+    rush = np.convolve(gen.normal(0, 1, len(x)), np.ones(14) / 14, mode="same") * 0.9
+    env = np.minimum(1.0, x / 0.25) * np.minimum(1.0, (1.2 - x) / 0.3)
+    write("sfx/dryer.wav", (hum + rush) * env * 0.7)
+
+
 def sweep(f0, f1, length, wave_fn=np.sin, decay=8.0):
     x = t(length)
     freq = np.linspace(f0, f1, len(x))
@@ -104,9 +336,33 @@ def build_sfx():
     x = t(0.07)
     blip = (np.sin(2 * np.pi * 440 * x) + 0.4 * np.sin(2 * np.pi * 880 * x)) * np.sin(np.linspace(0, np.pi, len(x)))
     write("sfx/voice_blip.wav", blip * 0.35)
+    # Tape Tail: a sticky zip of tape peeling off the roll.
+    peel = gen.normal(0, 1, int(RATE * 0.3))
+    peel = np.convolve(peel, np.ones(4) / 4, mode="same") * np.exp(-t(0.3) * 7) * (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 60 * t(0.3))))
+    write("sfx/grapple.wav", peel * 0.7 + sweep(500, 1400, 0.3, decay=9) * 0.25)
 
 
 if __name__ == "__main__":
+    import sys
+
+    if "chapter3" in sys.argv:
+        # Quick path: only the Chapter 3 music and sounds.
+        build_spine_peaks()
+        build_chapter3_sfx()
+        sys.exit(0)
+    if "finale" in sys.argv:
+        # Quick path: only the finale music and sounds.
+        build_warm_air()
+        build_mended()
+        build_finale_sfx()
+        sys.exit(0)
     build_theme()
     build_sfx()
+    build_lanternfold()
+    build_ink_deep()
+    build_spine_peaks()
+    build_chapter3_sfx()
+    build_warm_air()
+    build_mended()
+    build_finale_sfx()
     print("Audio written to", AUDIO)

@@ -1,0 +1,143 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_c82sv"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/ink_deep.wav" id="2_evf1q"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_gutter.png" id="3_64vgb"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_ft460"]
+[ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_wlpig"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="6_l3nfo"]
+[ext_resource type="Script" path="res://scripts/world/bookmark.gd" id="7_7bwqf"]
+[ext_resource type="PackedScene" path="res://scenes/world/fold_mark.tscn" id="8_2lgon"]
+[ext_resource type="Script" path="res://scripts/world/fold_mark.gd" id="9_lwg0v"]
+[ext_resource type="PackedScene" path="res://scenes/world/hairdryer_beam.tscn" id="10_n04tw"]
+[ext_resource type="Script" path="res://scripts/world/hairdryer_beam.gd" id="11_eds4m"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_sogg_final.tscn" id="12_dc4ar"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_sogg_final.gd" id="13_ubc53"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/warm_air.wav" id="14_xyria"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="15_ukg5r"]
+[ext_resource type="Script" path="res://scripts/player/patch.gd" id="16_nlg55"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_37irs"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_6jyln"]
+normal = Vector2(-1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i44vk"]
+size = Vector2(120, 600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nb6rh"]
+size = Vector2(120, 600)
+
+[node name="DeepestFold" type="Node2D" unique_id=1407707098]
+script = ExtResource("1_c82sv")
+page_title = "The Deepest Fold"
+music = ExtResource("2_evf1q")
+bounds = Rect2(0, 0, 1920, 1088)
+no_companions = true
+
+[node name="Background" type="Parallax2D" parent="." unique_id=1135192849]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(2005.3334, 0)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background" unique_id=1296217466]
+scale = Vector2(1.0444444, 1.0444444)
+texture = ExtResource("3_64vgb")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=2032325296]
+tile_map_data = PackedByteArray("AAAAAA4AAAAAAAUAAAABAA4AAAAAAAUAAAACAA4AAAAAAAUAAAADAA4AAAAAAAUAAAAEAA4AAAAAAAUAAAAFAA4AAAAAAAUAAAAGAA4AAAAAAAUAAAAHAA4AAAAAAAUAAAAIAA4AAAAAAAUAAAAJAA4AAAAAAAUAAAAKAA4AAAAAAAUAAAALAA4AAAAAAAUAAAAMAA4AAAAAAAUAAAANAA4AAAAAAAUAAAAOAA4AAAAAAAUAAAAPAA4AAAAAAAUAAAAQAA4AAAAAAAUAAAARAA4AAAAAAAUAAAASAA4AAAAAAAUAAAATAA4AAAAAAAUAAAAUAA4AAAAAAAUAAAAVAA4AAAAAAAUAAAAWAA4AAAAAAAUAAAAXAA4AAAAAAAUAAAAYAA4AAAAAAAUAAAAZAA4AAAAAAAUAAAAaAA4AAAAAAAUAAAAbAA4AAAAAAAUAAAAcAA4AAAAAAAUAAAAdAA4AAAAAAAUAAAAAAA8AAAABAAUAAAABAA8AAAABAAUAAAACAA8AAAABAAUAAAADAA8AAAABAAUAAAAEAA8AAAABAAUAAAAFAA8AAAABAAUAAAAGAA8AAAABAAUAAAAHAA8AAAABAAUAAAAIAA8AAAABAAUAAAAJAA8AAAABAAUAAAAKAA8AAAABAAUAAAALAA8AAAABAAUAAAAMAA8AAAABAAUAAAANAA8AAAABAAUAAAAOAA8AAAABAAUAAAAPAA8AAAABAAUAAAAQAA8AAAABAAUAAAARAA8AAAABAAUAAAASAA8AAAABAAUAAAATAA8AAAABAAUAAAAUAA8AAAABAAUAAAAVAA8AAAABAAUAAAAWAA8AAAABAAUAAAAXAA8AAAABAAUAAAAYAA8AAAABAAUAAAAZAA8AAAABAAUAAAAaAA8AAAABAAUAAAAbAA8AAAABAAUAAAAcAA8AAAABAAUAAAAdAA8AAAABAAUAAAAAABAAAAABAAUAAAABABAAAAABAAUAAAACABAAAAABAAUAAAADABAAAAABAAUAAAAEABAAAAABAAUAAAAFABAAAAABAAUAAAAGABAAAAABAAUAAAAHABAAAAABAAUAAAAIABAAAAABAAUAAAAJABAAAAABAAUAAAAKABAAAAABAAUAAAALABAAAAABAAUAAAAMABAAAAABAAUAAAANABAAAAABAAUAAAAOABAAAAABAAUAAAAPABAAAAABAAUAAAAQABAAAAABAAUAAAARABAAAAABAAUAAAASABAAAAABAAUAAAATABAAAAABAAUAAAAUABAAAAABAAUAAAAVABAAAAABAAUAAAAWABAAAAABAAUAAAAXABAAAAABAAUAAAAYABAAAAABAAUAAAAZABAAAAABAAUAAAAaABAAAAABAAUAAAAbABAAAAABAAUAAAAcABAAAAABAAUAAAAdABAAAAABAAUAAAA=")
+tile_set = ExtResource("4_ft460")
+
+[node name="PageEdges" type="StaticBody2D" parent="." unique_id=404296434]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges" unique_id=98933235]
+shape = SubResource("WorldBoundaryShape2D_37irs")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges" unique_id=488962754]
+position = Vector2(1920, 0)
+shape = SubResource("WorldBoundaryShape2D_6jyln")
+
+[node name="Start" type="Marker2D" parent="." unique_id=2059966227 groups=["spawn_points"]]
+position = Vector2(128, 848)
+
+[node name="Story" type="Node2D" parent="." unique_id=175595800]
+
+[node name="SoggTalk" type="Area2D" parent="Story" unique_id=1363706856]
+position = Vector2(256, 696)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_wlpig")
+dialogue_id = "gutter_sogg_arrival"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/SoggTalk" unique_id=1408942007]
+shape = SubResource("RectangleShape2D_i44vk")
+
+[node name="FightStart" type="Area2D" parent="Story" unique_id=795054428]
+position = Vector2(448, 696)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Story/FightStart" unique_id=145840945]
+shape = SubResource("RectangleShape2D_nb6rh")
+
+[node name="Props" type="Node2D" parent="." unique_id=1567770533]
+
+[node name="Bookmark1" type="Area2D" parent="Props" unique_id=809914190 instance=ExtResource("6_l3nfo")]
+position = Vector2(80, 896)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("7_7bwqf")
+respawn_offset = Vector2(0, -48)
+
+[node name="Fold1" type="Node2D" parent="Props" unique_id=978518567 instance=ExtResource("8_2lgon")]
+position = Vector2(512, 896)
+script = ExtResource("9_lwg0v")
+rise_height = 180.0
+stay_up_time = 2.4
+
+[node name="Fold2" type="Node2D" parent="Props" unique_id=193196933 instance=ExtResource("8_2lgon")]
+position = Vector2(960, 896)
+script = ExtResource("9_lwg0v")
+rise_height = 180.0
+stay_up_time = 2.4
+
+[node name="Fold3" type="Node2D" parent="Props" unique_id=2100881391 instance=ExtResource("8_2lgon")]
+position = Vector2(1408, 896)
+script = ExtResource("9_lwg0v")
+rise_height = 180.0
+stay_up_time = 2.4
+
+[node name="HairdryerBeam" type="Node2D" parent="." unique_id=1798965625 instance=ExtResource("10_n04tw")]
+z_index = 3
+position = Vector2(960, 0)
+script = ExtResource("11_eds4m")
+left_limit = 192.0
+right_limit = 1728.0
+
+[node name="TheSogg" type="Node2D" parent="." unique_id=2024499742 node_paths=PackedStringArray("beam", "fold_marks", "start_zone") instance=ExtResource("12_dc4ar")]
+position = Vector2(1152, 896)
+script = ExtResource("13_ubc53")
+beam = NodePath("../HairdryerBeam")
+warm_music = ExtResource("14_xyria")
+section_lines = Array[String](["Steam rolled off the Sogg. A whole side of it puckered, dried and shrank away.", "Another piece of it dried out and flaked off. It was getting smaller.", "Half its water gone. Under the grey, something white was showing through.", "Nearly dry. It wasn't roaring any more. It sounded almost scared."])
+lose_page = "res://scenes/levels/interludes/interlude_04.tscn"
+fold_marks = [NodePath("../Props/Fold1"), NodePath("../Props/Fold2"), NodePath("../Props/Fold3")]
+start_zone = NodePath("../Story/FightStart")
+arena_right = 1792.0
+hover_height = 500.0
+dive_intervals = Array[float]([2.6, 2.6])
+rain_intervals = Array[float]([0.55, 0.55])
+soak_time = 2.6
+stun_time = 4.0
+defeated_flag = "sogg_dried"
+defeat_dialogue = "drizzle_dried"
+next_page = "res://scenes/levels/interludes/ending_table.tscn"
+
+[node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("15_ukg5r")]
+position = Vector2(128, 848)
+collision_layer = 2
+floor_max_angle = 0.87266463
+floor_snap_length = 12.0
+script = ExtResource("16_nlg55")

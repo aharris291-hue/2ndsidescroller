@@ -6,9 +6,9 @@ extends CharacterBody2D
 
 const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 
-@export var patrol_speed := 110.0
-@export var chase_speed := 170.0
-@export var chase_range := 420.0
+@export var patrol_speed := 130.0
+@export var chase_speed := 235.0
+@export var chase_range := 540.0
 @export var gravity := 2000.0
 @export var scrap_drop := 2
 
@@ -20,6 +20,7 @@ var _wander_left := 0.0
 var _home := Vector2.ZERO
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var _sprite_scale := sprite.scale
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var contact_hitbox: Hitbox = $ContactHitbox
@@ -51,7 +52,7 @@ func _physics_process(delta: float) -> void:
 	sprite.flip_h = _direction > 0.0
 	# Squishy wobble while moving.
 	var wobble := sin(Time.get_ticks_msec() * 0.012) * 0.06
-	sprite.scale = Vector2(1.0 + wobble, 1.0 - wobble)
+	sprite.scale = _sprite_scale * Vector2(1.0 + wobble, 1.0 - wobble)
 
 
 func _side_behaviour(delta: float) -> void:
@@ -103,6 +104,6 @@ func _on_died() -> void:
 		get_parent().add_child.call_deferred(scrap)
 	# Dried out: the wad shrinks and puffs away.
 	var tween := create_tween().set_parallel()
-	tween.tween_property(sprite, "scale", Vector2(1.4, 0.2), 0.25)
+	tween.tween_property(sprite, "scale", _sprite_scale * Vector2(1.4, 0.2), 0.25)
 	tween.tween_property(sprite, "modulate:a", 0.0, 0.3)
 	tween.chain().tween_callback(queue_free)

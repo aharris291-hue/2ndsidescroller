@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/grapple_point.gd" id="1_8s13t"]
+[ext_resource type="Texture2D" path="res://assets/art/props/piton.png" id="2_qbya7"]
+
+[node name="Piton" type="Node2D" unique_id=1012334654]
+script = ExtResource("1_8s13t")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1714347314]
+texture = ExtResource("2_qbya7")

@@ -7,6 +7,12 @@ extends Node2D
 ## Expected children: a Patch instance (scenes/player/patch.tscn) and at least one
 ## Marker2D named "Start" in the "spawn_points" group.
 
+## Story flag -> the companion that follows Patch once it is set.
+const COMPANIONS := {
+	"met_dot": preload("res://scenes/world/dot_companion.tscn"),
+	"corrugate_joined": preload("res://scenes/world/corrugate_companion.tscn"),
+}
+
 @export var view_mode: PageView.Mode = PageView.Mode.SIDE
 @export var page_title := ""
 ## Dad's handwritten caption, shown once on the first visit.
@@ -14,6 +20,11 @@ extends Node2D
 @export var music: AudioStream
 ## The playable area, in pixels. The camera never shows outside it.
 @export var bounds := Rect2(0, 0, 3840, 1080)
+## False for pages in the real world (the Margin): they fill the screen instead of
+## being drawn inside the open book (see BookFrame).
+@export var in_book := true
+## No companions follow Patch here, even if they've joined (he's alone in the Gutter).
+@export var no_companions := false
 
 
 func _ready() -> void:
@@ -35,6 +46,14 @@ func _ready() -> void:
 	if GameState.checkpoint_page.is_empty():
 		GameState.set_checkpoint(scene_file_path, player.global_position)
 
+	for flag in COMPANIONS:
+		if no_companions:
+			break
+		if GameState.get_flag(flag) and not _has_companion(flag):
+			var friend := (COMPANIONS[flag] as PackedScene).instantiate() as Node2D
+			friend.position = player.position + friend.get("follow_offset")
+			add_child.call_deferred(friend)
+
 	if music:
 		AudioManager.play_music(music)
 	HUD.show_hud(true)
@@ -43,6 +62,13 @@ func _ready() -> void:
 		GameState.set_flag(caption_flag)
 		DialogueUI.narrate(opening_caption)
 	EventBus.page_entered.emit(self)
+
+
+func _has_companion(flag: String) -> bool:
+	for friend in get_tree().get_nodes_in_group("companion"):
+		if friend.get("companion_flag") == flag:
+			return true
+	return false
 
 
 func _place_player(player: Patch) -> void:
