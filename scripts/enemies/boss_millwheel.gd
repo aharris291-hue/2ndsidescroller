@@ -19,9 +19,9 @@ const DRIP_SCENE := preload("res://scenes/enemies/ink_drip.tscn")
 ## The fight starts when Patch walks into this area.
 @export var start_zone: Area2D
 ## Sail speed (radians/second) per phase, from full health down.
-@export var sail_speeds: Array[float] = [1.1, 1.6, 2.2]
-@export var jam_time := 4.5
-@export var drip_interval := 1.5
+@export var sail_speeds: Array[float] = [1.4, 2.0, 2.7]
+@export var jam_time := 3.5
+@export var drip_interval := 1.0
 @export var arena_left := 160.0
 @export var arena_right := 1180.0
 @export var floor_y := 896.0
@@ -62,7 +62,7 @@ func start_fight() -> void:
 		return
 	state = State.SPINNING
 	EventBus.boss_started.emit(boss_name, health.max_health)
-	DialogueUI.narrate("The old mill groaned awake. Its soggy sails began to turn. Pull the mooring tabs to jam them!")
+	DialogueUI.narrate("The old mill groaned awake and its rotten sails began to turn. Three mooring tabs still held to the ground.")
 
 
 func _physics_process(delta: float) -> void:
@@ -97,7 +97,7 @@ func _on_tab_toggled(_pulled: bool) -> void:
 	_set_blades_active(false)
 	_set_core_exposed(true)
 	AudioManager.play_sfx(&"tab_pull", 0.6)
-	DialogueUI.narrate("The sails jammed! Its button core is showing. Swipe it!")
+	DialogueUI.narrate("The sails jammed. Under them, its button core was showing.")
 
 
 func _on_core_hit(hitbox: Hitbox) -> void:
@@ -134,7 +134,7 @@ func _on_defeated() -> void:
 	_set_blades_active(false)
 	GameState.set_flag(defeated_flag)
 	EventBus.boss_defeated.emit()
-	DialogueUI.narrate("The warm Great Light dried Old Millwheel out. With a creak and a sigh, it folded back into a plain little windmill.")
+	DialogueUI.narrate("The Great Light baked the water out of Old Millwheel. It creaked, sagged, and folded back into a plain little windmill.")
 	var tween := create_tween().set_parallel()
 	tween.tween_property(sails, "rotation", sails.rotation + TAU, 2.0).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(self, "scale", Vector2(0.55, 0.55), 2.0).set_trans(Tween.TRANS_BACK)

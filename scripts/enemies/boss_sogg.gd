@@ -26,11 +26,11 @@ const DRIP_SCENE := preload("res://scenes/enemies/ink_drip.tscn")
 ## How high the Sogg drifts above the floor between dives.
 @export var hover_height := 560.0
 ## Seconds between dives in phase 1 and phase 2.
-@export var dive_intervals: Array[float] = [3.2, 2.2]
-@export var rain_intervals: Array[float] = [0.75, 0.45]
+@export var dive_intervals: Array[float] = [2.6, 1.8]
+@export var rain_intervals: Array[float] = [0.55, 0.32]
 @export var warn_time := 0.8
 @export var soak_time := 1.8
-@export var stun_time := 4.5
+@export var stun_time := 3.6
 ## How close (horizontally) a springing peak must be to catch the Sogg.
 @export var catch_range := 230.0
 @export var defeated_flag := "boss_sogg_phase2_done"
@@ -81,7 +81,7 @@ func start_fight() -> void:
 	state = State.DRIFT
 	_dive_left = 2.5
 	EventBus.boss_started.emit(boss_name, health.max_health)
-	DialogueUI.narrate("Lure the Sogg down beside a fold mark, then Pop-Up Slam with %s to spear it with a peak!" % InputGlyphs.hint(&"slam"))
+	DialogueUI.narrate("Get the Sogg down beside a fold mark, then Pop-Up Slam with %s and spear it on the peak." % InputGlyphs.hint(&"slam"))
 
 
 func _physics_process(delta: float) -> void:
@@ -190,7 +190,7 @@ func _stun(mark: FoldMark) -> void:
 	contact.active = false
 	_clear_shadow()
 	AudioManager.play_sfx(&"enemy_pop", 0.5)
-	DialogueUI.narrate("The peak caught the Sogg in the middle! It's pinned. Swipe the little cloud in its chest!")
+	DialogueUI.narrate("The peak tore into the Sogg and held it. The little cloud in its chest was exposed.")
 	# Knocked up and to the side of the peak, so its chest hangs where Patch can reach.
 	var side := signf(global_position.x - mark.global_position.x)
 	if side == 0.0:

@@ -40,6 +40,7 @@ collision_layer = 16
 collision_mask = 0
 monitoring = false
 script = ExtResource("4_0jjlk")
+damage = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox" unique_id=1667294641]
 shape = SubResource("CircleShape2D_op7v1")
@@ -47,7 +48,7 @@ shape = SubResource("CircleShape2D_op7v1")
 [node name="HealthComponent" type="Node" parent="." unique_id=1095710739]
 script = ExtResource("5_og018")
 max_health = 3
-invulnerability_time = 0.25
+invulnerability_time = 0.08
 
 [node name="LedgeCheck" type="RayCast2D" parent="." unique_id=1432795450]
 position = Vector2(-40, 0)

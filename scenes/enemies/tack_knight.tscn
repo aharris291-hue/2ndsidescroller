@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/tack_knight.gd" id="1_tack"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/tack_knight.png" id="2_tack"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_tack"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_tack"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_tack"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(70, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(100, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(80, 110)
+
+[node name="TackKnight" type="CharacterBody2D" unique_id=1434674506]
+collision_layer = 4
+script = ExtResource("1_tack")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1635261617]
+position = Vector2(0, -24)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("2_tack")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1416121201]
+position = Vector2(0, 0)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=846339472]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_tack")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1383559735]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="ContactHitbox" type="Area2D" parent="." unique_id=179198330]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_tack")
+damage = 2
+knockback = 700.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox" unique_id=259954971]
+shape = SubResource("RectangleShape2D_hit")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1862863800]
+script = ExtResource("5_tack")
+max_health = 6
+invulnerability_time = 0.08
+
+[node name="LedgeCheck" type="RayCast2D" parent="." unique_id=1785169385]
+position = Vector2(-50, 0)
+target_position = Vector2(0, 80)

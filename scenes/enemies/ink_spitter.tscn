@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/ink_spitter.gd" id="1_spit"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/ink_spitter.png" id="2_spit"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_spit"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_spit"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_spit"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(70, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(90, 110)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(60, 70)
+
+[node name="InkSpitter" type="CharacterBody2D" unique_id=1202167207]
+collision_layer = 4
+script = ExtResource("1_spit")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1525332125]
+position = Vector2(0, -20)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_spit")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1631753539]
+position = Vector2(0, 0)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1503380234]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_spit")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1061659455]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="ContactHitbox" type="Area2D" parent="." unique_id=1065778482]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_spit")
+damage = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox" unique_id=1079171838]
+shape = SubResource("RectangleShape2D_hit")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=443305476]
+script = ExtResource("5_spit")
+max_health = 3
+invulnerability_time = 0.08

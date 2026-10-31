@@ -5,7 +5,8 @@ A whimsical storybook adventure in bold cartoon style made in **Godot 4.7.2**, w
 This repository holds the **whole game**: the core framework, the **Prologue**, **Chapter 1: Thistledown Meadow**, **Chapter 2: Lanternfold Harbor**, **Chapter 3: The Spine Peaks** and **the Finale: The Gutter**:
 
 - **Patch's controller**, with both page views: side-scrolling on a standing page (coyote time, jump buffering, variable jump height) and eight-way top-down on a flat page or in the Margin.
-- **Combat:** Crease Swipe (attack), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
+- **Combat:** Crease Swipe (attack) with a three-hit combo whose third hit is a heavy, guard-breaking cut, an overhead swipe (hold up), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
+- **Enemies:** Soggies (spot Patch, charge, and lunge after a crouching tell), Ink Spitters (plant themselves and lob ink in an arc; swipe the gobs out of the air) and Tack Knights (a bottle-cap shield turns frontal swipes; hit them from behind, break the guard with a combo finisher, or dodge the charge and punish the daze). Enemy hits take a whole paper token.
 - **Pop-up book pieces:** pull-tabs that move platforms, page-corner doors between pages, one-way cardboard planks, and hazards.
 - **Story systems:** NPC dialogue with typewriter text and per-character voice blips, narrator captions in a handwritten font, and story flags.
 - **Pickups:** Scraps (currency), Lost Letters, tape (healing), and ability pages. All 26 Lost Letters are hidden across the book; finding every one unlocks a hidden dedication at The End.

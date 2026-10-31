@@ -100,7 +100,7 @@ func start_fight() -> void:
 			beam.switch_on()
 		if warm_music:
 			AudioManager.play_music(warm_music)
-		DialogueUI.narrate("Nell's warm air follows Patch. Lead it to the Sogg whenever it comes down, and stay just out of its reach!")
+		DialogueUI.narrate("Nell's warm air followed Patch. Drag it under the Sogg every time it came down, and don't get caught.")
 	else:
 		_hold_left = hold_out_time
 		if player:

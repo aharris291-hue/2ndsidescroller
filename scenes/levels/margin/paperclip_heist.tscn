@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="21_5lvfj"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="22_hpv67"]
 [ext_resource type="Script" path="res://scripts/world/desk_diorama.gd" id="23_o6544"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nk2o0"]
 size = Vector2(140, 500)
@@ -146,6 +147,12 @@ script = ExtResource("15_iebqm")
 position = Vector2(640, 1152)
 collision_layer = 4
 script = ExtResource("15_iebqm")
+
+[node name="TackKnight1" parent="Actors" unique_id=457585933 instance=ExtResource("95_knight")]
+position = Vector2(1504, 1440)
+
+[node name="TackKnight2" parent="Actors" unique_id=1283126071 instance=ExtResource("95_knight")]
+position = Vector2(224, 1376)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=1402819816]
 

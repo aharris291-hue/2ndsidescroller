@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="20_tb5qj"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="21_8hbb7"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="22_utcvu"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0q65d"]
 normal = Vector2(1, 0)
@@ -79,6 +80,12 @@ position = Vector2(4352, 728)
 [node name="Dot" parent="Actors" unique_id=878314417 instance=ExtResource("9_fkx24")]
 position = Vector2(3840, 768)
 joins_as_companion = true
+
+[node name="Soggy4" parent="Actors" unique_id=329412538 instance=ExtResource("7_06te3")]
+position = Vector2(4560, 732)
+
+[node name="Soggy5" parent="Actors" unique_id=1422589170 instance=ExtResource("7_06te3")]
+position = Vector2(4192, 732)
 
 [node name="Props" type="Node2D" parent="." unique_id=716046801]
 

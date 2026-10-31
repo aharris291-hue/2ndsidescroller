@@ -29,6 +29,9 @@ func _run() -> void:
 	_check(current_scene != null and current_scene.name == "TitleScreen", "title screen loads")
 
 	game_state.new_game(2)
+	# The test walks through enemies on its way round; it checks systems, not survival.
+	game_state.max_health = 99
+	game_state.health = 99
 	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn")
 	await _frames(60)
 	var patch := get_first_node_in_group("player") as CharacterBody2D
@@ -123,6 +126,9 @@ func _run() -> void:
 	var scraps: int = game_state.scraps
 	_check(game_state.save_game(), "saving writes the slot")
 	game_state.new_game(2)
+	# The test walks through enemies on its way round; it checks systems, not survival.
+	game_state.max_health = 99
+	game_state.health = 99
 	_check(game_state.load_game(2) and game_state.scraps == scraps, "loading restores the slot")
 	game_state.delete_save(2)
 	_finish()
@@ -194,16 +200,45 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		if cycle == 0:
 			_check(boss.state == 2, "pulling all three tabs jams the sails")
 		for hit in 3:
-			patch.global_position = boss.global_position + Vector2(-74, -48)
+			# Standing on the floor beside the mill (not hovering): the core must be in reach.
+			patch.global_position = boss.global_position + Vector2(-74, -60)
 			patch.velocity = Vector2.ZERO
 			patch.facing = Vector2.RIGHT
 			await _frames(25)
+			if cycle == 0 and hit == 0:
+				_check(patch.is_on_floor(), "Patch stands on the floor beside the Old Millwheel")
 			Input.action_press(&"attack")
 			await _frames(2)
 			Input.action_release(&"attack")
-			await _frames(10)
+			await _frames(30)
 		await _frames(70)
-	_check(game_state.get_flag("boss_millwheel_defeated"), "Old Millwheel can be defeated")
+	_check(game_state.get_flag("boss_millwheel_defeated"), "Old Millwheel can be defeated from the ground")
+	# The swipe combo: three quick presses chain into the heavy finisher.
+	await _frames(30)
+	var combo_steps := []
+	for press in 3:
+		# Count physics frames here: the swipe reads input on the physics tick.
+		Input.action_press(&"attack")
+		for f in 2:
+			await physics_frame
+		Input.action_release(&"attack")
+		for f in 7:
+			await physics_frame
+		combo_steps.append(patch.combo_step)
+	_check(combo_steps == [1, 2, 3], "three quick swipes chain into a combo (%s)" % str(combo_steps))
+	# The new enemies load, take hits and go down.
+	for path in ["res://scenes/enemies/ink_spitter.tscn", "res://scenes/enemies/tack_knight.tscn"]:
+		var foe := (load(path) as PackedScene).instantiate() as CharacterBody2D
+		foe.position = patch.global_position + Vector2(600, -40)
+		current_scene.add_child(foe)
+		await _frames(10)
+		for i in 8:
+			if not is_instance_valid(foe) or foe.health.is_dead():
+				break
+			foe.health.take_damage(1, foe.global_position + Vector2(-10, 0))
+			await _frames(6)
+		await _frames(40)
+		_check(not is_instance_valid(foe), "%s can be defeated" % path.get_file().get_basename())
 	await _frames(150)
 	_check(current_scene.get_node("Props/ToGransTable").visible, "the way to Gran's table opens")
 

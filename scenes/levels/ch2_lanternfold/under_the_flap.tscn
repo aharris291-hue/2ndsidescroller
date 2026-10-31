@@ -24,6 +24,8 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="22_22f3q"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="23_ignu0"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="24_wxr5g"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_m67ss"]
 normal = Vector2(1, 0)
@@ -106,7 +108,7 @@ position = Vector2(896, 896)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("8_ir5ws")
-caption = "A gap full of ink. Jump, then press {grapple} near the brass ring to zip across!"
+caption = "A gap full of ink. Jump, then {grapple} near the brass ring to zip across."
 
 [node name="GateHint" type="Area2D" parent="Story" unique_id=1632213458 instance=ExtResource("7_4287b")]
 position = Vector2(2624, 896)
@@ -241,6 +243,18 @@ script = ExtResource("18_7g5c2")
 position = Vector2(6144, 856)
 collision_layer = 4
 script = ExtResource("18_7g5c2")
+
+[node name="InkSpitter1" parent="Actors" unique_id=682215512 instance=ExtResource("95_spitter")]
+position = Vector2(544, 854)
+
+[node name="TackKnight1" parent="Actors" unique_id=1678683594 instance=ExtResource("95_knight")]
+position = Vector2(928, 834)
+
+[node name="Soggy6" parent="Actors" unique_id=649273730 instance=ExtResource("17_hcxv7")]
+position = Vector2(2720, 860)
+
+[node name="InkSpitter2" parent="Actors" unique_id=724952099 instance=ExtResource("95_spitter")]
+position = Vector2(3872, 854)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=811815588]
 

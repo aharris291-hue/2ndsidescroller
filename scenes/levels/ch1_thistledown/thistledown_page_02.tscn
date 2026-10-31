@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="24_e7mtv"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="25_471vn"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="26_e2h8u"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_wlbjs"]
 normal = Vector2(1, 0)
@@ -125,7 +127,7 @@ position = Vector2(3904, 896)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("9_mvvl0")
-caption = "A soggy gap, too wide to jump. Jump, then Fold Dash across with {dash}!"
+caption = "A soggy gap, too wide to jump. Jump, then Fold Dash across with {dash}."
 
 [node name="Props" type="Node2D" parent="." unique_id=983063956]
 
@@ -223,6 +225,21 @@ script = ExtResource("20_uk52x")
 position = Vector2(4608, 856)
 collision_layer = 4
 script = ExtResource("20_uk52x")
+
+[node name="Soggy1" parent="Actors" unique_id=1608790917 instance=ExtResource("19_l3fjy")]
+position = Vector2(544, 860)
+
+[node name="InkSpitter1" parent="Actors" unique_id=1721790936 instance=ExtResource("95_spitter")]
+position = Vector2(1888, 854)
+
+[node name="Soggy2" parent="Actors" unique_id=1500249568 instance=ExtResource("19_l3fjy")]
+position = Vector2(2656, 860)
+
+[node name="InkSpitter2" parent="Actors" unique_id=1231964183 instance=ExtResource("95_spitter")]
+position = Vector2(4256, 982)
+
+[node name="TackKnight1" parent="Actors" unique_id=630289419 instance=ExtResource("95_knight")]
+position = Vector2(5024, 834)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=1945382013]
 
