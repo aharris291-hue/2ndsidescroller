@@ -32,6 +32,12 @@ const MENDED_TEXTURE := preload("res://assets/art/characters/patch_mended.png")
 @export var attack_time := 0.18
 @export var attack_cooldown := 0.3
 @export var attack_reach := 74.0
+## How long each swipe's hitbox is live (shorter than the swipe, so one swipe hits once).
+@export var attack_active_time := 0.07
+## Swipes chain into a three-hit combo; the third is a heavy finisher.
+@export var combo_window := 0.35
+@export var finisher_damage := 2
+@export var finisher_knockback := 1.7
 @export var dash_speed := 1150.0
 @export var dash_time := 0.16
 @export var dash_cooldown := 0.45
@@ -65,6 +71,13 @@ var _coyote_left := 0.0
 var _jump_buffer_left := 0.0
 var _state_left := 0.0
 var _attack_cooldown_left := 0.0
+var _attack_active_left := 0.0
+## Which hit of the combo the current or last swipe was (1-3), and how long the next
+## swipe still counts as part of it.
+var combo_step := 0
+var _combo_left := 0.0
+var _attack_scale := Vector2.ONE
+var _attack_knockback := 520.0
 var _dash_cooldown_left := 0.0
 var _dash_direction := Vector2.RIGHT
 var _was_on_floor := false
@@ -103,6 +116,8 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	hurtbox.hit.connect(_on_hurtbox_hit)
 	attack_hitbox.active = false
+	_attack_scale = attack_hitbox.scale
+	_attack_knockback = attack_hitbox.knockback
 	EventBus.dialogue_started.connect(_on_dialogue_started)
 	EventBus.dialogue_finished.connect(_on_dialogue_finished)
 	EventBus.player_health_changed.emit(health.current, health.max_health)
@@ -127,6 +142,10 @@ func set_view_mode(mode: PageView.Mode) -> void:
 
 func _physics_process(delta: float) -> void:
 	_attack_cooldown_left = maxf(_attack_cooldown_left - delta, 0.0)
+	if state != State.ATTACK:
+		_combo_left = maxf(_combo_left - delta, 0.0)
+		if _combo_left <= 0.0:
+			combo_step = 0
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	_state_left = maxf(_state_left - delta, 0.0)
 
@@ -233,15 +252,29 @@ func _apply_gravity(delta: float) -> void:
 func _start_attack() -> void:
 	state = State.ATTACK
 	_state_left = attack_time
-	_attack_cooldown_left = attack_cooldown
-	var offset := facing * attack_reach
-	if view_mode == PageView.Mode.SIDE:
+	_attack_active_left = attack_active_time
+	combo_step = combo_step + 1 if combo_step < 3 and _combo_left > 0.0 else 1
+	var finisher := combo_step == 3
+	# Back off a little after the finisher, so the combo has a rhythm.
+	_attack_cooldown_left = attack_cooldown if finisher else 0.0
+	# Side view: hold up to swipe overhead (things hanging above, flyers).
+	var aim := facing
+	if view_mode == PageView.Mode.SIDE and input_enabled and Input.is_action_pressed(&"move_up"):
+		aim = Vector2.UP
+	var offset := aim * attack_reach
+	if view_mode == PageView.Mode.SIDE and aim != Vector2.UP:
 		offset.y -= 6.0
 	attack_hitbox.position = offset
-	attack_hitbox.rotation = facing.angle()
+	attack_hitbox.rotation = aim.angle()
+	attack_hitbox.scale = _attack_scale * (1.3 if finisher else 1.0)
+	attack_hitbox.damage = finisher_damage if finisher else 1
+	attack_hitbox.knockback = _attack_knockback * (finisher_knockback if finisher else 1.0)
 	attack_hitbox.active = true
-	AudioManager.play_sfx(&"swipe", randf_range(0.9, 1.15))
-	_squash(Vector2(1.15, 0.9))
+	AudioManager.play_sfx(&"swipe", (0.75 if finisher else randf_range(0.95, 1.2)))
+	_squash(Vector2(1.3, 0.8) if finisher else Vector2(1.15, 0.9))
+	if finisher and view_mode == PageView.Mode.SIDE:
+		# A little lunge into the finisher.
+		velocity.x += facing.x * 260.0
 
 
 func _process_attack(delta: float) -> void:
@@ -251,8 +284,17 @@ func _process_attack(delta: float) -> void:
 		_apply_gravity(delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, top_acceleration * delta)
+	_attack_active_left -= delta
+	if _attack_active_left <= 0.0:
+		attack_hitbox.active = false
+	# Pressing attack in the back half of a swipe chains straight into the next hit.
+	if combo_step < 3 and _state_left < attack_time * 0.5 and _action_pressed(&"attack"):
+		_combo_left = combo_window
+		_start_attack()
+		return
 	if _state_left <= 0.0:
 		attack_hitbox.active = false
+		_combo_left = combo_window if combo_step < 3 else 0.0
 		state = State.NORMAL
 
 

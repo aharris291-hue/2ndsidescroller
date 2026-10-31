@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="19_7pe3u"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="20_i5bt0"]
 [ext_resource type="Script" path="res://scripts/world/desk_diorama.gd" id="21_1tso3"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_au6k7"]
 radius = 150.0
@@ -134,6 +135,12 @@ script = ExtResource("13_fydr5")
 position = Vector2(2304, 384)
 collision_layer = 4
 script = ExtResource("13_fydr5")
+
+[node name="TackKnight1" parent="Actors" unique_id=443784718 instance=ExtResource("95_knight")]
+position = Vector2(992, 1376)
+
+[node name="Soggy4" parent="Actors" unique_id=1077293479 instance=ExtResource("12_4spu1")]
+position = Vector2(1824, 1440)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=983207470]
 

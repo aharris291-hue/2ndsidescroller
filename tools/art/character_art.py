@@ -720,6 +720,111 @@ def build_lamplighters():
     paper_grain(img, 6).save(out("characters", "lamplighter_sisters.png"))
 
 
+# ------------------------------------------------------------ more enemies
+
+
+INK_GLASS = (60, 70, 120, 255)
+INK_BLACK = (34, 30, 54, 255)
+TACK_RED = (214, 64, 70, 255)
+STEEL = (196, 204, 218, 255)
+
+
+def build_ink_spitter():
+    """An Ink Spitter: a squat, cracked ink bottle that came alive. It plants itself
+    and lobs gobs of ink in an arc. Cork knocked askew, label peeling, a glaring face
+    in the glass, ink sloshing out of the neck."""
+    w, h = 220, 240
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    # Stubby feet.
+    for x in (78, 142):
+        part(img, [(x - 18, 206), (x + 18, 206), (x + 22, 232), (x - 22, 232)], shade(INK_GLASS, -30), width=4, radius=8)
+    # The bottle: wide shoulders, squat body.
+    body = [(40, 210, 0), (34, 120), (60, 88), (84, 80), (84, 52), (136, 52), (136, 80), (160, 88), (186, 120), (180, 210, 0)]
+    part(img, body, INK_GLASS, width=6, radius=18)
+    # Ink level inside, sloshing.
+    texture(img, body, [([(30, y + math.sin(x * 0.08) * 6) for x in range(30, 200, 8)], INK_BLACK, 26) for y in range(150, 230, 22)], radius=18)
+    # A crack in the glass, mended with a strip of tape that's coming unstuck.
+    ink_line(img, [(150, 100), (138, 128), (152, 146), (140, 170)], width=2.5, wobble=0, color=(220, 230, 250, 230))
+    # Peeling paper label.
+    label = [(58, 118), (162, 118), (158, 160), (62, 160)]
+    part(img, label, (240, 228, 196, 255), width=4, radius=6)
+    part(img, [(144, 118), (166, 112, 0), (162, 136)], shade((240, 228, 196, 255), -30), width=3, radius=3)
+    for y in (130, 142):
+        ink_line(img, [(70, y), (130, y + 2)], width=2, wobble=0.8, color=(150, 120, 100, 255))
+    # Cork, knocked askew.
+    part(img, [(80, 56), (132, 44), (138, 20), (90, 24)], (196, 150, 100, 255), width=5, radius=8)
+    for x, y in ((100, 34), (118, 30), (110, 44)):
+        crayon_poly(img, ellipse_points(x, y, 3, 3, 8), (150, 104, 66, 255), outline=False, shadow=False)
+    # Ink slopping over the neck.
+    for x, y in ((84, 62), (138, 66)):
+        part(img, [(x - 8, y), (x + 8, y), (x + 4, y + 24), (x, y + 30, 0), (x - 4, y + 22)], INK_BLACK, width=2.5, radius=5)
+    # Glaring eyes and a sneer on the glass, above the label.
+    for ex, flip in ((88, 1), (132, -1)):
+        real_eye(img, ex, 100, 12, 10, (236, 90, 80, 255), look=(0.0, 0.1), width=3)
+        part(img, [(ex - 18 * flip, 82), (ex + 14 * flip, 92), (ex + 12 * flip, 98), (ex - 16 * flip, 88)], INK_BLACK, width=2, radius=3)
+    part(img, [(70, 176), (150, 172), (140, 194), (82, 196)], INK_BLACK, width=3, radius=8, shadow=False)
+    for tx in range(80, 140, 14):
+        crayon_poly(img, [(tx, 175), (tx + 10, 175), (tx + 5, 186)], CREAM, width=1.5, smooth=False, shadow=False)
+    paper_grain(img, 6).save(out("characters", "ink_spitter.png"))
+
+
+def build_ink_blob():
+    """A gob of thrown ink, glossy, with a trailing drip."""
+    s = 64
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    part(img, [(14, 32), (24, 14), (44, 12), (54, 30), (46, 50), (26, 52)], INK_BLACK, width=3, radius=10)
+    crayon_poly(img, ellipse_points(26, 24, 6, 4, 10), (140, 150, 220, 220), outline=False, shadow=False)
+    paper_grain(img, 4).save(out("props", "ink_blob.png"))
+
+
+def build_tack_knight():
+    """A Tack Knight: a folded cardboard soldier with a red thumbtack for a helmet,
+    a bottle-cap shield (dented, edged sharp) and a pencil lance. The Sogg soaked its
+    lower half, so it stomps. Faces right."""
+    w, h = 300, 320
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    card = CARDBOARD
+    wet = (150, 160, 184, 255)
+    # Stomping legs, the soaked half darker.
+    for x in (112, 160):
+        part(img, [(x - 18, 230), (x + 18, 230), (x + 20, 298), (x - 22, 298)], wet, width=5, radius=6)
+        part(img, [(x - 26, 292), (x + 24, 292), (x + 26, 312), (x - 30, 312)], shade(wet, -40), width=4, radius=6)
+    # Corrugated body.
+    body = [(84, 236, 0), (90, 140), (120, 120), (170, 120), (198, 140), (196, 236, 0)]
+    part(img, body, card, width=6, radius=14)
+    texture(img, body, [([(x, 110), (x + 8, 250)], shade(card, -22), 3) for x in range(88, 210, 12)], radius=14)
+    # The wet line across the waist.
+    texture(img, body, [([(80, 214), (210, 206)], (120, 140, 180, 160), 36)], radius=14)
+    stitches(img, [(96, 180), (190, 176)], color=shade(card, 60), step=10, size=3)
+    # Pencil lance held behind.
+    part(img, [(30, 150), (230, 128), (232, 140), (32, 162)], (250, 196, 60, 255), width=4, radius=4)
+    part(img, [(230, 126), (276, 132, 0), (232, 142)], (236, 210, 170, 255), width=3, radius=3)
+    part(img, [(262, 130), (278, 132, 0), (264, 136)], (60, 56, 70, 255), width=2, radius=2)
+    part(img, [(22, 150), (40, 148), (42, 164), (24, 166)], (240, 150, 170, 255), width=3, radius=4)
+    # Head: folded card, with the thumbtack helmet.
+    head = [(118, 124), (112, 90), (126, 70), (170, 70), (184, 90), (178, 124)]
+    part(img, head, shade(card, 14), width=5, radius=12)
+    part(img, [(144, 70), (152, 70), (150, 20, 0)], STEEL, width=3, radius=2)
+    part(img, [(108, 84), (114, 56), (182, 56), (188, 84)], TACK_RED, width=5, radius=18)
+    crayon_poly(img, ellipse_points(134, 64, 14, 6, 12), (255, 200, 200, 160), outline=False, shadow=False)
+    # Slit visor with glaring eyes.
+    part(img, [(122, 94), (176, 94), (174, 108), (124, 108)], INK_BLACK, width=3, radius=4, shadow=False)
+    for ex in (138, 162):
+        crayon_poly(img, ellipse_points(ex, 101, 6, 4, 10), (250, 210, 70, 255), outline=False, shadow=False)
+    # Bottle-cap shield on its front arm (facing right), crimped edge.
+    cx, cy, r = 214, 182, 54
+    crimp = []
+    for i in range(28):
+        a = i / 28 * math.tau
+        rr = r if i % 2 == 0 else r - 8
+        crimp.append((cx + math.cos(a) * rr, cy + math.sin(a) * rr, 0))
+    part(img, crimp, (206, 60, 66, 255), width=5, radius=2)
+    crayon_poly(img, ellipse_points(cx, cy, r - 16, r - 16, 30), (226, 90, 90, 255), width=3)
+    crayon_poly(img, ellipse_points(cx - 12, cy - 16, 14, 8, 14), (255, 210, 210, 150), outline=False, shadow=False)
+    ink_line(img, [(cx + 4, cy - 30), (cx + 14, cy - 8), (cx + 2, cy + 6)], width=3, wobble=0, color=(150, 30, 40, 255))
+    paper_grain(img, 6).save(out("characters", "tack_knight.png"))
+
+
 def build():
     build_patch()
     build_patch(mended=True)
@@ -730,6 +835,9 @@ def build():
     build_corrugate()
     build_crumple()
     build_lamplighters()
+    build_ink_spitter()
+    build_ink_blob()
+    build_tack_knight()
 
 
 if __name__ == "__main__":

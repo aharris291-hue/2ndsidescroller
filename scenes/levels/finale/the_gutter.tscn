@@ -27,6 +27,7 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="25_o1ht8"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="26_masr7"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="27_wtbs6"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_85ibl"]
 normal = Vector2(1, 0)
@@ -246,6 +247,12 @@ script = ExtResource("21_phrk2")
 position = Vector2(2880, 792)
 collision_layer = 4
 script = ExtResource("21_phrk2")
+
+[node name="InkSpitter1" parent="Actors" unique_id=945699719 instance=ExtResource("95_spitter")]
+position = Vector2(928, 982)
+
+[node name="InkSpitter2" parent="Actors" unique_id=1769704159 instance=ExtResource("95_spitter")]
+position = Vector2(3232, 982)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=880204182]
 

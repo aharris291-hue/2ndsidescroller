@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/ink_blob.gd" id="1_blob"]
+[ext_resource type="Texture2D" path="res://assets/art/props/ink_blob.png" id="2_blob"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_blob"]
+radius = 16.0
+
+[node name="InkBlob" type="Area2D" unique_id=971967757]
+collision_layer = 16
+collision_mask = 11
+script = ExtResource("1_blob")
+damage = 2
+knockback = 380.0
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1813860975]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("2_blob")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1461122070]
+shape = SubResource("CircleShape2D_blob")

@@ -31,6 +31,8 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="29_j5xyq"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="30_vaaim"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="31_afo0v"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_yhgl2"]
 normal = Vector2(1, 0)
@@ -286,6 +288,21 @@ found_caption = "A spool of Bindwell's bookbinding thread, a bit frozen but stil
 find_prompt = "Pick up"
 all_found_caption = " That's all three. Bindwell is waiting near the top."
 leave_offset = Vector2(0, -50)
+
+[node name="InkSpitter1" parent="Actors" unique_id=750661721 instance=ExtResource("95_spitter")]
+position = Vector2(544, 1046)
+
+[node name="TackKnight1" parent="Actors" unique_id=1102055269 instance=ExtResource("95_knight")]
+position = Vector2(800, 2818)
+
+[node name="InkSpitter2" parent="Actors" unique_id=1569379452 instance=ExtResource("95_spitter")]
+position = Vector2(1696, 2582)
+
+[node name="Soggy7" parent="Actors" unique_id=1974370926 instance=ExtResource("22_trrij")]
+position = Vector2(1760, 2972)
+
+[node name="TackKnight2" parent="Actors" unique_id=951850161 instance=ExtResource("95_knight")]
+position = Vector2(2144, 2946)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=1445883329]
 

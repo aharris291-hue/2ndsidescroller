@@ -24,6 +24,8 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="22_dstkn"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="23_fpa4m"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="24_kl05x"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_2bo5e"]
 normal = Vector2(1, 0)
@@ -90,7 +92,7 @@ position = Vector2(896, 1920)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("7_177ib")
-caption = "A dashed fold line, printed in the snow. Stand on it and Pop-Up Slam with {slam}!"
+caption = "A dashed fold line, printed in the snow. Stand on it and Pop-Up Slam with {slam}."
 
 [node name="IceHint" type="Area2D" parent="Story" unique_id=972394391 instance=ExtResource("6_brkpw")]
 position = Vector2(1536, 1664)
@@ -199,6 +201,18 @@ script = ExtResource("17_rti06")
 position = Vector2(3776, 1368)
 collision_layer = 4
 script = ExtResource("17_rti06")
+
+[node name="TackKnight1" parent="Actors" unique_id=1676380487 instance=ExtResource("95_knight")]
+position = Vector2(544, 1858)
+
+[node name="InkSpitter1" parent="Actors" unique_id=255962878 instance=ExtResource("95_spitter")]
+position = Vector2(928, 1878)
+
+[node name="Soggy5" parent="Actors" unique_id=1514010649 instance=ExtResource("16_tju3i")]
+position = Vector2(1888, 1628)
+
+[node name="InkSpitter2" parent="Actors" unique_id=1065812606 instance=ExtResource("95_spitter")]
+position = Vector2(2656, 1878)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=216418974]
 

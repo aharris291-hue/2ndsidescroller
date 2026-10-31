@@ -21,9 +21,9 @@ const TENTACLE_TEXTURE := preload("res://assets/art/characters/kraken_tentacle.p
 @export var exit_door: PageDoor
 @export var start_zone: Area2D
 ## Seconds between tentacle slams per phase, from full health down.
-@export var slam_intervals: Array[float] = [2.0, 1.55, 1.15]
-@export var warn_time := 0.75
-@export var stun_time := 5.0
+@export var slam_intervals: Array[float] = [1.7, 1.25, 0.9]
+@export var warn_time := 0.6
+@export var stun_time := 4.0
 @export var arena_left := 128.0
 @export var arena_right := 1440.0
 @export var floor_y := 896.0
@@ -75,7 +75,7 @@ func start_fight() -> void:
 	state = State.ATTACKING
 	_set_rings_enabled(true)
 	EventBus.boss_started.emit(boss_name, health.max_health)
-	DialogueUI.narrate("The harbor ink heaved up into a Kraken! Tape Tail both blotter rings to drop the blotting paper on it!")
+	DialogueUI.narrate("The harbor ink heaved itself up into something with arms. Two blotter rings hung above it.")
 
 
 func _physics_process(delta: float) -> void:
@@ -169,7 +169,7 @@ func _stun() -> void:
 	state = State.STUNNED
 	_stun_left = stun_time
 	_hits_this_stun = 0
-	DialogueUI.narrate("The blotters soaked up its ink! The Kraken slumped down. Swipe its eye!")
+	DialogueUI.narrate("The blotters drank its ink and the Kraken slumped. Its eye was right there.")
 	AudioManager.play_sfx(&"tab_pull", 0.6)
 	var tween := create_tween().set_parallel()
 	# Slump so the eye sits at Patch's height.

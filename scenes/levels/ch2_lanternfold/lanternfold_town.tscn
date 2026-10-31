@@ -35,6 +35,7 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="33_rgbfc"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="34_5035c"]
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="35_h7o84"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_omsu0"]
 size = Vector2(120, 500)
@@ -359,6 +360,18 @@ script = ExtResource("29_n1ixc")
 position = Vector2(832, 1216)
 collision_layer = 4
 script = ExtResource("29_n1ixc")
+
+[node name="TackKnight1" parent="Actors" unique_id=808934290 instance=ExtResource("95_knight")]
+position = Vector2(3552, 1504)
+
+[node name="Soggy1" parent="Actors" unique_id=952679557 instance=ExtResource("28_lr657")]
+position = Vector2(2592, 1312)
+
+[node name="TackKnight2" parent="Actors" unique_id=511234995 instance=ExtResource("95_knight")]
+position = Vector2(288, 736)
+
+[node name="Soggy2" parent="Actors" unique_id=361274437 instance=ExtResource("28_lr657")]
+position = Vector2(1760, 1056)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=55568106]
 y_sort_enabled = true

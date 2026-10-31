@@ -77,14 +77,14 @@ position = Vector2(448, 3072)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("7_5ap6s")
-caption = "Run with the arrow keys, WASD or the left stick. Press {jump} to jump. Climb! Climb!"
+caption = "Run with the arrow keys, WASD or the left stick. {jump} to jump. The water is coming up fast."
 
 [node name="HowToSwipe" type="Area2D" parent="Story" unique_id=1915164105 instance=ExtResource("6_26mal")]
 position = Vector2(768, 1920)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("7_5ap6s")
-caption = "A Soggy! Patch's paper edge is sharp: press {attack} to swipe."
+caption = "A Soggy. Patch's paper edge is sharp: {attack} to swipe. Three swipes in a row end in a heavy cut."
 
 [node name="TailLost" type="Area2D" parent="Story" unique_id=1093637155 instance=ExtResource("6_26mal")]
 position = Vector2(320, 256)

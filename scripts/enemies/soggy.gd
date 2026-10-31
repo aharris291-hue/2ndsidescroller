@@ -1,7 +1,8 @@
 class_name Soggy
 extends CharacterBody2D
 ## A Soggy: a wad of waterlogged paper sent by the Sogg. The basic enemy.
-## On a standing page it patrols and turns at walls and ledges; on a flat page it
+## On a standing page it patrols and turns at walls and ledges until it spots Patch,
+## then charges, and when it's close it crouches (a tell) and lunges. On a flat page it
 ## wanders and chases Patch when he gets close. Drops Scraps when dried out (defeated).
 
 const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
@@ -11,6 +12,14 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var chase_range := 540.0
 @export var gravity := 2000.0
 @export var scrap_drop := 2
+## Side view: how far ahead (and how far up or down) it notices Patch.
+@export var notice_range := 460.0
+@export var notice_height := 150.0
+## The lunge: how close it has to be, the crouch before it, and the leap itself.
+@export var lunge_range := 210.0
+@export var lunge_windup := 0.35
+@export var lunge_speed := Vector2(560.0, -560.0)
+@export var lunge_cooldown := 1.4
 
 var view_mode: PageView.Mode = PageView.Mode.SIDE
 var _direction := -1.0
@@ -18,6 +27,9 @@ var _knockback := Vector2.ZERO
 var _wander := Vector2.ZERO
 var _wander_left := 0.0
 var _home := Vector2.ZERO
+var _windup_left := 0.0
+var _lunge_cooldown_left := 0.0
+var _lunging := false
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var _sprite_scale := sprite.scale
@@ -52,12 +64,42 @@ func _physics_process(delta: float) -> void:
 	sprite.flip_h = _direction > 0.0
 	# Squishy wobble while moving.
 	var wobble := sin(Time.get_ticks_msec() * 0.012) * 0.06
+	if _windup_left > 0.0:
+		wobble = 0.18 + sin(Time.get_ticks_msec() * 0.06) * 0.05
 	sprite.scale = _sprite_scale * Vector2(1.0 + wobble, 1.0 - wobble)
 
 
 func _side_behaviour(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
+	elif _lunging:
+		_lunging = false
+	if _lunging:
+		return
+	_lunge_cooldown_left = maxf(_lunge_cooldown_left - delta, 0.0)
+	if _windup_left > 0.0:
+		# Crouched and shaking: the tell before a lunge.
+		_windup_left -= delta
+		velocity.x = move_toward(velocity.x, 0.0, 2400.0 * delta)
+		sprite.modulate = Color(1.0, 0.75, 0.75)
+		if _windup_left <= 0.0:
+			sprite.modulate = Color.WHITE
+			_lunging = true
+			_lunge_cooldown_left = lunge_cooldown
+			velocity = Vector2(lunge_speed.x * _direction, lunge_speed.y)
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player and is_on_floor():
+		var to_player := player.global_position - global_position
+		if absf(to_player.x) < notice_range and absf(to_player.y) < notice_height:
+			_direction = signf(to_player.x) if to_player.x != 0.0 else _direction
+			ledge_check.position.x = 40.0 * _direction
+			if absf(to_player.x) < lunge_range and _lunge_cooldown_left <= 0.0:
+				_windup_left = lunge_windup
+				return
+			# Charge, but don't run off a ledge after him.
+			velocity.x = chase_speed * _direction if ledge_check.is_colliding() and not is_on_wall() else 0.0
+			return
 	ledge_check.position.x = 40.0 * _direction
 	if is_on_floor() and (is_on_wall() or not ledge_check.is_colliding()):
 		_direction = -_direction
@@ -84,6 +126,9 @@ func _top_behaviour(delta: float) -> void:
 
 func _on_hit(hitbox: Hitbox) -> void:
 	if health.take_damage(hitbox.damage, hitbox.global_position):
+		# A hit knocks it out of a lunge wind-up.
+		_windup_left = 0.0
+		sprite.modulate = Color.WHITE
 		var away := (global_position - hitbox.global_position).normalized()
 		_knockback = away * hitbox.knockback * 0.6
 		if view_mode == PageView.Mode.SIDE:
