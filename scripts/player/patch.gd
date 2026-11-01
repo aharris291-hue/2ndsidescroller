@@ -114,6 +114,7 @@ var _combo_left := 0.0
 var _attack_scale := Vector2.ONE
 var _attack_knockback := 520.0
 var _attack_kind := Attack.LIGHT
+var _attack_buffer := 0.0
 ## Air combo hits since leaving the ground, and air dodges left before landing.
 var _air_hits := 0
 var _air_dodges_left := 1
@@ -331,6 +332,7 @@ func _apply_gravity(delta: float) -> void:
 
 func _start_attack() -> void:
 	state = State.ATTACK
+	_attack_buffer = 0.0
 	_state_left = attack_time
 	_attack_active_left = attack_active_time
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
@@ -396,8 +398,13 @@ func _process_attack(delta: float) -> void:
 			return
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
 	var length := air_combo_length if airborne else combo_length
-	# Pressing attack in the back half of a swipe chains straight into the next hit.
-	if combo_step < length and _state_left < attack_time * 0.5 and _action_pressed(&"attack"):
+	# Pressing attack chains into the next hit. An early press is remembered and
+	# comes out as soon as the swing reaches its back half.
+	if _action_pressed(&"attack"):
+		_attack_buffer = 0.2
+	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
+	if combo_step < length and _state_left < attack_time * 0.5 and _attack_buffer > 0.0:
+		_attack_buffer = 0.0
 		_combo_left = combo_window
 		_start_attack()
 		return

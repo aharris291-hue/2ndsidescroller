@@ -1,10 +1,13 @@
 extends Node
 ## Game-feel time effects: hitstop (a tiny freeze on impact) and slow motion
-## (a perfect dodge). Both scale Engine.time_scale and always restore it.
+## (a perfect dodge). Both scale Engine.time_scale while they run, then put back
+## whatever it was before (so other code that changes time_scale is left alone).
 
 var _slow_scale := 1.0
 var _slow_left := 0.0
 var _stop_left := 0.0
+var _active := false
+var _base_scale := 1.0
 
 
 func _ready() -> void:
@@ -12,8 +15,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	# Runs on real time: delta here is already scaled, so undo the scale.
-	var real := delta / maxf(Engine.time_scale, 0.0001)
+	# Count down in game time without our own slowdown (delta here already has it).
+	var real := delta / maxf(Engine.time_scale, 0.0001) * (_base_scale if _active else Engine.time_scale)
 	_stop_left = maxf(_stop_left - real, 0.0)
 	_slow_left = maxf(_slow_left - real, 0.0)
 	_apply()
@@ -40,9 +43,16 @@ func reset() -> void:
 func _apply() -> void:
 	if get_tree().paused:
 		return
+	var wanted := 0.0
 	if _stop_left > 0.0:
-		Engine.time_scale = 0.05
+		wanted = 0.05
 	elif _slow_left > 0.0:
-		Engine.time_scale = _slow_scale
-	else:
-		Engine.time_scale = 1.0
+		wanted = _slow_scale
+	if wanted > 0.0:
+		if not _active:
+			_active = true
+			_base_scale = Engine.time_scale
+		Engine.time_scale = _base_scale * wanted
+	elif _active:
+		_active = false
+		Engine.time_scale = _base_scale

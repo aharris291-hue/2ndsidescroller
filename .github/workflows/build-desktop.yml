@@ -49,6 +49,9 @@ jobs:
       - name: Import project
         run: ~/godot/godot --headless --path . --import
 
+      - name: Combat test
+        run: ~/godot/godot --headless --path . --script tools/godot/combat_test.gd
+
       - name: Smoke test
         run: ~/godot/godot --headless --path . --script tools/godot/smoke_test.gd
 

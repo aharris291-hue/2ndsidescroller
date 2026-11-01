@@ -5,7 +5,17 @@ A whimsical storybook adventure in bold cartoon style made in **Godot 4.7.2**, w
 This repository holds the **whole game**: the core framework, the **Prologue**, **Chapter 1: Thistledown Meadow**, **Chapter 2: Lanternfold Harbor**, **Chapter 3: The Spine Peaks** and **the Finale: The Gutter**:
 
 - **Patch's controller**, with both page views: side-scrolling on a standing page (coyote time, jump buffering, variable jump height) and eight-way top-down on a flat page or in the Margin.
-- **Combat:** Crease Swipe (attack) with a three-hit combo whose third hit is a heavy, guard-breaking cut, an overhead swipe (hold up), Fold Dash (an unlockable dash), knockback, and paper-condition health with bookmark checkpoints.
+- **Combat (redesign milestone M1):** Patch fights with Gran's stork shears.
+  - A four-hit light combo ending in a thrust, a three-hit air combo, and an overhead cut (hold up).
+  - A heavy cut, a charged heavy with three levels (level 3 is the screen-wide Full Cut), and an up-heavy launcher.
+  - The Plunge (down + heavy in the air), which bounces off whatever it hits.
+  - The Edge-On dodge (unlockable). A last-moment dodge slows time.
+  - Guard, and parry by tapping guard as a hit lands.
+  - The Thread meter: landing hits fills it, and Mend (hold) spends a charge to heal.
+  - Hitstop on impact.
+  - Enemies have a Hold bar. Heavy hits and parries break it, and a heavy attack then Unstitches the staggered enemy.
+  - Paper-condition health and bookmark checkpoints.
+  - The **Combat Lab** on the title screen is a practice page (it never saves). See the Redesign Bible for the full plan.
 - **Enemies:** Soggies (spot Patch, charge, and lunge after a crouching tell), Ink Spitters (plant themselves and lob ink in an arc; swipe the gobs out of the air) and Tack Knights (a bottle-cap shield turns frontal swipes; hit them from behind, break the guard with a combo finisher, or dodge the charge and punish the daze). Enemy hits take a whole paper token.
 - **Pop-up book pieces:** pull-tabs that move platforms, page-corner doors between pages, one-way cardboard planks, and hazards.
 - **Story systems:** NPC dialogue with typewriter text and per-character voice blips, narrator captions in a handwritten font, and story flags.
@@ -67,6 +77,7 @@ tools/         Asset generators (Python) and Godot helper scripts
 | `python3 tools/art/generate_art.py` | Regenerates all the papercraft textures (shapes cut from coloured paper, folded into facets) and the app icon (needs Pillow and numpy). Takes a few minutes. Add `chapter2`, `chapter3` or `finale` to rebuild only that chapter's art and the tile atlas (the finale also redraws Patch, with and without his new tail), or `characters` to rebuild only the cast (`tools/art/character_art.py`, papercraft style from `docs/art/patch_turnaround.png`; Patch is a five-frame walk strip). Tiles and the meadow illustration live in `tools/art/page_art.py`. |
 | `python3 tools/art/generate_materials.py` | Regenerates the wood, paper and cardboard textures used by the 3D desk. |
 | `python3 tools/audio/generate_audio.py` | Regenerates the music-box theme and sound effects (needs numpy). Add `chapter3` to rebuild only the Spine Peaks theme and the slam sound, or `finale` for the last two themes and the hairdryer. |
+| `godot --headless --path . --script tools/godot/combat_test.gd` | Checks the new combat in the Combat Lab: combo, heavy, charge, Hold and Unstitch, Plunge, guard, parry, perfect dodge, Thread and Mend. Takes under a minute. |
 | `godot --headless --path . --script tools/godot/smoke_test.gd` | Plays through the whole game, Prologue to the last page, automatically and checks that it works. CI runs this. |
 | `godot --headless --path . --script tools/godot/setup_input_map.gd` | Rewrites the input map in `project.godot`. |
 | `godot --headless --path . --script tools/godot/build_starter_content.gd` | **One-time bootstrap** that generated the starter scenes. Re-running it overwrites them, so once you edit scenes in the editor, leave it alone. |

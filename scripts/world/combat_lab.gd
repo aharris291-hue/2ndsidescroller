@@ -65,21 +65,30 @@ func _fill_pen() -> void:
 
 func _add_signs() -> void:
 	var h := func(action: StringName) -> String: return InputGlyphs.hint(action)
-	_sign(Vector2(420, 330), "COMBAT LAB\nNothing here is saved. Pause to leave.\nThread fills as your cuts land. Hold %s to spend a charge and Mend." % h.call(&"mend"))
-	_sign(Vector2(560, 560), "THE CUTTING POST\n%s x4: light combo, ending in a thrust\n%s: heavy cut (wears down Hold)\nHold %s: charge (3 levels; level 3 is the Full Cut)\nUp + %s: launcher\nBreak its Hold, then %s: UNSTITCH" % [h.call(&"attack"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy")])
-	_sign(Vector2(1240, 560), "THE SPARRING POST\nHold %s to guard. Tap it just as a swing lands to PARRY.\nWhite glint: parry it. Red glow: dodge it.\n%s: Edge-On dodge. Dodge at the last moment to slow time." % [h.call(&"guard"), h.call(&"dash")])
-	_sign(Vector2(1820, 330), "THE LEDGES\nIn the air, %s x3: air combo\nIn the air, Down + %s: PLUNGE (bounces off what it hits)\nOne dodge in the air." % [h.call(&"attack"), h.call(&"heavy")])
-	_sign(Vector2(2860, 560), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nBreak their Hold, then Unstitch.\nThe pen refills when it's empty.")
+	_sign(Vector2(300, 150), "COMBAT LAB\nNothing here is saved. Pause to leave.\nThread fills as your cuts land. Hold %s to spend a charge and Mend." % h.call(&"mend"))
+	_sign(Vector2(520, 330), "THE CUTTING POST\n%s x4: light combo, ending in a thrust\n%s: heavy cut (wears down Hold)\nHold %s: charge (3 levels; level 3 is the Full Cut)\nUp + %s: launcher\nBreak its Hold, then %s: UNSTITCH" % [h.call(&"attack"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy")])
+	_sign(Vector2(1240, 330), "THE SPARRING POST\nHold %s to guard. Tap it just as a swing lands to PARRY.\nWhite glint: parry it. Red glow: dodge it.\n%s: Edge-On dodge. Dodge at the last moment to slow time." % [h.call(&"guard"), h.call(&"dash")])
+	_sign(Vector2(1900, 200), "THE LEDGES\nIn the air, %s x3: air combo\nIn the air, Down + %s: PLUNGE (bounces off what it hits)\nOne dodge in the air." % [h.call(&"attack"), h.call(&"heavy")])
+	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nBreak their Hold, then Unstitch.\nThe pen refills when it's empty.")
 
 
+## A card pinned to the page: cream paper, dark stitched-looking border.
 func _sign(at: Vector2, text: String) -> void:
+	var card := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.97, 0.88, 0.92)
+	style.border_color = Color("3a2a22")
+	style.set_border_width_all(4)
+	style.set_corner_radius_all(10)
+	style.set_content_margin_all(16)
+	card.add_theme_stylebox_override(&"panel", style)
+	card.position = at
+	card.custom_minimum_size = Vector2(640, 0)
 	var label := Label.new()
 	label.text = text
-	label.position = at
-	label.size = Vector2(620, 0)
+	label.custom_minimum_size = Vector2(608, 0)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override(&"font_size", 26)
+	label.add_theme_font_size_override(&"font_size", 25)
 	label.add_theme_color_override(&"font_color", Color("281e2e"))
-	label.add_theme_color_override(&"font_outline_color", Color("fff8e2"))
-	label.add_theme_constant_override(&"outline_size", 10)
-	signs.add_child(label)
+	card.add_child(label)
+	signs.add_child(card)
