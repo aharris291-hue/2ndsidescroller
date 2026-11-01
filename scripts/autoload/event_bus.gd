@@ -4,6 +4,8 @@ extends Node
 
 signal player_health_changed(current: int, maximum: int)
 signal player_died
+## Patch's Thread meter (see Patch): charges spent on Mend and thread moves.
+signal thread_changed(current: float, maximum: float)
 signal scraps_changed(total: int)
 signal letter_collected(letter: String, total: int)
 signal ability_unlocked(ability_id: StringName)

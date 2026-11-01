@@ -13,6 +13,9 @@ var slot := 0
 var max_health := 6
 var health := 6
 var scraps := 0
+## Patch's Thread meter, in charges (filled by landing hits; not saved).
+var thread := 0.0
+var thread_max := 3.0
 var letters: Array[String] = []
 var abilities: Array[StringName] = []
 ## Unique ids of one-time pickups that are already collected.
@@ -47,6 +50,7 @@ func new_game(new_slot: int) -> void:
 	max_health = 6
 	health = max_health
 	scraps = 0
+	thread = 0.0
 	letters.clear()
 	abilities = STARTING_ABILITIES.duplicate()
 	collected.clear()
@@ -59,6 +63,13 @@ func new_game(new_slot: int) -> void:
 
 
 # --- Inventory and progress --------------------------------------------------
+
+func add_thread(amount: float) -> void:
+	var before := thread
+	thread = clampf(thread + amount, 0.0, thread_max)
+	if thread != before:
+		EventBus.thread_changed.emit(thread, thread_max)
+
 
 func has_ability(ability_id: StringName) -> bool:
 	return abilities.has(ability_id)
