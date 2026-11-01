@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/training_dummy.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="2_hurt"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="3_hit"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://scripts/components/hold_component.gd" id="5_hold"]
+
+[sub_resource type="RectangleShape2D" id="Rect_body"]
+size = Vector2(60, 40)
+
+[sub_resource type="RectangleShape2D" id="Rect_hurt"]
+size = Vector2(84, 190)
+
+[sub_resource type="RectangleShape2D" id="Rect_swing"]
+size = Vector2(110, 90)
+
+[node name="TrainingDummy" type="CharacterBody2D"]
+collision_layer = 4
+script = ExtResource("1_dummy")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Seam" type="Line2D" parent="Body"]
+points = PackedVector2Array(-6, -196, 8, -170, -6, -140, 8, -110, -6, -84)
+width = 7.0
+default_color = Color(1, 0.35, 0.3, 1)
+z_index = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -20)
+shape = SubResource("Rect_body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("2_hurt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -100)
+shape = SubResource("Rect_hurt")
+
+[node name="Swing" type="Area2D" parent="."]
+position = Vector2(-70, -110)
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("3_hit")
+knockback = 520.0
+active = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Swing"]
+shape = SubResource("Rect_swing")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_health")
+max_health = 999
+invulnerability_time = 0.08
+
+[node name="HoldComponent" type="Node" parent="."]
+script = ExtResource("5_hold")
+max_hold = 6.0
+stagger_time = 2.5
+
+[node name="HoldBar" type="Line2D" parent="."]
+points = PackedVector2Array(-45, -215, 45, -215)
+width = 8.0
+default_color = Color(1, 0.83, 0.43, 1)

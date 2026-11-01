@@ -7,6 +7,7 @@ const PATCH_TEXTURE := preload("res://assets/art/characters/patch.png")
 const PATCH_MENDED_TEXTURE := preload("res://assets/art/characters/patch_mended.png")
 const DOT_TEXTURE := preload("res://assets/art/characters/dot.png")
 const SOGGY_TEXTURE := preload("res://assets/art/characters/soggy.png")
+const COMBAT_LAB := "res://scenes/levels/combat_lab/combat_lab.tscn"
 
 @onready var slot_buttons: Array[Button] = [
 	$Center/VBox/Slots/Slot1, $Center/VBox/Slots/Slot2, $Center/VBox/Slots/Slot3,
@@ -33,6 +34,7 @@ func _ready() -> void:
 		slot_buttons[i].pressed.connect(_on_slot_pressed.bind(i))
 	erase_toggle.toggled.connect(func(_on: bool) -> void: _refresh_slots())
 	quit_button.pressed.connect(get_tree().quit)
+	_add_lab_button()
 	_refresh_slots()
 	_add_cast()
 	slot_buttons[0].grab_focus()
@@ -85,6 +87,24 @@ func _refresh_slots() -> void:
 			var done := " - The End" if data.get("flags", {}).get("game_complete", false) else ""
 			slot_buttons[i].text = "%sBook %d  -  %s played, %d/%d letters%s" % [
 				prefix, i + 1, GameState.format_time(data.get("play_time", 0.0)), letters, GameState.LETTER_TOTAL, done]
+
+
+## The Combat Lab: a practice page for the new combat. It never touches a save slot.
+func _add_lab_button() -> void:
+	var lab := Button.new()
+	lab.name = "LabButton"
+	lab.text = "Combat Lab (practice)"
+	lab.custom_minimum_size = Vector2(720, 56)
+	lab.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var vbox := erase_toggle.get_parent()
+	vbox.add_child(lab)
+	vbox.move_child(lab, erase_toggle.get_index())
+	lab.pressed.connect(func() -> void:
+		if SceneManager.is_transitioning:
+			return
+		GameState.new_game(0)
+		GameState.sandbox = true
+		SceneManager.change_page(COMBAT_LAB))
 
 
 func _on_slot_pressed(slot: int) -> void:

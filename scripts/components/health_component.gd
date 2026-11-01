@@ -52,6 +52,10 @@ func grant_invulnerability(seconds: float) -> void:
 	_invulnerable_left = maxf(_invulnerable_left, seconds)
 
 
+func clear_invulnerability() -> void:
+	_invulnerable_left = 0.0
+
+
 func heal(amount: int) -> void:
 	if is_dead():
 		return

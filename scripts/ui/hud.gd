@@ -12,6 +12,8 @@ const TORN := preload("res://assets/art/ui/health_torn.png")
 @onready var boss_bar: Control = $Root/BossBar
 @onready var boss_name: Label = $Root/BossBar/BossName
 @onready var boss_health: ProgressBar = $Root/BossBar/BossHealth
+## Thread: one little spool bar per charge, wound with Gran's red thread.
+var _spools: HBoxContainer
 
 
 func _ready() -> void:
@@ -25,6 +27,43 @@ func _ready() -> void:
 	EventBus.boss_defeated.connect(func() -> void: boss_bar.visible = false)
 	EventBus.page_entered.connect(func(_page: Node) -> void: boss_bar.visible = false)
 	boss_bar.visible = false
+	_spools = HBoxContainer.new()
+	_spools.name = "ThreadSpools"
+	_spools.add_theme_constant_override(&"separation", 6)
+	tokens.get_parent().add_child(_spools)
+	tokens.get_parent().move_child(_spools, tokens.get_index() + 1)
+	EventBus.thread_changed.connect(_on_thread_changed)
+	_on_thread_changed(GameState.thread, GameState.thread_max)
+
+
+func _on_thread_changed(current: float, maximum: float) -> void:
+	var count := int(ceil(maximum))
+	while _spools.get_child_count() < count:
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(22, 52)
+		bar.fill_mode = ProgressBar.FILL_BOTTOM_TO_TOP
+		bar.show_percentage = false
+		bar.max_value = 1.0
+		bar.step = 0.0
+		var back := StyleBoxFlat.new()
+		back.bg_color = Color("efe2c4")
+		back.border_color = Color("3a2a22")
+		back.set_border_width_all(3)
+		back.set_corner_radius_all(6)
+		var fill := StyleBoxFlat.new()
+		fill.bg_color = Color("c8322c")
+		fill.set_corner_radius_all(4)
+		bar.add_theme_stylebox_override(&"background", back)
+		bar.add_theme_stylebox_override(&"fill", fill)
+		_spools.add_child(bar)
+	while _spools.get_child_count() > count:
+		var extra := _spools.get_child(_spools.get_child_count() - 1)
+		_spools.remove_child(extra)
+		extra.queue_free()
+	for i in count:
+		var bar := _spools.get_child(i) as ProgressBar
+		bar.value = clampf(current - i, 0.0, 1.0)
+		bar.modulate = Color(1.15, 1.15, 1.15) if current - i >= 1.0 else Color.WHITE
 
 
 func show_hud(show: bool) -> void:

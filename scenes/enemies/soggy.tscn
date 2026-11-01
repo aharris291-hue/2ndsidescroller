@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_5vcxd"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_0jjlk"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_og018"]
+[ext_resource type="Script" path="res://scripts/components/hold_component.gd" id="6_hold"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_xosck"]
 radius = 34.0
@@ -53,3 +54,7 @@ invulnerability_time = 0.08
 [node name="LedgeCheck" type="RayCast2D" parent="." unique_id=1432795450]
 position = Vector2(-40, 0)
 target_position = Vector2(0, 64)
+
+[node name="HoldComponent" type="Node" parent="."]
+script = ExtResource("6_hold")
+max_hold = 4.0

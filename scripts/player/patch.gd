@@ -121,6 +121,7 @@ var _heavy_phase := 0
 var _heavy_held := 0.0
 var charge_level := 0
 var _guard_time := 0.0
+var _guard_press_age := 99.0
 var _block_cooldown := 0.0
 var _blocking := false
 var _perfect_done := false
@@ -201,6 +202,12 @@ func _physics_process(delta: float) -> void:
 			combo_step = 0
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	_block_cooldown = maxf(_block_cooldown - delta, 0.0)
+	if input_enabled and Input.is_action_just_pressed(&"guard"):
+		_guard_press_age = 0.0
+		if state == State.GUARD:
+			_guard_time = 0.0
+	else:
+		_guard_press_age += delta
 	_state_left = maxf(_state_left - delta, 0.0)
 	if view_mode == PageView.Mode.TOP or is_on_floor():
 		_air_hits = 0
@@ -265,7 +272,8 @@ func _process_normal(delta: float) -> void:
 		_start_attack()
 	elif _action_pressed(&"dash") and _can_dodge():
 		_start_dash(input)
-	elif _action_pressed(&"guard") and armed and view_mode == PageView.Mode.SIDE and is_on_floor():
+	elif input_enabled and Input.is_action_pressed(&"guard") and armed and view_mode == PageView.Mode.SIDE and is_on_floor():
+		# Held from the air, guard goes up on landing; the parry window counts from the press.
 		_start_guard()
 	elif _action_pressed(&"mend") and _can_mend():
 		_start_mend()
@@ -461,6 +469,8 @@ func _process_heavy(delta: float) -> void:
 		3:
 			if _action_pressed(&"dash") and _can_dodge():
 				_start_dash(_move_input())
+			elif _action_pressed(&"heavy") and _find_staggered():
+				_start_finisher(_find_staggered())
 			elif _state_left <= 0.0:
 				state = State.NORMAL
 
@@ -600,7 +610,7 @@ func _process_finisher(delta: float) -> void:
 
 func _start_guard() -> void:
 	state = State.GUARD
-	_guard_time = 0.0
+	_guard_time = _guard_press_age
 	attack_hitbox.active = false
 	combo_step = 0
 	_squash(Vector2(0.92, 1.05))

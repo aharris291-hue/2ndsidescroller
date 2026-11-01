@@ -37,6 +37,7 @@ var _lunging := false
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var contact_hitbox: Hitbox = $ContactHitbox
 @onready var ledge_check: RayCast2D = $LedgeCheck
+@onready var hold: HoldComponent = get_node_or_null(^"HoldComponent")
 
 
 func _ready() -> void:
@@ -49,10 +50,26 @@ func _ready() -> void:
 		ledge_check.enabled = false
 	hurtbox.hit.connect(_on_hit)
 	health.died.connect(_on_died)
+	if hold:
+		hold.broken.connect(_on_hold_broken)
+		hold.recovered.connect(func() -> void: sprite.modulate = Color.WHITE)
 
 
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
+		return
+	if hold and hold.is_broken():
+		# Staggered: it sags, dazed, and a frayed seam glows. Open to an Unstitch.
+		_windup_left = 0.0
+		_lunging = false
+		velocity.x = move_toward(velocity.x, 0.0, 2400.0 * delta)
+		if view_mode == PageView.Mode.SIDE and not is_on_floor():
+			velocity.y += gravity * delta
+		velocity += _knockback
+		_knockback = _knockback.move_toward(Vector2.ZERO, 3000.0 * delta)
+		move_and_slide()
+		var sag := 0.25 + sin(Time.get_ticks_msec() * 0.01) * 0.05
+		sprite.scale = _sprite_scale * Vector2(1.0 + sag, 1.0 - sag)
 		return
 	if view_mode == PageView.Mode.SIDE:
 		_side_behaviour(delta)
@@ -84,6 +101,7 @@ func _side_behaviour(delta: float) -> void:
 		sprite.modulate = Color(1.0, 0.75, 0.75)
 		if _windup_left <= 0.0:
 			sprite.modulate = Color.WHITE
+			contact_hitbox.damage = 2
 			_lunging = true
 			_lunge_cooldown_left = lunge_cooldown
 			velocity = Vector2(lunge_speed.x * _direction, lunge_speed.y)
@@ -96,6 +114,8 @@ func _side_behaviour(delta: float) -> void:
 			ledge_check.position.x = 40.0 * _direction
 			if absf(to_player.x) < lunge_range and _lunge_cooldown_left <= 0.0:
 				_windup_left = lunge_windup
+				# White glint: the lunge can be parried.
+				Tells.glint(self, Vector2(26.0 * _direction, -60))
 				return
 			# Charge, but don't run off a ledge after him.
 			velocity.x = chase_speed * _direction if ledge_check.is_colliding() and not is_on_wall() else 0.0
@@ -126,6 +146,11 @@ func _top_behaviour(delta: float) -> void:
 
 func _on_hit(hitbox: Hitbox) -> void:
 	if health.take_damage(hitbox.damage, hitbox.global_position):
+		if hitbox.launch and view_mode == PageView.Mode.SIDE:
+			_knockback = Vector2(signf(global_position.x - hitbox.global_position.x) * 80.0, -900.0)
+			_windup_left = 0.0
+			sprite.modulate = Color.WHITE
+			return
 		# A hit knocks it out of a lunge wind-up.
 		_windup_left = 0.0
 		sprite.modulate = Color.WHITE
@@ -136,6 +161,28 @@ func _on_hit(hitbox: Hitbox) -> void:
 		var tween := create_tween()
 		sprite.modulate = Color(1.6, 1.6, 1.6)
 		tween.tween_property(sprite, "modulate", Color.WHITE, 0.2)
+
+
+## Patch parried the lunge: it's batted back, out of the leap.
+func on_parried(by: Node) -> void:
+	_lunging = false
+	_windup_left = 0.0
+	_lunge_cooldown_left = lunge_cooldown
+	var away := signf(global_position.x - (by as Node2D).global_position.x) if by is Node2D else -_direction
+	_knockback = Vector2(away * 520.0, -220.0)
+
+
+func _on_hold_broken() -> void:
+	_windup_left = 0.0
+	_lunging = false
+	sprite.modulate = Color(1.15, 0.85, 0.8)
+	Tells.glint(self, Vector2(0, -50), 0.7)
+
+
+## Patch's finisher: cut along the seam, the Soggy unfolds flat and drifts away.
+func unstitch(_by: Node) -> void:
+	health.clear_invulnerability()
+	health.take_damage(999, global_position)
 
 
 func _on_died() -> void:
