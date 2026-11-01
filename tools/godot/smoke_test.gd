@@ -218,12 +218,16 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	var combo_steps := []
 	for press in 4:
 		# Count physics frames here: the swipe reads input on the physics tick.
+		# Hitstop stretches a swing over more ticks, so wait for the step to change.
+		var before: int = patch.combo_step
 		Input.action_press(&"attack")
 		for f in 2:
 			await physics_frame
 		Input.action_release(&"attack")
-		for f in 7:
+		for f in 30:
 			await physics_frame
+			if patch.combo_step != before:
+				break
 		combo_steps.append(patch.combo_step)
 	_check(combo_steps == [1, 2, 3, 4], "four quick cuts chain into a combo (%s)" % str(combo_steps))
 	# The new enemies load, take hits and go down.
