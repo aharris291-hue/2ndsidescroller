@@ -10,8 +10,11 @@ const STARTING_ABILITIES: Array[StringName] = [&"crease_swipe"]
 const LETTER_TOTAL := 26
 
 var slot := 0
-var max_health := 6
-var health := 6
+## Patch's starting health: six paper tokens (each token is 2 health).
+const BASE_MAX_HEALTH := 12
+
+var max_health := BASE_MAX_HEALTH
+var health := BASE_MAX_HEALTH
 var scraps := 0
 ## Patch's Thread meter, in charges (filled by landing hits; not saved).
 var thread := 0.0
@@ -50,7 +53,7 @@ func _process(delta: float) -> void:
 func new_game(new_slot: int) -> void:
 	slot = new_slot
 	sandbox = false
-	max_health = 6
+	max_health = BASE_MAX_HEALTH
 	health = max_health
 	scraps = 0
 	thread = 0.0
@@ -221,7 +224,8 @@ func load_game(save_slot: int) -> bool:
 	if data.is_empty():
 		return false
 	new_game(save_slot)
-	max_health = int(data.get("max_health", 6))
+	# Older saves stored the old 6-health cap; never load below the current base.
+	max_health = maxi(int(data.get("max_health", BASE_MAX_HEALTH)), BASE_MAX_HEALTH)
 	health = max_health
 	scraps = int(data.get("scraps", 0))
 	for letter in data.get("letters", []):
