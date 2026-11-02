@@ -1,11 +1,17 @@
 class_name Patch
 extends CharacterBody2D
-## Patch the paper fox. One controller covers both page views:
-## SIDE (a standing page: gravity, jumping, coyote time, jump buffering) and
-## TOP (a flat page or the Margin: eight-way movement). Attacks, dash, Tape Tail,
-## Pop-Up Slam, damage and interaction work the same in both.
+## Patch the paper fox, armed with Gran's stork shears. One controller covers both
+## page views: SIDE (a standing page: gravity, jumping, coyote time, jump buffering)
+## and TOP (a flat page or the Margin: eight-way movement).
+##
+## Combat (see the Redesign Bible, Phase 2): a 4-hit light combo (3 in the air),
+## heavy and charged heavy cuts, an up-heavy launcher, the Plunge (down + heavy in
+## the air), the Edge-On dodge (perfect dodges slow time), guard and parry, the
+## Thread meter (hits fill it; Mend spends a charge to heal) and the Unstitch
+## finisher on enemies whose Hold has broken.
 
-enum State { NORMAL, DASH, ATTACK, HURT, DEAD, GRAPPLE, SLAM }
+enum State { NORMAL, DASH, ATTACK, HURT, DEAD, GRAPPLE, SLAM, HEAVY, GUARD, MEND, FINISHER }
+enum Attack { LIGHT, THRUST, AIR, OVERHEAD, HEAVY, LAUNCHER, CHARGED, PLUNGE }
 enum Grapple { SHOOT, ZIP, RETRACT }
 
 ## After the finale Patch has a new tail: a strip of the Lanternfold map, taped on.
@@ -34,14 +40,43 @@ const MENDED_TEXTURE := preload("res://assets/art/characters/patch_mended.png")
 @export var attack_reach := 74.0
 ## How long each swipe's hitbox is live (shorter than the swipe, so one swipe hits once).
 @export var attack_active_time := 0.07
-## Swipes chain into a three-hit combo; the third is a heavy finisher.
+## Light cuts chain into a four-hit combo on the ground (the fourth is a thrust),
+## three in the air.
 @export var combo_window := 0.35
+@export var combo_length := 4
+@export var air_combo_length := 3
 @export var finisher_damage := 2
 @export var finisher_knockback := 1.7
-@export var dash_speed := 1150.0
-@export var dash_time := 0.16
-@export var dash_cooldown := 0.45
 @export var hurt_time := 0.28
+
+@export_group("Heavy")
+@export var heavy_windup := 0.12
+@export var heavy_recover := 0.24
+@export var heavy_damage := 2
+@export var heavy_hold := 3.0
+## Hold heavy this long for charge levels 1, 2 and 3 (level 3 is the Full Cut).
+@export var charge_levels: Array[float] = [0.45, 0.9, 1.4]
+@export var charge_damage: Array[int] = [3, 4, 5]
+@export var charge_hold: Array[float] = [4.0, 5.0, 8.0]
+
+@export_group("Edge-On dodge")
+@export var dash_speed := 950.0
+@export var dash_time := 0.25
+@export var dash_cooldown := 0.35
+## A hit that arrives this early in a dodge counts as a perfect dodge.
+@export var perfect_dodge_window := 0.12
+
+@export_group("Guard")
+## Guard pressed this close before a hit lands is a parry (8 frames).
+@export var parry_window := 0.133
+@export var parry_hold := 4.0
+@export var guard_push := 320.0
+
+@export_group("Thread")
+@export var mend_time := 1.2
+@export var mend_heal := 2
+## How far ahead a staggered enemy can be and still be Unstitched.
+@export var finisher_range := 170.0
 
 @export_group("Tape Tail")
 ## How far the Tape Tail reaches to a GrapplePoint, in pixels.
@@ -78,6 +113,24 @@ var combo_step := 0
 var _combo_left := 0.0
 var _attack_scale := Vector2.ONE
 var _attack_knockback := 520.0
+var _attack_kind := Attack.LIGHT
+var _attack_buffer := 0.0
+## Air combo hits since leaving the ground, and air dodges left before landing.
+var _air_hits := 0
+var _air_dodges_left := 1
+var _heavy_phase := 0
+var _heavy_held := 0.0
+var charge_level := 0
+var _guard_time := 0.0
+var _guard_press_age := 99.0
+var _block_cooldown := 0.0
+var _blocking := false
+var _perfect_done := false
+var _finisher_target: Node2D
+## Counters the tests (and the HUD later) can read.
+var parries := 0
+var perfect_dodges := 0
+var _hurt_flash_left := 0.0
 var _dash_cooldown_left := 0.0
 var _dash_direction := Vector2.RIGHT
 var _was_on_floor := false
@@ -118,6 +171,8 @@ func _ready() -> void:
 	attack_hitbox.active = false
 	_attack_scale = attack_hitbox.scale
 	_attack_knockback = attack_hitbox.knockback
+	attack_hitbox.landed.connect(_on_attack_landed)
+	EventBus.thread_changed.emit(GameState.thread, GameState.thread_max)
 	EventBus.dialogue_started.connect(_on_dialogue_started)
 	EventBus.dialogue_finished.connect(_on_dialogue_finished)
 	EventBus.player_health_changed.emit(health.current, health.max_health)
@@ -147,7 +202,17 @@ func _physics_process(delta: float) -> void:
 		if _combo_left <= 0.0:
 			combo_step = 0
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
+	_block_cooldown = maxf(_block_cooldown - delta, 0.0)
+	if input_enabled and Input.is_action_just_pressed(&"guard"):
+		_guard_press_age = 0.0
+		if state == State.GUARD:
+			_guard_time = 0.0
+	else:
+		_guard_press_age += delta
 	_state_left = maxf(_state_left - delta, 0.0)
+	if view_mode == PageView.Mode.TOP or is_on_floor():
+		_air_hits = 0
+		_air_dodges_left = 1
 
 	match state:
 		State.NORMAL:
@@ -162,6 +227,14 @@ func _physics_process(delta: float) -> void:
 			_process_grapple(delta)
 		State.SLAM:
 			_process_slam(delta)
+		State.HEAVY:
+			_process_heavy(delta)
+		State.GUARD:
+			_process_guard(delta)
+		State.MEND:
+			_process_mend(delta)
+		State.FINISHER:
+			_process_finisher(delta)
 		State.DEAD:
 			velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
 
@@ -189,16 +262,24 @@ func _process_normal(delta: float) -> void:
 	else:
 		_top_movement(input, delta)
 
-	if _wants_slam() and GameState.has_ability(&"pop_up_slam"):
+	var armed := GameState.has_ability(&"crease_swipe")
+	if _action_pressed(&"interact") and _try_interact():
+		pass
+	elif _wants_slam() and (armed or GameState.has_ability(&"pop_up_slam")):
 		_start_slam()
-	elif _action_pressed(&"attack") and _attack_cooldown_left <= 0.0 and GameState.has_ability(&"crease_swipe"):
+	elif _action_pressed(&"heavy") and armed:
+		_start_heavy()
+	elif _action_pressed(&"attack") and _attack_cooldown_left <= 0.0 and armed:
 		_start_attack()
-	elif _action_pressed(&"dash") and _dash_cooldown_left <= 0.0 and GameState.has_ability(&"fold_dash"):
+	elif _action_pressed(&"dash") and _can_dodge():
 		_start_dash(input)
+	elif input_enabled and Input.is_action_pressed(&"guard") and armed and view_mode == PageView.Mode.SIDE and is_on_floor():
+		# Held from the air, guard goes up on landing; the parry window counts from the press.
+		_start_guard()
+	elif _action_pressed(&"mend") and _can_mend():
+		_start_mend()
 	elif _action_pressed(&"grapple") and GameState.has_ability(&"tape_tail"):
 		try_grapple()
-	elif _action_pressed(&"interact"):
-		_try_interact()
 	_update_grapple_highlight()
 
 
@@ -251,30 +332,54 @@ func _apply_gravity(delta: float) -> void:
 
 func _start_attack() -> void:
 	state = State.ATTACK
+	_attack_buffer = 0.0
 	_state_left = attack_time
 	_attack_active_left = attack_active_time
-	combo_step = combo_step + 1 if combo_step < 3 and _combo_left > 0.0 else 1
-	var finisher := combo_step == 3
-	# Back off a little after the finisher, so the combo has a rhythm.
-	_attack_cooldown_left = attack_cooldown if finisher else 0.0
-	# Side view: hold up to swipe overhead (things hanging above, flyers).
+	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
+	var length := air_combo_length if airborne else combo_length
+	combo_step = combo_step + 1 if combo_step < length and _combo_left > 0.0 else 1
+	var last := combo_step == length
+	# Back off a little after the last hit, so the combo has a rhythm.
+	_attack_cooldown_left = attack_cooldown if last else 0.0
+	# Side view: hold up to cut overhead (things hanging above, flyers).
 	var aim := facing
 	if view_mode == PageView.Mode.SIDE and input_enabled and Input.is_action_pressed(&"move_up"):
 		aim = Vector2.UP
-	var offset := aim * attack_reach
-	if view_mode == PageView.Mode.SIDE and aim != Vector2.UP:
+	if airborne:
+		_attack_kind = Attack.AIR
+		_air_hits += 1
+		# The shears keep Patch hanging in the air for a moment while he cuts.
+		velocity.y = minf(velocity.y, 60.0) if _air_hits <= air_combo_length else velocity.y
+	elif aim == Vector2.UP:
+		_attack_kind = Attack.OVERHEAD
+	else:
+		_attack_kind = Attack.THRUST if last else Attack.LIGHT
+	var heavy_hit := last and not airborne
+	_configure_hitbox(aim, attack_reach, 1.3 if heavy_hit else 1.0,
+		finisher_damage if heavy_hit else 1, 1.0 if heavy_hit else 0.5,
+		finisher_knockback if heavy_hit else 1.0)
+	AudioManager.play_sfx(&"swipe", (0.75 if heavy_hit else randf_range(0.95, 1.2)))
+	_squash(Vector2(1.3, 0.8) if heavy_hit else Vector2(1.15, 0.9))
+	_spawn_slash(aim, 1.3 if heavy_hit else 1.0, Color("fff6dc"))
+	if heavy_hit and view_mode == PageView.Mode.SIDE:
+		# The thrust lunges forward.
+		velocity.x += facing.x * 300.0
+
+
+## Points the shears' hitbox for one cut.
+func _configure_hitbox(aim: Vector2, reach: float, size: float, damage: int, hold: float,
+		knockback_scale: float, launch := false, stretch := Vector2.ONE) -> void:
+	var offset := aim * reach * maxf(stretch.x, 1.0) ** 0.5
+	if view_mode == PageView.Mode.SIDE and aim.y == 0.0:
 		offset.y -= 6.0
 	attack_hitbox.position = offset
 	attack_hitbox.rotation = aim.angle()
-	attack_hitbox.scale = _attack_scale * (1.3 if finisher else 1.0)
-	attack_hitbox.damage = finisher_damage if finisher else 1
-	attack_hitbox.knockback = _attack_knockback * (finisher_knockback if finisher else 1.0)
+	attack_hitbox.scale = _attack_scale * size * stretch
+	attack_hitbox.damage = damage
+	attack_hitbox.hold_damage = hold
+	attack_hitbox.knockback = _attack_knockback * knockback_scale
+	attack_hitbox.launch = launch
 	attack_hitbox.active = true
-	AudioManager.play_sfx(&"swipe", (0.75 if finisher else randf_range(0.95, 1.2)))
-	_squash(Vector2(1.3, 0.8) if finisher else Vector2(1.15, 0.9))
-	if finisher and view_mode == PageView.Mode.SIDE:
-		# A little lunge into the finisher.
-		velocity.x += facing.x * 260.0
 
 
 func _process_attack(delta: float) -> void:
@@ -287,21 +392,344 @@ func _process_attack(delta: float) -> void:
 	_attack_active_left -= delta
 	if _attack_active_left <= 0.0:
 		attack_hitbox.active = false
-	# Pressing attack in the back half of a swipe chains straight into the next hit.
-	if combo_step < 3 and _state_left < attack_time * 0.5 and _action_pressed(&"attack"):
+		# Once the cut has landed or missed, a dodge cancels the rest of the swing.
+		if _action_pressed(&"dash") and _can_dodge():
+			_start_dash(_move_input())
+			return
+	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
+	var length := air_combo_length if airborne else combo_length
+	# Pressing attack chains into the next hit. An early press is remembered and
+	# comes out as soon as the swing reaches its back half.
+	if _action_pressed(&"attack"):
+		_attack_buffer = 0.2
+	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
+	if combo_step < length and _state_left < attack_time * 0.5 and _attack_buffer > 0.0:
+		_attack_buffer = 0.0
 		_combo_left = combo_window
 		_start_attack()
 		return
+	if _state_left < attack_time * 0.5 and _action_pressed(&"heavy"):
+		_start_heavy()
+		return
 	if _state_left <= 0.0:
 		attack_hitbox.active = false
-		_combo_left = combo_window if combo_step < 3 else 0.0
+		_combo_left = combo_window if combo_step < length else 0.0
 		state = State.NORMAL
+
+
+# --- Heavy, charge and launcher ----------------------------------------------
+
+func _start_heavy() -> void:
+	attack_hitbox.active = false
+	var target := _find_staggered()
+	if target:
+		_start_finisher(target)
+		return
+	var side := view_mode == PageView.Mode.SIDE
+	if side and not is_on_floor() and input_enabled and Input.is_action_pressed(&"move_down"):
+		_start_slam()
+		return
+	state = State.HEAVY
+	_heavy_held = 0.0
+	charge_level = 0
+	combo_step = 0
+	if side and is_on_floor() and input_enabled and Input.is_action_pressed(&"move_up"):
+		# The launcher comes out at once: a rising cut that pops enemies up.
+		_release_heavy(Attack.LAUNCHER)
+	elif side and not is_on_floor():
+		_release_heavy(Attack.HEAVY)
+	else:
+		_heavy_phase = 0
+
+
+func _process_heavy(delta: float) -> void:
+	if view_mode == PageView.Mode.SIDE:
+		velocity.x = move_toward(velocity.x, 0.0, ground_friction * delta)
+		_apply_gravity(delta)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, top_acceleration * delta)
+	match _heavy_phase:
+		0:
+			# Charging: held heavy builds up to three levels.
+			_heavy_held += delta
+			var level := 0
+			for threshold in charge_levels:
+				if _heavy_held >= threshold:
+					level += 1
+			if level > charge_level:
+				charge_level = level
+				AudioManager.play_sfx(&"grapple", 0.8 + level * 0.15)
+				_squash(Vector2(0.9, 1.1))
+			var held := input_enabled and Input.is_action_pressed(&"heavy")
+			if not held:
+				_release_heavy(Attack.CHARGED if charge_level > 0 else Attack.HEAVY)
+		1:
+			# Wind-up: the blade comes down after a beat.
+			if _state_left <= 0.0:
+				_heavy_strike()
+		2:
+			_attack_active_left -= delta
+			if _attack_active_left <= 0.0:
+				attack_hitbox.active = false
+				_heavy_phase = 3
+				_state_left = heavy_recover
+		3:
+			if _action_pressed(&"dash") and _can_dodge():
+				_start_dash(_move_input())
+			elif _action_pressed(&"heavy") and _find_staggered():
+				_start_finisher(_find_staggered())
+			elif _state_left <= 0.0:
+				state = State.NORMAL
+
+
+func _release_heavy(kind: Attack) -> void:
+	_attack_kind = kind
+	_heavy_phase = 1
+	_state_left = heavy_windup if kind != Attack.LAUNCHER else 0.04
+	_squash(Vector2(0.85, 1.15))
+
+
+func _heavy_strike() -> void:
+	_heavy_phase = 2
+	_attack_active_left = attack_active_time
+	match _attack_kind:
+		Attack.LAUNCHER:
+			_configure_hitbox(Vector2(facing.x, -0.6).normalized(), attack_reach, 1.2, heavy_damage, heavy_hold, 1.0, true)
+			_spawn_slash(Vector2(facing.x, -1.0).normalized(), 1.3, Color("fff6dc"))
+			AudioManager.play_sfx(&"swipe", 0.85)
+		Attack.CHARGED:
+			var i := clampi(charge_level - 1, 0, 2)
+			if charge_level >= 3:
+				# The Full Cut: a slash that crosses most of the screen.
+				_configure_hitbox(facing, attack_reach, 1.0, charge_damage[i], charge_hold[i], 2.2, false, Vector2(7.0, 1.4))
+				_spawn_slash(facing, 4.5, Color("ffd36e"))
+				_shake_camera(10.0)
+				for node in get_tree().get_nodes_in_group(&"full_cut_listeners"):
+					if node.has_method("on_full_cut"):
+						node.on_full_cut(global_position, facing)
+			else:
+				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, charge_damage[i], charge_hold[i], 1.6 + 0.3 * i)
+				_spawn_slash(facing, 1.6 + 0.4 * i, Color("ffe7a8"))
+			AudioManager.play_sfx(&"swipe", 0.6)
+			if view_mode == PageView.Mode.SIDE:
+				velocity.x += facing.x * 240.0
+		_:
+			_configure_hitbox(facing, attack_reach, 1.35, heavy_damage, heavy_hold, 1.4)
+			_spawn_slash(facing, 1.5, Color("fff0c8"))
+			AudioManager.play_sfx(&"swipe", 0.7)
+	_squash(Vector2(1.35, 0.78))
+
+
+func _on_attack_landed(target: Node) -> void:
+	var stop := 0.05
+	var gain := 0.12
+	match _attack_kind:
+		Attack.THRUST, Attack.HEAVY, Attack.LAUNCHER:
+			stop = 0.08
+			gain = 0.2
+		Attack.CHARGED:
+			stop = 0.1 + 0.02 * charge_level
+			gain = 0.25
+		Attack.PLUNGE:
+			stop = 0.07
+			gain = 0.2
+	GameState.add_thread(gain)
+	TimeFX.hitstop(stop)
+	_spawn_hit_spark(target)
+	if state == State.SLAM and _slam_phase == 1:
+		# The Plunge bounces Patch back up off whatever it hits.
+		attack_hitbox.active = false
+		state = State.NORMAL
+		velocity = Vector2(velocity.x, -840.0)
+		_air_dodges_left = 1
+		_squash(Vector2(0.8, 1.25))
+
+
+# --- Unstitch finisher ---------------------------------------------------------
+
+## The nearest enemy in front of Patch whose Hold has broken.
+func _find_staggered() -> Node2D:
+	var best: Node2D = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group(&"staggered"):
+		var enemy := node as Node2D
+		if enemy == null or not is_instance_valid(enemy):
+			continue
+		var to_enemy := enemy.global_position - global_position
+		if absf(to_enemy.x) > finisher_range or absf(to_enemy.y) > 130.0:
+			continue
+		if view_mode == PageView.Mode.SIDE and to_enemy.x * facing.x < -30.0:
+			continue
+		if to_enemy.length() < best_distance:
+			best_distance = to_enemy.length()
+			best = enemy
+	return best
+
+
+func _start_finisher(target: Node2D) -> void:
+	state = State.FINISHER
+	_finisher_target = target
+	_state_left = 0.42
+	_heavy_phase = 0
+	velocity = Vector2.ZERO
+	health.grant_invulnerability(0.7)
+	var side := signf(global_position.x - target.global_position.x)
+	if side == 0.0:
+		side = -facing.x
+	facing = Vector2(-side, 0)
+	global_position.x = target.global_position.x + side * 64.0
+	AudioManager.play_sfx(&"swipe", 0.55)
+	TimeFX.hitstop(0.12)
+	_squash(Vector2(0.75, 1.3))
+
+
+func _process_finisher(delta: float) -> void:
+	velocity = Vector2.ZERO
+	if view_mode == PageView.Mode.SIDE and not is_on_floor():
+		velocity.y = 0.0
+	if _heavy_phase == 0 and _state_left < 0.28:
+		_heavy_phase = 1
+		var target := _finisher_target
+		if is_instance_valid(target):
+			_spawn_slash(Vector2.UP, 2.0, Color("ff5a4a"))
+			_spawn_slash(facing, 2.0, Color("fff6dc"))
+			if target.has_method("unstitch"):
+				target.unstitch(self)
+			else:
+				var hp := target.get("health") as HealthComponent
+				if hp:
+					hp.take_damage(999, global_position)
+			var hold := target.get_node_or_null(^"HoldComponent") as HoldComponent
+			if hold:
+				hold.clear()
+			_spawn_hit_spark(target)
+		GameState.add_thread(1.0)
+		AudioManager.play_sfx(&"enemy_pop", 0.7)
+		TimeFX.hitstop(0.14)
+		_shake_camera(16.0)
+		_squash(Vector2(1.45, 0.7))
+	if _state_left <= 0.0:
+		_finisher_target = null
+		state = State.NORMAL
+
+
+# --- Guard and parry -----------------------------------------------------------
+
+func _start_guard() -> void:
+	state = State.GUARD
+	_guard_time = _guard_press_age
+	attack_hitbox.active = false
+	combo_step = 0
+	_squash(Vector2(0.92, 1.05))
+
+
+func _process_guard(delta: float) -> void:
+	_guard_time += delta
+	velocity.x = move_toward(velocity.x, 0.0, ground_friction * delta)
+	_apply_gravity(delta)
+	if not (input_enabled and Input.is_action_pressed(&"guard")) or not is_on_floor():
+		state = State.NORMAL
+	elif _action_pressed(&"dash") and _can_dodge():
+		_start_dash(_move_input())
+
+
+## Guard catches a hit from the front. Returns true if the hit was handled.
+func _guard_hit(hitbox: Hitbox) -> bool:
+	if hitbox.unblockable:
+		return false
+	var dx := hitbox.global_position.x - global_position.x
+	if absf(dx) > 12.0 and signf(dx) != signf(facing.x):
+		return false
+	if _guard_time <= parry_window:
+		_parry(hitbox)
+		return true
+	if _block_cooldown > 0.0:
+		return true
+	_block_cooldown = 0.3
+	velocity.x = -facing.x * guard_push
+	AudioManager.play_sfx(&"slam", 1.5)
+	_squash(Vector2(0.85, 1.1))
+	var chip := hitbox.damage - 1
+	if chip > 0:
+		_blocking = true
+		health.take_damage(chip, hitbox.global_position)
+		_blocking = false
+	health.grant_invulnerability(0.3)
+	return true
+
+
+## A parry: Patch snaps the attack aside. The attacker loses a lot of Hold and is
+## pushed back; Patch can't be hurt for a moment and is free to counter.
+func _parry(hitbox: Hitbox) -> void:
+	parries += 1
+	health.grant_invulnerability(0.4)
+	state = State.NORMAL
+	_guard_time = 99.0
+	var attacker := hitbox.owner
+	if attacker:
+		var hold := attacker.get_node_or_null(^"HoldComponent") as HoldComponent
+		if hold:
+			hold.take_hold(parry_hold)
+		if attacker.has_method("on_parried"):
+			attacker.on_parried(self)
+	GameState.add_thread(0.34)
+	TimeFX.hitstop(0.13)
+	AudioManager.play_sfx(&"swipe", 1.6)
+	_spawn_slash(facing, 1.2, Color("bfe8ff"))
+	_spawn_parry_flash()
+	_shake_camera(8.0)
+
+
+# --- Mend ------------------------------------------------------------------------
+
+func _can_mend() -> bool:
+	if GameState.thread < 1.0 or health.current >= health.max_health:
+		return false
+	return view_mode == PageView.Mode.TOP or is_on_floor()
+
+
+func _start_mend() -> void:
+	state = State.MEND
+	_state_left = mend_time
+	attack_hitbox.active = false
+	combo_step = 0
+
+
+func _process_mend(delta: float) -> void:
+	velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
+	if view_mode == PageView.Mode.SIDE:
+		_apply_gravity(delta)
+	if not (input_enabled and Input.is_action_pressed(&"mend")):
+		state = State.NORMAL
+		return
+	if _state_left <= 0.0:
+		GameState.add_thread(-1.0)
+		health.heal(mend_heal)
+		AudioManager.play_sfx(&"grapple", 1.3)
+		_squash(Vector2(1.2, 0.85))
+		_spawn_parry_flash(Color("9fe39a"))
+		state = State.NORMAL
+
+
+# --- Edge-On dodge ---------------------------------------------------------------
+
+func _can_dodge() -> bool:
+	if _dash_cooldown_left > 0.0 or not GameState.has_ability(&"fold_dash"):
+		return false
+	if view_mode == PageView.Mode.SIDE and not is_on_floor():
+		return _air_dodges_left > 0
+	return true
 
 
 func _start_dash(input: Vector2) -> void:
 	state = State.DASH
+	attack_hitbox.active = false
+	combo_step = 0
 	_state_left = dash_time
 	_dash_cooldown_left = dash_cooldown
+	_perfect_done = false
+	if view_mode == PageView.Mode.SIDE and not is_on_floor():
+		_air_dodges_left -= 1
 	if view_mode == PageView.Mode.SIDE:
 		_dash_direction = Vector2(signf(input.x) if input.x != 0.0 else facing.x, 0)
 	else:
@@ -311,7 +739,8 @@ func _start_dash(input: Vector2) -> void:
 
 
 func _process_dash() -> void:
-	# Fold Dash: Patch folds into a paper dart. No gravity while dashing.
+	# Edge-On: Patch turns sideways into a thin line of paper. Attacks pass
+	# through him, and there's no gravity while it lasts.
 	velocity = _dash_direction * dash_speed
 	if _state_left <= 0.0:
 		velocity *= 0.35
@@ -360,6 +789,9 @@ func _process_slam(delta: float) -> void:
 				if view_mode == PageView.Mode.SIDE:
 					_slam_phase = 1
 					velocity = Vector2(0, slam_fall_speed)
+					# The Plunge: blade-first, it hurts and bounces off anything below.
+					_attack_kind = Attack.PLUNGE
+					_configure_hitbox(Vector2.DOWN, 50.0, 1.0, 2, 3.0, 1.2)
 				else:
 					_slam_impact()
 		1:
@@ -377,6 +809,7 @@ func _process_slam(delta: float) -> void:
 ## Patch lands: a shockwave hurts anything nearby, and every fold mark in reach
 ## springs its pop-up (see FoldMark). Slam-breakable things (ice) shatter.
 func _slam_impact() -> void:
+	attack_hitbox.active = false
 	_slam_phase = 2
 	_state_left = slam_recover_time
 	velocity = Vector2.ZERO
@@ -396,9 +829,11 @@ func _slam_impact() -> void:
 	wave.position = Vector2(0, -10)
 	add_child(wave)
 	get_tree().create_timer(0.12, false, true).timeout.connect(wave.queue_free)
-	for node in get_tree().get_nodes_in_group(&"slam_listeners"):
-		if node.has_method("on_slam"):
-			node.on_slam(global_position, view_mode)
+	# Springing fold marks and shattering ice is the Pop-Up Slam ability (Chapter 3).
+	if GameState.has_ability(&"pop_up_slam"):
+		for node in get_tree().get_nodes_in_group(&"slam_listeners"):
+			if node.has_method("on_slam"):
+				node.on_slam(global_position, view_mode)
 	_shake_camera(14.0)
 	_spawn_slam_ring()
 
@@ -573,7 +1008,14 @@ func _fell_off_page() -> void:
 # --- Damage, death, interaction --------------------------------------------
 
 func _on_hurtbox_hit(hitbox: Hitbox) -> void:
-	if state == State.DASH or state == State.DEAD or (state == State.SLAM and _slam_phase == 1):
+	if state == State.DASH:
+		# A hit that arrives right at the start of a dodge is a perfect dodge.
+		if not _perfect_done and dash_time - _state_left <= perfect_dodge_window and hitbox.damage > 0:
+			_perfect_dodge()
+		return
+	if state == State.DEAD or state == State.FINISHER or (state == State.SLAM and _slam_phase == 1):
+		return
+	if state == State.GUARD and _guard_hit(hitbox):
 		return
 	if health.take_damage(hitbox.damage, hitbox.global_position):
 		var away := (global_position - hitbox.global_position).normalized()
@@ -582,8 +1024,17 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 		velocity = away * hitbox.knockback
 
 
+func _perfect_dodge() -> void:
+	_perfect_done = true
+	perfect_dodges += 1
+	GameState.add_thread(0.5)
+	TimeFX.slow_motion(0.35, 0.5)
+	AudioManager.play_sfx(&"grapple", 1.5)
+	_spawn_parry_flash(Color("fff1a8"))
+
+
 func _on_damaged(_amount: int, _from: Vector2) -> void:
-	if health.is_dead():
+	if health.is_dead() or _blocking:
 		return
 	if state == State.GRAPPLE:
 		_end_grapple()
@@ -591,6 +1042,7 @@ func _on_damaged(_amount: int, _from: Vector2) -> void:
 		camera.offset = Vector2.ZERO
 	state = State.HURT
 	_state_left = hurt_time
+	_hurt_flash_left = health.invulnerability_time
 	attack_hitbox.active = false
 	AudioManager.play_sfx(&"hurt")
 
@@ -601,6 +1053,7 @@ func _on_health_changed(current: int, maximum: int) -> void:
 
 
 func _on_died() -> void:
+	TimeFX.reset()
 	if state == State.GRAPPLE:
 		_end_grapple()
 	state = State.DEAD
@@ -615,7 +1068,7 @@ func _on_died() -> void:
 	SceneManager.respawn_at_checkpoint()
 
 
-func _try_interact() -> void:
+func _try_interact() -> bool:
 	var best: Interactable = null
 	var best_distance := INF
 	for area in interact_area.get_overlapping_areas():
@@ -627,6 +1080,8 @@ func _try_interact() -> void:
 				best_distance = distance
 	if best:
 		best.interact(self)
+		return true
+	return false
 
 
 func _on_dialogue_started() -> void:
@@ -692,7 +1147,106 @@ func _update_visual(delta: float) -> void:
 			tilt += clampf(velocity.y / max_fall_speed, -1.0, 1.0) * 0.12 * dir
 	if state == State.DASH or state == State.SLAM:
 		tilt = 0.0
+	if state == State.GUARD:
+		tilt = -0.1 * dir
 	visual.rotation = lerpf(visual.rotation, tilt, 12.0 * delta)
-	# Flash while invulnerable after a hit.
+	if state == State.DASH:
+		# Edge-On: seen side-on, Patch is a thin line of paper.
+		visual.scale.x = 0.14 * dir
+	var tint := Color.WHITE
+	match state:
+		State.HEAVY:
+			if _heavy_phase == 0 and charge_level > 0:
+				var glow := [Color(1.15, 1.1, 0.9), Color(1.3, 1.2, 0.8), Color(1.5, 1.25, 0.6)][charge_level - 1] as Color
+				var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.03)
+				tint = Color.WHITE.lerp(glow, pulse)
+				visual.position.x = randf_range(-1.5, 1.5) * charge_level
+		State.GUARD:
+			tint = Color(0.85, 0.95, 1.15)
+		State.MEND:
+			tint = Color(0.9, 1.2, 0.9).lerp(Color.WHITE, 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.02))
+	if state != State.HEAVY:
+		visual.position.x = 0.0
+	# Flash while invulnerable after a hit (not after a parry or finisher).
 	var blink := Time.get_ticks_msec() % 160 < 80
-	visual.modulate.a = 0.45 if health.is_invulnerable() and blink else 1.0
+	_hurt_flash_left = maxf(_hurt_flash_left - delta, 0.0)
+	tint.a = 0.45 if _hurt_flash_left > 0.0 and blink else 1.0
+	visual.modulate = tint
+
+
+func _exit_tree() -> void:
+	TimeFX.reset()
+
+
+# --- Effects -------------------------------------------------------------------
+
+## A cut line: a crescent of paper-white that sweeps and fades in front of Patch.
+func _spawn_slash(aim: Vector2, size: float, color: Color) -> void:
+	var arc := Line2D.new()
+	arc.top_level = true
+	arc.width = 10.0 * clampf(size, 1.0, 2.0)
+	arc.default_color = color
+	arc.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	arc.end_cap_mode = Line2D.LINE_CAP_ROUND
+	var curve := Curve.new()
+	curve.add_point(Vector2(0, 0.1))
+	curve.add_point(Vector2(0.5, 1.0))
+	curve.add_point(Vector2(1, 0.1))
+	arc.width_curve = curve
+	var radius := 62.0 * size
+	var points := PackedVector2Array()
+	var stretch := Vector2(1.0, 1.0)
+	if size > 3.0:
+		stretch = Vector2(1.0, 0.18)
+	for i in 13:
+		var a := lerpf(-1.1, 1.1, i / 12.0)
+		points.append((Vector2.from_angle(a) * radius * stretch).rotated(aim.angle()))
+	arc.points = points
+	arc.global_position = global_position + Vector2(0, -6) + aim * 12.0
+	arc.z_index = 5
+	get_parent().add_child(arc)
+	var tween := arc.create_tween().set_parallel()
+	tween.tween_property(arc, "modulate:a", 0.0, 0.18)
+	tween.tween_property(arc, "scale", Vector2(1.12, 1.12), 0.18)
+	tween.chain().tween_callback(arc.queue_free)
+
+
+## Paper confetti where a cut lands.
+func _spawn_hit_spark(target: Node) -> void:
+	var where := global_position + facing * attack_reach
+	if target is Node2D and is_instance_valid(target):
+		where = (target as Node2D).global_position + Vector2(0, -20)
+	for i in 6:
+		var bit := Polygon2D.new()
+		bit.top_level = true
+		bit.polygon = PackedVector2Array([Vector2(-5, -3), Vector2(6, -2), Vector2(2, 4)])
+		bit.color = [Color("fff6dc"), Color("f2d38a"), Color("e8e0cc")][i % 3]
+		bit.global_position = where
+		bit.rotation = randf() * TAU
+		bit.z_index = 6
+		get_parent().add_child(bit)
+		var dir := Vector2.from_angle(randf_range(-PI, 0.0) if view_mode == PageView.Mode.SIDE else randf() * TAU)
+		var tween := bit.create_tween().set_parallel()
+		tween.tween_property(bit, "global_position", where + dir * randf_range(30, 70), 0.25).set_ease(Tween.EASE_OUT)
+		tween.tween_property(bit, "rotation", bit.rotation + randf_range(-4, 4), 0.25)
+		tween.tween_property(bit, "modulate:a", 0.0, 0.25)
+		tween.chain().tween_callback(bit.queue_free)
+
+
+## A ring of light: parry (blue-white), perfect dodge (gold) or Mend (green).
+func _spawn_parry_flash(color := Color("dff4ff")) -> void:
+	var ring := Line2D.new()
+	ring.top_level = true
+	ring.width = 6.0
+	ring.default_color = color
+	var points := PackedVector2Array()
+	for i in 25:
+		points.append(Vector2.from_angle(i / 24.0 * TAU) * 24.0)
+	ring.points = points
+	ring.global_position = global_position + Vector2(facing.x * 30.0, -10)
+	ring.z_index = 6
+	get_parent().add_child(ring)
+	var tween := ring.create_tween().set_parallel()
+	tween.tween_property(ring, "scale", Vector2(3.5, 3.5), 0.22).set_ease(Tween.EASE_OUT)
+	tween.tween_property(ring, "modulate:a", 0.0, 0.22)
+	tween.chain().tween_callback(ring.queue_free)

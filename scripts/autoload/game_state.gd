@@ -13,6 +13,11 @@ var slot := 0
 var max_health := 6
 var health := 6
 var scraps := 0
+## Patch's Thread meter, in charges (filled by landing hits; not saved).
+var thread := 0.0
+var thread_max := 3.0
+## True in the Combat Lab: nothing is saved, so a save slot can't be overwritten.
+var sandbox := false
 var letters: Array[String] = []
 var abilities: Array[StringName] = []
 ## Unique ids of one-time pickups that are already collected.
@@ -44,9 +49,11 @@ func _process(delta: float) -> void:
 
 func new_game(new_slot: int) -> void:
 	slot = new_slot
+	sandbox = false
 	max_health = 6
 	health = max_health
 	scraps = 0
+	thread = 0.0
 	letters.clear()
 	abilities = STARTING_ABILITIES.duplicate()
 	collected.clear()
@@ -59,6 +66,13 @@ func new_game(new_slot: int) -> void:
 
 
 # --- Inventory and progress --------------------------------------------------
+
+func add_thread(amount: float) -> void:
+	var before := thread
+	thread = clampf(thread + amount, 0.0, thread_max)
+	if thread != before:
+		EventBus.thread_changed.emit(thread, thread_max)
+
 
 func has_ability(ability_id: StringName) -> bool:
 	return abilities.has(ability_id)
@@ -168,6 +182,8 @@ func has_save(save_slot: int) -> bool:
 
 
 func save_game() -> bool:
+	if sandbox:
+		return false
 	var data := {
 		"version": SAVE_VERSION,
 		"max_health": max_health,
@@ -200,6 +216,7 @@ func save_game() -> bool:
 
 
 func load_game(save_slot: int) -> bool:
+	sandbox = false
 	var data := read_save(save_slot)
 	if data.is_empty():
 		return false

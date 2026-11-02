@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/combat_lab.gd" id="1_lab"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/spine_peaks.wav" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_bg"]
+[ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_tiles"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="5_patch"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/training_dummy.tscn" id="6_dummy"]
+
+[sub_resource type="WorldBoundaryShape2D" id="Edge_left"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="Edge_right"]
+normal = Vector2(-1, 0)
+
+[node name="CombatLab" type="Node2D"]
+script = ExtResource("1_lab")
+page_title = "Combat Lab"
+music = ExtResource("2_music")
+bounds = Rect2(0, 0, 3840, 1080)
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.2, 0.2)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Ground" type="TileMapLayer" parent="."]
+tile_set = ExtResource("4_tiles")
+
+[node name="PageEdges" type="StaticBody2D" parent="."]
+
+[node name="LeftEdge" type="CollisionShape2D" parent="PageEdges"]
+shape = SubResource("Edge_left")
+
+[node name="RightEdge" type="CollisionShape2D" parent="PageEdges"]
+position = Vector2(3840, 0)
+shape = SubResource("Edge_right")
+
+[node name="Start" type="Marker2D" parent="." groups=["spawn_points"]]
+position = Vector2(240, 900)
+
+[node name="Signs" type="Node2D" parent="."]
+
+[node name="Actors" type="Node2D" parent="."]
+
+[node name="CuttingPost" parent="Actors" instance=ExtResource("6_dummy")]
+position = Vector2(820, 958)
+
+[node name="SparringPost" parent="Actors" instance=ExtResource("6_dummy")]
+position = Vector2(1500, 958)
+spars = true
+
+[node name="LedgePost" parent="Actors" instance=ExtResource("6_dummy")]
+position = Vector2(2160, 958)
+
+[node name="Patch" parent="." instance=ExtResource("5_patch")]
+position = Vector2(240, 900)

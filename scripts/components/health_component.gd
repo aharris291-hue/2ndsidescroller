@@ -47,6 +47,15 @@ func take_damage(amount: int, from_position: Vector2) -> bool:
 	return true
 
 
+## A short window where nothing can hurt (a parry, a finisher).
+func grant_invulnerability(seconds: float) -> void:
+	_invulnerable_left = maxf(_invulnerable_left, seconds)
+
+
+func clear_invulnerability() -> void:
+	_invulnerable_left = 0.0
+
+
 func heal(amount: int) -> void:
 	if is_dead():
 		return

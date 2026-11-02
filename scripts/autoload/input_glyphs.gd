@@ -28,7 +28,10 @@ func hint(action: StringName) -> String:
 		&"attack": ["J / Click", "X"],
 		&"dash": ["K / Shift", "B"],
 		&"grapple": ["L / Q", "RB"],
-		&"slam": ["I / F", "LB"],
+		&"heavy": ["I / Right-click", "Y"],
+		&"guard": ["O / Ctrl", "LB"],
+		&"mend": ["R", "LT"],
+		&"slam": ["F", "Down + Y"],
 		&"interact": ["E", "Y"],
 		&"pause": ["Esc", "Start"],
 	}

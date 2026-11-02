@@ -213,19 +213,23 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 			await _frames(30)
 		await _frames(70)
 	_check(game_state.get_flag("boss_millwheel_defeated"), "Old Millwheel can be defeated from the ground")
-	# The swipe combo: three quick presses chain into the heavy finisher.
+	# The light combo: four quick presses chain into the thrust.
 	await _frames(30)
 	var combo_steps := []
-	for press in 3:
+	for press in 4:
 		# Count physics frames here: the swipe reads input on the physics tick.
+		# Hitstop stretches a swing over more ticks, so wait for the step to change.
+		var before: int = patch.combo_step
 		Input.action_press(&"attack")
 		for f in 2:
 			await physics_frame
 		Input.action_release(&"attack")
-		for f in 7:
+		for f in 30:
 			await physics_frame
+			if patch.combo_step != before:
+				break
 		combo_steps.append(patch.combo_step)
-	_check(combo_steps == [1, 2, 3], "three quick swipes chain into a combo (%s)" % str(combo_steps))
+	_check(combo_steps == [1, 2, 3, 4], "four quick cuts chain into a combo (%s)" % str(combo_steps))
 	# The new enemies load, take hits and go down.
 	for path in ["res://scenes/enemies/ink_spitter.tscn", "res://scenes/enemies/tack_knight.tscn"]:
 		var foe := (load(path) as PackedScene).instantiate() as CharacterBody2D
