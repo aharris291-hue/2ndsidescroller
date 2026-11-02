@@ -8,6 +8,10 @@ extends Node2D
 ## Marker2D named "Start" in the "spawn_points" group.
 
 ## Story flag -> the companion that follows Patch once it is set.
+const WEATHERED := preload("res://resources/shaders/weathered.gdshader")
+## Art already painted for the dark rebuild; the weathering pass leaves it alone.
+const DARK_ART_DIR := "res://assets/art/dark/"
+
 const COMPANIONS := {
 	"met_dot": preload("res://scenes/world/dot_companion.tscn"),
 	"corrugate_joined": preload("res://scenes/world/corrugate_companion.tscn"),
@@ -23,11 +27,28 @@ const COMPANIONS := {
 ## False for pages in the real world (the Margin): they fill the screen instead of
 ## being drawn inside the open book (see BookFrame).
 @export var in_book := true
+## Dark rebuild: book pages are played in the drowned world itself, under rain, fog
+## and a cold grade (DarkAtmosphere), filling the screen instead of sitting in the
+## open book. Real-world pages (in_book = false) keep their own look.
+@export var weather := true
+## Overrides for this page's weather: the cold tint and how hard it rains.
+@export var weather_tint := Color(0.6, 0.65, 0.78)
+@export var rain_amount := 420
 ## No companions follow Patch here, even if they've joined (he's alone in the Gutter).
 @export var no_companions := false
 
 
 func _ready() -> void:
+	if weather and in_book:
+		in_book = false
+		var atmosphere := DarkAtmosphere.new()
+		atmosphere.ambient = weather_tint
+		atmosphere.rain_amount = rain_amount
+		add_child(atmosphere)
+		_weathered = ShaderMaterial.new()
+		_weathered.shader = WEATHERED
+		_weather_art(self)
+		get_tree().node_added.connect(_on_node_added)
 	add_to_group("page")
 	GameState.current_page = scene_file_path
 	GameState.in_gameplay = true
@@ -62,6 +83,47 @@ func _ready() -> void:
 		GameState.set_flag(caption_flag)
 		DialogueUI.narrate(opening_caption)
 	EventBus.page_entered.emit(self)
+
+
+var _weathered: ShaderMaterial
+
+
+## Drains the colour from the old bright art under this page (until each piece is
+## repainted). Skips Patch, pickups (they must stay easy to spot), the backdrop,
+## the tiles, art from the dark kit and anything that already has its own material.
+func _weather_art(node: Node) -> void:
+	if not is_instance_valid(node) or not node.is_inside_tree():
+		return
+	if node is Patch or node is Collectible or node is TileMapLayer or node is Parallax2D:
+		return
+	if node is CanvasLayer or node is Control:
+		return
+	if node is CanvasItem and _wants_weathering(node):
+		(node as CanvasItem).material = _weathered
+		(node as CanvasItem).use_parent_material = false
+	for child in node.get_children():
+		_weather_art(child)
+
+
+func _wants_weathering(item: CanvasItem) -> bool:
+	if item.material != null:
+		return false
+	if not (item is Sprite2D or item is AnimatedSprite2D or item is Polygon2D or item is Line2D):
+		return false
+	var texture: Texture2D = item.get(&"texture")
+	return texture == null or not texture.resource_path.begins_with(DARK_ART_DIR)
+
+
+func _on_node_added(node: Node) -> void:
+	if not is_ancestor_of(node):
+		return
+	# Only the top of a newly added branch; skip anything inside Patch or a pickup.
+	var up := node.get_parent()
+	while up != self:
+		if up is Patch or up is Collectible:
+			return
+		up = up.get_parent()
+	_weather_art.call_deferred(node)
 
 
 func _has_companion(flag: String) -> bool:
