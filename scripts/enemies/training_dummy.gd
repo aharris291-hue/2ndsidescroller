@@ -158,12 +158,12 @@ func _float_text(text: String, color: Color) -> void:
 
 ## A papercraft mannequin: card post, padded paper torso, stitched seams.
 func _build_body() -> void:
-	var dark := Color("3a2a22")
+	var dark := Color("17110e")
 	var parts := [
-		[PackedVector2Array([Vector2(-8, 0), Vector2(8, 0), Vector2(6, -90), Vector2(-6, -90)]), Color("a77b4f")],
-		[PackedVector2Array([Vector2(-40, 2), Vector2(40, 2), Vector2(30, -14), Vector2(-30, -14)]), Color("8a6240")],
-		[PackedVector2Array([Vector2(-34, -84), Vector2(34, -84), Vector2(40, -120), Vector2(28, -160), Vector2(-28, -160), Vector2(-40, -120)]), Color("e9dcc0") if not spars else Color("d9c3a0")],
-		[PackedVector2Array([Vector2(-16, -160), Vector2(16, -160), Vector2(20, -182), Vector2(0, -196), Vector2(-20, -182)]), Color("e9dcc0") if not spars else Color("d9c3a0")],
+		[PackedVector2Array([Vector2(-8, 0), Vector2(8, 0), Vector2(6, -90), Vector2(-6, -90)]), Color("4a3a2e")],
+		[PackedVector2Array([Vector2(-40, 2), Vector2(40, 2), Vector2(30, -14), Vector2(-30, -14)]), Color("3a2c22")],
+		[PackedVector2Array([Vector2(-34, -84), Vector2(34, -84), Vector2(40, -120), Vector2(28, -160), Vector2(-28, -160), Vector2(-40, -120)]), Color("777060") if not spars else Color("6a5848")],
+		[PackedVector2Array([Vector2(-16, -160), Vector2(16, -160), Vector2(20, -182), Vector2(0, -196), Vector2(-20, -182)]), Color("777060") if not spars else Color("6a5848")],
 	]
 	for p in parts:
 		var poly := Polygon2D.new()
@@ -184,12 +184,12 @@ func _build_body() -> void:
 	for i in 16:
 		circle.append(Vector2.from_angle(i * TAU / 16.0) * 12.0 + Vector2(0, -122))
 	target.polygon = circle
-	target.color = Color("c8463c")
+	target.color = Color("7a1f1a")
 	body.add_child(target)
 	if spars:
 		# The sparring post holds a wooden practice sword.
 		var stick := Line2D.new()
 		stick.points = PackedVector2Array([Vector2(30, -120), Vector2(100, -150)])
 		stick.width = 9.0
-		stick.default_color = Color("7b5232")
+		stick.default_color = Color("3f2f24")
 		body.add_child(stick)

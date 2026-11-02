@@ -151,6 +151,7 @@ var _slam_phase := 0
 
 @onready var visual: Node2D = $Visual
 @onready var sprite: Sprite2D = $Visual/Sprite2D
+@onready var rig: DarkRig = $Visual/Rig
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var attack_hitbox: Hitbox = $AttackHitbox
@@ -358,7 +359,11 @@ func _start_attack() -> void:
 	_configure_hitbox(aim, attack_reach, 1.3 if heavy_hit else 1.0,
 		finisher_damage if heavy_hit else 1, 1.0 if heavy_hit else 0.5,
 		finisher_knockback if heavy_hit else 1.0)
-	AudioManager.play_sfx(&"swipe", (0.75 if heavy_hit else randf_range(0.95, 1.2)))
+	AudioManager.play_sfx(&"shears", (0.85 if heavy_hit else randf_range(0.95, 1.12)), -4.0)
+	if heavy_hit:
+		AudioManager.play_voice(&"effort")
+	elif randf() < 0.35:
+		AudioManager.play_voice(&"light")
 	_squash(Vector2(1.3, 0.8) if heavy_hit else Vector2(1.15, 0.9))
 	_spawn_slash(aim, 1.3 if heavy_hit else 1.0, Color("fff6dc"))
 	if heavy_hit and view_mode == PageView.Mode.SIDE:
@@ -496,7 +501,8 @@ func _heavy_strike() -> void:
 		Attack.LAUNCHER:
 			_configure_hitbox(Vector2(facing.x, -0.6).normalized(), attack_reach, 1.2, heavy_damage, heavy_hold, 1.0, true)
 			_spawn_slash(Vector2(facing.x, -1.0).normalized(), 1.3, Color("fff6dc"))
-			AudioManager.play_sfx(&"swipe", 0.85)
+			AudioManager.play_sfx(&"shears", 0.9)
+			AudioManager.play_voice(&"effort", true)
 		Attack.CHARGED:
 			var i := clampi(charge_level - 1, 0, 2)
 			if charge_level >= 3:
@@ -510,13 +516,15 @@ func _heavy_strike() -> void:
 			else:
 				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, charge_damage[i], charge_hold[i], 1.6 + 0.3 * i)
 				_spawn_slash(facing, 1.6 + 0.4 * i, Color("ffe7a8"))
-			AudioManager.play_sfx(&"swipe", 0.6)
+			AudioManager.play_sfx(&"shears", 0.7)
+			AudioManager.play_voice(&"heavy" if charge_level >= 2 else &"effort", true)
 			if view_mode == PageView.Mode.SIDE:
 				velocity.x += facing.x * 240.0
 		_:
 			_configure_hitbox(facing, attack_reach, 1.35, heavy_damage, heavy_hold, 1.4)
 			_spawn_slash(facing, 1.5, Color("fff0c8"))
-			AudioManager.play_sfx(&"swipe", 0.7)
+			AudioManager.play_sfx(&"shears", 0.8)
+			AudioManager.play_voice(&"effort", true)
 	_squash(Vector2(1.35, 0.78))
 
 
@@ -535,6 +543,7 @@ func _on_attack_landed(target: Node) -> void:
 			gain = 0.2
 	GameState.add_thread(gain)
 	TimeFX.hitstop(stop)
+	AudioManager.play_sfx(&"hit_wet", randf_range(0.9, 1.1), -2.0)
 	_spawn_hit_spark(target)
 	if state == State.SLAM and _slam_phase == 1:
 		# The Plunge bounces Patch back up off whatever it hits.
@@ -578,7 +587,8 @@ func _start_finisher(target: Node2D) -> void:
 		side = -facing.x
 	facing = Vector2(-side, 0)
 	global_position.x = target.global_position.x + side * 64.0
-	AudioManager.play_sfx(&"swipe", 0.55)
+	AudioManager.play_sfx(&"shears", 0.65)
+	AudioManager.play_voice(&"finisher", true)
 	TimeFX.hitstop(0.12)
 	_squash(Vector2(0.75, 1.3))
 
@@ -674,7 +684,9 @@ func _parry(hitbox: Hitbox) -> void:
 			attacker.on_parried(self)
 	GameState.add_thread(0.34)
 	TimeFX.hitstop(0.13)
-	AudioManager.play_sfx(&"swipe", 1.6)
+	AudioManager.play_sfx(&"parry", randf_range(0.95, 1.05))
+	if randf() < 0.5:
+		AudioManager.play_voice(&"parry", true)
 	_spawn_slash(facing, 1.2, Color("bfe8ff"))
 	_spawn_parry_flash()
 	_shake_camera(8.0)
@@ -693,6 +705,7 @@ func _start_mend() -> void:
 	_state_left = mend_time
 	attack_hitbox.active = false
 	combo_step = 0
+	AudioManager.play_voice(&"mend", true, -3.0)
 
 
 func _process_mend(delta: float) -> void:
@@ -728,6 +741,8 @@ func _start_dash(input: Vector2) -> void:
 	_state_left = dash_time
 	_dash_cooldown_left = dash_cooldown
 	_perfect_done = false
+	if randf() < 0.4:
+		AudioManager.play_voice(&"dodge")
 	if view_mode == PageView.Mode.SIDE and not is_on_floor():
 		_air_dodges_left -= 1
 	if view_mode == PageView.Mode.SIDE:
@@ -1044,7 +1059,8 @@ func _on_damaged(_amount: int, _from: Vector2) -> void:
 	_state_left = hurt_time
 	_hurt_flash_left = health.invulnerability_time
 	attack_hitbox.active = false
-	AudioManager.play_sfx(&"hurt")
+	AudioManager.play_sfx(&"hurt", 0.8, -6.0)
+	AudioManager.play_voice(&"hurt" if randf() < 0.6 else &"hurt2", true)
 
 
 func _on_health_changed(current: int, maximum: int) -> void:
@@ -1059,7 +1075,8 @@ func _on_died() -> void:
 	state = State.DEAD
 	input_enabled = false
 	attack_hitbox.active = false
-	AudioManager.play_sfx(&"hurt", 0.7)
+	AudioManager.play_sfx(&"hurt", 0.7, -6.0)
+	AudioManager.play_voice(&"death", true)
 	EventBus.player_died.emit()
 	var tween := create_tween()
 	tween.tween_property(visual, "rotation", deg_to_rad(90.0) * facing.x, 0.4)
@@ -1137,12 +1154,14 @@ func _update_visual(delta: float) -> void:
 	var moving := velocity.length() > 40.0
 	var grounded := view_mode == PageView.Mode.TOP or is_on_floor()
 	_anim_time += delta * (12.0 if moving else 3.0)
-	var bob := absf(sin(_anim_time)) * (7.0 if moving and grounded else 1.5)
+	# The rig's legs carry the stride now, so the whole-body bob stays small.
+	var bob := absf(sin(_anim_time)) * (3.0 if moving and grounded else 0.0)
 	visual.position.y = -bob
 	_update_frame(moving, grounded)
+	rig.drive(self, delta)
 	var tilt := 0.0
 	if view_mode == PageView.Mode.SIDE:
-		tilt = clampf(velocity.x / run_speed, -1.0, 1.0) * 0.08
+		tilt = clampf(velocity.x / run_speed, -1.0, 1.0) * 0.04
 		if not is_on_floor():
 			tilt += clampf(velocity.y / max_fall_speed, -1.0, 1.0) * 0.12 * dir
 	if state == State.DASH or state == State.SLAM:

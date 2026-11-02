@@ -5,6 +5,7 @@ extends Page
 ## air combos and the Plunge, and a pen of Soggies that refills when it's empty.
 
 const SOGGY := preload("res://scenes/enemies/soggy.tscn")
+const GROUND_TEX := preload("res://assets/art/dark/ground.png")
 const GROUND_ROW := 15
 const WIDTH_TILES := 60
 const SOGGY_SPOTS := [Vector2(3000, 900), Vector2(3260, 900), Vector2(3520, 900)]
@@ -24,6 +25,7 @@ func _ready() -> void:
 	GameState.health = GameState.max_health
 	GameState.thread = 1.0
 	_build_ground()
+	add_child(DarkAtmosphere.new())
 	super._ready()
 	_add_signs()
 	_fill_pen()
@@ -52,6 +54,24 @@ func _build_ground() -> void:
 		ground.set_cell(Vector2i(x, 11), 0, Vector2i(2, 0))
 	for x in range(35, 39):
 		ground.set_cell(Vector2i(x, 9), 0, Vector2i(2, 0))
+	# The tiles only give the collision; the soaked-paper slabs are what you see.
+	ground.self_modulate.a = 0.0
+	_slab(Vector2(-40, GROUND_ROW * 64 - 14), Vector2(WIDTH_TILES * 64 + 80, 256))
+	_slab(Vector2(28 * 64 - 10, 11 * 64 - 10), Vector2(4 * 64 + 20, 70))
+	_slab(Vector2(35 * 64 - 10, 9 * 64 - 10), Vector2(4 * 64 + 20, 70))
+
+
+## A slab of stacked, soaked pages.
+func _slab(at: Vector2, size: Vector2) -> void:
+	var slab := Sprite2D.new()
+	slab.texture = GROUND_TEX
+	slab.centered = false
+	slab.region_enabled = true
+	slab.region_rect = Rect2(Vector2.ZERO, size)
+	slab.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	slab.position = at
+	slab.z_index = -1
+	add_child(slab)
 
 
 func _fill_pen() -> void:
@@ -72,12 +92,12 @@ func _add_signs() -> void:
 	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nBreak their Hold, then Unstitch.\nThe pen refills when it's empty.")
 
 
-## A card pinned to the page: cream paper, dark stitched-looking border.
+## A torn notice: dark, soaked paper with a dried-blood red edge.
 func _sign(at: Vector2, text: String) -> void:
 	var card := PanelContainer.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.97, 0.88, 0.92)
-	style.border_color = Color("3a2a22")
+	style.bg_color = Color(0.07, 0.07, 0.09, 0.82)
+	style.border_color = Color("6b1f1a")
 	style.set_border_width_all(4)
 	style.set_corner_radius_all(10)
 	style.set_content_margin_all(16)
@@ -89,6 +109,6 @@ func _sign(at: Vector2, text: String) -> void:
 	label.custom_minimum_size = Vector2(608, 0)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override(&"font_size", 25)
-	label.add_theme_color_override(&"font_color", Color("281e2e"))
+	label.add_theme_color_override(&"font_color", Color("d8d0c0"))
 	card.add_child(label)
 	signs.add_child(card)

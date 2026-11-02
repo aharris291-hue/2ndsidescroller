@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/combat_lab.gd" id="1_lab"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/spine_peaks.wav" id="2_music"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_bg"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_drowned.png" id="3_bg"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_tiles"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="5_patch"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/training_dummy.tscn" id="6_dummy"]
@@ -18,13 +18,14 @@ script = ExtResource("1_lab")
 page_title = "Combat Lab"
 music = ExtResource("2_music")
 bounds = Rect2(0, 0, 3840, 1080)
+in_book = false
 
 [node name="Background" type="Parallax2D" parent="."]
 scroll_scale = Vector2(0.2, 0.2)
-repeat_size = Vector2(1920, 1080)
-repeat_times = 3
 
 [node name="Sprite2D" type="Sprite2D" parent="Background"]
+position = Vector2(-100, -420)
+scale = Vector2(1.4, 1.4)
 texture = ExtResource("3_bg")
 centered = false
 
