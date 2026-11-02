@@ -1,12 +1,12 @@
 class_name CollapsingShelf
 extends AnimatableBody2D
 ## A loose shelf board. It holds for a moment after Patch lands on it, shakes, then
-## drops away. It comes back after `return_time` (never, if that is 0).
+## drops away, and grows back in place after `return_time` (never, if that is 0).
 
 const BOARD := preload("res://assets/art/dark/props/shelf_board.png")
 
 @export var hold_time := 0.55
-@export var return_time := 0.0
+@export var return_time := 2.5
 
 var _home := Vector2.ZERO
 var _armed := true
@@ -66,5 +66,6 @@ func _drop() -> void:
 func _restore() -> void:
 	position = _home
 	rotation = 0.0
-	_sprite.modulate.a = 1.0
 	_armed = true
+	# Fade back in so the board is clearly there again.
+	create_tween().tween_property(_sprite, "modulate:a", 1.0, 0.3)
