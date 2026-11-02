@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/mus_lullaby_drowned.ogg-42b76b85850719ce1568d
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

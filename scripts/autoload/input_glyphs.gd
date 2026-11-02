@@ -26,12 +26,12 @@ func hint(action: StringName) -> String:
 	var hints := {
 		&"jump": ["Space", "A"],
 		&"attack": ["J / Click", "X"],
-		&"dash": ["K / Shift", "B"],
+		&"dash": ["K / Shift", "B / RT"],
 		&"grapple": ["L / Q", "RB"],
 		&"heavy": ["I / Right-click", "Y"],
 		&"guard": ["O / Ctrl", "LB"],
 		&"mend": ["R", "LT"],
-		&"slam": ["F", "Down + Y"],
+		&"slam": ["F", "R3"],
 		&"interact": ["E", "Y"],
 		&"pause": ["Esc", "Start"],
 	}

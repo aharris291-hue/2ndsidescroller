@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/amb_rain.ogg-5583a1cc87fe929907b890cb7682ce42
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

@@ -105,9 +105,28 @@ func _bone_spec(bone_name: StringName) -> Array:
 	return []
 
 
+## Meshes already worked out this session, by texture and bones. Patch is rebuilt on
+## every page, and reading the paintings pixel by pixel each time caused a hitch.
+static var _mesh_cache: Dictionary = {}
+
+
 ## A grid mesh over the painting's opaque pixels, each vertex weighted to its
 ## nearest bones so joints bend smoothly.
 func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> void:
+	var key := "%s|%s" % [texture.resource_path, str(bone_names)]
+	if not _mesh_cache.has(key):
+		_mesh_cache[key] = _compute_mesh(texture, bone_names)
+	var mesh: Dictionary = _mesh_cache[key]
+	polygon.polygon = mesh.points
+	polygon.uv = mesh.points
+	polygon.polygons = mesh.triangles
+	polygon.skeleton = polygon.get_path_to(_skeleton)
+	for bone_name in bone_names:
+		polygon.add_bone(_skeleton.get_path_to(bones[bone_name]), mesh.weights[bone_name])
+
+
+## Works out the mesh for one painting: {points, triangles, weights (bone -> per-vertex)}.
+func _compute_mesh(texture: Texture2D, bone_names: Array) -> Dictionary:
 	var image := texture.get_image()
 	if image.is_compressed():
 		image.decompress()
@@ -131,10 +150,6 @@ func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> v
 				ids.append(index[c])
 			triangles.append(PackedInt32Array([ids[0], ids[1], ids[2]]))
 			triangles.append(PackedInt32Array([ids[0], ids[2], ids[3]]))
-	polygon.polygon = points
-	polygon.uv = points
-	polygon.polygons = triangles
-	polygon.skeleton = polygon.get_path_to(_skeleton)
 	var weights := {}
 	for bone_name in bone_names:
 		weights[bone_name] = PackedFloat32Array()
@@ -155,8 +170,7 @@ func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> v
 			total += wgt
 		for pick in picks:
 			weights[pick[0]][i] = pick[1] / total
-	for bone_name in bone_names:
-		polygon.add_bone(_skeleton.get_path_to(bones[bone_name]), weights[bone_name])
+	return {"points": points, "triangles": triangles, "weights": weights}
 
 
 func _cell_has_paint(image: Image, cx: int, cy: int) -> bool:

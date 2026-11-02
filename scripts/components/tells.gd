@@ -18,6 +18,8 @@ static func glint(parent: Node2D, offset: Vector2, size := 1.0) -> void:
 	star.position = offset
 	star.z_index = 8
 	star.scale = Vector2(0.2, 0.2)
+	# Tells keep their full colour on weathered pages (see Page), so they always read.
+	star.add_to_group(&"vfx")
 	parent.add_child(star)
 	var tween := star.create_tween()
 	tween.tween_property(star, "scale", Vector2(1.2, 1.2), 0.1).set_ease(Tween.EASE_OUT)
@@ -28,9 +30,22 @@ static func glint(parent: Node2D, offset: Vector2, size := 1.0) -> void:
 
 ## Pulses `item` red for `seconds`, then puts its colour back.
 static func red_glow(item: CanvasItem, seconds: float) -> void:
+	# On a weathered page the grey shader would wash the red out, so lift it off
+	# while the glow runs and put it back after.
+	var shader_material := item.material as ShaderMaterial
+	if shader_material and shader_material.shader == Page.WEATHERED and not item.has_meta(&"tell_material"):
+		item.set_meta(&"tell_material", shader_material)
+		item.material = null
 	var tween := item.create_tween()
 	var steps := maxi(int(seconds / 0.12), 1)
 	for i in steps:
 		tween.tween_property(item, "modulate", Color(1.8, 0.45, 0.4), 0.06)
 		tween.tween_property(item, "modulate", Color(1.3, 0.7, 0.65), 0.06)
 	tween.tween_property(item, "modulate", Color.WHITE, 0.05)
+	tween.tween_callback(_restore_material.bind(item))
+
+
+static func _restore_material(item: CanvasItem) -> void:
+	if is_instance_valid(item) and item.has_meta(&"tell_material"):
+		item.material = item.get_meta(&"tell_material")
+		item.remove_meta(&"tell_material")
