@@ -28,9 +28,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if not lightning or _modulate == null:
+	if _modulate == null:
 		return
-	_next_flash -= delta
+	_next_flash -= delta if lightning else 0.0
 	if _next_flash <= 0.0:
 		_next_flash = randf_range(10.0, 22.0)
 		_flash_left = 0.35
@@ -73,6 +73,8 @@ static func _radial_texture() -> GradientTexture2D:
 
 
 func _add_rain() -> void:
+	if rain_amount <= 0:
+		return
 	var layer := CanvasLayer.new()
 	layer.layer = 2
 	add_child(layer)

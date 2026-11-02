@@ -13,7 +13,7 @@ script = ExtResource("1_1op6t")
 conversation_id = "prologue_intro"
 title_caption = "Prologue
 The Night the River Came"
-next_page = "res://scenes/levels/prologue/prologue_flood.tscn"
+next_page = "res://scenes/levels/prologue/p1_shelf_at_midnight.tscn"
 music = ExtResource("2_lukk7")
 
 [node name="Background" type="TextureRect" parent="." unique_id=892661075]

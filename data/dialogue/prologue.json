@@ -34,5 +34,97 @@
 			"speaker": "patch",
 			"text": "Okay. Okay. Heroes don't run. Heroes stride away very quickly."
 		}
+	],
+	"midnight_boast": [
+		{
+			"speaker": "patch",
+			"text": "Watch closely, Drizzle. You are about to see the finest climber on this shelf. Possibly in the whole library."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "You said that yesterday."
+		},
+		{
+			"speaker": "patch",
+			"text": "And I was right yesterday. Consistency. That's what greatness is."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "Can I come?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Try to keep up. And don't rain on anything. These are Gran's books."
+		}
+	],
+	"midnight_stack": [
+		{
+			"speaker": "drizzle",
+			"text": "You did it! You're the best climber in the whole book!"
+		},
+		{
+			"speaker": "patch",
+			"text": "In the whole book. Somebody should write that down."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "I'll remember it. I remember everything you do."
+		},
+		{
+			"speaker": "patch",
+			"text": "Course you do. Come on. The far end of the shelf is where the good view is."
+		}
+	],
+	"midnight_dark": [
+		{
+			"speaker": "drizzle",
+			"text": "Patch? Why did the lamps go out?"
+		},
+		{
+			"speaker": "patch",
+			"text": "Draught. Probably. Stay close."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "There's no draught in here. There's never a draught in here."
+		},
+		{
+			"speaker": "patch",
+			"text": "Then it's nothing. And heroes don't get scared of nothing."
+		}
+	],
+	"rising_pinned": [
+		{
+			"speaker": "drizzle",
+			"text": "Patch! My leg. The spine came down on me, I can't—"
+		},
+		{
+			"speaker": "patch",
+			"text": "Hold still. I'll lift it. I'll just... get my shoulder under..."
+		},
+		{
+			"speaker": "narrator",
+			"text": "It did not move. Below them, the ink found the bottom shelf and kept coming."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "It's coming up. Patch, it's coming up!"
+		},
+		{
+			"speaker": "patch",
+			"text": "I'll get help. Gran. I'll get Gran. I'll be right back."
+		},
+		{
+			"speaker": "drizzle",
+			"text": "Don't go. Please. Patch, don't go."
+		},
+		{
+			"speaker": "patch",
+			"text": "I'll be right back."
+		},
+		{
+			"speaker": "narrator",
+			"text": "He was not right back."
+		}
 	]
 }

@@ -8,6 +8,9 @@ extends Node2D
 ## measures them). Patch drives it every frame through `drive()`.
 
 const TEXTURE := preload("res://assets/art/dark/patch.png")
+const FRONT_ARM := preload("res://assets/art/dark/patch_arm_f.png")
+## The same arm with the shears cut away (tools/art/dark_patch_unarmed.py).
+const FRONT_ARM_BARE := preload("res://assets/art/dark/patch_arm_f_bare.png")
 ## The painting cut into puppet layers (back to front) and the bones each one follows.
 const LAYERS := [
 	[preload("res://assets/art/dark/patch_arm_b.png"), [&"arm_b", &"fore_b"]],
@@ -58,6 +61,9 @@ var _swing := 0.0
 var _last_state := -1
 var _last_step := -1
 var _skeleton: Skeleton2D
+## The front arm's layer, so the shears can be shown or hidden.
+var _front_arm: Polygon2D
+var _armed := true
 
 
 func _ready() -> void:
@@ -88,6 +94,8 @@ func _ready() -> void:
 		polygon.texture = layer[0]
 		holder.add_child(polygon)
 		_build_mesh(polygon, layer[0], layer[1])
+		if layer[0] == FRONT_ARM:
+			_front_arm = polygon
 
 
 func _bone_spec(bone_name: StringName) -> Array:
@@ -173,6 +181,11 @@ static func _segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 
 ## Called by Patch every frame with what he's doing.
 func drive(patch: Patch, delta: float) -> void:
+	# Until he finds Gran's shears (P-2) his front paw is empty.
+	var armed := GameState.has_ability(&"crease_swipe")
+	if armed != _armed and _front_arm:
+		_armed = armed
+		_front_arm.texture = FRONT_ARM if armed else FRONT_ARM_BARE
 	var t := {}
 	for key in _targets:
 		t[key] = 0.0
