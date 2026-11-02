@@ -220,6 +220,12 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	# The light combo: four quick presses chain into the thrust.
 	await _frames(30)
 	var combo_steps := []
+	# A stray drip or Soggy in the arena can leave Patch flinching (random spawns),
+	# which would eat the first press; start from a settled, neutral stance.
+	for f in 120:
+		if patch.state == 0 and patch.combo_step == 0:
+			break
+		await physics_frame
 	for press in 4:
 		# Count physics frames here: the swipe reads input on the physics tick.
 		# Hitstop stretches a swing over more ticks, so wait for the step to change.

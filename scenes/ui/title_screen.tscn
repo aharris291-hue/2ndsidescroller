@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="2_w8uqo"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_drowned.png" id="2_w8uqo"]
 
 [node name="TitleScreen" type="Control" unique_id=1152711530]
 layout_mode = 3

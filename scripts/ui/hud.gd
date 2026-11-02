@@ -2,9 +2,9 @@ extends CanvasLayer
 ## In-game HUD: paper-condition tokens (health), Scraps, and Lost Letters.
 ## Each token is worth 2 health: crisp (2), creased (1), torn (0).
 
-const CRISP := preload("res://assets/art/ui/health_crisp.png")
-const CREASED := preload("res://assets/art/ui/health_creased.png")
-const TORN := preload("res://assets/art/ui/health_torn.png")
+const CRISP := preload("res://assets/art/dark/ui/health_crisp.png")
+const CREASED := preload("res://assets/art/dark/ui/health_creased.png")
+const TORN := preload("res://assets/art/dark/ui/health_torn.png")
 
 @onready var tokens: HBoxContainer = $Root/Top/Tokens
 @onready var scraps_label: Label = $Root/Top/ScrapsLabel
@@ -27,6 +27,7 @@ func _ready() -> void:
 	EventBus.boss_defeated.connect(func() -> void: boss_bar.visible = false)
 	EventBus.page_entered.connect(func(_page: Node) -> void: boss_bar.visible = false)
 	boss_bar.visible = false
+	_style_dark()
 	_spools = HBoxContainer.new()
 	_spools.name = "ThreadSpools"
 	_spools.add_theme_constant_override(&"separation", 6)
@@ -46,12 +47,12 @@ func _on_thread_changed(current: float, maximum: float) -> void:
 		bar.max_value = 1.0
 		bar.step = 0.0
 		var back := StyleBoxFlat.new()
-		back.bg_color = Color("efe2c4")
-		back.border_color = Color("3a2a22")
+		back.bg_color = Color(0.08, 0.07, 0.07, 0.85)
+		back.border_color = Color("1c1612")
 		back.set_border_width_all(3)
 		back.set_corner_radius_all(6)
 		var fill := StyleBoxFlat.new()
-		fill.bg_color = Color("c8322c")
+		fill.bg_color = Color("8f1e1a")
 		fill.set_corner_radius_all(4)
 		bar.add_theme_stylebox_override(&"background", back)
 		bar.add_theme_stylebox_override(&"fill", fill)
@@ -64,6 +65,27 @@ func _on_thread_changed(current: float, maximum: float) -> void:
 		var bar := _spools.get_child(i) as ProgressBar
 		bar.value = clampf(current - i, 0.0, 1.0)
 		bar.modulate = Color(1.15, 1.15, 1.15) if current - i >= 1.0 else Color.WHITE
+
+
+## Dark rebuild: bone-coloured text with a heavy shadow, so it reads over rain and fog.
+func _style_dark() -> void:
+	for label: Label in [scraps_label, letters_label, boss_name]:
+		label.add_theme_color_override(&"font_color", Color("d8d0c0"))
+		label.add_theme_color_override(&"font_outline_color", Color(0.04, 0.03, 0.03, 0.9))
+		label.add_theme_constant_override(&"outline_size", 8)
+	$Root/Top/ScrapIcon.modulate = Color(0.72, 0.68, 0.62)
+	var back := StyleBoxFlat.new()
+	back.bg_color = Color(0.06, 0.05, 0.05, 0.85)
+	back.border_color = Color("2a1d18")
+	back.set_border_width_all(3)
+	back.set_corner_radius_all(2)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("7a1a16")
+	fill.border_color = Color("2a1d18")
+	fill.set_border_width_all(3)
+	fill.set_corner_radius_all(2)
+	boss_health.add_theme_stylebox_override(&"background", back)
+	boss_health.add_theme_stylebox_override(&"fill", fill)
 
 
 func show_hud(show: bool) -> void:
