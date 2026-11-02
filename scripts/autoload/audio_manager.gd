@@ -51,7 +51,8 @@ func _ready() -> void:
 	for player in [_music_a, _music_b]:
 		player.bus = &"Music"
 		player.volume_db = -80.0
-		# Restart when the track ends, so any WAV loops without import tweaks.
+		# Tracks are imported looping (seamless). This restart is only a fallback for
+		# any new track added without the loop flag.
 		player.finished.connect(player.play)
 		add_child(player)
 	_active_music = _music_a

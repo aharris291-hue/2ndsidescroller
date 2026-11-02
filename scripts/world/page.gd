@@ -98,6 +98,10 @@ func _weather_art(node: Node) -> void:
 		return
 	if node is CanvasLayer or node is Control:
 		return
+	# Combat effects and enemy tells keep their colour: it's what tells the player
+	# to parry (white), dodge (red), or that a Mend (green) or perfect dodge (gold) worked.
+	if node.is_in_group(&"vfx"):
+		return
 	if node is CanvasItem and _wants_weathering(node):
 		(node as CanvasItem).material = _weathered
 		(node as CanvasItem).use_parent_material = false

@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/mus_drowned.ogg-ac7e8679e82bdb58488eb31e515df
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

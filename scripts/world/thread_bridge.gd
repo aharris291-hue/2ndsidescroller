@@ -28,6 +28,8 @@ func _ready() -> void:
 	_line.scale = Vector2(1, 1.8)
 	add_child(_line)
 	_body = StaticBody2D.new()
+	# It can be cut, so Patch never respawns on it after a fall (see Patch).
+	_body.add_to_group(&"unsafe_floor")
 	var shape := CollisionShape2D.new()
 	var segment := SegmentShape2D.new()
 	segment.a = Vector2(0, -6)

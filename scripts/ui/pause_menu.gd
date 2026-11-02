@@ -1,6 +1,14 @@
 extends CanvasLayer
 ## Pause menu. Works with keyboard, mouse and controller (focus starts on Resume).
 
+## On/off options shown in the grid: setting name -> label.
+const OPTIONS := {
+	&"screen_shake": "Screen shake",
+	&"flashing": "Lightning flashes",
+	&"high_effects": "Weather detail",
+	&"assist": "Assist mode",
+}
+
 @onready var panel: Control = $Root
 @onready var resume_button: Button = $Root/Panel/Margin/VBox/ResumeButton
 @onready var fullscreen_button: Button = $Root/Panel/Margin/VBox/FullscreenButton
@@ -10,11 +18,15 @@ extends CanvasLayer
 @onready var quit_button: Button = $Root/Panel/Margin/VBox/QuitButton
 @onready var quest_log: Label = $Root/Panel/Margin/VBox/QuestLog
 
+var restart_button: Button
+var _option_buttons: Dictionary = {}
+
 
 func _ready() -> void:
 	layer = 30
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	panel.visible = false
+	_build_extra_controls()
 	resume_button.pressed.connect(close)
 	fullscreen_button.pressed.connect(Settings.toggle_fullscreen)
 	book_view_button.pressed.connect(_on_book_view)
@@ -23,6 +35,41 @@ func _ready() -> void:
 	sfx_slider.value = Settings.sfx_volume
 	music_slider.value_changed.connect(_on_volume_changed.bind(true))
 	sfx_slider.value_changed.connect(_on_volume_changed.bind(false))
+
+
+## Adds "Back to the last bookmark" and a two-column grid of display and comfort
+## options. The grid keeps the panel short enough for a 1080p screen.
+func _build_extra_controls() -> void:
+	var box := resume_button.get_parent()
+	var panel_container := $Root/Panel as Control
+	# Grow from the centre if the options make the panel taller than its default size.
+	panel_container.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel_container.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+	restart_button = Button.new()
+	restart_button.name = &"RestartButton"
+	restart_button.text = "Back to the last bookmark"
+	restart_button.pressed.connect(_on_restart)
+	box.add_child(restart_button)
+	box.move_child(restart_button, resume_button.get_index() + 1)
+
+	var grid := GridContainer.new()
+	grid.name = &"Options"
+	grid.columns = 2
+	grid.add_theme_constant_override(&"h_separation", 12)
+	grid.add_theme_constant_override(&"v_separation", 10)
+	box.add_child(grid)
+	box.move_child(grid, restart_button.get_index() + 1)
+	for button: Button in [fullscreen_button, book_view_button]:
+		button.reparent(grid, false)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for option: StringName in OPTIONS:
+		var button := Button.new()
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.pressed.connect(_on_option.bind(option))
+		grid.add_child(button)
+		_option_buttons[option] = button
+	_update_labels()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -40,7 +87,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func open() -> void:
 	var lines := GameState.quest_log()
 	quest_log.text = "Side quests:\n" + "\n".join(lines) if not lines.is_empty() else "No side quests yet."
-	_update_book_view_label()
+	# Rainy pages fill the screen instead of sitting in the book, so the switch would
+	# do nothing there: only offer it where it shows.
+	var scene := get_tree().current_scene
+	book_view_button.visible = scene != null and scene.get(&"in_book") != false
+	restart_button.visible = not GameState.checkpoint_page.is_empty()
+	_update_labels()
 	panel.visible = true
 	get_tree().paused = true
 	resume_button.grab_focus()
@@ -54,11 +106,22 @@ func close() -> void:
 
 func _on_book_view() -> void:
 	Settings.toggle_book_view()
-	_update_book_view_label()
+	_update_labels()
 
 
-func _update_book_view_label() -> void:
+func _on_option(option: StringName) -> void:
+	Settings.toggle(option)
+	_update_labels()
+
+
+func _update_labels() -> void:
 	book_view_button.text = "Book view: on" if Settings.book_view else "Book view: off"
+	for option: StringName in _option_buttons:
+		var on: bool = Settings.get(option)
+		var state := "on" if on else "off"
+		if option == &"high_effects":
+			state = "high" if on else "low"
+		(_option_buttons[option] as Button).text = "%s: %s" % [OPTIONS[option], state]
 
 
 func _on_volume_changed(value: float, is_music: bool) -> void:
@@ -67,6 +130,14 @@ func _on_volume_changed(value: float, is_music: bool) -> void:
 	else:
 		Settings.sfx_volume = value
 	Settings.apply()
+
+
+## Starts again from the last bookmark, as if Patch had been torn: full health, same
+## place. Handy when stuck or when a fight went badly.
+func _on_restart() -> void:
+	close()
+	TimeFX.reset()
+	SceneManager.respawn_at_checkpoint()
 
 
 func _on_quit() -> void:

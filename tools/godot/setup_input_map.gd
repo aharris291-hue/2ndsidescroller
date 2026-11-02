@@ -13,9 +13,14 @@ func _init() -> void:
 	_action("move_down", [_key(KEY_S), _key(KEY_DOWN), _joy_button(JOY_BUTTON_DPAD_DOWN), _joy_axis(JOY_AXIS_LEFT_Y, 1.0)])
 	_action("jump", [_key(KEY_SPACE), _joy_button(JOY_BUTTON_A)])
 	_action("attack", [_key(KEY_J), _mouse(MOUSE_BUTTON_LEFT), _joy_button(JOY_BUTTON_X)])
-	_action("dash", [_key(KEY_K), _key(KEY_SHIFT), _mouse(MOUSE_BUTTON_RIGHT), _joy_button(JOY_BUTTON_B), _joy_axis(JOY_AXIS_TRIGGER_RIGHT, 1.0)])
+	# Y is shared on purpose: it talks/opens when something is in reach, otherwise it's a heavy cut.
+	_action("heavy", [_key(KEY_I), _mouse(MOUSE_BUTTON_RIGHT), _joy_button(JOY_BUTTON_Y)])
+	_action("dash", [_key(KEY_K), _key(KEY_SHIFT), _joy_button(JOY_BUTTON_B), _joy_axis(JOY_AXIS_TRIGGER_RIGHT, 1.0)])
+	_action("guard", [_key(KEY_O), _key(KEY_CTRL), _joy_button(JOY_BUTTON_LEFT_SHOULDER)])
+	_action("mend", [_key(KEY_R), _joy_axis(JOY_AXIS_TRIGGER_LEFT, 1.0)])
 	_action("grapple", [_key(KEY_L), _key(KEY_Q), _mouse(MOUSE_BUTTON_MIDDLE), _joy_button(JOY_BUTTON_RIGHT_SHOULDER)])
-	_action("slam", [_key(KEY_I), _key(KEY_F), _mouse(MOUSE_BUTTON_XBUTTON1), _joy_button(JOY_BUTTON_LEFT_SHOULDER), _joy_axis(JOY_AXIS_TRIGGER_LEFT, 1.0)])
+	# Slam also comes out of Down + heavy in mid-air, and guard on a flat page (see Patch).
+	_action("slam", [_key(KEY_F), _mouse(MOUSE_BUTTON_XBUTTON1), _joy_button(JOY_BUTTON_RIGHT_STICK)])
 	_action("interact", [_key(KEY_E), _joy_button(JOY_BUTTON_Y)])
 	_action("pause", [_key(KEY_ESCAPE), _key(KEY_P), _joy_button(JOY_BUTTON_START)])
 	var err := ProjectSettings.save()

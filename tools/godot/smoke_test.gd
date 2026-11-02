@@ -21,12 +21,22 @@ func _run() -> void:
 	var game_state := root.get_node("GameState")
 	var scene_manager := root.get_node("SceneManager")
 	var dialogue := root.get_node("DialogueUI")
+	# Test the standard rules, whatever this machine's pause-menu settings are.
+	root.get_node("Settings").assist = false
 	game_state.slot = 2
 	game_state.delete_save(2)
 
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(20)
 	_check(current_scene != null and current_scene.name == "TitleScreen", "title screen loads")
+	# Every action must work on a controller (the slam once had no button, which
+	# stranded controller players at the ice on the flat Frostfold page).
+	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"pause"]:
+		var on_pad := false
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+				on_pad = true
+		_check(on_pad, "'%s' has a controller binding" % action)
 
 	game_state.new_game(2)
 	_check(not game_state.has_ability(&"crease_swipe"), "a new game starts without the shears (found in the Prologue)")

@@ -141,8 +141,9 @@ func _line_finished() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _active:
 		return
+	# Not attack: it's mashed in fights, and would skip a line the moment a scene starts.
 	var advance := event.is_action_pressed(&"interact") or event.is_action_pressed(&"jump") \
-		or event.is_action_pressed(&"attack") or event.is_action_pressed(&"ui_accept")
+		or event.is_action_pressed(&"ui_accept")
 	if not advance:
 		return
 	get_viewport().set_input_as_handled()

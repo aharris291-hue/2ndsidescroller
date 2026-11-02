@@ -48,12 +48,17 @@ This repository holds the **whole game**: the core framework, the **Prologue**, 
 | --- | --- | --- |
 | Move | WASD / arrow keys | Left stick / D-pad |
 | Jump (side view) | Space | A |
-| Crease Swipe (attack) | J / left click | X |
-| Fold Dash (once unlocked) | K / Shift / right click | B / right trigger |
+| Light cut (combo) | J / left click | X |
+| Heavy cut (hold to charge; up = launcher, down in mid-air = Plunge) | I / right click | Y |
+| Edge-On dodge (once unlocked) | K / Shift | B / right trigger |
+| Guard (tap as a hit lands to parry) | O / Ctrl | LB |
+| Mend (hold, spends Thread) | R | Left trigger |
 | Tape Tail (once unlocked) | L / Q / middle click | RB |
-| Pop-Up Slam (once unlocked) | I / F / mouse back button, or attack while holding down in mid-air | LB / left trigger |
-| Talk, pull, open doors | E | Y |
+| Pop-Up Slam (once unlocked) | F / mouse back button, or attack while holding down in mid-air. On a flat page, guard slams too | R3 (right stick click), or Down + Y in mid-air. On a flat page, LB slams too |
+| Talk, pull, open doors | E | Y (when something is in reach) |
 | Pause | Esc / P | Start |
+
+The pause menu also has **Back to the last bookmark**, and comfort options: screen shake, lightning flashes, weather detail (set it to low on older graphics cards) and **Assist mode** (no enemy hit takes more than half a paper token). They're saved with the volume settings.
 
 ## Project layout
 
