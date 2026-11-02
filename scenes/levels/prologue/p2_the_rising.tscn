@@ -75,7 +75,8 @@ entity_props = {
 }
 
 [node name="Drizzle" type="Sprite2D" parent="."]
-position = Vector2(190, 3772)
+position = Vector2(185, 3786)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("13_drizzle")
 
 [node name="FallenSpine" type="Sprite2D" parent="."]
