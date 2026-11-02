@@ -15,6 +15,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	gs = root.get_node("GameState")
+	# Test the standard rules, whatever this machine's pause-menu settings are.
+	root.get_node("Settings").assist = false
 	gs.new_game(0)
 	gs.sandbox = true
 	change_scene_to_file("res://scenes/levels/combat_lab/combat_lab.tscn")

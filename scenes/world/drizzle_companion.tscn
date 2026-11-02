@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/dot_companion.gd" id="1_follow"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/characters/drizzle.png" id="2_drizzle"]
+
+[node name="DrizzleCompanion" type="Node2D"]
+script = ExtResource("1_follow")
+follow_speed = 3.5
+follow_offset = Vector2(-110, -150)
+companion_flag = ""
+bob = 10.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_drizzle")

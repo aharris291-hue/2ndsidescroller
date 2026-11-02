@@ -8,6 +8,9 @@ extends Node2D
 ## measures them). Patch drives it every frame through `drive()`.
 
 const TEXTURE := preload("res://assets/art/dark/patch.png")
+const FRONT_ARM := preload("res://assets/art/dark/patch_arm_f.png")
+## The same arm with the shears cut away (tools/art/dark_patch_unarmed.py).
+const FRONT_ARM_BARE := preload("res://assets/art/dark/patch_arm_f_bare.png")
 ## The painting cut into puppet layers (back to front) and the bones each one follows.
 const LAYERS := [
 	[preload("res://assets/art/dark/patch_arm_b.png"), [&"arm_b", &"fore_b"]],
@@ -58,6 +61,9 @@ var _swing := 0.0
 var _last_state := -1
 var _last_step := -1
 var _skeleton: Skeleton2D
+## The front arm's layer, so the shears can be shown or hidden.
+var _front_arm: Polygon2D
+var _armed := true
 
 
 func _ready() -> void:
@@ -88,6 +94,8 @@ func _ready() -> void:
 		polygon.texture = layer[0]
 		holder.add_child(polygon)
 		_build_mesh(polygon, layer[0], layer[1])
+		if layer[0] == FRONT_ARM:
+			_front_arm = polygon
 
 
 func _bone_spec(bone_name: StringName) -> Array:
@@ -97,9 +105,28 @@ func _bone_spec(bone_name: StringName) -> Array:
 	return []
 
 
+## Meshes already worked out this session, by texture and bones. Patch is rebuilt on
+## every page, and reading the paintings pixel by pixel each time caused a hitch.
+static var _mesh_cache: Dictionary = {}
+
+
 ## A grid mesh over the painting's opaque pixels, each vertex weighted to its
 ## nearest bones so joints bend smoothly.
 func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> void:
+	var key := "%s|%s" % [texture.resource_path, str(bone_names)]
+	if not _mesh_cache.has(key):
+		_mesh_cache[key] = _compute_mesh(texture, bone_names)
+	var mesh: Dictionary = _mesh_cache[key]
+	polygon.polygon = mesh.points
+	polygon.uv = mesh.points
+	polygon.polygons = mesh.triangles
+	polygon.skeleton = polygon.get_path_to(_skeleton)
+	for bone_name in bone_names:
+		polygon.add_bone(_skeleton.get_path_to(bones[bone_name]), mesh.weights[bone_name])
+
+
+## Works out the mesh for one painting: {points, triangles, weights (bone -> per-vertex)}.
+func _compute_mesh(texture: Texture2D, bone_names: Array) -> Dictionary:
 	var image := texture.get_image()
 	if image.is_compressed():
 		image.decompress()
@@ -123,10 +150,6 @@ func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> v
 				ids.append(index[c])
 			triangles.append(PackedInt32Array([ids[0], ids[1], ids[2]]))
 			triangles.append(PackedInt32Array([ids[0], ids[2], ids[3]]))
-	polygon.polygon = points
-	polygon.uv = points
-	polygon.polygons = triangles
-	polygon.skeleton = polygon.get_path_to(_skeleton)
 	var weights := {}
 	for bone_name in bone_names:
 		weights[bone_name] = PackedFloat32Array()
@@ -147,8 +170,7 @@ func _build_mesh(polygon: Polygon2D, texture: Texture2D, bone_names: Array) -> v
 			total += wgt
 		for pick in picks:
 			weights[pick[0]][i] = pick[1] / total
-	for bone_name in bone_names:
-		polygon.add_bone(_skeleton.get_path_to(bones[bone_name]), weights[bone_name])
+	return {"points": points, "triangles": triangles, "weights": weights}
 
 
 func _cell_has_paint(image: Image, cx: int, cy: int) -> bool:
@@ -173,6 +195,11 @@ static func _segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 
 ## Called by Patch every frame with what he's doing.
 func drive(patch: Patch, delta: float) -> void:
+	# Until he finds Gran's shears (P-2) his front paw is empty.
+	var armed := GameState.has_ability(&"crease_swipe")
+	if armed != _armed and _front_arm:
+		_armed = armed
+		_front_arm.texture = FRONT_ARM if armed else FRONT_ARM_BARE
 	var t := {}
 	for key in _targets:
 		t[key] = 0.0

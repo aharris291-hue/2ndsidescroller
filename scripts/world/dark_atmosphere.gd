@@ -13,6 +13,8 @@ const RAIN_SOUND := preload("res://assets/audio/dark/amb_rain.ogg")
 @export var lightning := true
 
 var _modulate: CanvasModulate
+var _rain: CPUParticles2D
+var _fog: ShaderMaterial
 var _flash_left := 0.0
 var _next_flash := 9.0
 
@@ -25,12 +27,26 @@ func _ready() -> void:
 	_add_overlay()
 	_add_rain_sound()
 	_attach_lantern.call_deferred()
+	Settings.changed.connect(_apply_settings)
+	_apply_settings()
+
+
+## Follows the pause menu: weather detail (fog layers, grain, rain density) and
+## whether lightning may flash.
+func _apply_settings() -> void:
+	if _fog:
+		_fog.set_shader_parameter(&"octaves", 5 if Settings.high_effects else 2)
+		_fog.set_shader_parameter(&"grain_amount", 0.05 if Settings.high_effects else 0.0)
+	if _rain:
+		_rain.amount = rain_amount if Settings.high_effects else maxi(int(rain_amount / 3.0), 1)
+	if not Settings.flashing and _flash_left > 0.0:
+		_flash_left = 0.0
 
 
 func _process(delta: float) -> void:
-	if not lightning or _modulate == null:
+	if _modulate == null:
 		return
-	_next_flash -= delta
+	_next_flash -= delta if lightning and Settings.flashing else 0.0
 	if _next_flash <= 0.0:
 		_next_flash = randf_range(10.0, 22.0)
 		_flash_left = 0.35
@@ -73,6 +89,8 @@ static func _radial_texture() -> GradientTexture2D:
 
 
 func _add_rain() -> void:
+	if rain_amount <= 0:
+		return
 	var layer := CanvasLayer.new()
 	layer.layer = 2
 	add_child(layer)
@@ -86,6 +104,7 @@ func _add_rain() -> void:
 	streak.width = 2
 	streak.height = 46
 	var rain := CPUParticles2D.new()
+	_rain = rain
 	rain.texture = streak
 	rain.amount = rain_amount
 	rain.lifetime = 0.75
@@ -115,6 +134,7 @@ func _add_overlay() -> void:
 	var material := ShaderMaterial.new()
 	material.shader = FOG_SHADER
 	rect.material = material
+	_fog = material
 	layer.add_child(rect)
 
 

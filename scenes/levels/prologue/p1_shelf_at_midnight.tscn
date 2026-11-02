@@ -1,0 +1,87 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/prologue/shelf_at_midnight.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_bookshelf_drowned.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/hanging_lamp.gd" id="5_lamp"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="6_story"]
+[ext_resource type="Script" path="res://scripts/world/collapsing_shelf.gd" id="7_shelf"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="8_exit"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_scrap"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="10_patch"]
+[ext_resource type="PackedScene" path="res://scenes/world/drizzle_companion.tscn" id="11_drizzle"]
+
+[node name="ShelfAtMidnight" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Shelf at Midnight"
+opening_caption = "Every night, after Nell's light went out, the book went on without her."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.46, 0.46, 1)
+rain_amount = 0
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.35, 0.35)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/prologue/p1_shelf_at_midnight.txt"
+entities = {
+"1": ExtResource("6_story"),
+"2": ExtResource("6_story"),
+"4": ExtResource("6_story"),
+"5": ExtResource("6_story"),
+"6": ExtResource("6_story"),
+"E": ExtResource("8_exit"),
+"L": ExtResource("5_lamp"),
+"c": ExtResource("7_shelf"),
+"o": ExtResource("9_scrap")
+}
+entity_props = {
+"1": {
+"dialogue_id": "midnight_stack",
+"size": Vector2(256, 192)
+},
+"2": {
+"page_method": "lights_out",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "Run with the arrow keys, WASD or the left stick. {jump} to jump. Hold it to jump higher.",
+"size": Vector2(128, 640)
+},
+"5": {
+"caption": "Patch never looked before he dropped. Heroes, he said, didn't need to.",
+"size": Vector2(128, 640)
+},
+"6": {
+"dialogue_id": "midnight_boast",
+"size": Vector2(128, 640)
+},
+"E": {
+"offset": Vector2(32, 0),
+"size": Vector2(420, 320),
+"target_page": "res://scenes/levels/prologue/p2_the_rising.tscn"
+},
+"L": {
+"offset": Vector2(0, -64)
+},
+"c": {
+"offset": Vector2(32, 26)
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Drizzle" parent="." instance=ExtResource("11_drizzle")]
+position = Vector2(60, 760)
+
+[node name="Patch" parent="." instance=ExtResource("10_patch")]
+position = Vector2(160, 892)

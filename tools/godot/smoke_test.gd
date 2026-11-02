@@ -21,14 +21,26 @@ func _run() -> void:
 	var game_state := root.get_node("GameState")
 	var scene_manager := root.get_node("SceneManager")
 	var dialogue := root.get_node("DialogueUI")
+	# Test the standard rules, whatever this machine's pause-menu settings are.
+	root.get_node("Settings").assist = false
 	game_state.slot = 2
 	game_state.delete_save(2)
 
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(20)
 	_check(current_scene != null and current_scene.name == "TitleScreen", "title screen loads")
+	# Every action must work on a controller (the slam once had no button, which
+	# stranded controller players at the ice on the flat Frostfold page).
+	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"pause"]:
+		var on_pad := false
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+				on_pad = true
+		_check(on_pad, "'%s' has a controller binding" % action)
 
 	game_state.new_game(2)
+	_check(not game_state.has_ability(&"crease_swipe"), "a new game starts without the shears (found in the Prologue)")
+	game_state.unlock_ability(&"crease_swipe")
 	# The test walks through enemies on its way round; it checks systems, not survival.
 	game_state.max_health = 99
 	game_state.health = 99
@@ -135,14 +147,30 @@ func _run() -> void:
 
 
 func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
-	# Prologue: the flood rises (once nobody is talking) and the page is climbable.
-	await scene_manager.change_page("res://scenes/levels/prologue/prologue_flood.tscn")
+	# Prologue P-1: the text map builds a shelf Patch can stand on, and the lamps go out.
+	await scene_manager.change_page("res://scenes/levels/prologue/p1_shelf_at_midnight.tscn")
+	await _frames(40)
+	await _skip_dialogue(dialogue)
+	var shelf_patch := get_first_node_in_group("player") as CharacterBody2D
+	_check(shelf_patch != null and shelf_patch.is_on_floor(), "Patch stands on the shelf in P-1")
+	_check(current_scene.bounds.size == Vector2(72 * 64, 17 * 64), "the P-1 text map sets the page bounds")
+	current_scene.lights_out()
+	await _frames(200)
+	await _skip_dialogue(dialogue)
+	_check(game_state.get_flag("p1_lights_out"), "the lamps go out at the end of the shelf")
+
+	# P-2: the ink rises once Patch has left Drizzle, and cutting the thread opens the exit.
+	await scene_manager.change_page("res://scenes/levels/prologue/p2_the_rising.tscn")
 	await _frames(20)
 	await _skip_dialogue(dialogue)
-	var flood := current_scene.get_node("Flood") as Node2D
-	var flood_start := flood.position.y
+	var ink := current_scene.get_node("Ink") as Node2D
+	var ink_start := ink.position.y
 	await _frames(240)
-	_check(flood.position.y < flood_start - 30.0, "the Prologue flood rises")
+	_check(ink.position.y < ink_start - 30.0, "the ink rises in P-2")
+	var bridge := current_scene.get_node("Level/thread_bridge_10_12")
+	bridge.cut()
+	_check(game_state.get_flag("cut_the_thread"), "the thread bridge can be cut")
+	await _skip_dialogue(dialogue)
 
 	# Windmill Hills: the wind tab spins the big windmill; sheep count toward the quest.
 	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn")

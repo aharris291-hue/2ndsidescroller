@@ -1,5 +1,9 @@
 extends Node
-## Player preferences (volume, fullscreen, book view), stored apart from save slots in user://settings.cfg.
+## Player preferences (volume, display, comfort and assist options), stored apart from
+## save slots in user://settings.cfg.
+
+## Emitted after any setting is applied, so live systems (weather, camera) can follow.
+signal changed
 
 const PATH := "user://settings.cfg"
 
@@ -8,6 +12,14 @@ var sfx_volume := 0.9
 var fullscreen := false
 ## Show pages as an open book on a desk (BookFrame). Off = flat full-screen page.
 var book_view := true
+## Camera shake on heavy hits, slams and boss blows.
+var screen_shake := true
+## Lightning flashes in the rain (off for players sensitive to flashing light).
+var flashing := true
+## Weather detail: true = full fog, film grain and rain; false = lighter for older GPUs.
+var high_effects := true
+## Assist: enemy hits take at most half a paper token, for a gentler adventure.
+var assist := false
 
 
 func _ready() -> void:
@@ -17,6 +29,10 @@ func _ready() -> void:
 		sfx_volume = config.get_value("audio", "sfx_volume", sfx_volume)
 		fullscreen = config.get_value("video", "fullscreen", fullscreen)
 		book_view = config.get_value("video", "book_view", book_view)
+		high_effects = config.get_value("video", "high_effects", high_effects)
+		screen_shake = config.get_value("comfort", "screen_shake", screen_shake)
+		flashing = config.get_value("comfort", "flashing", flashing)
+		assist = config.get_value("comfort", "assist", assist)
 	apply()
 
 
@@ -27,6 +43,7 @@ func apply() -> void:
 	# Headless runs (CI, exports) have no window to change.
 	if DisplayServer.get_name() != "headless" and DisplayServer.window_get_mode() != mode:
 		DisplayServer.window_set_mode(mode)
+	changed.emit()
 
 
 func save() -> void:
@@ -35,6 +52,10 @@ func save() -> void:
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("video", "fullscreen", fullscreen)
 	config.set_value("video", "book_view", book_view)
+	config.set_value("video", "high_effects", high_effects)
+	config.set_value("comfort", "screen_shake", screen_shake)
+	config.set_value("comfort", "flashing", flashing)
+	config.set_value("comfort", "assist", assist)
 	config.save(PATH)
 
 
@@ -47,6 +68,14 @@ func toggle_fullscreen() -> void:
 func toggle_book_view() -> void:
 	book_view = not book_view
 	BookFrame.refresh()
+	save()
+
+
+## Flips one of the on/off options by name ("screen_shake", "flashing", "high_effects",
+## "assist"), applies it and saves.
+func toggle(option: StringName) -> void:
+	set(option, not get(option))
+	apply()
 	save()
 
 

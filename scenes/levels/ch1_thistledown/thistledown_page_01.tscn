@@ -1,8 +1,8 @@
 [gd_scene format=4]
 
 [ext_resource type="Script" path="res://scripts/world/page.gd" id="1_si3jy"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_qgsa6"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_thistledown.png" id="3_eiybi"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_qgsa6"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_meadow_drowned.png" id="3_eiybi"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_ewv5y"]
 [ext_resource type="PackedScene" path="res://scenes/world/npc_shepherd_fluff.tscn" id="5_qlgpq"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="7_06te3"]
@@ -34,7 +34,7 @@ bounds = Rect2(0, 0, 5120, 1088)
 
 [node name="Background" type="Parallax2D" parent="." unique_id=230264098]
 scroll_scale = Vector2(0.25, 0.1)
-repeat_size = Vector2(1920, 0)
+repeat_size = Vector2(3840, 0)
 repeat_times = 2
 
 [node name="Hills" type="Sprite2D" parent="Background" unique_id=1349329179]

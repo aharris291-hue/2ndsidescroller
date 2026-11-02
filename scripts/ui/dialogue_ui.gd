@@ -47,16 +47,38 @@ func _ready() -> void:
 	_speakers = _load_json(SPEAKERS_FILE)
 	for path in DIALOGUE_FILES:
 		_conversations.merge(_load_json(path))
-	# Narrator captions print straight onto the page in bold capitals, like the book's own text.
-	caption.add_theme_stylebox_override(&"panel", StyleBoxEmpty.new())
-	caption_label.uppercase = true
-	caption_label.add_theme_font_size_override(&"font_size", 46)
-	caption_label.add_theme_color_override(&"font_color", Color("281e2e"))
-	caption_label.add_theme_color_override(&"font_outline_color", Color("fff8e2"))
-	caption_label.add_theme_constant_override(&"outline_size", 14)
+	_style_dark()
 	box.visible = false
 	caption.visible = false
 	caption.modulate.a = 0.0
+
+
+## Dark rebuild: a dark slate box edged in dried red with bone-white serif text;
+## the narrator's captions are pale italic lines hanging over the scene.
+func _style_dark() -> void:
+	var serif := load("res://assets/fonts/LiberationSerif-Regular.ttf") as Font
+	var italic := load("res://assets/fonts/LiberationSerif-Italic.ttf") as Font
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = Color(0.05, 0.05, 0.06, 0.9)
+	panel.set_border_width_all(2)
+	panel.border_width_top = 4
+	panel.border_color = Color("6b1f1a")
+	panel.set_corner_radius_all(2)
+	panel.shadow_color = Color(0, 0, 0, 0.5)
+	panel.shadow_size = 18
+	box.add_theme_stylebox_override(&"panel", panel)
+	name_label.add_theme_font_override(&"font", serif)
+	text_label.add_theme_font_override(&"normal_font", serif)
+	text_label.add_theme_color_override(&"default_color", Color("d8d0c0"))
+	text_label.add_theme_font_size_override(&"normal_font_size", 32)
+	continue_hint.add_theme_color_override(&"font_color", Color("8a8070"))
+	caption.add_theme_stylebox_override(&"panel", StyleBoxEmpty.new())
+	caption_label.uppercase = false
+	caption_label.add_theme_font_override(&"font", italic)
+	caption_label.add_theme_font_size_override(&"font_size", 44)
+	caption_label.add_theme_color_override(&"font_color", Color("d8d0c0"))
+	caption_label.add_theme_color_override(&"font_outline_color", Color(0.02, 0.02, 0.03, 0.85))
+	caption_label.add_theme_constant_override(&"outline_size", 12)
 
 
 func is_active() -> bool:
@@ -86,7 +108,8 @@ func _show_line() -> void:
 	var line: Dictionary = _lines[_index]
 	var speaker: Dictionary = _speakers.get(line.get("speaker", ""), {})
 	name_label.text = speaker.get("name", "")
-	name_label.add_theme_color_override(&"font_color", Color(speaker.get("color", "#2b2118")))
+	# Speaker colours were picked for cream paper; lift them so they read on the dark box.
+	name_label.add_theme_color_override(&"font_color", Color(speaker.get("color", "#2b2118")).lightened(0.45))
 	_pitch = float(speaker.get("pitch", 1.0))
 	text_label.text = line.get("text", "")
 	text_label.visible_characters = 0
@@ -118,8 +141,9 @@ func _line_finished() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _active:
 		return
+	# Not attack: it's mashed in fights, and would skip a line the moment a scene starts.
 	var advance := event.is_action_pressed(&"interact") or event.is_action_pressed(&"jump") \
-		or event.is_action_pressed(&"attack") or event.is_action_pressed(&"ui_accept")
+		or event.is_action_pressed(&"ui_accept")
 	if not advance:
 		return
 	get_viewport().set_input_as_handled()

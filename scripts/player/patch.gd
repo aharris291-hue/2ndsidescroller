@@ -135,6 +135,10 @@ var _dash_cooldown_left := 0.0
 var _dash_direction := Vector2.RIGHT
 var _was_on_floor := false
 var _last_safe_position := Vector2.ZERO
+## Which way Patch faced on that ground, so a fall puts him back away from the edge.
+var _last_safe_facing := 1.0
+## True while a conversation is open: Patch can't act, so nothing may hurt him.
+var _in_dialogue := false
 var _anim_time := 0.0
 var _grapple_target: GrapplePoint
 var _grapple_phase := Grapple.SHOOT
@@ -214,6 +218,18 @@ func _physics_process(delta: float) -> void:
 	if view_mode == PageView.Mode.TOP or is_on_floor():
 		_air_hits = 0
 		_air_dodges_left = 1
+	if view_mode == PageView.Mode.SIDE:
+		# Coyote time and the jump buffer run in every state, so a jump pressed during
+		# a swing, a dodge or a stagger still comes out the moment Patch is free.
+		# (A dodge off a ledge keeps its coyote time, so dash-then-jump still works.)
+		if is_on_floor():
+			_coyote_left = coyote_time
+		elif state != State.DASH:
+			_coyote_left = maxf(_coyote_left - delta, 0.0)
+		if _action_pressed(&"jump"):
+			_jump_buffer_left = jump_buffer_time
+		else:
+			_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
 
 	match state:
 		State.NORMAL:
@@ -298,17 +314,8 @@ func _side_movement(input_x: float, delta: float) -> void:
 	velocity.x = move_toward(velocity.x, target, rate * delta)
 	_apply_gravity(delta)
 
-	# Coyote time: a short grace period to jump after walking off a ledge.
-	if is_on_floor():
-		_coyote_left = coyote_time
-	else:
-		_coyote_left = maxf(_coyote_left - delta, 0.0)
-	# Jump buffer: a jump pressed just before landing still counts.
-	if _action_pressed(&"jump"):
-		_jump_buffer_left = jump_buffer_time
-	else:
-		_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
-
+	# Coyote time (a grace period to jump after walking off a ledge) and the jump
+	# buffer (a jump pressed just before landing still counts) tick in _physics_process.
 	if _jump_buffer_left > 0.0 and _coyote_left > 0.0:
 		velocity.y = jump_velocity
 		_jump_buffer_left = 0.0
@@ -400,6 +407,14 @@ func _process_attack(delta: float) -> void:
 		# Once the cut has landed or missed, a dodge cancels the rest of the swing.
 		if _action_pressed(&"dash") and _can_dodge():
 			_start_dash(_move_input())
+			return
+		# So does a jump on the ground (it comes out next frame from the jump buffer).
+		if view_mode == PageView.Mode.SIDE and is_on_floor() and _jump_buffer_left > 0.0 \
+				and _state_left < attack_time * 0.5:
+			attack_hitbox.active = false
+			_combo_left = 0.0
+			combo_step = 0
+			state = State.NORMAL
 			return
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
 	var length := air_combo_length if airborne else combo_length
@@ -772,9 +787,13 @@ func _process_hurt(delta: float) -> void:
 
 # --- Pop-Up Slam -----------------------------------------------------------
 
-## The slam button, or (side view, in mid-air) attack while holding down.
+## The slam button, or (side view, in mid-air) attack while holding down. On a flat
+## page there's nothing to guard against from the front, so guard slams too (this
+## gives controllers a second slam button where the ice and fold marks need it).
 func _wants_slam() -> bool:
 	if _action_pressed(&"slam"):
+		return true
+	if view_mode == PageView.Mode.TOP and _action_pressed(&"guard"):
 		return true
 	return view_mode == PageView.Mode.SIDE and not is_on_floor() and _action_pressed(&"attack") \
 		and input_enabled and Input.is_action_pressed(&"move_down")
@@ -854,6 +873,8 @@ func _slam_impact() -> void:
 
 
 func _shake_camera(amount: float) -> void:
+	if not Settings.screen_shake:
+		return
 	var tween := create_tween()
 	for i in 4:
 		tween.tween_property(camera, "offset", Vector2(randf_range(-1, 1), randf_range(-1, 1)) * amount * (1.0 - i / 4.0), 0.035)
@@ -1005,8 +1026,9 @@ func _after_move() -> void:
 		var on_floor := is_on_floor()
 		if on_floor and not _was_on_floor:
 			_squash(Vector2(1.2, 0.82))
-		if on_floor and state == State.NORMAL:
+		if on_floor and state == State.NORMAL and _on_safe_floor():
 			_last_safe_position = global_position
+			_last_safe_facing = facing.x if facing.x != 0.0 else _last_safe_facing
 		_was_on_floor = on_floor
 		if global_position.y > fall_limit and state != State.DEAD:
 			_fell_off_page()
@@ -1014,8 +1036,25 @@ func _after_move() -> void:
 		_last_safe_position = global_position
 
 
+## True when Patch stands on ground that will still be there when he comes back:
+## not a moving or collapsing platform, breakable ice, or a cuttable thread.
+func _on_safe_floor() -> bool:
+	if get_platform_velocity() != Vector2.ZERO:
+		return false
+	# A test-only nudge down finds what he's standing on (nothing actually moves).
+	var below := move_and_collide(Vector2(0, 8), true)
+	if below == null:
+		return false
+	var body := below.get_collider()
+	if body is AnimatableBody2D or body is RigidBody2D or body is CharacterBody2D \
+			or body is SlamBreakable:
+		return false
+	return not (body is Node and (body as Node).is_in_group(&"unsafe_floor"))
+
+
 func _fell_off_page() -> void:
-	global_position = _last_safe_position + Vector2(-facing.x * 48.0, -24.0)
+	# Step back the way Patch came onto that ground, away from the edge he fell from.
+	global_position = _last_safe_position + Vector2(-_last_safe_facing * 48.0, -24.0)
 	velocity = Vector2.ZERO
 	health.take_damage(1, global_position)
 
@@ -1023,6 +1062,9 @@ func _fell_off_page() -> void:
 # --- Damage, death, interaction --------------------------------------------
 
 func _on_hurtbox_hit(hitbox: Hitbox) -> void:
+	if _in_dialogue:
+		# Patch can't move while someone is talking, so nothing gets a free hit.
+		return
 	if state == State.DASH:
 		# A hit that arrives right at the start of a dodge is a perfect dodge.
 		if not _perfect_done and dash_time - _state_left <= perfect_dodge_window and hitbox.damage > 0:
@@ -1032,7 +1074,9 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 		return
 	if state == State.GUARD and _guard_hit(hitbox):
 		return
-	if health.take_damage(hitbox.damage, hitbox.global_position):
+	# Assist mode: no single hit takes more than half a paper token.
+	var amount := mini(hitbox.damage, 1) if Settings.assist else hitbox.damage
+	if health.take_damage(amount, hitbox.global_position):
 		var away := (global_position - hitbox.global_position).normalized()
 		if view_mode == PageView.Mode.SIDE:
 			away = Vector2(signf(away.x) if away.x != 0.0 else -facing.x, -0.6).normalized()
@@ -1102,6 +1146,7 @@ func _try_interact() -> bool:
 
 
 func _on_dialogue_started() -> void:
+	_in_dialogue = true
 	input_enabled = false
 	velocity.x = 0.0
 	if view_mode == PageView.Mode.TOP:
@@ -1109,9 +1154,14 @@ func _on_dialogue_started() -> void:
 
 
 func _on_dialogue_finished() -> void:
+	# A breath of safety, so an enemy standing in Patch doesn't hit him the instant
+	# the box closes.
+	_in_dialogue = false
+	health.grant_invulnerability(0.5)
 	# Wait a moment so the button that closed the dialogue doesn't also act in-game.
 	await get_tree().create_timer(0.15).timeout
-	if state != State.DEAD:
+	# Another conversation may have opened meanwhile (one line chained into the next).
+	if state != State.DEAD and not DialogueUI.is_active():
 		input_enabled = true
 
 
@@ -1223,6 +1273,7 @@ func _spawn_slash(aim: Vector2, size: float, color: Color) -> void:
 	arc.points = points
 	arc.global_position = global_position + Vector2(0, -6) + aim * 12.0
 	arc.z_index = 5
+	arc.add_to_group(&"vfx")
 	get_parent().add_child(arc)
 	var tween := arc.create_tween().set_parallel()
 	tween.tween_property(arc, "modulate:a", 0.0, 0.18)
@@ -1243,6 +1294,7 @@ func _spawn_hit_spark(target: Node) -> void:
 		bit.global_position = where
 		bit.rotation = randf() * TAU
 		bit.z_index = 6
+		bit.add_to_group(&"vfx")
 		get_parent().add_child(bit)
 		var dir := Vector2.from_angle(randf_range(-PI, 0.0) if view_mode == PageView.Mode.SIDE else randf() * TAU)
 		var tween := bit.create_tween().set_parallel()
@@ -1264,6 +1316,7 @@ func _spawn_parry_flash(color := Color("dff4ff")) -> void:
 	ring.points = points
 	ring.global_position = global_position + Vector2(facing.x * 30.0, -10)
 	ring.z_index = 6
+	ring.add_to_group(&"vfx")
 	get_parent().add_child(ring)
 	var tween := ring.create_tween().set_parallel()
 	tween.tween_property(ring, "scale", Vector2(3.5, 3.5), 0.22).set_ease(Tween.EASE_OUT)

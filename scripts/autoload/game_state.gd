@@ -6,7 +6,8 @@ const SAVE_VERSION := 1
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
-const STARTING_ABILITIES: Array[StringName] = [&"crease_swipe"]
+## Patch finds Gran's shears partway up the Prologue (P-2 The Rising).
+const STARTING_ABILITIES: Array[StringName] = []
 const LETTER_TOTAL := 26
 
 var slot := 0
