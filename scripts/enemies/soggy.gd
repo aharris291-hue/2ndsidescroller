@@ -116,6 +116,7 @@ func _side_behaviour(delta: float) -> void:
 				_windup_left = lunge_windup
 				# White glint: the lunge can be parried.
 				Tells.glint(self, Vector2(26.0 * _direction, -60))
+				AudioManager.play_sfx(&"growl", randf_range(0.85, 1.1), -4.0)
 				return
 			# Charge, but don't run off a ledge after him.
 			velocity.x = chase_speed * _direction if ledge_check.is_colliding() and not is_on_wall() else 0.0
@@ -188,7 +189,7 @@ func unstitch(_by: Node) -> void:
 func _on_died() -> void:
 	contact_hitbox.set_deferred("monitorable", false)
 	hurtbox.set_deferred("monitoring", false)
-	AudioManager.play_sfx(&"enemy_pop", randf_range(0.9, 1.1))
+	AudioManager.play_sfx(&"dissolve", randf_range(0.9, 1.1))
 	for i in scrap_drop:
 		var scrap := SCRAP_SCENE.instantiate() as Collectible
 		scrap.persistent = false

@@ -199,7 +199,11 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		await _frames(5)
 		if cycle == 0:
 			_check(boss.state == 2, "pulling all three tabs jams the sails")
-		for hit in 3:
+		# Three landed cuts per jam; spare swings cover a cut lost to a stray Soggy or drip
+		# (their spawns are random, so the run must not hinge on the random stream).
+		for hit in 6:
+			if hit > 0 and boss.state != 2:
+				break
 			# Standing on the floor beside the mill (not hovering): the core must be in reach.
 			patch.global_position = boss.global_position + Vector2(-74, -60)
 			patch.velocity = Vector2.ZERO

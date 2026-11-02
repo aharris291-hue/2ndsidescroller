@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/soggy.gd" id="1_u6kbc"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/soggy.png" id="2_2wa8e"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/sogg.png" id="2_2wa8e"]
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_5vcxd"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_0jjlk"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_og018"]
@@ -21,8 +21,8 @@ collision_layer = 4
 script = ExtResource("1_u6kbc")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=840616821]
-position = Vector2(0, -8)
-scale = Vector2(0.5, 0.5)
+position = Vector2(0, -16)
+scale = Vector2(0.24, 0.24)
 texture = ExtResource("2_2wa8e")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1857448886]

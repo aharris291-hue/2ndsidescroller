@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_kmpdd"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_1i65l"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_i6swd"]
+[ext_resource type="Script" path="res://scripts/player/dark_rig.gd" id="6_rig"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_74qas"]
 radius = 28.0
@@ -30,8 +31,12 @@ script = ExtResource("1_0q0t2")
 [node name="Sprite2D" type="Sprite2D" parent="Visual" unique_id=979234526]
 position = Vector2(-17, -10)
 scale = Vector2(0.375, 0.375)
+visible = false
 texture = ExtResource("2_q1kn0")
 hframes = 5
+
+[node name="Rig" type="Node2D" parent="Visual"]
+script = ExtResource("6_rig")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2078869355]
 shape = SubResource("CapsuleShape2D_74qas")
