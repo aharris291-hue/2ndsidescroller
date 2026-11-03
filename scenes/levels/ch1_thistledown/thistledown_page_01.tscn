@@ -18,6 +18,8 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="21_8hbb7"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="22_utcvu"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="p2_moth"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/mimic_book.tscn" id="p2_mimic"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0q65d"]
 normal = Vector2(1, 0)
@@ -164,3 +166,15 @@ position = Vector2(192, 848)
 
 [node name="FromHills" type="Marker2D" parent="." unique_id=301082115 groups=["spawn_points"]]
 position = Vector2(4864, 720)
+
+[node name="PaperMoth1" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(3100, 700)
+
+[node name="PaperMoth2" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(3220, 640)
+
+[node name="PaperMoth3" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(3340, 700)
+
+[node name="MimicBook1" parent="Actors" instance=ExtResource("p2_mimic")]
+position = Vector2(2234, 856)

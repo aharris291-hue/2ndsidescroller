@@ -17,6 +17,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var charge_time := 1.3
 @export var dazed_time := 1.5
 @export var gravity := 2000.0
+## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
+@export var inked := false
 @export var scrap_drop := 4
 ## Hits that get through the shield from the front anyway (the combo finisher, a slam).
 @export var guard_break_damage := 2
@@ -46,6 +48,8 @@ func _ready() -> void:
 		ledge_check.enabled = false
 	hurtbox.hit.connect(_on_hit)
 	health.died.connect(_on_died)
+	if inked:
+		Inked.apply(self)
 
 
 func _physics_process(delta: float) -> void:
@@ -149,6 +153,8 @@ func _on_hit(hitbox: Hitbox) -> void:
 
 
 func _on_died() -> void:
+	if inked:
+		Inked.on_died(self)
 	contact_hitbox.set_deferred("monitorable", false)
 	hurtbox.set_deferred("monitoring", false)
 	AudioManager.play_sfx(&"enemy_pop", 0.6)

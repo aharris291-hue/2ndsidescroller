@@ -183,6 +183,7 @@ func _run() -> void:
 		_check(not is_instance_valid(soggy), "an Unstitched Soggy is gone")
 
 	_tells_read_on_painted_art()
+	await _new_enemies(lab)
 	await _accessibility(lab, sparring)
 	_finish()
 
@@ -271,6 +272,91 @@ func _charms(sparring: Node2D, swing: Node) -> void:
 	gs.charms.clear()
 	gs.equipped.clear()
 	swing.damage = 1
+	await _frames(30)
+
+
+## Phase 2's enemies, each in its own pen in the lab. Patch is kept untouchable while
+## they show what they do; this checks their behaviour, not his survival.
+func _new_enemies(lab: Node) -> void:
+	var pens: Dictionary = lab.pens
+	patch.health.grant_invulnerability(60.0)
+
+	# Paper Moths: a swarm of three, one cut each, and they dart in after a glint.
+	var moths: Array = pens["moths"]
+	_check(moths.size() == 3 and moths[0].health.max_health == 1, "Paper Moths come three to a swarm and tear in one cut")
+	_put_patch(4420.0, 1.0)
+	var darted := false
+	for i in 300:
+		await physics_frame
+		for moth in moths:
+			if is_instance_valid(moth) and moth.state == 2:
+				darted = true
+		if darted:
+			break
+	_check(darted, "a Paper Moth darts at Patch")
+	var moth: Node = moths[0]
+	moth.health.clear_invulnerability()
+	moth.health.take_damage(1, patch.global_position)
+	await create_timer(1.0).timeout
+	_check(not is_instance_valid(moth), "one cut and a moth is gone")
+
+	# Inkwell Turret: fires straight shots; a cut sends one back for 2 damage.
+	var turret: Node = pens["turret"][0]
+	_put_patch(turret.global_position.x - 500.0, 1.0)
+	var shot: Node = null
+	for i in 360:
+		await physics_frame
+		for node in lab.get_node("Actors").get_children():
+			if node is Area2D and node.get(&"reflected") == false:
+				shot = node
+		if shot:
+			break
+	_check(shot != null and absf(shot.velocity.y) < absf(shot.velocity.x), "the Inkwell Turret fires a straight shot")
+	if shot:
+		shot._on_area_entered(patch.attack_hitbox)
+		_check(shot.reflected and signf(shot.velocity.x) == signf(turret.global_position.x - shot.global_position.x),
+			"a cut sends the shot back toward the turret")
+		shot.global_position = turret.global_position + Vector2(-40, -60)
+		var before: int = turret.health.current
+		turret.health.clear_invulnerability()
+		await _frames(6)
+		_check(turret.health.current == before - 2, "the turret's own shot hurts it (%d -> %d)" % [before, turret.health.current])
+
+	# Folded Crane: glows red, dives unblockable, and sticks in the ground on a miss.
+	var crane: Node = pens["crane"][0]
+	_put_patch(crane.global_position.x, 1.0)
+	var saw_unblockable := false
+	var stuck := false
+	for i in 600:
+		await physics_frame
+		if crane.state == 2 and crane.contact_hitbox.unblockable:
+			saw_unblockable = true
+			# Step aside, so the dive misses.
+			_put_patch(crane.global_position.x - 400.0, 1.0)
+		if crane.is_stuck():
+			stuck = true
+			break
+	_check(saw_unblockable, "the Folded Crane's dive can't be guarded (red glow)")
+	_check(stuck, "a missed dive sticks the crane's beak in the ground")
+
+	# Mimic Book: a closed book until Patch is close.
+	var mimic: Node = pens["mimic"][0]
+	_check(mimic.is_disguised() and not mimic.contact_hitbox.active, "the Mimic Book lies there like any other book")
+	_put_patch(mimic.global_position.x - 120.0, 1.0)
+	await _frames(10)
+	_check(not mimic.is_disguised() and mimic.contact_hitbox.active, "close up, the Mimic Book snaps open")
+
+	# Inked elite: tougher, quicker, and leaves a pool of ink.
+	var inked: Node = pens["inked"][0]
+	var plain: Node = pens["soggies"][0] if not pens["soggies"].is_empty() else null
+	_check(inked.is_in_group(&"inked") and plain != null
+		and inked.health.max_health == ceili(plain.health.max_health * 1.5), "an Inked Soggy has half again the health")
+	inked.health.clear_invulnerability()
+	inked.health.take_damage(999, inked.global_position)
+	await _frames(5)
+	_check(lab.get_node("Actors").find_child("InkPool", false, false) != null, "an Inked elite leaves a pool of ink")
+	patch.health.clear_invulnerability()
+	_put_patch(400.0, 1.0)
 	await _frames(30)
 
 
@@ -363,6 +449,10 @@ const TELL_SPRITES := [
 	"res://assets/art/dark/sogg.png",
 	"res://assets/art/dark/enemies/ink_spitter.png",
 	"res://assets/art/dark/enemies/tack_knight.png",
+	"res://assets/art/dark/enemies/folded_crane.png",
+	"res://assets/art/dark/enemies/paper_moth.png",
+	"res://assets/art/dark/enemies/inkwell_turret.png",
+	"res://assets/art/dark/enemies/mimic_book.png",
 	"res://assets/art/dark/bosses/millwheel_body.png",
 	"res://assets/art/dark/bosses/kraken_body.png",
 	"res://assets/art/dark/bosses/sogg_body.png",

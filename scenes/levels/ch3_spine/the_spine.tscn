@@ -33,6 +33,8 @@
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="31_afo0v"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="p2_moth"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/folded_crane.tscn" id="p2_crane"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_yhgl2"]
 normal = Vector2(1, 0)
@@ -248,11 +250,13 @@ script = ExtResource("23_s62fg")
 
 [node name="Soggy5" type="CharacterBody2D" parent="Actors" unique_id=1136730042 instance=ExtResource("22_trrij")]
 position = Vector2(1728, 1560)
+inked = true
 collision_layer = 4
 script = ExtResource("23_s62fg")
 
 [node name="Soggy6" type="CharacterBody2D" parent="Actors" unique_id=669785502 instance=ExtResource("22_trrij")]
 position = Vector2(1024, 1304)
+inked = true
 collision_layer = 4
 script = ExtResource("23_s62fg")
 
@@ -406,3 +410,15 @@ collision_layer = 2
 floor_max_angle = 0.87266463
 floor_snap_length = 12.0
 script = ExtResource("31_afo0v")
+
+[node name="PaperMoth1" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(1200, 1850)
+
+[node name="PaperMoth2" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(1340, 1800)
+
+[node name="PaperMoth3" parent="Actors" instance=ExtResource("p2_moth")]
+position = Vector2(1480, 1850)
+
+[node name="FoldedCrane1" parent="Actors" instance=ExtResource("p2_crane")]
+position = Vector2(1728, 1300)

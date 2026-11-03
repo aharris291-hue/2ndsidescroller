@@ -11,6 +11,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var chase_speed := 235.0
 @export var chase_range := 540.0
 @export var gravity := 2000.0
+## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
+@export var inked := false
 @export var scrap_drop := 2
 ## Side view: how far ahead (and how far up or down) it notices Patch.
 @export var notice_range := 460.0
@@ -50,6 +52,8 @@ func _ready() -> void:
 		ledge_check.enabled = false
 	hurtbox.hit.connect(_on_hit)
 	health.died.connect(_on_died)
+	if inked:
+		Inked.apply(self)
 	if hold:
 		hold.broken.connect(_on_hold_broken)
 		hold.recovered.connect(func() -> void: sprite.modulate = Color.WHITE)
@@ -187,6 +191,8 @@ func unstitch(_by: Node) -> void:
 
 
 func _on_died() -> void:
+	if inked:
+		Inked.on_died(self)
 	contact_hitbox.set_deferred("monitorable", false)
 	hurtbox.set_deferred("monitoring", false)
 	AudioManager.play_sfx(&"dissolve", randf_range(0.9, 1.1))

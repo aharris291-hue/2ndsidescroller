@@ -2,16 +2,33 @@ extends Page
 ## The Combat Lab: a practice page for the redesigned combat (milestone M1).
 ## Reached from the title screen. Nothing here is saved. It has four stations:
 ## a cutting post, a sparring post that fights back, platforms over a post for
-## air combos and the Plunge, and a pen of Soggies that refills when it's empty.
+## air combos and the Plunge, and pens of enemies that refill when they're empty:
+## Soggies, then (Phase 2) a pen for each new enemy and an Inked elite.
 
-const SOGGY := preload("res://scenes/enemies/soggy.tscn")
 const GROUND_TEX := preload("res://assets/art/dark/ground.png")
 const GROUND_ROW := 15
-const WIDTH_TILES := 60
-const SOGGY_SPOTS := [Vector2(3000, 900), Vector2(3260, 900), Vector2(3520, 900)]
+const WIDTH_TILES := 112
+const LAB_WIDTH := WIDTH_TILES * 64
+## Each pen: what lives in it, where, and any properties (no scrap drops: nothing here
+## is kept). A pen refills a few seconds after its last enemy is gone.
+const PENS := [
+	{"name": "soggies", "scene": "res://scenes/enemies/soggy.tscn",
+		"spots": [Vector2(3000, 900), Vector2(3260, 900), Vector2(3520, 900)]},
+	{"name": "moths", "scene": "res://scenes/enemies/paper_moth.tscn",
+		"spots": [Vector2(4300, 700), Vector2(4420, 640), Vector2(4540, 720)]},
+	{"name": "turret", "scene": "res://scenes/enemies/inkwell_turret.tscn",
+		"spots": [Vector2(5300, 958)]},
+	{"name": "crane", "scene": "res://scenes/enemies/folded_crane.tscn",
+		"spots": [Vector2(6000, 560)]},
+	{"name": "mimic", "scene": "res://scenes/enemies/mimic_book.tscn",
+		"spots": [Vector2(6500, 958)]},
+	{"name": "inked", "scene": "res://scenes/enemies/soggy.tscn",
+		"spots": [Vector2(6850, 900)], "props": {"inked": true}},
+]
 
-var _pen: Array = []
-var _refill_left := 0.0
+## Pen name -> its living enemies.
+var pens := {}
+var _refill_left := {}
 
 @onready var ground: TileMapLayer = $Ground
 @onready var signs: Node2D = $Signs
@@ -28,21 +45,21 @@ func _ready() -> void:
 	add_child(DarkAtmosphere.new())
 	super._ready()
 	_add_signs()
-	_fill_pen()
+	for pen: Dictionary in PENS:
+		_fill_pen(pen)
 
 
 func _physics_process(delta: float) -> void:
-	var alive := []
-	for soggy in _pen:
-		if is_instance_valid(soggy):
-			alive.append(soggy)
-	_pen = alive
-	if _pen.is_empty():
-		_refill_left -= delta
-		if _refill_left <= 0.0:
-			_fill_pen()
-	else:
-		_refill_left = 2.0
+	for pen: Dictionary in PENS:
+		var alive: Array = (pens.get(pen["name"], []) as Array).filter(
+			func(enemy: Variant) -> bool: return is_instance_valid(enemy) and not (enemy as Node).is_queued_for_deletion())
+		pens[pen["name"]] = alive
+		if alive.is_empty():
+			_refill_left[pen["name"]] = _refill_left.get(pen["name"], 2.0) - delta
+			if _refill_left[pen["name"]] <= 0.0:
+				_fill_pen(pen)
+		else:
+			_refill_left[pen["name"]] = 2.0
 
 
 func _build_ground() -> void:
@@ -74,13 +91,17 @@ func _slab(at: Vector2, size: Vector2) -> void:
 	add_child(slab)
 
 
-func _fill_pen() -> void:
-	for spot in SOGGY_SPOTS:
-		var soggy := SOGGY.instantiate()
-		soggy.position = spot
-		soggy.set("scrap_drop", 0)
-		$Actors.add_child(soggy)
-		_pen.append(soggy)
+func _fill_pen(pen: Dictionary) -> void:
+	var alive: Array = []
+	for spot: Vector2 in pen["spots"]:
+		var enemy := (load(pen["scene"]) as PackedScene).instantiate()
+		enemy.position = spot
+		enemy.set("scrap_drop", 0)
+		for key in pen.get("props", {}):
+			enemy.set(key, pen["props"][key])
+		$Actors.add_child(enemy)
+		alive.append(enemy)
+	pens[pen["name"]] = alive
 
 
 func _add_signs() -> void:
@@ -90,6 +111,10 @@ func _add_signs() -> void:
 	_sign(Vector2(1240, 330), "THE SPARRING POST\nHold %s to guard. Tap it just as a swing lands to PARRY.\nWhite glint: parry it. Red glow: dodge it.\n%s: Edge-On dodge. Dodge at the last moment to slow time." % [h.call(&"guard"), h.call(&"dash")])
 	_sign(Vector2(1900, 200), "THE LEDGES\nIn the air, %s x3: air combo\nIn the air, Down + %s: PLUNGE (bounces off what it hits)\nOne dodge in the air." % [h.call(&"attack"), h.call(&"heavy")])
 	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nBreak their Hold, then Unstitch.\nThe pen refills when it's empty.")
+	_sign(Vector2(3980, 120), "PAPER MOTHS\nThey dart in one at a time after a glint.\nOne cut tears a moth. Quick cuts, not heavy ones.")
+	_sign(Vector2(4900, 330), "THE INKWELL TURRET\nIt glints at the nib, then fires straight.\nClose in, or cut the shot to send it back.")
+	_sign(Vector2(5640, 120), "THE FOLDED CRANE\nIt circles high, glows red, then dives: DODGE.\nIf it misses, its beak sticks in the ground.")
+	_sign(Vector2(6280, 330), "A BOOK\n...probably just a book.\n\nINKED ELITES (right) are darker, tougher\nand quicker, and leave a pool of ink.")
 
 
 ## A torn notice: dark, soaked paper with a dried-blood red edge.

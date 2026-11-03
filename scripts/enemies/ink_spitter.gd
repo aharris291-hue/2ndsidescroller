@@ -14,6 +14,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var flight_time := Vector2(0.55, 1.1)
 @export var top_shot_speed := 460.0
 @export var gravity := 2000.0
+## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
+@export var inked := false
 @export var scrap_drop := 2
 
 var view_mode: PageView.Mode = PageView.Mode.SIDE
@@ -40,6 +42,8 @@ func _ready() -> void:
 	_fire_left = randf_range(0.6, fire_interval)
 	hurtbox.hit.connect(_on_hit)
 	health.died.connect(_on_died)
+	if inked:
+		Inked.apply(self)
 
 
 func _physics_process(delta: float) -> void:
@@ -100,6 +104,8 @@ func _on_hit(hitbox: Hitbox) -> void:
 
 
 func _on_died() -> void:
+	if inked:
+		Inked.on_died(self)
 	contact_hitbox.set_deferred("monitorable", false)
 	hurtbox.set_deferred("monitoring", false)
 	AudioManager.play_sfx(&"enemy_pop", 0.8)
