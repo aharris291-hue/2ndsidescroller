@@ -2,11 +2,11 @@
 	"fluff_intro": [
 		{
 			"speaker": "shepherd_fluff",
-			"text": "Patch. You look like a fox who left in a hurry and is hoping nobody noticed."
+			"text": "Patch. You look like a fox who left in a hurry and hopes nobody noticed."
 		},
 		{
 			"speaker": "patch",
-			"text": "My tail? Lost it fighting a thunderstorm. Two, actually. Twins. Very rude."
+			"text": "My tail? Lost it fighting a thunderstorm. Two, actually. Twins."
 		},
 		{
 			"speaker": "shepherd_fluff",
@@ -14,29 +14,29 @@
 		},
 		{
 			"speaker": "patch",
-			"text": "...Right. So. Why is everything squelching?"
+			"text": "...Right. Why is the whole field squelching?"
 		},
 		{
 			"speaker": "shepherd_fluff",
-			"text": "The Sogg. It soaks a page until the folds forget their shape, then it just... unmakes them. The windmills went first. My flock's swelling up like bath sponges."
+			"text": "The Sogg. It soaks a page until the folds forget what shape they were, then it comes up out of the wet and takes what's left."
 		},
 		{
 			"speaker": "shepherd_fluff",
-			"text": "Pull the tabs. The paper still remembers how it's meant to stand, if somebody reminds it."
+			"text": "Every night it sends them at my fold. Every night there are fewer of my flock to keep. Some of them come back. They aren't sheep any more when they do."
 		},
 		{
 			"speaker": "shepherd_fluff",
-			"text": "Three of my flock bolted up the Windmill Hills. Can't blame them. Bring them home?"
+			"text": "Stand in the pen with me tonight. If you're any good with those shears, we might both see morning."
 		},
 		{
-			"speaker": "patch",
-			"text": "Sheep retrieval. For a legend. Fine. But in the official story it was wolves."
+			"speaker": "shepherd_fluff",
+			"text": "And three of mine bolted the night the water came. If you find them alive, send them home."
 		}
 	],
 	"fluff_repeat": [
 		{
 			"speaker": "shepherd_fluff",
-			"text": "Swipe the Soggies hard and they dry out. Hesitate and they'll wring you out instead."
+			"text": "Cut them hard and they dry out. Hesitate and they'll wring you out instead."
 		},
 		{
 			"speaker": "shepherd_fluff",
@@ -76,13 +76,13 @@
 	"fluff_quest_progress": [
 		{
 			"speaker": "shepherd_fluff",
-			"text": "No luck yet? They'll be somewhere high and miserable. Sheep sulk uphill."
+			"text": "No sign? They'll be somewhere high, or somewhere dark. Frightened sheep go one way or the other."
 		}
 	],
 	"fluff_quest_done": [
 		{
 			"speaker": "shepherd_fluff",
-			"text": "All three home. Damp, furious, alive. You've a decent heart under all that noise, Patch."
+			"text": "All three home. Thin, soaked, alive. You've a decent heart under all that noise, Patch."
 		},
 		{
 			"speaker": "patch",
@@ -90,7 +90,7 @@
 		},
 		{
 			"speaker": "shepherd_fluff",
-			"text": "Take these Scraps. And lad, the tail's gone. You're still here. Start counting from that."
+			"text": "Take these Scraps. And lad: the tail's gone. You're still here. Start counting from that."
 		}
 	],
 	"windmill_hills_arrival": [
@@ -123,6 +123,24 @@
 		{
 			"speaker": "dot",
 			"text": "The Sogg got inside it. That is not the mill anymore. That is the flood, wearing it."
+		}
+	],
+	"fluff_fold_held": [
+		{
+			"speaker": "shepherd_fluff",
+			"text": "...That was all of them. The ones wearing wool too."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "I knew those sheep. I named them. Don't look at me like that; I'd rather it was you than the water."
+		},
+		{
+			"speaker": "patch",
+			"text": "I'd have done it with more flair if the floor wasn't soup."
+		},
+		{
+			"speaker": "shepherd_fluff",
+			"text": "The east gate's open. The hill path goes down past the chapel. The bell's been ringing there since the flood, and nobody's ringing it."
 		}
 	]
 }

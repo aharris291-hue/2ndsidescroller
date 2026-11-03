@@ -1,7 +1,7 @@
 {
 	"lost_flock": {
 		"title": "The Lost Flock",
-		"description": "Find Shepherd Fluff's three soggy sheep on the Windmill Hills.",
+		"description": "Find Shepherd Fluff's three sheep that bolted the night the water came, somewhere in the drowned fields.",
 		"goal": 3,
 		"reward_scraps": 15
 	},

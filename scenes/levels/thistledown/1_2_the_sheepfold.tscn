@@ -1,0 +1,140 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/thistledown/sheepfold.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_sheepfold.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_story"]
+[ext_resource type="Script" path="res://scripts/world/soaked_paper.gd" id="6_paper"]
+[ext_resource type="Script" path="res://scripts/world/awning.gd" id="7_awning"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="9_exit"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="10_spawn"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="11_door"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_shepherd_fluff.tscn" id="12_fluff"]
+[ext_resource type="PackedScene" path="res://scenes/world/lost_sheep.tscn" id="13_sheep"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="14_letter"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_scrap"]
+[ext_resource type="PackedScene" path="res://scenes/world/wave_gate.tscn" id="16_gate"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="17_soggy"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="18_spitter"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="19_patch"]
+
+[node name="TheSheepfold" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Sheepfold"
+opening_caption = "Somebody had built a wall of everything they owned across the mouth of the pen."
+music = ExtResource("2_music")
+weather_tint = Color(0.46, 0.5, 0.62, 1)
+rain_amount = 460
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/thistledown/1_2_the_sheepfold.txt"
+region = "meadow"
+entities = {
+"1": ExtResource("5_story"),
+"2": ExtResource("5_story"),
+"3": ExtResource("5_story"),
+"4": ExtResource("5_story"),
+"C": ExtResource("7_awning"),
+"E": ExtResource("9_exit"),
+"G": ExtResource("10_spawn"),
+"H": ExtResource("11_door"),
+"K": ExtResource("5_story"),
+"L": ExtResource("14_letter"),
+"X": ExtResource("9_exit"),
+"f": ExtResource("12_fluff"),
+"g": ExtResource("16_gate"),
+"h": ExtResource("13_sheep"),
+"i": ExtResource("18_spitter"),
+"o": ExtResource("15_scrap"),
+"u": ExtResource("17_soggy"),
+"w": ExtResource("6_paper")
+}
+entity_props = {
+"1": {
+"caption": "Dry-stone walls, and the sheep's paths between them, worn to mud. Something had been walking them that wasn't a sheep.",
+"size": Vector2(128, 640)
+},
+"2": {
+"caption": "A lantern, a shepherd, and a pen full of sheep standing very still in the rain.",
+"size": Vector2(128, 640)
+},
+"3": {
+"caption": "The hill path went down toward the chapel. Down there, the bell was still ringing.",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "The chapel roof showed over the hedges, and the water stood right up to its door.",
+"size": Vector2(128, 640)
+},
+"C": {
+"cleat_offset": Vector2(-256, 448),
+"cut_caption": "The canvas came down over the tower's face. The paper under it stopped dripping.",
+"width": 416.0
+},
+"E": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/thistledown/1_3_drowned_chapel.tscn",
+"target_spawn": &"FromSheepfold"
+},
+"G": {
+"name": &"FromChapel"
+},
+"H": {
+"door_prompt": "Break the hayloft's seal",
+"requires_flag": "boss_millwheel_defeated"
+},
+"K": {
+"page_method": "hold_the_fold",
+"size": Vector2(128, 640)
+},
+"L": {
+"letter": "M",
+"offset": Vector2(0, -40)
+},
+"X": {
+"size": Vector2(64, 384),
+"target_page": "res://scenes/levels/thistledown/1_1_sodden_fields.tscn",
+"target_spawn": &"FromSheepfold"
+},
+"f": {
+"dialogue_id": "fluff_intro",
+"quest_id": "lost_flock",
+"quest_progress_dialogue": "fluff_quest_progress",
+"quest_turn_in_dialogue": "fluff_quest_done",
+"repeat_dialogue_id": "fluff_repeat"
+},
+"g": {
+"offset": Vector2(0, 0)
+},
+"h": {
+"found_caption": "Up on the tower, out of the water's reach, a sheep that had not slept since the flood. It came down when Patch asked. Its legs shook all the way.",
+"leave_offset": Vector2(0, 0)
+},
+"i": {
+"scrap_drop": 1
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"u": {
+"scrap_drop": 1,
+"wool": true
+},
+"w": {
+"offset": Vector2(0, 28)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("19_patch")]
+position = Vector2(288, 1276)

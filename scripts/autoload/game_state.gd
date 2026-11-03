@@ -139,6 +139,14 @@ func add_heart_patch() -> void:
 	EventBus.player_health_changed.emit(health, max_health)
 
 
+## A heart patch found in the world (a sealed back page's reward): a paper token more,
+## without changing what Gran's tin charges for the ones she sells.
+func add_found_heart() -> void:
+	max_health += 2
+	health = max_health
+	EventBus.player_health_changed.emit(health, max_health)
+
+
 func add_spool() -> void:
 	spools += 1
 	thread_max = BASE_THREAD + spools
