@@ -53,8 +53,13 @@ var _shadow: Polygon2D
 @onready var health: HealthComponent = $HealthComponent
 
 
+var hold: HoldComponent
+
+
 func _ready() -> void:
 	heart.hit.connect(_on_heart_hit)
+	hold = BossStagger.attach(self)
+	hold.broken.connect(_on_hold_broken)
 	health.died.connect(_on_defeated)
 	for mark in fold_marks:
 		var fold := mark as FoldMark
@@ -211,7 +216,7 @@ func _on_heart_hit(hitbox: Hitbox) -> void:
 		heart.modulate = Color(1.8, 1.8, 1.8)
 		create_tween().tween_property(heart, "modulate", Color.WHITE, 0.25)
 		_hits_this_stun += 1
-		if not health.is_dead() and _hits_this_stun >= 3:
+		if not health.is_dead() and _hits_this_stun >= 3 and not hold.is_broken():
 			_recover()
 
 
@@ -219,6 +224,7 @@ func _recover() -> void:
 	if state == State.DEFEATED:
 		return
 	_set_heart_exposed(false)
+	BossStagger.close(hold)
 	body.rotation = 0.0
 	create_tween().tween_property(body, "self_modulate", Color.WHITE, 0.5)
 	if phase == 0 and health.current <= health.max_health / 2:
@@ -282,3 +288,38 @@ func _show_exit() -> void:
 func _set_heart_exposed(exposed: bool) -> void:
 	heart.visible = exposed
 	heart.set_deferred("monitoring", exposed)
+
+
+# --- Hold and the Unstitch (see BossStagger) -----------------------------------
+
+func can_stagger() -> bool:
+	return state == State.STUNNED
+
+
+func finisher_point() -> Vector2:
+	return heart.global_position
+
+
+func _on_hold_broken() -> void:
+	# Its seams give: the window stays open for the stagger.
+	_state_left = maxf(_state_left, hold.stagger_time)
+
+
+func unstitch(_by: Node) -> void:
+	if state != State.STUNNED:
+		return
+	AudioManager.play_sfx(&"enemy_pop", 0.5)
+	var flash := create_tween()
+	body.modulate = Color(1.9, 1.6, 1.5)
+	flash.tween_property(body, "modulate", Color.WHITE, 0.4)
+	if BossStagger.unstitch(self, health, hold):
+		DialogueUI.narrate("Patch opened the seam over its heart. Water poured out of the Sogg in a sheet.")
+		_after_unstitch()
+		get_tree().create_timer(0.6, false).timeout.connect(func() -> void:
+			if state == State.STUNNED:
+				_recover())
+
+
+## The Gutter Sogg dries out a section at a time; it checks after an Unstitch too.
+func _after_unstitch() -> void:
+	pass

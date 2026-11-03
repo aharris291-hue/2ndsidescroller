@@ -4,7 +4,8 @@ extends Node
 
 ## 2: heart patches, Thread spools, stitch charms, bookmarks for travel and the pages
 ## seen (for the torn map). Version 1 saves load with none of those.
-const SAVE_VERSION := 2
+## 3: Gran's patterns (sword techniques bought at the tin). Older saves load with none.
+const SAVE_VERSION := 3
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
@@ -29,6 +30,8 @@ var heart_patches := 0
 var spools := 0
 ## Stitch charms owned, and the ones sewn on (at most charm_slots).
 var charms: Array[StringName] = []
+## Gran's patterns: techniques learned at the sewing tin (see Patterns).
+var patterns: Array[StringName] = []
 var equipped: Array[StringName] = []
 var charm_slots := 2
 ## Bookmarks Patch has touched, for travel: "page#x,y" -> {page, x, y, title}.
@@ -77,6 +80,7 @@ func new_game(new_slot: int) -> void:
 	heart_patches = 0
 	spools = 0
 	charms.clear()
+	patterns.clear()
 	equipped.clear()
 	charm_slots = 2
 	bookmarks.clear()
@@ -154,6 +158,15 @@ func set_charm_equipped(charm_id: StringName, on: bool) -> bool:
 
 func has_charm(charm_id: StringName) -> bool:
 	return equipped.has(charm_id)
+
+
+func learn_pattern(pattern_id: StringName) -> void:
+	if not patterns.has(pattern_id):
+		patterns.append(pattern_id)
+
+
+func has_pattern(pattern_id: StringName) -> bool:
+	return patterns.has(pattern_id)
 
 
 # --- Bookmarks and the map ------------------------------------------------------
@@ -272,6 +285,7 @@ func save_game() -> bool:
 		"charms": charms.map(func(c: StringName) -> String: return String(c)),
 		"equipped": equipped.map(func(c: StringName) -> String: return String(c)),
 		"charm_slots": charm_slots,
+		"patterns": patterns.map(func(p: StringName) -> String: return String(p)),
 		"bookmarks": bookmarks,
 		"visited": visited.keys(),
 		"letters": letters,
@@ -323,6 +337,9 @@ func load_game(save_slot: int) -> bool:
 		if charms.has(StringName(charm)):
 			equipped.append(StringName(charm))
 	charm_slots = int(data.get("charm_slots", 2))
+	# Version 3: Gran's patterns.
+	for pattern in data.get("patterns", []):
+		learn_pattern(StringName(pattern))
 	var marks: Variant = data.get("bookmarks", {})
 	if marks is Dictionary:
 		bookmarks = marks

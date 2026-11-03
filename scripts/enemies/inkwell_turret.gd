@@ -35,6 +35,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
+	if reeling(delta):
+		return
 	velocity.x = 0.0
 	var target := player()
 	if target == null or is_staggered():

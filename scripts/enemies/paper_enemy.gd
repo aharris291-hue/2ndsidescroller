@@ -105,6 +105,19 @@ func move(delta: float) -> void:
 	sprite.flip_h = _facing > 0.0
 
 
+## Call first in a subclass's physics step: while the enemy is reeling from a hit (see
+## HitReaction) it only drifts and falls, and this returns true so it skips its turn.
+func reeling(delta: float) -> bool:
+	if not HitReaction.tick(self, delta):
+		return false
+	# Only the (decaying) knockback moves it.
+	velocity.x = 0.0
+	if flies or view_mode == PageView.Mode.TOP:
+		velocity = Vector2.ZERO
+	move(delta)
+	return true
+
+
 func face(x: float) -> void:
 	if absf(x) > 1.0:
 		_facing = signf(x)
@@ -113,10 +126,8 @@ func face(x: float) -> void:
 func _on_hit(hitbox: Hitbox) -> void:
 	if not health.take_damage(hitbox.damage, hitbox.global_position):
 		return
-	var away := (global_position - hitbox.global_position).normalized()
-	_knockback = away * hitbox.knockback * knockback_taken
-	if hitbox.launch and not flies:
-		_knockback = Vector2(signf(away.x) * 80.0, -900.0) * knockback_taken
+	_knockback = HitReaction.apply(self, hitbox, sprite, _sprite_scale, knockback_taken,
+		view_mode == PageView.Mode.SIDE and not flies)
 	var tween := create_tween()
 	sprite.modulate = Color(1.6, 1.6, 1.6)
 	tween.tween_property(sprite, "modulate", _base_colour(), 0.2)

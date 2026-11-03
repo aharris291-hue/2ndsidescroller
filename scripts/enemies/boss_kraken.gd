@@ -42,8 +42,13 @@ var _rest_position := Vector2.ZERO
 @onready var health: HealthComponent = $HealthComponent
 
 
+var hold: HoldComponent
+
+
 func _ready() -> void:
 	_rest_position = position
+	hold = BossStagger.attach(self)
+	hold.broken.connect(_on_hold_broken)
 	eye.hit.connect(_on_eye_hit)
 	health.died.connect(_on_defeated)
 	for ring in rings:
@@ -190,7 +195,7 @@ func _on_eye_hit(hitbox: Hitbox) -> void:
 		eye.modulate = Color(1.8, 1.6, 1.6)
 		flash.tween_property(eye, "modulate", Color.WHITE, 0.25)
 		_hits_this_stun += 1
-		if not health.is_dead() and _hits_this_stun >= 3:
+		if not health.is_dead() and _hits_this_stun >= 3 and not hold.is_broken():
 			_recover()
 
 
@@ -200,6 +205,7 @@ func _recover() -> void:
 	state = State.ATTACKING
 	_slam_left = 1.2
 	_set_eye_exposed(false)
+	BossStagger.close(hold)
 	var tween := create_tween().set_parallel()
 	tween.tween_property(self, "position", _rest_position, 0.6).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(body, "self_modulate", Color.WHITE, 0.6)
@@ -248,3 +254,32 @@ func _set_eye_exposed(exposed: bool) -> void:
 	# The eye always glares; it can only be hit while the Kraken is stunned.
 	eye.modulate = Color.WHITE if exposed else Color(0.75, 0.75, 0.9)
 	eye.set_deferred("monitoring", exposed)
+
+
+# --- Hold and the Unstitch (see BossStagger) -----------------------------------
+
+func can_stagger() -> bool:
+	return state == State.STUNNED
+
+
+func finisher_point() -> Vector2:
+	return eye.global_position
+
+
+func _on_hold_broken() -> void:
+	# Its seams give: the window stays open for the stagger.
+	_stun_left = maxf(_stun_left, hold.stagger_time)
+
+
+func unstitch(_by: Node) -> void:
+	if state != State.STUNNED:
+		return
+	AudioManager.play_sfx(&"enemy_pop", 0.5)
+	var flash := create_tween()
+	body.modulate = Color(1.9, 1.6, 1.5)
+	flash.tween_property(body, "modulate", Color.WHITE, 0.4)
+	if BossStagger.unstitch(self, health, hold):
+		DialogueUI.narrate("Patch cut the stitches round the Kraken's eye. A whole arm of ink came loose and splashed away.")
+		get_tree().create_timer(0.6, false).timeout.connect(func() -> void:
+			if state == State.STUNNED:
+				_recover())

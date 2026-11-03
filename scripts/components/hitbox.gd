@@ -6,6 +6,12 @@ extends Area2D
 ## Emitted (by the Hurtbox) when this hitbox's damage actually lands on something.
 signal landed(target: Node)
 
+## How an ordinary enemy reacts to this hit (see HitReaction). Each of Patch's moves
+## lands differently: light cuts make it flinch, a heavy makes it reel, the thrust that
+## ends a combo sends it flying into whatever is behind it, the launcher pops it up and
+## the Plunge and slam crush it flat.
+enum Reaction { FLINCH, REEL, LAUNCH, SEND, CRUSH }
+
 @export var damage := 1
 @export var knockback := 520.0
 ## Inactive hitboxes are ignored (e.g. Patch's swipe between attacks).
@@ -16,3 +22,4 @@ signal landed(target: Node)
 @export var launch := false
 ## Enemy attacks: a red-glow attack can't be guarded or parried, only dodged.
 @export var unblockable := false
+@export var reaction := Reaction.FLINCH

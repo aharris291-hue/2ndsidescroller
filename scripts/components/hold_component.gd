@@ -48,6 +48,9 @@ func is_broken() -> bool:
 func take_hold(amount: float) -> void:
 	if amount <= 0.0 or is_broken():
 		return
+	# Bosses only give way while they're open (stunned, jammed, pinned).
+	if owner and owner.has_method(&"can_stagger") and not owner.can_stagger():
+		return
 	_since_hit = 0.0
 	current = maxf(current - amount, 0.0)
 	changed.emit(current, max_hold)
@@ -58,8 +61,12 @@ func take_hold(amount: float) -> void:
 		broken.emit()
 
 
-## Called when the enemy is finished off, so it stops counting as staggered.
+## Called when the enemy is finished off (Unstitched), so it stops counting as
+## staggered. A boss lives through it, so its Hold comes back full.
 func clear() -> void:
 	_stagger_left = 0.0
+	_since_hit = 0.0
+	current = max_hold
+	changed.emit(current, max_hold)
 	if owner:
 		owner.remove_from_group(&"staggered")

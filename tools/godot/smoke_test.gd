@@ -914,18 +914,30 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	panel = tin._shop
 	var found_panel := panel != null
 	if found_panel:
+		# Under the lid: Gran's pattern cards, one row per pattern.
+		panel._page_button.pressed.emit()
+		await _frames(1)
+		_check(panel._page == 1 and panel._list.get_child_count() == 4, "the tin's lid lifts to Gran's four pattern cards")
 		panel.close()
 	await _frames(2)
 	_check(found_panel and not paused, "closing the sewing tin unpauses")
 
-	# Save format 2 keeps all of it.
+	# Gran's patterns: bought once with Scraps, kept for good.
+	var shop_script: Script = load("res://scripts/ui/shop_panel.gd")
+	game_state.scraps = 200
+	_check(shop_script.buy_pattern(&"long_seam") and game_state.has_pattern(&"long_seam")
+		and game_state.scraps == 50, "a pattern card can be bought at the tin")
+	_check(not shop_script.buy_pattern(&"long_seam"), "a pattern is only learned once")
+	_check(not shop_script.buy_pattern(&"blanket_stitch"), "a pattern can't be bought without the scraps")
+	# Save format 3 keeps all of it.
 	game_state.save_game()
-	_check(game_state.read_save(2).get("version", 0) == 2, "saves are written as version 2")
+	_check(game_state.read_save(2).get("version", 0) == 3, "saves are written as version 3")
 	game_state.load_game(2)
 	_check(game_state.heart_patches == 1 and game_state.spools == 1 and game_state.thread_max == 4.0
 		and game_state.charms.size() == 3 and game_state.has_charm(&"heron_pin")
-		and game_state.bookmarks.size() >= 2 and game_state.visited.has(HUB),
-		"loading restores upgrades, charms, bookmarks and the map")
+		and game_state.bookmarks.size() >= 2 and game_state.visited.has(HUB)
+		and game_state.has_pattern(&"long_seam"),
+		"loading restores upgrades, charms, patterns, bookmarks and the map")
 	# A version 1 save (from before the hub) still loads, with none of the new things.
 	var save_path: String = game_state.save_path(2)
 	var current_save := FileAccess.get_file_as_string(save_path)
@@ -934,7 +946,14 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 		"checkpoint_page": HUB, "flags": {}}))
 	old_save.close()
 	_check(game_state.load_game(2) and game_state.heart_patches == 0 and game_state.charms.is_empty()
-		and game_state.bookmarks.is_empty() and game_state.thread_max == 3.0, "a version 1 save still loads")
+		and game_state.bookmarks.is_empty() and game_state.thread_max == 3.0
+		and game_state.patterns.is_empty(), "a version 1 save still loads")
+	var v2_save := FileAccess.open(save_path, FileAccess.WRITE)
+	v2_save.store_string(JSON.stringify({"version": 2, "max_health": 10, "scraps": 5, "heart_patches": 1,
+		"charms": ["red_knot"], "checkpoint_page": HUB, "flags": {}}))
+	v2_save.close()
+	_check(game_state.load_game(2) and game_state.heart_patches == 1 and game_state.charms.size() == 1
+		and game_state.patterns.is_empty(), "a version 2 save still loads, with no patterns yet")
 
 	# Put the run back the way it was, so later checks see the standard game.
 	var restore := FileAccess.open(save_path, FileAccess.WRITE)
@@ -943,6 +962,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	game_state.load_game(2)
 	game_state.heart_patches = 0
 	game_state.spools = 0
+	game_state.patterns.clear()
 	game_state.thread_max = 3.0
 	game_state.max_health = before["max_health"]
 	game_state.charms.clear()

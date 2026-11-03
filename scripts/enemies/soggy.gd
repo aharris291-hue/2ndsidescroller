@@ -62,6 +62,20 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
+	if HitReaction.tick(self, delta):
+		# Reeling from a hit: no chasing or lunging until it finds its feet.
+		_windup_left = 0.0
+		_lunging = false
+		# Only the knockback moves it (it decays), the way its AI sets x every frame.
+		velocity.x = 0.0
+		if view_mode == PageView.Mode.SIDE and not is_on_floor():
+			velocity.y += gravity * delta
+		elif view_mode == PageView.Mode.TOP:
+			velocity = Vector2.ZERO
+		velocity += _knockback
+		_knockback = _knockback.move_toward(Vector2.ZERO, 3000.0 * delta)
+		move_and_slide()
+		return
 	if hold and hold.is_broken():
 		# Staggered: it sags, dazed, and a frayed seam glows. Open to an Unstitch.
 		_windup_left = 0.0
@@ -151,18 +165,12 @@ func _top_behaviour(delta: float) -> void:
 
 func _on_hit(hitbox: Hitbox) -> void:
 	if health.take_damage(hitbox.damage, hitbox.global_position):
-		if hitbox.launch and view_mode == PageView.Mode.SIDE:
-			_knockback = Vector2(signf(global_position.x - hitbox.global_position.x) * 80.0, -900.0)
-			_windup_left = 0.0
-			sprite.modulate = Color.WHITE
-			return
-		# A hit knocks it out of a lunge wind-up.
+		# A hit knocks it out of a lunge wind-up; how far it goes depends on the move.
 		_windup_left = 0.0
 		sprite.modulate = Color.WHITE
-		var away := (global_position - hitbox.global_position).normalized()
-		_knockback = away * hitbox.knockback * 0.6
-		if view_mode == PageView.Mode.SIDE:
-			_knockback.y = -200.0
+		_knockback = HitReaction.apply(self, hitbox, sprite, _sprite_scale, 1.0, view_mode == PageView.Mode.SIDE)
+		if HitReaction.reaction_of(hitbox) == Hitbox.Reaction.LAUNCH:
+			return
 		var tween := create_tween()
 		sprite.modulate = Color(1.6, 1.6, 1.6)
 		tween.tween_property(sprite, "modulate", Color.WHITE, 0.2)

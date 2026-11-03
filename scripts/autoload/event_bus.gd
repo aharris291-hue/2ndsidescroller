@@ -18,6 +18,12 @@ signal quest_updated(quest_id: String)
 signal boss_started(boss_name: String, max_health: int)
 signal boss_health_changed(current: int, maximum: int)
 signal boss_defeated
+## A boss's Hold bar (see BossStagger): worn down by heavy hits while it's open.
+signal boss_hold_changed(current: float, maximum: float)
+## The boss's Hold broke (open: true) and it can be Unstitched, or the moment passed.
+signal boss_staggered(open: bool)
+## An enemy Patch sent flying hit another one.
+signal enemy_bowled
 ## Patch turned a blow with a well-timed guard / dodged right as it landed.
 signal player_parried
 signal player_perfect_dodge

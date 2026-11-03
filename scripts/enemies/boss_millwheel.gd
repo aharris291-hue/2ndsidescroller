@@ -30,6 +30,7 @@ const DRIP_SCENE := preload("res://scenes/enemies/ink_drip.tscn")
 var state := State.WAITING
 var _drip_left := 0.0
 var _jam_left := 0.0
+var hold: HoldComponent
 
 @onready var body: Sprite2D = $Body
 @onready var sails: Node2D = $Sails
@@ -39,6 +40,8 @@ var _jam_left := 0.0
 
 func _ready() -> void:
 	core.hit.connect(_on_core_hit)
+	hold = BossStagger.attach(self)
+	hold.broken.connect(_on_hold_broken)
 	health.died.connect(_on_defeated)
 	for tab in tabs:
 		(tab as PullTab).toggled.connect(_on_tab_toggled)
@@ -110,7 +113,7 @@ func _on_core_hit(hitbox: Hitbox) -> void:
 		body.modulate = Color(1.6, 1.6, 1.6)
 		tween.tween_property(body, "modulate", Color.WHITE, 0.25)
 		# Three hits per jam knock it back into motion early.
-		if not health.is_dead() and health.current % 3 == 0:
+		if not health.is_dead() and health.current % 3 == 0 and not hold.is_broken():
 			_recover()
 
 
@@ -120,6 +123,7 @@ func _recover() -> void:
 	state = State.SPINNING
 	_set_core_exposed(false)
 	_set_blades_active(true)
+	BossStagger.close(hold)
 	for tab in tabs:
 		(tab as PullTab).reset()
 	for i in 2:
@@ -168,3 +172,32 @@ func _set_blades_active(active: bool) -> void:
 func _set_core_exposed(exposed: bool) -> void:
 	core.visible = exposed
 	core.set_deferred("monitoring", exposed)
+
+
+# --- Hold and the Unstitch (see BossStagger) -----------------------------------
+
+func can_stagger() -> bool:
+	return state == State.JAMMED
+
+
+func finisher_point() -> Vector2:
+	return core.global_position
+
+
+func _on_hold_broken() -> void:
+	# Its seams give: the window stays open for the stagger.
+	_jam_left = maxf(_jam_left, hold.stagger_time)
+
+
+func unstitch(_by: Node) -> void:
+	if state != State.JAMMED:
+		return
+	AudioManager.play_sfx(&"enemy_pop", 0.5)
+	var flash := create_tween()
+	body.modulate = Color(1.9, 1.6, 1.5)
+	flash.tween_property(body, "modulate", Color.WHITE, 0.4)
+	if BossStagger.unstitch(self, health, hold):
+		DialogueUI.narrate("Patch cut along the old mill's split seam. Its whole frame shuddered and sagged.")
+		get_tree().create_timer(0.6, false).timeout.connect(func() -> void:
+			if state == State.JAMMED:
+				_recover())

@@ -184,6 +184,9 @@ func _run() -> void:
 
 	_tells_read_on_painted_art()
 	await _new_enemies(lab)
+	await _hit_reactions(lab)
+	await _boss_unstitch(lab)
+	await _patterns()
 	await _accessibility(lab, sparring)
 	_finish()
 
@@ -358,6 +361,169 @@ func _new_enemies(lab: Node) -> void:
 	patch.health.clear_invulnerability()
 	_put_patch(400.0, 1.0)
 	await _frames(30)
+
+
+## Each move lands differently: light cuts flinch, heavies reel, the thrust sends an
+## enemy tumbling into the next one, and the Plunge crushes.
+func _hit_reactions(lab: Node) -> void:
+	patch.health.grant_invulnerability(60.0)
+	_put_patch(400.0, 1.0)
+	# Patch's moves carry their reactions (FLINCH 0, REEL 1, LAUNCH 2, SEND 3, CRUSH 4).
+	patch._combo_left = 0.0
+	patch._start_attack()
+	var light: int = patch.attack_hitbox.reaction
+	patch.combo_step = 3
+	patch._combo_left = 1.0
+	patch._start_attack()
+	var thrust: int = patch.attack_hitbox.reaction
+	patch._attack_kind = 4
+	patch._heavy_strike()
+	var heavy: int = patch.attack_hitbox.reaction
+	patch._attack_kind = 5
+	patch._heavy_strike()
+	var launcher: int = patch.attack_hitbox.reaction
+	patch.attack_hitbox.active = false
+	_put_patch(400.0, 1.0)
+	_check([light, thrust, heavy, launcher] == [0, 3, 1, 2],
+		"light cuts flinch, the thrust sends, heavies reel, the launcher launches (%s)" % str([light, thrust, heavy, launcher]))
+
+	var scene: PackedScene = load("res://scenes/enemies/soggy.tscn")
+	var reaction: Script = load("res://scripts/components/hit_reaction.gd")
+	var actors := lab.get_node("Actors")
+	var a: Node2D = scene.instantiate()
+	var b: Node2D = scene.instantiate()
+	a.position = Vector2(2560, 900)
+	b.position = Vector2(2710, 900)
+	actors.add_child(a)
+	actors.add_child(b)
+	await _frames(20)
+	# Tough enough to take every reaction in turn.
+	for foe in [a, b]:
+		foe.health.max_health = 20
+		foe.health.set_health(20)
+	var hit := Hitbox.new()
+	hit.collision_layer = 0
+	hit.monitorable = false
+	actors.add_child(hit)
+
+	hit.global_position = a.global_position + Vector2(-60, -30)
+	hit.reaction = 0
+	a._on_hit(hit)
+	_check(not reaction.is_reeling(a) and absf(a._knockback.x) < 250.0, "a light cut only makes a Soggy flinch")
+	await create_timer(0.3).timeout
+	a.health.clear_invulnerability()
+	hit.global_position = a.global_position + Vector2(-60, -30)
+	hit.reaction = 1
+	a._on_hit(hit)
+	_check(reaction.is_reeling(a), "a heavy cut leaves a Soggy reeling, unable to attack")
+	await create_timer(0.6).timeout
+	_check(not reaction.is_reeling(a), "it finds its feet again")
+
+	a.health.clear_invulnerability()
+	var b_before: int = b.health.current
+	hit.global_position = a.global_position + Vector2(-60, -30)
+	hit.reaction = 3
+	hit.knockback = 900.0
+	a._on_hit(hit)
+	_check(a.get_node_or_null("Tumble") != null, "a sent Soggy's body becomes a weapon")
+	var bowled := false
+	for i in 40:
+		await physics_frame
+		if is_instance_valid(b) and b.health.current < b_before:
+			bowled = true
+			break
+	_check(bowled and reaction.is_reeling(b), "a Soggy sent flying knocks into the next and hurts it")
+
+	if is_instance_valid(b):
+		b.health.clear_invulnerability()
+		var base_y: float = b._sprite_scale.y
+		hit.global_position = b.global_position + Vector2(0, -80)
+		hit.reaction = 4
+		b._on_hit(hit)
+		_check(b.sprite.scale.y < base_y * 0.6 and reaction.is_reeling(b), "the Plunge crushes a Soggy flat")
+	hit.queue_free()
+	for foe in [a, b]:
+		if is_instance_valid(foe):
+			foe.queue_free()
+	await _frames(5)
+
+
+## A boss's Hold only wears while it's open; when it breaks, a heavy Unstitches it.
+func _boss_unstitch(lab: Node) -> void:
+	patch.health.grant_invulnerability(60.0)
+	var boss: Node2D = (load("res://scenes/enemies/boss_millwheel.tscn") as PackedScene).instantiate()
+	boss.position = Vector2(2600, 976)
+	lab.get_node("Actors").add_child(boss)
+	await _frames(5)
+	var hud := root.get_node("HUD")
+	hud.show_hud(true)
+	root.get_node("EventBus").boss_started.emit("Old Millwheel", boss.health.max_health)
+	var hold: Node = boss.get_node("HoldComponent")
+	_check(hud.boss_hold.visible and is_equal_approx(hud.boss_hold.value, hold.max_hold), "the boss bar shows its Hold")
+	hold.take_hold(3.0)
+	_check(is_equal_approx(hold.current, hold.max_hold), "a spinning Millwheel's Hold can't be worn down")
+	boss.state = 2
+	boss._jam_left = 1.0
+	boss._set_blades_active(false)
+	boss._set_core_exposed(true)
+	hold.take_hold(0.5)
+	_check(is_equal_approx(hud.boss_hold.value, hold.max_hold - 0.5), "hits while it's jammed wear its Hold, and the bar follows")
+	hold.take_hold(hold.max_hold)
+	_check(boss.is_in_group(&"staggered") and boss._jam_left >= 2.9, "its Hold breaks and it stays open for the stagger")
+	_check(hud.boss_seam.text.contains("Unstitch"), "the HUD says its seams are open")
+
+	# Gran's Long Seam: Unstitch from further away, and it mends half a token.
+	gs.learn_pattern(&"long_seam")
+	patch.health.set_health(patch.health.max_health - 2)
+	var hp_before: int = patch.health.current
+	var core: Node2D = boss.get_node("Core")
+	_put_patch(core.global_position.x - 230.0, 1.0)
+	await _frames(3)
+	_check(patch._find_staggered() == boss, "with the Long Seam, Patch can reach the core from further off (dy %d)" % int(core.global_position.y - patch.global_position.y))
+	patch._start_heavy()
+	_check(patch.state == 10, "a heavy press on a staggered boss starts the Unstitch")
+	await create_timer(0.35).timeout
+	_check(boss.health.current == boss.health.max_health - 3, "the Unstitch tears 3 health off the boss (%d)" % boss.health.current)
+	_check(patch.health.current == hp_before + 1, "the Long Seam mends half a token on an Unstitch")
+	_check(not boss.is_in_group(&"staggered") and is_equal_approx(hold.current, hold.max_hold)
+		and hud.boss_seam.text.is_empty(), "after the Unstitch its Hold knits back and the seams close")
+	# Leave before it recovers (that would spin up and call Soggies into the lab).
+	boss.state = 0
+	await create_timer(0.5).timeout
+	boss.queue_free()
+	gs.patterns.clear()
+	hud.boss_bar.visible = false
+	_put_patch(400.0, 1.0)
+	await _frames(5)
+
+
+## Gran's patterns change Patch's moves.
+func _patterns() -> void:
+	_check(patch._air_combo_length() == 3, "the air combo is three cuts")
+	gs.learn_pattern(&"blanket_stitch")
+	_check(patch._air_combo_length() == 4, "the Blanket Stitch adds a fourth")
+	var window: float = patch._parry_window()
+	gs.learn_pattern(&"backstitch")
+	_check(is_equal_approx(patch._parry_window(), window * 1.5), "the Backstitch widens the parry window by half")
+	# Quick Unpick: 0.32 s of holding reaches the first charge level (0.45 s without).
+	var levels := []
+	for learned in [false, true]:
+		if learned:
+			gs.learn_pattern(&"quick_unpick")
+		_put_patch(400.0, 1.0)
+		patch.state = 7
+		patch._heavy_phase = 0
+		patch._heavy_held = 0.0
+		patch.charge_level = 0
+		Input.action_press(&"heavy")
+		patch._process_heavy(0.32)
+		levels.append(patch.charge_level)
+		Input.action_release(&"heavy")
+	_check(levels == [0, 1], "the Quick Unpick charges heavies a third faster (%s)" % str(levels))
+	gs.patterns.clear()
+	_put_patch(400.0, 1.0)
+	patch.attack_hitbox.active = false
+	await _frames(10)
 
 
 ## Rebinding, the left-hand layout, button prompts, shapes on tells, sound captions,

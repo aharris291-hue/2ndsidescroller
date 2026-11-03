@@ -14,6 +14,10 @@ const TORN := preload("res://assets/art/dark/ui/health_torn.png")
 @onready var boss_health: ProgressBar = $Root/BossBar/BossHealth
 ## Thread: one little spool bar per charge, wound with Gran's red thread.
 var _spools: HBoxContainer
+## The boss's Hold: a thin bone-white bar under its health. When it breaks the bar
+## burns red and a line says how to Unstitch.
+var boss_hold: ProgressBar
+var boss_seam: Label
 
 
 func _ready() -> void:
@@ -28,6 +32,7 @@ func _ready() -> void:
 	EventBus.page_entered.connect(func(_page: Node) -> void: boss_bar.visible = false)
 	boss_bar.visible = false
 	_style_dark()
+	_build_hold_bar()
 	_spools = HBoxContainer.new()
 	_spools.name = "ThreadSpools"
 	_spools.add_theme_constant_override(&"separation", 6)
@@ -121,3 +126,49 @@ func _on_boss_started(display_name: String, max_health: int) -> void:
 	boss_health.max_value = max_health
 	boss_health.value = max_health
 	boss_bar.visible = true
+	boss_hold.max_value = BossStagger.MAX_HOLD
+	boss_hold.value = BossStagger.MAX_HOLD
+	_set_seam_open(false)
+
+
+func _build_hold_bar() -> void:
+	boss_hold = ProgressBar.new()
+	boss_hold.name = "BossHold"
+	boss_hold.custom_minimum_size = Vector2(920, 10)
+	boss_hold.show_percentage = false
+	boss_hold.max_value = BossStagger.MAX_HOLD
+	boss_hold.value = BossStagger.MAX_HOLD
+	var back := StyleBoxFlat.new()
+	back.bg_color = Color(0.06, 0.05, 0.05, 0.85)
+	back.border_color = Color("2a1d18")
+	back.set_border_width_all(2)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("cfc4ad")
+	boss_hold.add_theme_stylebox_override(&"background", back)
+	boss_hold.add_theme_stylebox_override(&"fill", fill)
+	boss_bar.add_child(boss_hold)
+	boss_seam = Label.new()
+	boss_seam.name = "BossSeam"
+	boss_seam.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_seam.add_theme_font_size_override(&"font_size", 24)
+	boss_seam.add_theme_color_override(&"font_color", Color("e05a48"))
+	boss_seam.add_theme_color_override(&"font_outline_color", Color(0.04, 0.03, 0.03, 0.9))
+	boss_seam.add_theme_constant_override(&"outline_size", 8)
+	boss_seam.modulate.a = 0.0
+	boss_bar.add_child(boss_seam)
+	# Room for the two new rows above the bottom edge.
+	boss_bar.offset_top -= 46.0
+	EventBus.boss_hold_changed.connect(func(current: float, maximum: float) -> void:
+		boss_hold.max_value = maximum
+		boss_hold.value = current)
+	EventBus.boss_staggered.connect(_set_seam_open)
+
+
+func _set_seam_open(open: bool) -> void:
+	var fill := boss_hold.get_theme_stylebox(&"fill") as StyleBoxFlat
+	fill.bg_color = Color("e05a48") if open else Color("cfc4ad")
+	if open:
+		# Broken: the whole bar burns red while the seams are open.
+		boss_hold.value = boss_hold.max_value
+	boss_seam.text = "Its seams are open: %s to Unstitch" % InputGlyphs.hint(&"heavy") if open else ""
+	boss_seam.modulate.a = 1.0 if open else 0.0
