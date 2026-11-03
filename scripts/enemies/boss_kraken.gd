@@ -11,7 +11,7 @@ extends Node2D
 enum State { WAITING, ATTACKING, STUNNED, DEFEATED }
 
 const SOGGY_SCENE := preload("res://scenes/enemies/soggy.tscn")
-const TENTACLE_TEXTURE := preload("res://assets/art/characters/kraken_tentacle.png")
+const TENTACLE_TEXTURE := preload("res://assets/art/dark/bosses/kraken_tentacle.png")
 
 @export var boss_name := "The Blotch Kraken"
 ## The two YANK GrapplePoints that drop the blotters.

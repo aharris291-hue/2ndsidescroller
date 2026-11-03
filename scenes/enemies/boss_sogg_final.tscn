@@ -1,9 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/boss_sogg_final.gd" id="1_8m3bq"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/sogg_body.png" id="2_msxab"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/sogg_body.png" id="2_msxab"]
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_47oq4"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/drizzle_heart.png" id="4_oga62"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/drizzle_heart.png" id="4_oga62"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="5_temme"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="6_425a8"]
 
@@ -23,13 +23,13 @@ texture = ExtResource("2_msxab")
 
 [node name="Heart" type="Area2D" parent="." unique_id=1637645455]
 z_index = 1
-position = Vector2(0, -200)
+position = Vector2(0, -246)
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("3_47oq4")
 
 [node name="Sprite2D" type="Sprite2D" parent="Heart" unique_id=297164668]
-scale = Vector2(0.8, 0.8)
+scale = Vector2(0.55, 0.55)
 texture = ExtResource("4_oga62")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Heart" unique_id=1524116230]

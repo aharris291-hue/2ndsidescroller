@@ -1,11 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/boss_millwheel.gd" id="1_vim4s"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_body.png" id="2_6p8a6"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_sails.png" id="3_l7ky0"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/millwheel_body.png" id="2_6p8a6"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/millwheel_sails.png" id="3_l7ky0"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_jyr75"]
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="5_2er5y"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/millwheel_core.png" id="6_wvixp"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/millwheel_core.png" id="6_wvixp"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="7_uqtjs"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kow6f"]
@@ -27,7 +27,7 @@ radius = 72.0
 script = ExtResource("1_vim4s")
 
 [node name="Body" type="Sprite2D" parent="." unique_id=832004296]
-position = Vector2(0, -176)
+position = Vector2(0, -196)
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("2_6p8a6")
 
