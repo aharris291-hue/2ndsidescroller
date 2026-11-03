@@ -11,7 +11,11 @@ const LANES: Array[StringName] = [&"move_up", &"move_left", &"move_right", &"mov
 const LANE_ANGLES := [-PI / 2.0, PI, 0.0, PI / 2.0]
 const FOX_TEXTURE := preload("res://assets/art/dark/patch.png")
 const SHADOW := Color(0.16, 0.1, 0.14)
-const LIT := Color("ffe8aa")
+## The screen is old stained cloth lit by one candle behind it: dim amber, hot in the
+## middle, falling to brown at the edges.
+const LIT := Color(0.34, 0.25, 0.16)
+const HOTSPOT := Color(0.8, 0.56, 0.3)
+const SCREEN := Rect2(470, 170, 980, 550)
 
 @export_file("*.tscn") var return_page := ""
 @export var return_spawn: StringName = &"FromTheater"
@@ -150,7 +154,17 @@ func _update_status() -> void:
 
 func _draw() -> void:
 	# The lit screen with the hit ring and the shadow-fox puppet.
-	draw_rect(Rect2(470, 170, 980, 550), LIT.lerp(Color.WHITE, _flash * 0.4))
+	draw_rect(SCREEN, LIT.lerp(HOTSPOT, _flash * 0.5))
+	# The candle's hotspot, soft-edged, in the middle of the screen.
+	for i in 10:
+		var r := 420.0 - i * 36.0
+		draw_set_transform(SCREEN.get_center(), 0.0, Vector2(1.0, 0.62))
+		draw_circle(Vector2.ZERO, r, Color(HOTSPOT, 0.06))
+	draw_set_transform(Vector2.ZERO)
+	# Dark, water-stained edges.
+	for i in 6:
+		var inset := i * 14.0
+		draw_rect(SCREEN.grow(-inset), Color(0.06, 0.04, 0.03, 0.22), false, 16.0)
 	draw_arc(Vector2(HIT_X, LANE_Y), 64.0, 0.0, TAU, 48, SHADOW, 6.0, true)
 	# The painted Patch, 360 px tall, drawn as a shadow about as tall as the old puppet.
 	var fox_scale := Vector2(0.7, 0.7 - _fox_pose * 0.11)

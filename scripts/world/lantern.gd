@@ -3,8 +3,8 @@ extends Interactable
 ## A paper lantern for Lanternfold's festival. The damp put them all out; lighting
 ## one counts toward the Lamplighter Sisters' "festival_lanterns" quest.
 
-const TEXTURE_OFF := preload("res://assets/art/props/lantern_off.png")
-const TEXTURE_ON := preload("res://assets/art/props/lantern_on.png")
+const TEXTURE_OFF := preload("res://assets/art/dark/props/lantern_off.png")
+const TEXTURE_ON := preload("res://assets/art/dark/props/lantern_on.png")
 
 @export var quest_id := "festival_lanterns"
 

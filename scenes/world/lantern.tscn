@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/lantern.gd" id="1_am08j"]
-[ext_resource type="Texture2D" path="res://assets/art/props/lantern_off.png" id="2_shxs5"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/lantern_off.png" id="2_shxs5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2uyoq"]
 size = Vector2(150, 120)

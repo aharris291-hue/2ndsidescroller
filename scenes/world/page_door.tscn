@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/page_door.gd" id="1_inh2k"]
-[ext_resource type="Texture2D" path="res://assets/art/props/page_corner_door.png" id="2_qld14"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/page_corner_door.png" id="2_qld14"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_esank"]
 size = Vector2(120, 128)

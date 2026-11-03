@@ -20,8 +20,10 @@ const FONT := preload("res://assets/fonts/PatrickHand-Regular.ttf")
 const TILE_PAGE := Vector2i(1, 1)
 const TILE_BOOKS := Vector2i(2, 1)
 const TILE_INK := Vector2i(3, 1)
+## Old cloth and leather bindings, faded and water-marked (the dark rebuild: the desk is
+## night-time, lit by one lamp, not a bright toy table).
 const BOOK_COLORS: Array[Color] = [
-	Color("d8475a"), Color("3f8fd8"), Color("f0a03a"), Color("5fbfa8"), Color("8a63c9"), Color("e9d27a"),
+	Color("4a1e1a"), Color("1f3328"), Color("1d2333"), Color("3d2a1c"), Color("231d1c"), Color("51432a"),
 ]
 
 ## The 2D page this diorama redraws. Defaults to the parent.
@@ -33,12 +35,29 @@ const BOOK_COLORS: Array[Color] = [
 var _viewport: SubViewport
 var _world: Node3D
 var _camera: Camera3D
+## A small warm light that travels with Patch, on the camera's side, so he and whatever
+## he is fighting read clearly on the night-time desk.
+var _hero_light: OmniLight3D
 var _player: Node2D
 # Each entry: {"source": CanvasItem, "target": Node3D}
 var _mirrors: Array[Dictionary] = []
 var _mirrored := {}
 var _rescan_left := 0.0
 var _rng := RandomNumberGenerator.new()
+
+## Patch's painted rig bends polygons on a skeleton, so it can't be copied as a flat
+## sprite. Instead a small viewport films the rig in 2D and the desk shows that film on
+## a Sprite3D. The page is kept drawn but put on its own canvas layer, which the main
+## screen skips and the rig viewport draws (only the rig's branch shares it).
+const RIG_LAYER := 1 << 19
+const RIG_VIEW := Vector2i(448, 448)
+## How far above Patch's feet the rig viewport's centre sits, in 2D pixels.
+const RIG_LIFT := 150.0
+var _rig: Node2D
+var _rig_view: SubViewport
+var _rig_camera: Camera2D
+var _rig_sprite: Sprite3D
+var _main_mask := -1
 
 
 func _ready() -> void:
@@ -52,9 +71,15 @@ func _ready() -> void:
 	_build_decor()
 	_scan()
 	# The 2D drawing is replaced by the diorama; its nodes keep working underneath.
-	page.visible = false
+	if not _build_rig_mirror():
+		page.visible = false
 	_update_mirrors()
 	_update_camera(1.0)
+
+
+func _exit_tree() -> void:
+	if _main_mask != -1:
+		get_viewport().canvas_cull_mask = _main_mask
 
 
 func _process(delta: float) -> void:
@@ -63,6 +88,7 @@ func _process(delta: float) -> void:
 		_rescan_left = 0.4
 		_scan()
 	_update_mirrors()
+	_update_rig_mirror()
 	_update_camera(delta)
 
 
@@ -109,19 +135,19 @@ func _build_viewport() -> void:
 
 func _build_lighting() -> void:
 	var sky_material := ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color("9cc4e8")
-	sky_material.sky_horizon_color = Color("f3dcc0")
-	sky_material.ground_bottom_color = Color("5a3c28")
-	sky_material.ground_horizon_color = Color("c99a72")
+	sky_material.sky_top_color = Color("1c2230")
+	sky_material.sky_horizon_color = Color("3a3226")
+	sky_material.ground_bottom_color = Color("080605")
+	sky_material.ground_horizon_color = Color("3a2a1c")
 	var sky := Sky.new()
 	sky.sky_material = sky_material
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.35
+	env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 0.85
+	env.tonemap_exposure = 1.05
 	env.ssao_enabled = true
 	env.ssao_radius = 1.2
 	env.ssao_intensity = 2.4
@@ -129,19 +155,19 @@ func _build_lighting() -> void:
 	env.glow_intensity = 0.4
 	env.glow_bloom = 0.05
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.25
-	env.adjustment_contrast = 1.08
+	env.adjustment_saturation = 0.78
+	env.adjustment_contrast = 1.14
 	env.fog_enabled = true
-	env.fog_light_color = Color("e9cfae")
-	env.fog_density = 0.004
+	env.fog_light_color = Color("2a241e")
+	env.fog_density = 0.012
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	_world.add_child(world_env)
 
-	# Late-afternoon sun through a window: warm, low, with soft shadows.
+	# Cold moonlight through the window, and rain on the glass: low, with soft shadows.
 	var sun := DirectionalLight3D.new()
-	sun.light_color = Color("ffe2b8")
-	sun.light_energy = 1.35
+	sun.light_color = Color("8d9cb8")
+	sun.light_energy = 1.0
 	sun.shadow_enabled = true
 	sun.light_angular_distance = 1.2
 	sun.directional_shadow_max_distance = 45.0
@@ -150,12 +176,19 @@ func _build_lighting() -> void:
 
 	# The Great Light: Gran's lamp, a warm pool on one side of the desk.
 	var lamp := OmniLight3D.new()
-	lamp.light_color = Color("ffc884")
-	lamp.light_energy = 2.0
-	lamp.omni_range = 16.0
+	lamp.light_color = Color("ffad5c")
+	lamp.light_energy = 4.0
+	lamp.omni_range = 26.0
 	lamp.shadow_enabled = true
 	lamp.position = to_desk(_page_bounds().end * Vector2(0.85, 0.15), 6.0)
 	_world.add_child(lamp)
+
+	_hero_light = OmniLight3D.new()
+	_hero_light.light_color = Color("ffc890")
+	_hero_light.light_energy = 2.6
+	_hero_light.omni_range = 9.0
+	_hero_light.omni_attenuation = 1.4
+	_world.add_child(_hero_light)
 
 
 func _build_desk() -> void:
@@ -171,7 +204,7 @@ func _build_desk() -> void:
 	mat.normal_texture = WOOD_NORMAL
 	mat.normal_scale = 0.7
 	mat.roughness = 0.55
-	mat.albedo_color = Color(0.82, 0.78, 0.74)
+	mat.albedo_color = Color(0.56, 0.48, 0.42)
 	mat.uv1_scale = Vector3(1.0, 1.0, 1.0) / 10.0
 	mat.uv1_triplanar = true
 	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
@@ -211,7 +244,7 @@ func _add_book_stack(center: Vector2) -> void:
 		book.rotation.y = _rng.randf_range(-0.12, 0.12)
 		var cover := _box(Vector3(tile * 0.98, thickness, tile * 0.9), _material(BOOK_COLORS[_rng.randi() % BOOK_COLORS.size()], 0.7, CARDBOARD_NORMAL))
 		book.add_child(cover)
-		var pages := _box(Vector3(tile * 0.94, thickness * 0.8, tile * 0.92), _material(Color("f4ead2"), 0.9, PAPER_NORMAL))
+		var pages := _box(Vector3(tile * 0.94, thickness * 0.8, tile * 0.92), _material(Color("a8987a"), 0.9, PAPER_NORMAL))
 		pages.position.x = tile * 0.03
 		book.add_child(pages)
 		_world.add_child(book)
@@ -227,7 +260,7 @@ func _add_ink(center: Vector2) -> void:
 	mesh.height = 0.02
 	mesh.radial_segments = 24
 	puddle.mesh = mesh
-	var mat := _material(Color("1c2550"), 0.04)
+	var mat := _material(Color("0b0a0d"), 0.04)
 	mat.metallic_specular = 1.0
 	mat.clearcoat_enabled = true
 	puddle.material_override = mat
@@ -265,10 +298,10 @@ func _tile_texture(layer: TileMapLayer, atlas: Vector2i) -> Texture2D:
 func _build_decor() -> void:
 	var b := _page_bounds()
 	var top := b.position.y - 260.0
-	# A giant mug.
+	# A giant chipped enamel mug, gone cold.
 	var mug := Node3D.new()
 	mug.position = to_desk(Vector2(b.position.x + b.size.x * 0.22, top - 200.0))
-	var mug_mat := _material(Color("4f86c6"), 0.25)
+	var mug_mat := _material(Color("2b3038"), 0.35)
 	var body := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 2.0
@@ -288,7 +321,7 @@ func _build_decor() -> void:
 	handle.rotation_degrees = Vector3(90, 0, 0)
 	mug.add_child(handle)
 	_world.add_child(mug)
-	# Pencils.
+	# Worn-down pencils.
 	for i in 3:
 		var pencil := Node3D.new()
 		pencil.position = to_desk(Vector2(b.position.x + b.size.x * (0.5 + i * 0.07), top + i * 60.0), 0.2)
@@ -300,7 +333,7 @@ func _build_decor() -> void:
 		hex.height = 6.0
 		hex.radial_segments = 6
 		shaft.mesh = hex
-		shaft.material_override = _material([Color("f2c53d"), Color("e2574c"), Color("4caf7a")][i], 0.5)
+		shaft.material_override = _material([Color("4a3e28"), Color("4e1f1b"), Color("26332b")][i], 0.6)
 		shaft.rotation_degrees.z = 90
 		pencil.add_child(shaft)
 		var tip := MeshInstance3D.new()
@@ -310,15 +343,15 @@ func _build_decor() -> void:
 		cone.height = 0.7
 		cone.radial_segments = 6
 		tip.mesh = cone
-		tip.material_override = _material(Color("e8c9a0"), 0.8)
+		tip.material_override = _material(Color("7a6650"), 0.8)
 		tip.rotation_degrees.z = -90
 		tip.position.x = 3.35
 		pencil.add_child(tip)
 		_world.add_child(pencil)
-	# Alphabet blocks.
+	# Old wooden letter blocks, the paint long gone.
 	var letters := ["A", "B", "C"]
 	for i in letters.size():
-		var block := _box(Vector3(1.6, 1.6, 1.6), _material([Color("e8d9b5"), Color("f0b84a"), Color("d8475a")][i], 0.6))
+		var block := _box(Vector3(1.6, 1.6, 1.6), _material([Color("5e4e3a"), Color("4a3a2a"), Color("3e2a22")][i], 0.8))
 		block.position = to_desk(Vector2(b.end.x + 220.0 + (i % 2) * 120.0, b.position.y + 300.0 + i * 230.0), 0.8)
 		block.rotation.y = _rng.randf_range(-0.4, 0.4)
 		var label := Label3D.new()
@@ -326,7 +359,7 @@ func _build_decor() -> void:
 		label.font = FONT
 		label.font_size = 160
 		label.pixel_size = 0.006
-		label.modulate = Color("2a2030")
+		label.modulate = Color("120e0c")
 		label.position = Vector3(0, 0, 0.81)
 		block.add_child(label)
 		_world.add_child(block)
@@ -349,6 +382,8 @@ func _scan() -> void:
 
 func _scan_node(node: Node) -> void:
 	for child in node.get_children():
+		if child == _rig:
+			continue  # filmed whole by the rig viewport
 		if child is Sprite2D or child is Label:
 			if not _mirrored.has(child.get_instance_id()):
 				_add_mirror(child)
@@ -394,7 +429,7 @@ func _tape_roll() -> Node3D:
 	torus.outer_radius = 1.2
 	torus.rings = 48
 	tape.mesh = torus
-	var tape_mat := _material(Color(0.95, 0.9, 0.72), 0.2)
+	var tape_mat := _material(Color(0.62, 0.55, 0.4), 0.3)
 	tape_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 	tape_mat.albedo_color.a = 0.85
 	tape_mat.clearcoat_enabled = true
@@ -408,7 +443,7 @@ func _tape_roll() -> Node3D:
 	cyl.bottom_radius = 0.62
 	cyl.height = 1.2
 	core.mesh = cyl
-	core.material_override = _material(Color("b9874f"), 0.9, CARDBOARD_NORMAL)
+	core.material_override = _material(Color("6a4e32"), 0.9, CARDBOARD_NORMAL)
 	core.position.y = 0.6
 	roll.add_child(core)
 	return roll
@@ -506,6 +541,68 @@ func _update_camera(delta: float) -> void:
 	var weight := clampf(delta * 5.0, 0.0, 1.0)
 	_camera.position = _camera.position.lerp(wanted, weight) if _camera.position != Vector3.ZERO else wanted
 	_camera.look_at(_camera.position - camera_offset + Vector3(0, 0.6, 0), Vector3.UP)
+	if _hero_light:
+		_hero_light.position = _camera.position - camera_offset + Vector3(0.0, 3.0, 3.0)
+
+
+func _build_rig_mirror() -> bool:
+	if _player == null or not is_instance_valid(_player):
+		_player = get_tree().get_first_node_in_group("player") as Node2D
+	_rig = _player.get_node_or_null("Visual/Rig") as Node2D if _player else null
+	if _rig == null or not page.is_ancestor_of(_rig):
+		return false
+	# The main screen stops drawing the page; only the rig's branch joins the rig layer.
+	_main_mask = get_viewport().canvas_cull_mask
+	get_viewport().canvas_cull_mask = _main_mask & ~RIG_LAYER
+	page.visibility_layer = RIG_LAYER
+	var node: Node = _rig.get_parent()
+	while node != page:
+		if node is CanvasItem:
+			(node as CanvasItem).visibility_layer |= RIG_LAYER
+		node = node.get_parent()
+	_join_rig_layer(_rig)
+	_rig_view = SubViewport.new()
+	_rig_view.size = RIG_VIEW
+	_rig_view.transparent_bg = true
+	_rig_view.world_2d = get_viewport().world_2d
+	_rig_view.canvas_cull_mask = RIG_LAYER
+	_rig_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_rig_view)
+	_rig_camera = Camera2D.new()
+	_rig_view.add_child(_rig_camera)
+	_rig_camera.make_current()
+	_rig_sprite = Sprite3D.new()
+	_rig_sprite.texture = _rig_view.get_texture()
+	_rig_sprite.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
+	_rig_sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	_rig_sprite.shaded = true
+	_rig_sprite.double_sided = true
+	_rig_sprite.pixel_size = 1.0 / PIXELS_PER_METRE
+	_world.add_child(_rig_sprite)
+	return true
+
+
+func _join_rig_layer(node: Node) -> void:
+	if node is CanvasItem:
+		(node as CanvasItem).visibility_layer |= RIG_LAYER
+	for child in node.get_children():
+		_join_rig_layer(child)
+
+
+func _update_rig_mirror() -> void:
+	if _rig_sprite == null:
+		return
+	if not is_instance_valid(_rig):
+		_rig_sprite.visible = false
+		return
+	# Parts the rig adds later (the mended tail) join the layer too.
+	_join_rig_layer(_rig)
+	var feet := _rig.global_position
+	_rig_camera.global_position = feet - Vector2(0.0, RIG_LIFT)
+	_rig_sprite.visible = _shown(_rig)
+	_rig_sprite.modulate = _tint(_rig)
+	# The film is centred RIG_LIFT above his feet, so lift it by that to stand him on the desk.
+	_rig_sprite.position = to_desk(feet, RIG_LIFT / PIXELS_PER_METRE)
 
 
 # ------------------------------------------------------------------ helpers

@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://assets/art/props/cardboard_platform.png" id="1_14efu"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/cardboard_platform.png" id="1_14efu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2p717"]
 size = Vector2(188, 28)

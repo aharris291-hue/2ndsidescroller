@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/fold_mark.gd" id="1_kokvt"]
-[ext_resource type="Texture2D" path="res://assets/art/props/popup_peak.png" id="2_k4goe"]
-[ext_resource type="Texture2D" path="res://assets/art/props/fold_mark.png" id="3_76yvq"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/popup_peak.png" id="2_k4goe"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/fold_mark.png" id="3_76yvq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sfsg0"]
 size = Vector2(132, 256)

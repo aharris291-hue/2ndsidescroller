@@ -19,8 +19,8 @@ extends Node2D
 @export var river_bottom := 800.0
 @export var music: AudioStream
 
-const ROCK_TEXTURE := preload("res://assets/art/props/stream_rock.png")
-const SCRAP_TEXTURE := preload("res://assets/art/props/scrap.png")
+const ROCK_TEXTURE := preload("res://assets/art/dark/props/stream_rock.png")
+const SCRAP_TEXTURE := preload("res://assets/art/dark/props/scrap.png")
 const STEER_SPEED := 520.0
 const ROCK_RADIUS := 44.0
 const BOAT_RADIUS := 40.0
