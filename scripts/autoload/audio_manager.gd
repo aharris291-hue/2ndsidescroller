@@ -47,6 +47,14 @@ const SOUND_CAPTIONS := {
 	&"enemy_pop": "Something tears",
 	&"tab_pull": "Tab pulls",
 }
+## Music that fills in as the book mends: with nothing mended the music sounds far
+## off and drowned (low-passed, washed in reverb, quieter); each region mended brings
+## it closer, until the whole book is sewn back and it plays clean. See fullness().
+const MUFFLED_CUTOFF := 1100.0
+const OPEN_CUTOFF := 20000.0
+const DROWNED_WET := 0.32
+const DROWNED_DB := -5.0
+const FILL_TIME := 4.0
 const POOL_SIZE := 10
 const FADE_TIME := 0.8
 
@@ -59,6 +67,12 @@ var _voice := AudioStreamPlayer.new()
 var _captions: VBoxContainer
 ## When each caption was last shown, so a burst of the same sound shows one line.
 var _caption_shown := {}
+var _lowpass := AudioEffectLowPassFilter.new()
+var _reverb := AudioEffectReverb.new()
+var _amplify := AudioEffectAmplify.new()
+## 0 = drowned, 1 = full. Tweened toward fullness() as regions are mended.
+var music_fullness := -1.0
+var _fill_tween: Tween
 
 
 func _ready() -> void:
@@ -79,6 +93,62 @@ func _ready() -> void:
 	_voice.bus = &"SFX"
 	add_child(_voice)
 	_build_captions()
+	_add_music_effects()
+	EventBus.page_entered.connect(func(_page: Node) -> void: update_fullness())
+	EventBus.boss_defeated.connect(func() -> void: update_fullness.call_deferred())
+
+
+func _add_music_effects() -> void:
+	var bus := AudioServer.get_bus_index(&"Music")
+	if bus < 0:
+		return
+	_reverb.room_size = 0.7
+	_reverb.damping = 0.6
+	_reverb.dry = 1.0
+	AudioServer.add_bus_effect(bus, _lowpass)
+	AudioServer.add_bus_effect(bus, _reverb)
+	AudioServer.add_bus_effect(bus, _amplify)
+	_set_fill(0.0)
+
+
+## How mended the book is, 0 to 1: the share of written regions mended (the Prologue
+## counts), and 1 once the game is finished.
+static func fullness() -> float:
+	if GameState.get_flag("game_complete"):
+		return 1.0
+	var total := 0
+	var mended := 0
+	for entry: Dictionary in BookMap.REGIONS:
+		var flag: String = entry.get("mended_flag", "")
+		if flag.is_empty():
+			continue
+		total += 1
+		if GameState.get_flag(flag):
+			mended += 1
+	return float(mended) / total if total > 0 else 1.0
+
+
+## Moves the music toward how mended the book is (instantly the first time, then
+## slowly, so a region being mended is heard coming in).
+func update_fullness() -> void:
+	var target := fullness()
+	if is_equal_approx(target, music_fullness):
+		return
+	if _fill_tween:
+		_fill_tween.kill()
+	if music_fullness < 0.0 or target < music_fullness:
+		_set_fill(target)
+		return
+	_fill_tween = create_tween()
+	_fill_tween.tween_method(_set_fill, music_fullness, target, FILL_TIME)
+
+
+func _set_fill(amount: float) -> void:
+	music_fullness = amount
+	# Exponential sweep, so each step sounds like the same amount of "closer".
+	_lowpass.cutoff_hz = MUFFLED_CUTOFF * pow(OPEN_CUTOFF / MUFFLED_CUTOFF, amount)
+	_reverb.wet = DROWNED_WET * (1.0 - amount)
+	_amplify.volume_db = DROWNED_DB * (1.0 - amount)
 
 
 func play_music(stream: AudioStream) -> void:

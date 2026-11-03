@@ -81,6 +81,7 @@ static func buy_heart() -> bool:
 	GameState.add_scraps(-price)
 	GameState.add_heart_patch()
 	_sync_player()
+	EventBus.upgrade_bought.emit(&"heart")
 	return true
 
 
@@ -90,6 +91,7 @@ static func buy_spool() -> bool:
 		return false
 	GameState.add_scraps(-price)
 	GameState.add_spool()
+	EventBus.upgrade_bought.emit(&"spool")
 	return true
 
 
@@ -103,6 +105,7 @@ static func buy_charm(charm_id: StringName) -> bool:
 	GameState.gain_charm(charm_id)
 	# Sew it straight on if there's a free slot.
 	GameState.set_charm_equipped(charm_id, true)
+	EventBus.upgrade_bought.emit(&"charm")
 	return true
 
 

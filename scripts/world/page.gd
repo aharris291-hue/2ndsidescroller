@@ -86,6 +86,7 @@ func _ready() -> void:
 	if not opening_caption.is_empty() and not GameState.get_flag(caption_flag):
 		GameState.set_flag(caption_flag)
 		DialogueUI.narrate(opening_caption)
+	TitleCard.on_page(self)
 	EventBus.page_entered.emit(self)
 
 

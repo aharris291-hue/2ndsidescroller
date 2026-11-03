@@ -34,6 +34,7 @@ TimeFX="*res://scripts/autoload/time_fx.gd"
 HUD="*res://scenes/ui/hud.tscn"
 DialogueUI="*res://scenes/ui/dialogue_ui.tscn"
 PauseMenu="*res://scenes/ui/pause_menu.tscn"
+DadNotes="*res://scripts/autoload/dad_notes.gd"
 
 [display]
 
