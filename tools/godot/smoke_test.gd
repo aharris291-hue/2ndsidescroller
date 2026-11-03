@@ -809,6 +809,10 @@ const PAINTED := {
 	"res://scenes/enemies/tack_knight.tscn": Vector2(1.0, 1.3),
 	"res://scenes/enemies/ink_blob.tscn": Vector2(0.15, 0.5),
 	"res://scenes/enemies/ink_drip.tscn": Vector2(0.15, 0.5),
+	"res://scenes/enemies/boss_millwheel.tscn": Vector2(2.5, 6.0),
+	"res://scenes/enemies/boss_kraken.tscn": Vector2(2.5, 6.0),
+	"res://scenes/enemies/boss_sogg.tscn": Vector2(2.5, 6.0),
+	"res://scenes/enemies/boss_sogg_final.tscn": Vector2(2.5, 6.0),
 }
 
 
@@ -816,6 +820,12 @@ func _painted_art() -> void:
 	for path in PAINTED:
 		var enemy := (load(path) as PackedScene).instantiate()
 		var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+		if sprite == null:
+			sprite = enemy.get_node_or_null("Body") as Sprite2D  # bosses
+		# Every other sprite in the scene (sails, core, eye, heart) is painted too.
+		for part in enemy.find_children("*", "Sprite2D"):
+			var part_path: String = part.texture.resource_path if part.texture else ""
+			_check(part_path.begins_with("res://assets/art/dark/"), "%s's %s is painted (%s)" % [path.get_file(), part.name if part.name != "Sprite2D" else part.get_parent().name, part_path])
 		var texture_path := sprite.texture.resource_path if sprite and sprite.texture else ""
 		_check(texture_path.begins_with("res://assets/art/dark/"), "%s is painted (%s)" % [path.get_file(), texture_path])
 		if sprite and sprite.texture:

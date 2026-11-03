@@ -13,7 +13,7 @@ extends BossSogg
 ##    time. Swiping Drizzle while it's pinned helps. Dried out, it isn't destroyed: it
 ##    shrinks back into Drizzle.
 
-const DRIZZLE_TEXTURE := preload("res://assets/art/characters/drizzle.png")
+const DRIZZLE_TEXTURE := preload("res://assets/art/dark/characters/drizzle.png")
 
 @export var dryer_flag := "nell_has_dryer"
 @export var beam: HairdryerBeam
@@ -233,7 +233,7 @@ func _on_defeated() -> void:
 	body.self_modulate = Color.WHITE
 	AudioManager.play_sfx(&"pickup", 0.8)
 	var pop := create_tween()
-	pop.tween_property(body, "scale", Vector2(0.5, 0.5), 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop.tween_property(body, "scale", Vector2(0.42, 0.42), 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await pop.finished
 	if _steam:
 		_steam.emitting = false

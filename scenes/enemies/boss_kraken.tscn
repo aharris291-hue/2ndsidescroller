@@ -1,9 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/boss_kraken.gd" id="1_ri3od"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/kraken_body.png" id="2_x42vg"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/kraken_body.png" id="2_x42vg"]
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_n3lhe"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/kraken_eye.png" id="4_ewbxi"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bosses/kraken_eye.png" id="4_ewbxi"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_dt1xj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_oq0kk"]
@@ -13,7 +13,7 @@ radius = 62.0
 script = ExtResource("1_ri3od")
 
 [node name="Body" type="Sprite2D" parent="." unique_id=1057884669]
-position = Vector2(0, -200)
+position = Vector2(0, -179)
 texture = ExtResource("2_x42vg")
 
 [node name="Eye" type="Area2D" parent="." unique_id=1806252799]

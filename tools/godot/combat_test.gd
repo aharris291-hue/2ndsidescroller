@@ -214,6 +214,9 @@ const TELL_SPRITES := [
 	"res://assets/art/dark/sogg.png",
 	"res://assets/art/dark/enemies/ink_spitter.png",
 	"res://assets/art/dark/enemies/tack_knight.png",
+	"res://assets/art/dark/bosses/millwheel_body.png",
+	"res://assets/art/dark/bosses/kraken_body.png",
+	"res://assets/art/dark/bosses/sogg_body.png",
 ]
 const TILESET := "res://assets/art/dark/tiles/dark_tiles.png"
 const GLOW := Color(1.8, 0.45, 0.4)
