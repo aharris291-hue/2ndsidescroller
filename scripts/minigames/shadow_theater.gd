@@ -9,7 +9,7 @@ extends Node2D
 
 const LANES: Array[StringName] = [&"move_up", &"move_left", &"move_right", &"move_down"]
 const LANE_ANGLES := [-PI / 2.0, PI, 0.0, PI / 2.0]
-const FOX_TEXTURE := preload("res://assets/art/characters/patch.png")
+const FOX_TEXTURE := preload("res://assets/art/dark/patch.png")
 const SHADOW := Color(0.16, 0.1, 0.14)
 const LIT := Color("ffe8aa")
 
@@ -152,12 +152,12 @@ func _draw() -> void:
 	# The lit screen with the hit ring and the shadow-fox puppet.
 	draw_rect(Rect2(470, 170, 980, 550), LIT.lerp(Color.WHITE, _flash * 0.4))
 	draw_arc(Vector2(HIT_X, LANE_Y), 64.0, 0.0, TAU, 48, SHADOW, 6.0, true)
-	# patch.png is a strip of five frames drawn at double size; show the standing one.
-	var fox_scale := Vector2(0.8, 0.8 - _fox_pose * 0.125)
+	# The painted Patch, 360 px tall, drawn as a shadow about as tall as the old puppet.
+	var fox_scale := Vector2(0.7, 0.7 - _fox_pose * 0.11)
 	draw_set_transform(Vector2(HIT_X - 120, LANE_Y + 150 - _fox_pose * 40.0), 0.0, fox_scale)
 	# Black modulate turns the paper fox into a true shadow puppet.
-	var frame := Vector2(FOX_TEXTURE.get_height(), FOX_TEXTURE.get_height())
-	draw_texture_rect_region(FOX_TEXTURE, Rect2(-frame / 2.0, frame), Rect2(Vector2.ZERO, frame), Color(0, 0, 0, 0.92))
+	var size := FOX_TEXTURE.get_size()
+	draw_texture_rect(FOX_TEXTURE, Rect2(-size / 2.0, size), false, Color(0, 0, 0, 0.92))
 	draw_set_transform(Vector2.ZERO)
 	for note in _notes:
 		if note.done:

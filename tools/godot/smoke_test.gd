@@ -747,7 +747,7 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _frames(30)
 	patch = get_first_node_in_group("player")
 	_check(current_scene.name == "NellsPage" and game_state.get_flag("has_new_tail"), "the ending turns to Nell's crayon page")
-	_check(patch.sprite.texture.resource_path.ends_with("patch_mended.png"), "Patch has his new map-and-tape tail")
+	_check(patch.rig.mended and patch.rig.find_child("MendedTail", true, false) != null, "Patch has his new map-and-tape tail")
 	_check(get_nodes_in_group("companion").size() >= 2, "Dot and Corrugate are back with Patch")
 	patch.global_position = current_scene.get_node("Story/ArrivalTalk").global_position + Vector2(0, 150)
 	await _frames(10)
@@ -846,6 +846,37 @@ func _painted_art() -> void:
 			var band: Vector2 = PAINTED[path]
 			_check(size >= band.x and size <= band.y, "%s stands %.2f x Patch (band %.2f-%.2f)" % [path.get_file(), size, band.x, band.y])
 		enemy.free()
+	_painted_tiles()
+	# Patch himself: nothing of his comes from the old bright art any more.
+	for path in ["res://scenes/player/patch.tscn", "res://scripts/player/patch.gd", "res://scripts/player/dark_rig.gd", "res://scripts/minigames/shadow_theater.gd"]:
+		var text := FileAccess.get_file_as_string(path)
+		_check(not text.contains("res://assets/art/characters/"), "%s uses only painted art" % path.get_file())
+
+
+## Every region has its painted tiles, and every top piece has a pale lit lip above its
+## fill, so standable ground reads against the dark.
+func _painted_tiles() -> void:
+	# Read through load(): naming TextLevel here would compile its autoload-using deps early.
+	var regions: Dictionary = (load("res://scripts/world/text_level.gd") as Script).get_script_constant_map()["REGION_TILESETS"]
+	for region in regions:
+		var tile_set := load(regions[region]) as TileSet
+		var source := tile_set.get_source(0) as TileSetAtlasSource if tile_set else null
+		_check(source != null and source.get_tiles_count() == 32 and source.texture.resource_path.begins_with("res://assets/art/dark/tiles/"), "%s has its 32 painted tiles" % region)
+		if source == null:
+			continue
+		var image := source.texture.get_image()
+		if image.is_compressed():
+			image.decompress()
+		for row in 4:
+			var lip := 0.0
+			var fill := 0.0
+			for x in range(0, 64, 4):
+				var best := 0.0
+				for y in range(0, 16):
+					best = maxf(best, image.get_pixel(2 * 64 + x, row * 64 + y).get_luminance())
+				lip += best / 16.0
+				fill += image.get_pixel(x, row * 64 + 40).get_luminance() / 16.0
+			_check(lip > fill + 0.2, "%s row %d has a pale lip over its ground (%.2f vs %.2f)" % [region, row, lip, fill])
 
 
 func _check(condition: bool, label: String) -> void:
