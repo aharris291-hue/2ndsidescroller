@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_lcsml"]
-[ext_resource type="Texture2D" path="res://assets/art/props/paper_dart.png" id="2_p1v4u"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/paper_dart.png" id="2_p1v4u"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_634xw"]
 radius = 30.0

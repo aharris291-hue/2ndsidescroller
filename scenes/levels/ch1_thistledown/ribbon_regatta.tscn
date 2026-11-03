@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/minigames/boat_race.gd" id="1_1wl8x"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_fy8kn"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_ribbon_stream.png" id="3_3ongt"]
-[ext_resource type="Texture2D" path="res://assets/art/props/paper_boat.png" id="4_ic0w5"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_ribbon_stream.png" id="3_3ongt"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/paper_boat.png" id="4_ic0w5"]
 
 [node name="RibbonRegatta" type="Node2D" unique_id=1724753149]
 script = ExtResource("1_1wl8x")

@@ -15,7 +15,6 @@ enum Attack { LIGHT, THRUST, AIR, OVERHEAD, HEAVY, LAUNCHER, CHARGED, PLUNGE }
 enum Grapple { SHOOT, ZIP, RETRACT }
 
 ## After the finale Patch has a new tail: a strip of the Lanternfold map, taped on.
-const MENDED_TEXTURE := preload("res://assets/art/characters/patch_mended.png")
 
 @export_group("Side view")
 @export var run_speed := 430.0
@@ -154,7 +153,6 @@ var _carry_left := 0.0
 var _slam_phase := 0
 
 @onready var visual: Node2D = $Visual
-@onready var sprite: Sprite2D = $Visual/Sprite2D
 @onready var rig: DarkRig = $Visual/Rig
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -166,7 +164,7 @@ var _slam_phase := 0
 func _ready() -> void:
 	add_to_group("player")
 	if GameState.get_flag("has_new_tail"):
-		sprite.texture = MENDED_TEXTURE
+		rig.set_mended(true)
 	health.max_health = GameState.max_health
 	health.set_health(GameState.health)
 	health.changed.connect(_on_health_changed)
@@ -1167,24 +1165,6 @@ func _on_dialogue_finished() -> void:
 
 # --- Paper-puppet animation --------------------------------------------------
 
-## Frames in patch.png: stand, stride, pass, other stride, jump.
-const WALK_CYCLE := [1, 2, 3, 2]
-const FRAME_STAND := 0
-const FRAME_JUMP := 4
-
-
-func _update_frame(moving: bool, grounded: bool) -> void:
-	if not grounded or state == State.GRAPPLE or (state == State.SLAM and _slam_phase < 2):
-		sprite.frame = FRAME_JUMP
-	elif state == State.DASH:
-		sprite.frame = 1
-	elif moving:
-		# Four steps per bob cycle so each stride lands on a bob.
-		sprite.frame = WALK_CYCLE[int(_anim_time / (PI / 2.0)) % WALK_CYCLE.size()]
-	else:
-		sprite.frame = FRAME_STAND
-
-
 func _squash(amount: Vector2) -> void:
 	var sign_x := signf(visual.scale.x) if visual.scale.x != 0.0 else 1.0
 	visual.scale = Vector2(amount.x * sign_x, amount.y)
@@ -1207,7 +1187,6 @@ func _update_visual(delta: float) -> void:
 	# The rig's legs carry the stride now, so the whole-body bob stays small.
 	var bob := absf(sin(_anim_time)) * (3.0 if moving and grounded else 0.0)
 	visual.position.y = -bob
-	_update_frame(moving, grounded)
 	rig.drive(self, delta)
 	var tilt := 0.0
 	if view_mode == PageView.Mode.SIDE:

@@ -322,7 +322,7 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _frames(30)
 	await _skip_dialogue(dialogue)
 	var patch = get_first_node_in_group("player")
-	_check(not current_scene.visible and current_scene.get_node_or_null("Diorama") != null, "the Margin heist is drawn as the 3D desk")
+	_check(_drawn_as_desk(), "the Margin heist is drawn as the 3D desk, with Patch on it")
 	patch.global_position = current_scene.get_node("Pickups/TapeStrip").global_position
 	await _frames(20)
 	_check(game_state.has_ability(&"tape_tail"), "the tape strip gives Patch the Tape Tail")
@@ -505,7 +505,7 @@ func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	await _frames(30)
 	await _skip_dialogue(dialogue)
 	patch = get_first_node_in_group("player")
-	_check(not current_scene.visible and current_scene.get_node_or_null("Diorama") != null, "the paperclip heist is drawn as the 3D desk")
+	_check(_drawn_as_desk(), "the paperclip heist is drawn as the 3D desk, with Patch on it")
 	var plug := current_scene.get_node("Props/HairdryerPlug") as Node2D
 	var plug_x := plug.position.x
 	current_scene.get_node("Props/PlugRing").yank()
@@ -747,7 +747,7 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _frames(30)
 	patch = get_first_node_in_group("player")
 	_check(current_scene.name == "NellsPage" and game_state.get_flag("has_new_tail"), "the ending turns to Nell's crayon page")
-	_check(patch.sprite.texture.resource_path.ends_with("patch_mended.png"), "Patch has his new map-and-tape tail")
+	_check(patch.rig.mended and patch.rig.find_child("MendedTail", true, false) != null, "Patch has his new map-and-tape tail")
 	_check(get_nodes_in_group("companion").size() >= 2, "Dot and Corrugate are back with Patch")
 	patch.global_position = current_scene.get_node("Story/ArrivalTalk").global_position + Vector2(0, 150)
 	await _frames(10)
@@ -846,6 +846,92 @@ func _painted_art() -> void:
 			var band: Vector2 = PAINTED[path]
 			_check(size >= band.x and size <= band.y, "%s stands %.2f x Patch (band %.2f-%.2f)" % [path.get_file(), size, band.x, band.y])
 		enemy.free()
+	_painted_tiles()
+	_painted_props()
+	# Patch himself: nothing of his comes from the old bright art any more.
+	for path in ["res://scenes/player/patch.tscn", "res://scripts/player/patch.gd", "res://scripts/player/dark_rig.gd", "res://scripts/minigames/shadow_theater.gd"]:
+		var text := FileAccess.get_file_as_string(path)
+		_check(not text.contains("res://assets/art/characters/"), "%s uses only painted art" % path.get_file())
+
+
+## Every region has its painted tiles, and every top piece has a pale lit lip above its
+## fill, so standable ground reads against the dark.
+func _painted_tiles() -> void:
+	# Read through load(): naming TextLevel here would compile its autoload-using deps early.
+	var regions: Dictionary = (load("res://scripts/world/text_level.gd") as Script).get_script_constant_map()["REGION_TILESETS"]
+	for region in regions:
+		var tile_set := load(regions[region]) as TileSet
+		var source := tile_set.get_source(0) as TileSetAtlasSource if tile_set else null
+		_check(source != null and source.get_tiles_count() == 32 and source.texture.resource_path.begins_with("res://assets/art/dark/tiles/"), "%s has its 32 painted tiles" % region)
+		if source == null:
+			continue
+		var image := source.texture.get_image()
+		if image.is_compressed():
+			image.decompress()
+		for row in 4:
+			var lip := 0.0
+			var fill := 0.0
+			for x in range(0, 64, 4):
+				var best := 0.0
+				for y in range(0, 16):
+					best = maxf(best, image.get_pixel(2 * 64 + x, row * 64 + y).get_luminance())
+				lip += best / 16.0
+				fill += image.get_pixel(x, row * 64 + 40).get_luminance() / 16.0
+			_check(lip > fill + 0.2, "%s row %d has a pale lip over its ground (%.2f vs %.2f)" % [region, row, lip, fill])
+
+
+## Nothing in the game draws the old bright art: every scene and script points at the
+## painted props and backdrops. The warm air under the hair dryer is the one old piece
+## kept (it is already a dim, warm haze).
+const OLD_ART := ["res://assets/art/props/", "res://assets/art/backgrounds/", "res://assets/art/characters/"]
+const OLD_ART_KEPT := ["res://assets/art/props/warm_beam.png"]
+
+
+func _painted_props() -> void:
+	var offenders: Array[String] = []
+	for path in _files_under("res://scenes", ".tscn") + _files_under("res://scripts", ".gd"):
+		var text := FileAccess.get_file_as_string(path)
+		for kept in OLD_ART_KEPT:
+			text = text.replace(kept, "")
+		for old in OLD_ART:
+			if text.contains(old):
+				offenders.append(path.get_file())
+				break
+	_check(offenders.is_empty(), "every scene and script uses painted art (old art in %s)" % ", ".join(offenders))
+	# Each painted prop keeps its old canvas, so scenes, offsets and hitboxes still fit.
+	var dir := DirAccess.open("res://assets/art/props")
+	for file in dir.get_files():
+		if not file.ends_with(".png") or ("res://assets/art/props/" + file) in OLD_ART_KEPT:
+			continue
+		var painted := "res://assets/art/dark/props/" + file
+		if not ResourceLoader.exists(painted):
+			continue
+		var old_size := (load("res://assets/art/props/" + file) as Texture2D).get_size()
+		var new_size := (load(painted) as Texture2D).get_size()
+		_check(old_size == new_size, "painted %s keeps the old canvas (%s vs %s)" % [file, new_size, old_size])
+
+
+## A Margin page is drawn as the 3D desk: the main screen no longer draws the 2D page,
+## and Patch's painted rig is filmed onto the desk (it can't be copied as a flat sprite).
+func _drawn_as_desk() -> bool:
+	var diorama := current_scene.get_node_or_null("Diorama")
+	if diorama == null:
+		return false
+	var page_hidden: bool = not current_scene.visible or (root.canvas_cull_mask & current_scene.visibility_layer) == 0
+	return page_hidden and diorama.get("_rig_sprite") != null
+
+
+func _files_under(root_path: String, ext: String) -> Array[String]:
+	var found: Array[String] = []
+	var dir := DirAccess.open(root_path)
+	if dir == null:
+		return found
+	for file in dir.get_files():
+		if file.ends_with(ext):
+			found.append(root_path.path_join(file))
+	for sub in dir.get_directories():
+		found.append_array(_files_under(root_path.path_join(sub), ext))
+	return found
 
 
 func _check(condition: bool, label: String) -> void:

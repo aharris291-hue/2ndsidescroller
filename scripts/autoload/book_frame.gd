@@ -7,7 +7,7 @@ extends CanvasLayer
 ## Scenes outside the book (the Margin, real-world cutscenes) set `in_book = false`.
 
 const SHADER := preload("res://resources/shaders/book_frame.gdshader")
-const DESK := preload("res://assets/art/backgrounds/bg_desk.png")
+const DESK := preload("res://assets/art/dark/backdrops/bg_desk.png")
 
 ## Corners of the pages on screen (0-1): top-left, top-right, bottom-right, bottom-left.
 ## The top edge is narrower, so the book looks like it's tilted away from you.

@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_qdt3j"]
-[ext_resource type="Texture2D" path="res://assets/art/props/paperclip.png" id="2_noudc"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/paperclip.png" id="2_noudc"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_skd1v"]
 radius = 70.0

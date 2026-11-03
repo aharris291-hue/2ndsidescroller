@@ -218,21 +218,37 @@ const TELL_SPRITES := [
 	"res://assets/art/dark/bosses/kraken_body.png",
 	"res://assets/art/dark/bosses/sogg_body.png",
 ]
-const TILESET := "res://assets/art/dark/tiles/dark_tiles.png"
+## Every region's painted tiles (tools/art/dark_tileset.py).
+const TILESETS := [
+	"res://assets/art/dark/tiles/dark_tiles.png",
+	"res://assets/art/dark/tiles/dark_tiles_meadow.png",
+	"res://assets/art/dark/tiles/dark_tiles_harbor.png",
+	"res://assets/art/dark/tiles/dark_tiles_marsh.png",
+	"res://assets/art/dark/tiles/dark_tiles_peaks.png",
+	"res://assets/art/dark/tiles/dark_tiles_fair.png",
+	"res://assets/art/dark/tiles/dark_tiles_index.png",
+	"res://assets/art/dark/tiles/dark_tiles_gutter.png",
+]
 const GLOW := Color(1.8, 0.45, 0.4)
 
 
 func _tells_read_on_painted_art() -> void:
-	var tiles := _mean_and_max(TILESET)
+	# The glow has to show against the reddest region's tiles.
+	var tile_red := -1.0
+	var reddest := ""
+	for tileset in TILESETS:
+		var tiles := _mean_and_max(tileset)
+		if tiles[0].r - tiles[0].g > tile_red:
+			tile_red = tiles[0].r - tiles[0].g
+			reddest = tileset.get_file()
+		_check(tiles[1] < 0.005, "%s has no patch of white to mistake for a glint (%.2f%%)" % [tileset.get_file(), tiles[1] * 100.0])
 	for path in TELL_SPRITES:
 		var body := _mean_and_max(path)
 		var mean: Color = body[0]
 		# How far the glow pushes the body toward red, against the tiles behind it.
 		var glow_red := minf(mean.r * GLOW.r, 1.0) - mean.g * GLOW.g
-		var tile_red: float = tiles[0].r - tiles[0].g
-		_check(glow_red - tile_red > 0.12, "the red glow shows on %s (%.2f over the tiles)" % [path.get_file(), glow_red - tile_red])
+		_check(glow_red - tile_red > 0.12, "the red glow shows on %s (%.2f over %s)" % [path.get_file(), glow_red - tile_red, reddest])
 		_check(body[1] < 0.005, "%s has no patch of white to mistake for a glint (%.2f%%)" % [path.get_file(), body[1] * 100.0])
-	_check(tiles[1] < 0.005, "the tiles have no patch of white to mistake for a glint (%.2f%%)" % [tiles[1] * 100.0])
 
 
 ## Mean colour of the opaque pixels, and the share of them that are near white (a stray

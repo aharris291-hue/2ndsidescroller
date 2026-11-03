@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/hairdryer_beam.gd" id="1_ci8dr"]
 [ext_resource type="Texture2D" path="res://assets/art/props/warm_beam.png" id="2_vos46"]
-[ext_resource type="Texture2D" path="res://assets/art/props/hairdryer.png" id="3_n7sah"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/hairdryer.png" id="3_n7sah"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_8vee5"]
 blend_mode = 1

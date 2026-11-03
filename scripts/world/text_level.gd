@@ -6,8 +6,10 @@ extends Node2D
 ## corner pieces from each cell's neighbours), places the entities from the legend,
 ## adds the Start marker, and sets the page's bounds to the map's size.
 ##
-## Terrain (rows of the dark tile atlas, see tools/art/dark_tileset.py):
-##   #  shelf wood      %  stacked books      &  sodden earth      $  damp stone
+## Terrain (rows of the region's tile atlas, see tools/art/dark_tileset.py). Each
+## character is a role; `region` decides what it looks like (shelf shown):
+##   #  main ground (shelf wood)      %  built (stacked books)
+##   &  soft ground (sodden earth)    $  hard stone (damp stone)
 ##   -  one-way plank (jump up through it)
 ## Built-in entities:
 ##   @  Start (where a fresh visit spawns Patch)     k  Bookmark (checkpoint)
@@ -22,7 +24,17 @@ extends Node2D
 ## of one-time pickups stay the same between visits.
 
 const TILE := 64
-const TILESET := preload("res://resources/dark_tiles.tres")
+## Painted tilesets by region (tools/art/dark_tileset.py).
+const REGION_TILESETS := {
+	"shelf": "res://resources/dark_tiles.tres",
+	"meadow": "res://resources/dark_tiles_meadow.tres",
+	"harbor": "res://resources/dark_tiles_harbor.tres",
+	"marsh": "res://resources/dark_tiles_marsh.tres",
+	"peaks": "res://resources/dark_tiles_peaks.tres",
+	"fair": "res://resources/dark_tiles_fair.tres",
+	"index": "res://resources/dark_tiles_index.tres",
+	"gutter": "res://resources/dark_tiles_gutter.tres",
+}
 const TERRAIN := {"#": 0, "%": 1, "&": 2, "$": 3}
 const PLANK := "-"
 const PLANK_COLUMN := 7
@@ -32,6 +44,8 @@ const BUILT_IN := {
 }
 
 @export_file("*.txt") var map_file := ""
+## Which region's painted tiles to lay (a key of REGION_TILESETS).
+@export_enum("shelf", "meadow", "harbor", "marsh", "peaks", "fair", "index", "gutter") var region := "shelf"
 ## Extra legend: character -> PackedScene or Script.
 @export var entities: Dictionary = {}
 ## Character -> {property: value}; "offset" (Vector2) shifts the instance.
@@ -84,7 +98,7 @@ func build() -> void:
 	rows = load_rows(map_file)
 	tiles = TileMapLayer.new()
 	tiles.name = &"Tiles"
-	tiles.tile_set = TILESET
+	tiles.tile_set = load(REGION_TILESETS.get(region, REGION_TILESETS["shelf"]))
 	add_child(tiles)
 	var page := get_parent()
 	for y in rows.size():

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/minigames/shadow_theater.gd" id="1_8501q"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/lanternfold_waltz.wav" id="2_5ogry"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_shadow_theater.png" id="3_1go3f"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_shadow_theater.png" id="3_1go3f"]
 
 [node name="ShadowTheater" type="Node2D" unique_id=555248990]
 script = ExtResource("1_8501q")

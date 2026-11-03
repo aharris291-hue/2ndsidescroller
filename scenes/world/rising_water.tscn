@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/rising_water.gd" id="1_jxkm0"]
-[ext_resource type="Texture2D" path="res://assets/art/props/rising_water.png" id="2_qa26k"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/rising_water.png" id="2_qa26k"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_12wyh"]
 size = Vector2(1920, 2400)

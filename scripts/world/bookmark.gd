@@ -3,8 +3,8 @@ extends Area2D
 ## Checkpoint. Touching a bookmark saves the game, mends Patch to full health,
 ## and makes this the place he returns to after tearing.
 
-const TEXTURE_OFF := preload("res://assets/art/props/bookmark_off.png")
-const TEXTURE_ON := preload("res://assets/art/props/bookmark_on.png")
+const TEXTURE_OFF := preload("res://assets/art/dark/props/bookmark_off.png")
+const TEXTURE_ON := preload("res://assets/art/dark/props/bookmark_on.png")
 
 ## Where Patch reappears, relative to the bookmark.
 @export var respawn_offset := Vector2(0, -8)

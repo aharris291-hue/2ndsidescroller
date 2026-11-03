@@ -11,6 +11,11 @@ const TEXTURE := preload("res://assets/art/dark/patch.png")
 const FRONT_ARM := preload("res://assets/art/dark/patch_arm_f.png")
 ## The same arm with the shears cut away (tools/art/dark_patch_unarmed.py).
 const FRONT_ARM_BARE := preload("res://assets/art/dark/patch_arm_f_bare.png")
+## The new tail Nell makes him from a strip of old map (tools/art/dark_patch_tail.py).
+## It hangs off the tail bone, with its root this far down the torn stump.
+const MENDED_TAIL := preload("res://assets/art/dark/patch_tail_mended.png")
+const MENDED_TAIL_ROOT := Vector2(6, 40)
+const MENDED_TAIL_ALONG := 0.7
 ## The painting cut into puppet layers (back to front) and the bones each one follows.
 const LAYERS := [
 	[preload("res://assets/art/dark/patch_arm_b.png"), [&"arm_b", &"fore_b"]],
@@ -64,6 +69,9 @@ var _skeleton: Skeleton2D
 ## The front arm's layer, so the shears can be shown or hidden.
 var _front_arm: Polygon2D
 var _armed := true
+## True once Patch wears his mended tail.
+var mended := false
+var _mended_tail: Sprite2D
 
 
 func _ready() -> void:
@@ -96,6 +104,24 @@ func _ready() -> void:
 		_build_mesh(polygon, layer[0], layer[1])
 		if layer[0] == FRONT_ARM:
 			_front_arm = polygon
+
+
+## Show (or hide) the mended map tail on the tail bone. It sits behind his body, so the
+## torn stump and its red stitches cover the join.
+func set_mended(on: bool) -> void:
+	mended = on
+	if on and _mended_tail == null:
+		var along: Vector2 = JOINTS[&"tail_tip"] - JOINTS[&"tail"]
+		_mended_tail = Sprite2D.new()
+		_mended_tail.name = &"MendedTail"
+		_mended_tail.texture = MENDED_TAIL
+		_mended_tail.centered = false
+		_mended_tail.offset = -MENDED_TAIL_ROOT
+		_mended_tail.position = along * MENDED_TAIL_ALONG
+		_mended_tail.rotation = along.angle()
+		bones[&"tail"].add_child(_mended_tail)
+	if _mended_tail:
+		_mended_tail.visible = on
 
 
 func _bone_spec(bone_name: StringName) -> Array:

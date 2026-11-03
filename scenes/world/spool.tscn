@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/lost_sheep.gd" id="1_ekhi2"]
-[ext_resource type="Texture2D" path="res://assets/art/props/spool.png" id="2_0djy5"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/spool.png" id="2_0djy5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xsoil"]
 size = Vector2(110, 100)
