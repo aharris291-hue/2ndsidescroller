@@ -21,6 +21,9 @@ var _fire_left := 1.0
 var _windup_left := 0.0
 var _knockback := Vector2.ZERO
 
+## Where the mouth is on the painted sprite when it faces left.
+const MOUTH := Vector2(-60, -25)
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var _sprite_scale := sprite.scale
 @onready var health: HealthComponent = $HealthComponent
@@ -70,8 +73,10 @@ func _physics_process(delta: float) -> void:
 
 func _throw(to_player: Vector2) -> void:
 	var blob := BLOB_SCENE.instantiate() as InkBlob
-	blob.position = position + Vector2(0, -60)
-	var aim := to_player + Vector2(0, -30) - Vector2(0, -60)
+	# Gobs leave from the painted mouth, at the front of the body.
+	var mouth := Vector2(MOUTH.x * (1.0 if sprite.flip_h else -1.0), MOUTH.y)
+	blob.position = position + mouth
+	var aim := to_player + Vector2(0, -30) - mouth
 	if view_mode == PageView.Mode.SIDE:
 		var t := lerpf(flight_time.x, flight_time.y, clampf(aim.length() / fire_range, 0.0, 1.0))
 		blob.velocity = Vector2(aim.x / t, aim.y / t - 0.5 * blob.fall_gravity * t)

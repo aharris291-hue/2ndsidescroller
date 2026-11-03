@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/ink_drip.gd" id="1_svvb6"]
-[ext_resource type="Texture2D" path="res://assets/art/props/ink_drip.png" id="2_w46dp"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/enemies/ink_drip.png" id="2_w46dp"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3rmd8"]
 radius = 14.0

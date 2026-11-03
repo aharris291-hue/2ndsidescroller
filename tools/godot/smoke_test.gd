@@ -29,6 +29,7 @@ func _run() -> void:
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(20)
 	_check(current_scene != null and current_scene.name == "TitleScreen", "title screen loads")
+	_painted_art()
 	# Every action must work on a controller (the slam once had no button, which
 	# stranded controller players at the ice on the flat Frostfold page).
 	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"pause"]:
@@ -456,6 +457,12 @@ func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	patch.velocity = Vector2.ZERO
 	await _frames(30)
 	await _skip_dialogue(dialogue)
+	# This checks the fold mark, not a fight: clear any enemy close enough to lunge into
+	# the slam's hop (a Soggy hit cancels it, depending on where the earlier fights left it).
+	for actor in current_scene.get_node("Actors").get_children():
+		if actor is CharacterBody2D and actor.global_position.distance_to(fold.global_position) < 600.0:
+			actor.queue_free()
+	await _frames(2)
 	var ground_y: float = patch.global_position.y
 	await _press(&"slam")
 	await _frames(70)
@@ -791,6 +798,32 @@ func _skip_dialogue(dialogue: Node, max_lines := 40) -> void:
 func _frames(count: int) -> void:
 	for i in count:
 		await physics_frame
+
+
+## Every enemy is painted (docs/ART_STYLE.md): its art comes from assets/art/dark, and it
+## stands within its size band next to Patch (150 px).
+const PATCH_HEIGHT := 150.0
+const PAINTED := {
+	"res://scenes/enemies/soggy.tscn": Vector2(0.65, 0.85),
+	"res://scenes/enemies/ink_spitter.tscn": Vector2(0.65, 0.85),
+	"res://scenes/enemies/tack_knight.tscn": Vector2(1.0, 1.3),
+	"res://scenes/enemies/ink_blob.tscn": Vector2(0.15, 0.5),
+	"res://scenes/enemies/ink_drip.tscn": Vector2(0.15, 0.5),
+}
+
+
+func _painted_art() -> void:
+	for path in PAINTED:
+		var enemy := (load(path) as PackedScene).instantiate()
+		var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+		var texture_path := sprite.texture.resource_path if sprite and sprite.texture else ""
+		_check(texture_path.begins_with("res://assets/art/dark/"), "%s is painted (%s)" % [path.get_file(), texture_path])
+		if sprite and sprite.texture:
+			var used := sprite.texture.get_image().get_used_rect()
+			var size := used.size.y * absf(sprite.scale.y) / PATCH_HEIGHT
+			var band: Vector2 = PAINTED[path]
+			_check(size >= band.x and size <= band.y, "%s stands %.2f x Patch (band %.2f-%.2f)" % [path.get_file(), size, band.x, band.y])
+		enemy.free()
 
 
 func _check(condition: bool, label: String) -> void:
