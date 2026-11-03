@@ -698,6 +698,7 @@ func _auto_guard(hitbox: Hitbox) -> bool:
 ## pushed back; Patch can't be hurt for a moment and is free to counter.
 func _parry(hitbox: Hitbox) -> void:
 	parries += 1
+	EventBus.player_parried.emit()
 	health.grant_invulnerability(0.4)
 	state = State.NORMAL
 	_guard_time = 99.0
@@ -1102,6 +1103,7 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 func _perfect_dodge() -> void:
 	_perfect_done = true
 	perfect_dodges += 1
+	EventBus.player_perfect_dodge.emit()
 	GameState.add_thread(0.5)
 	TimeFX.slow_motion(0.35, 0.5)
 	AudioManager.play_sfx(&"grapple", 1.5)

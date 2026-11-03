@@ -10,40 +10,40 @@ const HUB := "res://scenes/levels/hub/spine_hub.tscn"
 
 const REGIONS := [
 	{
-		"id": &"prologue", "name": "The Shelf", "dirs": ["res://scenes/levels/prologue/"],
+		"id": &"prologue", "name": "The Shelf", "dirs": ["res://scenes/levels/prologue/"], "subtitle": "the night of the flood",
 		"mended_flag": "cut_the_thread", "open_flag": "", "door": "",
 		"spot": Vector2(0.5, 0.88),
 	},
 	{
-		"id": &"thistledown", "name": "Thistledown", "dirs": ["res://scenes/levels/ch1_thistledown/"],
+		"id": &"thistledown", "name": "Thistledown", "dirs": ["res://scenes/levels/ch1_thistledown/"], "subtitle": "the drowned meadow",
 		"mended_flag": "boss_millwheel_defeated", "open_flag": "",
 		"door": "res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn",
 		"spot": Vector2(0.2, 0.66),
 	},
 	{
-		"id": &"lanternfold", "name": "Lanternfold", "dirs": ["res://scenes/levels/ch2_lanternfold/"],
+		"id": &"lanternfold", "name": "Lanternfold", "dirs": ["res://scenes/levels/ch2_lanternfold/"], "subtitle": "the harbour that went dark",
 		"mended_flag": "boss_kraken_defeated", "open_flag": "boss_millwheel_defeated",
 		"door": "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn",
 		"spot": Vector2(0.8, 0.66),
 	},
 	{
-		"id": &"marsh", "name": "Watermark Marsh", "dirs": [],
+		"id": &"marsh", "name": "Watermark Marsh", "dirs": [], "subtitle": "where the ink settled",
 		"mended_flag": "", "open_flag": "", "door": "",
 		"spot": Vector2(0.17, 0.36),
 	},
 	{
-		"id": &"peaks", "name": "The Spine Peaks", "dirs": ["res://scenes/levels/ch3_spine/"],
+		"id": &"peaks", "name": "The Spine Peaks", "dirs": ["res://scenes/levels/ch3_spine/"], "subtitle": "the cold top of the book",
 		"mended_flag": "boss_sogg_phase2_done", "open_flag": "boss_kraken_defeated",
 		"door": "res://scenes/levels/ch3_spine/the_spine.tscn",
 		"spot": Vector2(0.5, 0.14),
 	},
 	{
-		"id": &"fair", "name": "Gatefold Fair", "dirs": [],
+		"id": &"fair", "name": "Gatefold Fair", "dirs": [], "subtitle": "the fair that never closed",
 		"mended_flag": "", "open_flag": "", "door": "",
 		"spot": Vector2(0.83, 0.36),
 	},
 	{
-		"id": &"index", "name": "The Index", "dirs": [],
+		"id": &"index", "name": "The Index", "dirs": [], "subtitle": "everything, listed",
 		"mended_flag": "", "open_flag": "", "door": "",
 		"spot": Vector2(0.5, 0.36),
 	},

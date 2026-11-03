@@ -802,6 +802,11 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _skip_dialogue(dialogue)
 	var patch := get_first_node_in_group("player") as CharacterBody2D
 	_check(current_scene.name == "SpineHub" and patch != null and patch.is_on_floor(), "Patch stands in the Spine")
+	var card := current_scene.get_node_or_null("TitleCard")
+	_check(card != null and card.place_name == "The Spine", "walking into the Spine writes its name across the screen")
+	# Music that fills in: with only the Prologue mended the music is still far off.
+	var audio := root.get_node("AudioManager")
+	_check(is_equal_approx(audio.fullness(), 0.25), "one region of four mended: the music is a quarter full (%.2f)" % audio.fullness())
 	var doors := {}
 	for node in current_scene.get_node("Level").get_children():
 		if node.get("region_id") != null and node.get("region_id") != &"":
@@ -818,6 +823,11 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(doors[&"lanternfold"].state() == "open" and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).size() == 2,
 		"mending Thistledown opens Lanternfold's door and nails the stair back")
 	_check(doors[&"thistledown"].state() == "mended", "Thistledown's door shows it mended")
+	var cutoff_before: float = audio._lowpass.cutoff_hz
+	audio.update_fullness()
+	await create_timer(4.5).timeout
+	_check(is_equal_approx(audio.music_fullness, 0.5) and audio._lowpass.cutoff_hz > cutoff_before * 2.0
+		and audio._reverb.wet < 0.2, "mending a region fills the music in (cutoff %d Hz)" % audio._lowpass.cutoff_hz)
 	# Climb: the two boards and the gallery are each within a jump of the last.
 	var tops: Array[float] = [960.0, 832.0, 704.0, 576.0]
 	var climbable := true
@@ -872,9 +882,18 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	game_state.scraps = 0
 	_check(not shop.buy_heart(), "a heart patch can't be bought without the scraps")
 	game_state.scraps = 1000
+	# Dad notices the first thing bought (his remarks are spaced out; skip the wait).
+	var dad := root.get_node("DadNotes")
+	dad._since_last = 999.0
 	_check(shop.buy_heart() and game_state.max_health == before["max_health"] + 2
 		and patch.health.max_health == game_state.max_health and patch.health.current == patch.health.max_health,
 		"a heart patch adds a paper token, and Patch is mended to it")
+	_check(game_state.get_flag("dad:bought_heart"), "Dad remarks on the first heart patch")
+	_check(not dad.remark("bought_heart", true), "each of Dad's remarks is made only once")
+	_check(not dad.remark("parry"), "Dad doesn't remark twice within a few seconds")
+	for i in 3:
+		dad._on_torn()
+	_check(game_state.get_flag("dad:torn_3"), "Dad notices Patch torn three times on one page")
 	_check(shop.buy_spool() and game_state.thread_max == 4.0, "a Thread spool adds a Thread charge")
 	_check(shop.buy_charm(&"magpie_button") and shop.buy_charm(&"red_knot") and shop.buy_charm(&"heron_pin")
 		and game_state.equipped.size() == 2 and not game_state.has_charm(&"heron_pin"),
