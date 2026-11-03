@@ -342,7 +342,7 @@ func _start_attack() -> void:
 	_state_left = attack_time
 	_attack_active_left = attack_active_time
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
-	var length := air_combo_length if airborne else combo_length
+	var length := _air_combo_length() if airborne else combo_length
 	combo_step = combo_step + 1 if combo_step < length and _combo_left > 0.0 else 1
 	var last := combo_step == length
 	# Back off a little after the last hit, so the combo has a rhythm.
@@ -355,7 +355,7 @@ func _start_attack() -> void:
 		_attack_kind = Attack.AIR
 		_air_hits += 1
 		# The shears keep Patch hanging in the air for a moment while he cuts.
-		velocity.y = minf(velocity.y, 60.0) if _air_hits <= air_combo_length else velocity.y
+		velocity.y = minf(velocity.y, 60.0) if _air_hits <= _air_combo_length() else velocity.y
 	elif aim == Vector2.UP:
 		_attack_kind = Attack.OVERHEAD
 	else:
@@ -363,7 +363,8 @@ func _start_attack() -> void:
 	var heavy_hit := last and not airborne
 	_configure_hitbox(aim, attack_reach, 1.3 if heavy_hit else 1.0,
 		finisher_damage if heavy_hit else 1, 1.0 if heavy_hit else 0.5,
-		finisher_knockback if heavy_hit else 1.0)
+		finisher_knockback if heavy_hit else 1.0, false, Vector2.ONE,
+		Hitbox.Reaction.SEND if heavy_hit else Hitbox.Reaction.FLINCH)
 	AudioManager.play_sfx(&"shears", (0.85 if heavy_hit else randf_range(0.95, 1.12)), -4.0)
 	if heavy_hit:
 		AudioManager.play_voice(&"effort")
@@ -378,7 +379,8 @@ func _start_attack() -> void:
 
 ## Points the shears' hitbox for one cut.
 func _configure_hitbox(aim: Vector2, reach: float, size: float, damage: int, hold: float,
-		knockback_scale: float, launch := false, stretch := Vector2.ONE) -> void:
+		knockback_scale: float, launch := false, stretch := Vector2.ONE,
+		reaction := Hitbox.Reaction.REEL) -> void:
 	var offset := aim * reach * maxf(stretch.x, 1.0) ** 0.5
 	if view_mode == PageView.Mode.SIDE and aim.y == 0.0:
 		offset.y -= 6.0
@@ -389,6 +391,7 @@ func _configure_hitbox(aim: Vector2, reach: float, size: float, damage: int, hol
 	attack_hitbox.hold_damage = hold
 	attack_hitbox.knockback = _attack_knockback * knockback_scale
 	attack_hitbox.launch = launch
+	attack_hitbox.reaction = Hitbox.Reaction.LAUNCH if launch else reaction
 	attack_hitbox.active = true
 
 
@@ -415,7 +418,7 @@ func _process_attack(delta: float) -> void:
 			state = State.NORMAL
 			return
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
-	var length := air_combo_length if airborne else combo_length
+	var length := _air_combo_length() if airborne else combo_length
 	# Pressing attack chains into the next hit. An early press is remembered and
 	# comes out as soon as the swing reaches its back half.
 	if _action_pressed(&"attack"):
@@ -469,7 +472,8 @@ func _process_heavy(delta: float) -> void:
 	match _heavy_phase:
 		0:
 			# Charging: held heavy builds up to three levels.
-			_heavy_held += delta
+			# Gran's Quick Unpick pattern: charge a third faster.
+			_heavy_held += delta * (1.5 if GameState.has_pattern(&"quick_unpick") else 1.0)
 			var level := 0
 			for threshold in charge_levels:
 				if _heavy_held >= threshold:
@@ -520,14 +524,14 @@ func _heavy_strike() -> void:
 			var i := clampi(charge_level - 1, 0, 2)
 			if charge_level >= 3:
 				# The Full Cut: a slash that crosses most of the screen.
-				_configure_hitbox(facing, attack_reach, 1.0, charge_damage[i], charge_hold[i], 2.2, false, Vector2(7.0, 1.4))
+				_configure_hitbox(facing, attack_reach, 1.0, charge_damage[i], charge_hold[i], 2.2, false, Vector2(7.0, 1.4), Hitbox.Reaction.SEND)
 				_spawn_slash(facing, 4.5, Color("ffd36e"))
 				_shake_camera(10.0)
 				for node in get_tree().get_nodes_in_group(&"full_cut_listeners"):
 					if node.has_method("on_full_cut"):
 						node.on_full_cut(global_position, facing)
 			else:
-				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, charge_damage[i], charge_hold[i], 1.6 + 0.3 * i)
+				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, charge_damage[i], charge_hold[i], 1.6 + 0.3 * i, false, Vector2.ONE, Hitbox.Reaction.SEND)
 				_spawn_slash(facing, 1.6 + 0.4 * i, Color("ffe7a8"))
 			AudioManager.play_sfx(&"shears", 0.7)
 			AudioManager.play_voice(&"heavy" if charge_level >= 2 else &"effort", true)
@@ -569,6 +573,26 @@ func _on_attack_landed(target: Node) -> void:
 
 # --- Unstitch finisher ---------------------------------------------------------
 
+func _finisher_range() -> float:
+	return finisher_range * (1.6 if GameState.has_pattern(&"long_seam") else 1.0)
+
+
+## Where an Unstitch aims: a boss is cut at its weak point, anything else at its middle.
+func _finisher_point(target: Node2D) -> Vector2:
+	if target.has_method(&"finisher_point"):
+		return target.finisher_point()
+	return target.global_position
+
+
+func _air_combo_length() -> int:
+	return air_combo_length + (1 if GameState.has_pattern(&"blanket_stitch") else 0)
+
+
+func _parry_window() -> float:
+	var window := parry_window * (2.0 if Settings.assist_wide_parry else 1.0)
+	return window * (1.5 if GameState.has_pattern(&"backstitch") else 1.0)
+
+
 ## The nearest enemy in front of Patch whose Hold has broken.
 func _find_staggered() -> Node2D:
 	var best: Node2D = null
@@ -577,8 +601,8 @@ func _find_staggered() -> Node2D:
 		var enemy := node as Node2D
 		if enemy == null or not is_instance_valid(enemy):
 			continue
-		var to_enemy := enemy.global_position - global_position
-		if absf(to_enemy.x) > finisher_range or absf(to_enemy.y) > 130.0:
+		var to_enemy := _finisher_point(enemy) - global_position
+		if absf(to_enemy.x) > _finisher_range() or absf(to_enemy.y) > 130.0:
 			continue
 		if view_mode == PageView.Mode.SIDE and to_enemy.x * facing.x < -30.0:
 			continue
@@ -595,11 +619,12 @@ func _start_finisher(target: Node2D) -> void:
 	_heavy_phase = 0
 	velocity = Vector2.ZERO
 	health.grant_invulnerability(0.7)
-	var side := signf(global_position.x - target.global_position.x)
+	var point := _finisher_point(target)
+	var side := signf(global_position.x - point.x)
 	if side == 0.0:
 		side = -facing.x
 	facing = Vector2(-side, 0)
-	global_position.x = target.global_position.x + side * 64.0
+	global_position.x = point.x + side * 64.0
 	AudioManager.play_sfx(&"shears", 0.65)
 	AudioManager.play_voice(&"finisher", true)
 	TimeFX.hitstop(0.12)
@@ -627,6 +652,9 @@ func _process_finisher(delta: float) -> void:
 				hold.clear()
 			_spawn_hit_spark(target)
 		GameState.add_thread(1.0)
+		# Gran's Long Seam pattern: every Unstitch mends half a paper token.
+		if GameState.has_pattern(&"long_seam"):
+			health.heal(1)
 		AudioManager.play_sfx(&"enemy_pop", 0.7)
 		TimeFX.hitstop(0.14)
 		_shake_camera(16.0)
@@ -663,7 +691,7 @@ func _guard_hit(hitbox: Hitbox) -> bool:
 	var dx := hitbox.global_position.x - global_position.x
 	if absf(dx) > 12.0 and signf(dx) != signf(facing.x):
 		return false
-	if _guard_time <= parry_window * (2.0 if Settings.assist_wide_parry else 1.0):
+	if _guard_time <= _parry_window():
 		_parry(hitbox)
 		return true
 	if _block_cooldown > 0.0:
@@ -706,7 +734,8 @@ func _parry(hitbox: Hitbox) -> void:
 	if attacker:
 		var hold := attacker.get_node_or_null(^"HoldComponent") as HoldComponent
 		if hold:
-			hold.take_hold(parry_hold)
+			# Gran's Backstitch pattern: a parry tears more Hold.
+			hold.take_hold(parry_hold + (2.0 if GameState.has_pattern(&"backstitch") else 0.0))
 		if attacker.has_method("on_parried"):
 			attacker.on_parried(self)
 	GameState.add_thread(0.34)
@@ -838,7 +867,7 @@ func _process_slam(delta: float) -> void:
 					velocity = Vector2(0, slam_fall_speed)
 					# The Plunge: blade-first, it hurts and bounces off anything below.
 					_attack_kind = Attack.PLUNGE
-					_configure_hitbox(Vector2.DOWN, 50.0, 1.0, 2, 3.0, 1.2)
+					_configure_hitbox(Vector2.DOWN, 50.0, 1.0, 2, 3.0, 1.2, false, Vector2.ONE, Hitbox.Reaction.CRUSH)
 				else:
 					_slam_impact()
 		1:
@@ -868,6 +897,7 @@ func _slam_impact() -> void:
 	wave.monitoring = false
 	wave.damage = slam_damage
 	wave.knockback = 700.0
+	wave.reaction = Hitbox.Reaction.CRUSH
 	var shape := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
 	circle.radius = slam_radius

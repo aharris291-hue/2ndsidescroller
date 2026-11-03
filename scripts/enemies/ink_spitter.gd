@@ -51,6 +51,14 @@ func _physics_process(delta: float) -> void:
 		return
 	if view_mode == PageView.Mode.SIDE and not is_on_floor():
 		velocity.y += gravity * delta
+	if HitReaction.tick(self, delta):
+		_windup_left = 0.0
+		velocity.x = _knockback.x
+		if view_mode == PageView.Mode.TOP:
+			velocity = _knockback
+		_knockback = _knockback.move_toward(Vector2.ZERO, 3000.0 * delta)
+		move_and_slide()
+		return
 	velocity.x = _knockback.x
 	if view_mode == PageView.Mode.TOP:
 		velocity = _knockback
@@ -96,8 +104,7 @@ func _on_hit(hitbox: Hitbox) -> void:
 		_windup_left = 0.0
 		sprite.scale = _sprite_scale
 		_fire_left = maxf(_fire_left, 0.8)
-		var away := (global_position - hitbox.global_position).normalized()
-		_knockback = away * hitbox.knockback * 0.5
+		_knockback = HitReaction.apply(self, hitbox, sprite, _sprite_scale, 0.5, view_mode == PageView.Mode.SIDE)
 		var tween := create_tween()
 		sprite.modulate = Color(1.6, 1.6, 1.6)
 		tween.tween_property(sprite, "modulate", Color.WHITE, 0.2)

@@ -151,6 +151,10 @@ func _on_heart_hit(hitbox: Hitbox) -> void:
 	_check_sections()
 
 
+func _after_unstitch() -> void:
+	_check_sections()
+
+
 ## Every quarter of its water gone, a piece of the Sogg dries up and shrinks away.
 func _check_sections() -> void:
 	if health.is_dead():
@@ -175,6 +179,7 @@ func _recover() -> void:
 	if state == State.DEFEATED:
 		return
 	_set_heart_exposed(false)
+	BossStagger.close(hold)
 	body.rotation = 0.0
 	create_tween().tween_property(body, "self_modulate", Color.WHITE, 0.5)
 	_rise()

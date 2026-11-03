@@ -50,6 +50,8 @@ func is_disguised() -> bool:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
+	if reeling(delta):
+		return
 	var target := player()
 	_state_left -= delta
 	var to_target := target.global_position - global_position if target else Vector2.ZERO

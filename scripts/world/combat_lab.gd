@@ -110,7 +110,7 @@ func _add_signs() -> void:
 	_sign(Vector2(520, 330), "THE CUTTING POST\n%s x4: light combo, ending in a thrust\n%s: heavy cut (wears down Hold)\nHold %s: charge (3 levels; level 3 is the Full Cut)\nUp + %s: launcher\nBreak its Hold, then %s: UNSTITCH" % [h.call(&"attack"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy")])
 	_sign(Vector2(1240, 330), "THE SPARRING POST\nHold %s to guard. Tap it just as a swing lands to PARRY.\nWhite glint: parry it. Red glow: dodge it.\n%s: Edge-On dodge. Dodge at the last moment to slow time." % [h.call(&"guard"), h.call(&"dash")])
 	_sign(Vector2(1900, 200), "THE LEDGES\nIn the air, %s x3: air combo\nIn the air, Down + %s: PLUNGE (bounces off what it hits)\nOne dodge in the air." % [h.call(&"attack"), h.call(&"heavy")])
-	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nBreak their Hold, then Unstitch.\nThe pen refills when it's empty.")
+	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nEnd a combo with the thrust to send one\ntumbling into the others. Heavies make them reel.\nBreak their Hold, then Unstitch.")
 	_sign(Vector2(3980, 120), "PAPER MOTHS\nThey dart in one at a time after a glint.\nOne cut tears a moth. Quick cuts, not heavy ones.")
 	_sign(Vector2(4900, 330), "THE INKWELL TURRET\nIt glints at the nib, then fires straight.\nClose in, or cut the shot to send it back.")
 	_sign(Vector2(5640, 120), "THE FOLDED CRANE\nIt circles high, glows red, then dives: DODGE.\nIf it misses, its beak sticks in the ground.")

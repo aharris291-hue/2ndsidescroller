@@ -20,6 +20,8 @@ const LINES := {
 	"bought_heart": "Gran's stitches were small and tight. They held better than his had.",
 	"bought_spool": "A fresh spool, still waxed. It smelled like her sewing room.",
 	"bought_charm": "He sewed it onto his bandana, crooked, the way she'd shown him.",
+	"bought_pattern": "Gran's handwriting on the card, slanting off the edge. Patch read it twice before he tried it.",
+	"bowled": "One Soggy went into the next like a dropped stack of plates. Dad underlined it twice.",
 	"mended": "Another page sewn back in. Somewhere, the music came a little closer.",
 }
 
@@ -38,6 +40,7 @@ func _ready() -> void:
 	EventBus.player_health_changed.connect(_on_health)
 	EventBus.upgrade_bought.connect(func(kind: StringName) -> void: remark("bought_" + String(kind)))
 	EventBus.boss_defeated.connect(_on_mended)
+	EventBus.enemy_bowled.connect(remark.bind("bowled"))
 	EventBus.page_entered.connect(func(_page: Node) -> void: _idle = 0.0)
 
 

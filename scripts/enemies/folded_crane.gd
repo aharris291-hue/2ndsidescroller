@@ -42,6 +42,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
+	if reeling(delta):
+		return
 	_phase += delta
 	var target := player()
 	_state_left -= delta

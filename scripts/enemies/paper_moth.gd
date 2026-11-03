@@ -42,6 +42,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
+	if reeling(delta):
+		return
 	_phase += delta * 6.0
 	# Wings beat: a quick squash, so a swarm never moves in step.
 	sprite.scale = _sprite_scale * Vector2(1.0, 0.8 + 0.2 * absf(sin(_phase)))

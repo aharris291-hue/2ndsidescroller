@@ -2,7 +2,8 @@ class_name ShopPanel
 extends CanvasLayer
 ## Gran's sewing tin: Patch spends Scraps on heart patches (one more paper token each),
 ## Thread spools (one more Thread charge each) and stitch charms, and sews charms on
-## or takes them off. The game is paused while it's open.
+## or takes them off. Under the lid are Gran's pattern cards: techniques for the
+## shears (see Patterns), on their own page. The game is paused while it's open.
 
 signal closed
 
@@ -18,6 +19,9 @@ const CHARM_PRICES := {
 }
 
 var _list: VBoxContainer
+## 0: mending (hearts, spools, charms). 1: Gran's pattern cards.
+var _page := 0
+var _page_button: Button
 var _scraps: Label
 var _note: Label
 var _close: Button
@@ -38,6 +42,12 @@ func _ready() -> void:
 	box.add_child(DarkUI.label("A biscuit tin of needles, buttons and thread that smells of her. Whatever Patch finds, she would have known what to mend with it.", 22, DarkUI.ASH, true))
 	_scraps = DarkUI.label("", 26, DarkUI.BONE)
 	box.add_child(_scraps)
+	_page_button = DarkUI.button("", 22)
+	_page_button.pressed.connect(func() -> void:
+		_page = 1 - _page
+		_note.text = ""
+		_rebuild(0))
+	box.add_child(_page_button)
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override(&"separation", 8)
 	box.add_child(_list)
@@ -95,6 +105,16 @@ static func buy_spool() -> bool:
 	return true
 
 
+static func buy_pattern(pattern_id: StringName) -> bool:
+	var price := Patterns.price(pattern_id)
+	if price < 0 or GameState.has_pattern(pattern_id) or GameState.scraps < price:
+		return false
+	GameState.add_scraps(-price)
+	GameState.learn_pattern(pattern_id)
+	EventBus.upgrade_bought.emit(&"pattern")
+	return true
+
+
 static func buy_charm(charm_id: StringName) -> bool:
 	if GameState.charms.has(charm_id) or not CHARM_PRICES.has(charm_id):
 		return false
@@ -125,6 +145,36 @@ func _rebuild(focus_index: int) -> void:
 	_scraps.text = "Scraps: %d        Heart patches: %d/%d        Spools: %d/%d        Charms sewn on: %d/%d" % [
 		GameState.scraps, GameState.heart_patches, HEART_PRICES.size(),
 		GameState.spools, SPOOL_PRICES.size(), GameState.equipped.size(), GameState.charm_slots]
+	_page_button.text = "Back to the mending" if _page == 1 else "Lift the lid: Gran's pattern cards (%d/%d learned)" % [
+		GameState.patterns.size(), Patterns.CATALOG.size()]
+	if _page == 1:
+		_list_patterns()
+	else:
+		_list_mending()
+	var buttons := _list.get_children()
+	var target: Control = _close
+	for i in range(mini(focus_index, buttons.size() - 1), buttons.size()):
+		if not (buttons[i] as Button).disabled:
+			target = buttons[i]
+			break
+	target.grab_focus.call_deferred()
+
+
+func _list_patterns() -> void:
+	for pattern_id: StringName in Patterns.CATALOG:
+		var title := Patterns.display_name(pattern_id)
+		if GameState.has_pattern(pattern_id):
+			var known := DarkUI.button("%s (learned): %s" % [title, Patterns.description(pattern_id)], 22)
+			known.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			known.disabled = true
+			_list.add_child(known)
+			continue
+		var price := Patterns.price(pattern_id)
+		_add_row("%s: %s   %d scraps" % [title, Patterns.description(pattern_id), price],
+			price, buy_pattern.bind(pattern_id), "Patch learned Gran's %s. Her pencil notes were still in the margin of the card." % title)
+
+
+func _list_mending() -> void:
 	_add_row(_offer_text("Heart patch", "one more paper token", heart_price()),
 		heart_price(), buy_heart, "Gran's tight little stitches. Patch feels harder to tear.")
 	_add_row(_offer_text("Thread spool", "one more Thread charge", spool_price()),
@@ -141,13 +191,6 @@ func _rebuild(focus_index: int) -> void:
 			var price: int = CHARM_PRICES[charm_id]
 			_add_row("%s (charm): %s   %d scraps" % [Charms.display_name(charm_id), Charms.description(charm_id), price],
 				price, buy_charm.bind(charm_id), "%s, sewn onto his bandana." % Charms.display_name(charm_id))
-	var buttons := _list.get_children()
-	var target: Control = _close
-	for i in range(mini(focus_index, buttons.size() - 1), buttons.size()):
-		if not (buttons[i] as Button).disabled:
-			target = buttons[i]
-			break
-	target.grab_focus.call_deferred()
 
 
 func _offer_text(item: String, what: String, price: int) -> String:
