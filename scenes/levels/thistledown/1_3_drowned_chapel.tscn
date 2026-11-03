@@ -1,0 +1,117 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/thistledown/drowned_chapel.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_drowned_chapel.png" id="3_floor"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_story"]
+[ext_resource type="Script" path="res://scripts/world/push_block.gd" id="6_pew"]
+[ext_resource type="Script" path="res://scripts/world/bell_stone.gd" id="7_stone"]
+[ext_resource type="Script" path="res://scripts/world/chapel_gate.gd" id="8_gate"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="9_exit"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="10_spawn"]
+[ext_resource type="PackedScene" path="res://scenes/world/lost_sheep.tscn" id="13_sheep"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="14_letter"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_scrap"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="19_patch"]
+
+[node name="DrownedChapel" type="Node2D"]
+script = ExtResource("1_page")
+view_mode = 1
+page_title = "The Drowned Chapel"
+opening_caption = "From up in the rafters, the chapel was a drowned map of itself."
+music = ExtResource("2_music")
+bounds = Rect2(0, 0, 3840, 960)
+weather_tint = Color(0.5, 0.52, 0.6, 1)
+rain_amount = 120
+lightning = false
+
+[node name="Floor1" type="Sprite2D" parent="."]
+z_index = -10
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+
+[node name="Floor2" type="Sprite2D" parent="."]
+z_index = -10
+position = Vector2(1280, 0)
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+flip_h = true
+
+[node name="Floor3" type="Sprite2D" parent="."]
+modulate = Color(0.72, 0.72, 0.8, 1)
+z_index = -10
+position = Vector2(2560, 0)
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/thistledown/1_3_drowned_chapel.txt"
+region = "meadow"
+entities = {
+"1": ExtResource("5_story"),
+"2": ExtResource("5_story"),
+"3": ExtResource("5_story"),
+"D": ExtResource("8_gate"),
+"E": ExtResource("9_exit"),
+"G": ExtResource("10_spawn"),
+"L": ExtResource("14_letter"),
+"X": ExtResource("9_exit"),
+"b": ExtResource("7_stone"),
+"h": ExtResource("13_sheep"),
+"o": ExtResource("15_scrap"),
+"p": ExtResource("6_pew")
+}
+entity_props = {
+"1": {
+"caption": "Three ropes for one bell, Gran used to say: it took the whole village to ring it. Lean on a pew to drag it. A pew over a rope's stone holds the rope down.",
+"offset": Vector2(0, 0),
+"size": Vector2(256, 256)
+},
+"2": {
+"caption": "The aisles had flooded first. Things had come up out of them since.",
+"size": Vector2(128, 256)
+},
+"3": {
+"caption": "The crypt. The bell hung over its middle, and three ropes ran down from it to three stones.",
+"size": Vector2(128, 256)
+},
+"E": {
+"size": Vector2(64, 128),
+"target_page": "res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn",
+"target_spawn": &"Start"
+},
+"G": {
+"name": &"FromSheepfold",
+"offset": Vector2(64, -32)
+},
+"L": {
+"letter": "T",
+"offset": Vector2(0, -32)
+},
+"X": {
+"size": Vector2(64, 128),
+"target_page": "res://scenes/levels/thistledown/1_2_the_sheepfold.tscn",
+"target_spawn": &"FromChapel"
+},
+"b": {
+"offset": Vector2(0, -32)
+},
+"h": {
+"found_caption": "Behind the stone, in the one dry corner of the aisle, the last sheep. It had been listening to the bell for days.",
+"leave_offset": Vector2(0, 0)
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"p": {
+"offset": Vector2(32, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("19_patch")]
+position = Vector2(160, 480)

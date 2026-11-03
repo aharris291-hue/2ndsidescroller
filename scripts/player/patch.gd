@@ -29,6 +29,8 @@ const STYLE_MOVES := {
 @export var air_acceleration := 1900.0
 @export var gravity := 2300.0
 @export var max_fall_speed := 1300.0
+## How much of a jump Patch gets off soaked paper.
+const SOFT_JUMP := 0.6
 @export var jump_velocity := -940.0
 ## Releasing jump early multiplies upward speed by this, for short hops.
 @export var jump_cut := 0.45
@@ -121,6 +123,10 @@ var _attack_scale := Vector2.ONE
 var _swing_time := 0.18
 ## Style meter (StyleMeter): rewards varied, clean fighting with extra Thread.
 var style: StyleMeter
+## Seconds left of standing on soaked paper (SoakedPaper keeps it topped up).
+var soft_ground_left := 0.0
+## A shove for this physics frame only (a Current sets it); cleared after each move.
+var push := Vector2.ZERO
 var _attack_knockback := 520.0
 var _attack_kind := Attack.LIGHT
 var _attack_buffer := 0.0
@@ -220,6 +226,7 @@ func _physics_process(delta: float) -> void:
 		if _combo_left <= 0.0:
 			combo_step = 0
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
+	soft_ground_left = maxf(soft_ground_left - delta, 0.0)
 	_block_cooldown = maxf(_block_cooldown - delta, 0.0)
 	if input_enabled and Input.is_action_just_pressed(&"guard"):
 		_guard_press_age = 0.0
@@ -268,7 +275,12 @@ func _physics_process(delta: float) -> void:
 		State.DEAD:
 			velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
 
+	# Currents (and anything else that shoves Patch along) add to this frame's move
+	# only, so they never build up in his own velocity.
+	velocity += push
 	move_and_slide()
+	velocity -= push
+	push = Vector2.ZERO
 	_after_move()
 	_update_visual(delta)
 
@@ -332,7 +344,8 @@ func _side_movement(input_x: float, delta: float) -> void:
 	# Coyote time (a grace period to jump after walking off a ledge) and the jump
 	# buffer (a jump pressed just before landing still counts) tick in _physics_process.
 	if _jump_buffer_left > 0.0 and _coyote_left > 0.0:
-		velocity.y = jump_velocity
+		# Soaked paper gives under him: a jump off it is barely a hop.
+		velocity.y = jump_velocity * (SOFT_JUMP if soft_ground_left > 0.0 else 1.0)
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
 		AudioManager.play_sfx(&"jump", randf_range(0.95, 1.05))

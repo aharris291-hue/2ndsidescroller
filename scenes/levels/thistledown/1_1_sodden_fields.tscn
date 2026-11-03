@@ -1,0 +1,146 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_sodden_fields.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_story"]
+[ext_resource type="Script" path="res://scripts/world/soaked_paper.gd" id="6_paper"]
+[ext_resource type="Script" path="res://scripts/world/awning.gd" id="7_awning"]
+[ext_resource type="Script" path="res://scripts/world/current.gd" id="8_current"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="9_exit"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="10_spawn"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="11_door"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_dot.tscn" id="12_dot"]
+[ext_resource type="PackedScene" path="res://scenes/world/lost_sheep.tscn" id="13_sheep"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="14_letter"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_scrap"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="16_tape"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="17_moth"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="18_patch"]
+
+[node name="SoddenFields" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Sodden Fields"
+opening_caption = "The water had gone down in the night, and left everything it touched soft."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.55, 0.66, 1)
+rain_amount = 380
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/thistledown/1_1_sodden_fields.txt"
+region = "meadow"
+entities = {
+"1": ExtResource("5_story"),
+"2": ExtResource("5_story"),
+"3": ExtResource("5_story"),
+"4": ExtResource("5_story"),
+"5": ExtResource("5_story"),
+"6": ExtResource("5_story"),
+"7": ExtResource("5_story"),
+"A": ExtResource("7_awning"),
+"B": ExtResource("7_awning"),
+"D": ExtResource("12_dot"),
+"E": ExtResource("9_exit"),
+"F": ExtResource("10_spawn"),
+"G": ExtResource("10_spawn"),
+"L": ExtResource("14_letter"),
+"M": ExtResource("11_door"),
+"c": ExtResource("8_current"),
+"h": ExtResource("13_sheep"),
+"m": ExtResource("17_moth"),
+"o": ExtResource("15_scrap"),
+"t": ExtResource("16_tape"),
+"w": ExtResource("6_paper")
+}
+entity_props = {
+"1": {
+"caption": "Thistledown had been a meadow. Now it was the bottom of something.",
+"size": Vector2(128, 640)
+},
+"2": {
+"caption": "It glinted before it lunged. {guard} just as the glint comes, and the lunge breaks on the shears.",
+"size": Vector2(128, 640)
+},
+"3": {
+"caption": "The paper had drunk the flood. It would hold him for a moment, no longer. And it was too soft to jump from: it just gave.",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "Gran's market awnings still hung over the old stalls. Cut the rope, and the canvas would keep the rain off whatever lay under it.",
+"size": Vector2(128, 640)
+},
+"5": {
+"caption": "Under the field, a bell. A sheep's bell, still ringing, somewhere it shouldn't be.",
+"size": Vector2(128, 640)
+},
+"6": {
+"caption": "Moths, out of the folded corners of drowned pages. They came at him one at a time, as if they'd agreed to.",
+"size": Vector2(128, 640)
+},
+"7": {
+"caption": "Beyond the hedge, someone was shouting at sheep.",
+"size": Vector2(128, 640)
+},
+"A": {
+"cut_caption": "The canvas fell, and under it the paper began, slowly, to dry.",
+"width": 224.0
+},
+"B": {
+"cut_caption": "The canvas fell, and under it the paper began, slowly, to dry.",
+"width": 416.0
+},
+"D": {
+"joins_as_companion": true
+},
+"E": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/thistledown/1_2_the_sheepfold.tscn",
+"target_spawn": &"Start"
+},
+"F": {
+"name": &"FromMargin"
+},
+"G": {
+"name": &"FromSheepfold"
+},
+"L": {
+"letter": "F",
+"offset": Vector2(0, -40)
+},
+"M": {
+"door_prompt": "Peek outside the page",
+"target_page": "res://scenes/levels/margin/kitchen_table.tscn",
+"target_spawn": &"FromPage"
+},
+"c": {
+"size": Vector2(640, 96),
+"strength": -190.0
+},
+"h": {
+"found_caption": "The sheep had been standing in the dark under the field, ringing its bell at nobody. It went, when Patch told it to. It did not look back.",
+"leave_offset": Vector2(-300, 0)
+},
+"m": {
+"scrap_drop": 1
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"w": {
+"offset": Vector2(0, 28)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("18_patch")]
+position = Vector2(224, 1276)

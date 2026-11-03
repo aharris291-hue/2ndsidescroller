@@ -13,6 +13,11 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var gravity := 2000.0
 ## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
 @export var inked := false
+## 1-2, the Sheepfold: it stands in the pen wearing a sheep's wool, still and quiet,
+## until Patch comes close (or cuts it). Then the wool splits and it lunges.
+@export var wool := false
+## How close Patch has to come before a wool-wearer drops its disguise.
+@export var wool_range := 230.0
 ## Nell's bestiary page for this kind (see Bestiary).
 var bestiary_id := "soggy"
 @export var scrap_drop := 2
@@ -34,6 +39,7 @@ var _home := Vector2.ZERO
 var _windup_left := 0.0
 var _lunge_cooldown_left := 0.0
 var _lunging := false
+var _wool_sprite: Sprite2D
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var _sprite_scale := sprite.scale
@@ -57,6 +63,8 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	if inked:
 		Inked.apply(self)
+	if wool:
+		_put_on_wool()
 	if hold:
 		hold.broken.connect(_on_hold_broken)
 		hold.recovered.connect(func() -> void: sprite.modulate = Color.WHITE)
@@ -64,6 +72,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
+		return
+	if _wool_sprite:
+		_disguised(delta)
 		return
 	if HitReaction.tick(self, delta):
 		# Reeling from a hit: no chasing or lunging until it finds its feet.
@@ -166,7 +177,50 @@ func _top_behaviour(delta: float) -> void:
 		_direction = signf(_wander.x)
 
 
+func is_disguised() -> bool:
+	return _wool_sprite != null
+
+
+func _put_on_wool() -> void:
+	_wool_sprite = Sprite2D.new()
+	_wool_sprite.texture = preload("res://assets/art/dark/friends/lost_sheep.png")
+	_wool_sprite.scale = Vector2(0.42, 0.42)
+	_wool_sprite.position = Vector2(0, -52)
+	add_child(_wool_sprite)
+	sprite.visible = false
+	contact_hitbox.active = false
+
+
+## Standing in the pen like a sheep: it only waits, with a sheep's slow sway.
+func _disguised(delta: float) -> void:
+	if view_mode == PageView.Mode.SIDE and not is_on_floor():
+		velocity.y += gravity * delta
+	velocity.x = 0.0
+	move_and_slide()
+	_wool_sprite.rotation = sin(Time.get_ticks_msec() * 0.0015 + position.x) * 0.04
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player and player.global_position.distance_to(global_position) < wool_range:
+		throw_off_wool()
+
+
+## The wool splits and the Soggy underneath comes for Patch.
+func throw_off_wool() -> void:
+	if _wool_sprite == null:
+		return
+	var wool_left := _wool_sprite
+	_wool_sprite = null
+	sprite.visible = true
+	contact_hitbox.active = true
+	_lunge_cooldown_left = 0.0
+	AudioManager.play_sfx(&"growl", 0.7, -2.0)
+	var shed := create_tween().set_parallel()
+	shed.tween_property(wool_left, "position:y", wool_left.position.y - 60.0, 0.4)
+	shed.tween_property(wool_left, "modulate:a", 0.0, 0.4)
+	shed.chain().tween_callback(wool_left.queue_free)
+
+
 func _on_hit(hitbox: Hitbox) -> void:
+	throw_off_wool()
 	if health.take_damage(hitbox.damage, hitbox.global_position):
 		# A hit knocks it out of a lunge wind-up; how far it goes depends on the move.
 		_windup_left = 0.0

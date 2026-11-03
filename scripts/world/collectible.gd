@@ -4,7 +4,7 @@ extends Area2D
 ## items (real things from the Margin, like the paperclip, which set a story flag).
 ## Everything but Scraps is one-time: once collected it stays gone across saves.
 
-enum Kind { SCRAP, LOST_LETTER, TAPE, ABILITY, KEY_ITEM }
+enum Kind { SCRAP, LOST_LETTER, TAPE, ABILITY, KEY_ITEM, HEART_PATCH }
 
 @export var kind := Kind.SCRAP
 @export var amount := 1
@@ -72,6 +72,11 @@ func _on_body_entered(body: Node2D) -> void:
 				for action in [&"dash", &"grapple", &"slam", &"attack", &"jump"]:
 					text = text.replace("{%s}" % action, InputGlyphs.hint(action))
 				DialogueUI.narrate(text)
+		Kind.HEART_PATCH:
+			GameState.add_found_heart()
+			player.health.max_health = GameState.max_health
+			player.health.set_health(GameState.max_health)
+			DialogueUI.narrate(unlock_caption if not unlock_caption.is_empty() else "A heart patch, stitched from someone's good handkerchief. Another paper token.")
 		Kind.KEY_ITEM:
 			GameState.set_flag(flag)
 			if not unlock_caption.is_empty():

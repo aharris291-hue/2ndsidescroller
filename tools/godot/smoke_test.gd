@@ -187,6 +187,7 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	_check(game_state.get_flag("cut_the_thread"), "the thread bridge can be cut")
 	await _skip_dialogue(dialogue)
 	await _spine_hub(game_state, scene_manager, dialogue)
+	await _thistledown(game_state, scene_manager, dialogue)
 
 	# Windmill Hills: the wind tab spins the big windmill; sheep count toward the quest.
 	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn")
@@ -788,6 +789,174 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 ## Phase 1: the Spine hub. The Prologue leads into it; its doors open as regions are
 ## mended; Gran's sewing tin sells heart patches, spools and charms; the torn map fills
 ## in; bookmarks remember themselves for travel; the new save data round-trips.
+
+## Region 1 (Phase 3): the Sodden Fields' soaked paper, awnings and current; the
+## Sheepfold's three waves and wool Soggies; the Drowned Chapel's pews and bell.
+func _thistledown(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R1 := "res://scenes/levels/thistledown/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	var door: String = book_map.REGIONS[1]["door"]
+	_check(door == R1 + "1_1_sodden_fields.tscn", "Thistledown's door opens on 1-1 The Sodden Fields")
+	await scene_manager.change_page(door)
+	await _wait_for_scene("SoddenFields", 120)
+	await _frames(40)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	_check(patch != null and patch.is_on_floor(), "Patch stands in the Sodden Fields")
+	if patch == null:
+		return
+	patch.health.grant_invulnerability(600.0)
+
+	# Soaked paper: soft underfoot (a short hop), tears under Patch, mends again.
+	var sheets: Array = get_nodes_in_group(&"soaked_paper").filter(func(n: Node) -> bool:
+		return absf(n.global_position.x - 66.5 * 64.0) < 64.0)
+	_check(sheets.size() == 1, "a soaked sheet hangs over the first open pit")
+	if sheets.size() == 1:
+		var sheet: Node2D = sheets[0]
+		patch.global_position = sheet.global_position + Vector2(0, -100)
+		patch.velocity = Vector2.ZERO
+		await _frames(16)
+		_check(patch.is_on_floor() and patch.soft_ground_left > 0.0, "standing on soaked paper is soft underfoot")
+		var hop_from := patch.global_position.y
+		var top := hop_from
+		Input.action_press(&"jump")
+		for f in 30:
+			await physics_frame
+			top = minf(top, patch.global_position.y)
+		Input.action_release(&"jump")
+		_check(hop_from - top < 110.0, "jumping off soaked paper is only a hop (%.0f px)" % (hop_from - top))
+		patch.global_position = sheet.global_position + Vector2(0, -100)
+		patch.velocity = Vector2.ZERO
+		var torn := false
+		for f in 120:
+			await physics_frame
+			if sheet.is_torn():
+				torn = true
+				break
+		_check(torn, "soaked paper tears under Patch's weight")
+		patch.global_position = Vector2(60 * 64.0, 19 * 64.0)
+		patch.velocity = Vector2.ZERO
+		await create_timer(4.2).timeout
+		_check(not sheet.is_torn(), "a torn sheet is mended again after a few seconds")
+
+	# The awning: cut its rope and the sheets under it dry and hold.
+	var awnings: Array = get_nodes_in_group(&"awnings").filter(func(n: Node) -> bool:
+		return absf(n.global_position.x - 95.5 * 64.0) < 64.0)
+	_check(awnings.size() == 1, "an awning hangs over the S5 pit")
+	if awnings.size() == 1:
+		var awning: Node2D = awnings[0]
+		var under: Array = awning.sheltered()
+		_check(under.size() == 2, "the awning shelters both sheets in its pit (%d)" % under.size())
+		patch.global_position = awning.global_position + Vector2(-40, 30)
+		patch.velocity = Vector2.ZERO
+		patch.facing = Vector2.RIGHT
+		await _frames(4)
+		Input.action_press(&"attack")
+		await _frames(2)
+		Input.action_release(&"attack")
+		await _frames(30)
+		if not awning.is_down:
+			awning.cut()
+			_check(false, "a swing of the shears cuts the awning's rope")
+		else:
+			_check(true, "a swing of the shears cuts the awning's rope")
+		await create_timer(1.4).timeout
+		var all_dry := true
+		for s in under:
+			all_dry = all_dry and s.dry
+		_check(all_dry, "the dropped awning dries the sheets under it")
+		if not under.is_empty():
+			patch.global_position = under[0].global_position + Vector2(0, -100)
+			patch.velocity = Vector2.ZERO
+			await create_timer(1.5).timeout
+			_check(patch.is_on_floor() and not under[0].is_torn() and patch.soft_ground_left <= 0.0, "dried paper holds and is firm to jump from")
+
+	# The drowned lane: the current pushes Patch back while he stands still.
+	var currents := get_nodes_in_group(&"currents")
+	_check(currents.size() >= 1, "the drowned lane has a current")
+	if not currents.is_empty():
+		var current: Node2D = currents[0]
+		patch.global_position = current.global_position + Vector2(0, -40)
+		patch.velocity = Vector2.ZERO
+		await _frames(10)
+		var x0 := patch.global_position.x
+		await _frames(40)
+		_check(patch.global_position.x < x0 - 40.0, "the current drags Patch back (%.0f px)" % (patch.global_position.x - x0))
+
+	# 1-2 The Sheepfold.
+	await scene_manager.change_page(R1 + "1_2_the_sheepfold.tscn", &"Start")
+	await _wait_for_scene("TheSheepfold", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var fold := current_scene
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	patch.health.grant_invulnerability(600.0)
+	var disguised := get_nodes_in_group(&"enemies").filter(func(n: Node) -> bool:
+		return n.has_method("is_disguised") and n.is_disguised())
+	_check(disguised.size() == 3, "three of the 'sheep' in the pen are Soggies in wool (%d)" % disguised.size())
+	fold.hold_the_fold()
+	await _frames(5)
+	_check(fold.is_running() and fold.wave == 1, "walking into the pen starts the first wave")
+	var waves_seen := 1
+	for round in 12:
+		await _frames(20)
+		for enemy in get_nodes_in_group(&"enemies"):
+			if enemy.is_inside_tree() and fold.is_ancestor_of(enemy):
+				if enemy.has_method("is_disguised") and enemy.is_disguised():
+					continue
+				enemy.queue_free()
+		await create_timer(1.3).timeout
+		waves_seen = maxi(waves_seen, fold.wave)
+		if game_state.get_flag("sheepfold_held"):
+			break
+	_check(waves_seen >= 3, "the Sogg sends three waves at the fold")
+	_check(game_state.get_flag("sheepfold_held") and not fold.is_running(), "holding the fold through all three waves sets 'sheepfold_held'")
+	_check(get_nodes_in_group(&"enemies").filter(func(n: Node) -> bool:
+		return n.has_method("is_disguised") and n.is_disguised()).is_empty(), "the third wave's sheep throw off their wool")
+	await _skip_dialogue(dialogue)
+
+	# 1-3 The Drowned Chapel (top-down): push the nave's pew onto its bell stone.
+	await scene_manager.change_page(R1 + "1_3_drowned_chapel.tscn", &"FromSheepfold")
+	await _wait_for_scene("DrownedChapel", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var chapel := current_scene
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	_check(patch.view_mode == 1, "the Drowned Chapel is seen from above")
+	var nave_pew: Node2D = null
+	for block in get_nodes_in_group(&"push_blocks"):
+		if block.global_position.x < 20 * 64.0:
+			nave_pew = block
+	_check(nave_pew != null, "the nave has a pew")
+	if nave_pew:
+		var pew_y := nave_pew.global_position.y
+		patch.global_position = nave_pew.global_position + Vector2(0, 72)
+		patch.velocity = Vector2.ZERO
+		Input.action_press(&"move_up")
+		for f in 90:
+			await physics_frame
+			if nave_pew.global_position.y < pew_y - 60.0:
+				break
+		Input.action_release(&"move_up")
+		await _frames(20)
+		_check(nave_pew.global_position.y < pew_y - 60.0, "leaning on a pew slides it a tile")
+		for i in 5:
+			nave_pew.try_push(Vector2.UP)
+			await _frames(16)
+		await _frames(10)
+		_check(chapel.room_solved(0) and game_state.get_flag("chapel_room_1"), "a pew over the nave's bell stone solves the nave")
+	await _skip_dialogue(dialogue)
+	var pews_ok := get_nodes_in_group(&"bell_stones").size() == 6 and get_nodes_in_group(&"push_blocks").size() == 6
+	_check(pews_ok, "the chapel has six bell stones and six pews")
+	# The heart patch: a found heart adds a whole heart and heals.
+	var max_before: int = game_state.max_health
+	game_state.add_found_heart()
+	_check(game_state.max_health == max_before + 2 and game_state.health == game_state.max_health, "a found heart patch adds a heart and heals")
+	game_state.max_health = 99
+	game_state.health = 99
+
 func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const HUB := "res://scenes/levels/hub/spine_hub.tscn"
 	var shop := load("res://scripts/ui/shop_panel.gd")

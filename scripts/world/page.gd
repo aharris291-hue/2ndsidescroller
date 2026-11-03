@@ -40,6 +40,11 @@ const COMPANIONS := {
 @export var no_companions := false
 
 
+# Joins "page" before any child's _ready, so enemies can read the page's view mode.
+func _enter_tree() -> void:
+	add_to_group("page")
+
+
 func _ready() -> void:
 	if weather and in_book:
 		in_book = false
@@ -52,7 +57,6 @@ func _ready() -> void:
 		_weathered.shader = WEATHERED
 		_weather_art(self)
 		get_tree().node_added.connect(_on_node_added)
-	add_to_group("page")
 	GameState.current_page = scene_file_path
 	GameState.mark_visited(scene_file_path)
 	GameState.in_gameplay = true
@@ -132,7 +136,12 @@ func _on_node_added(node: Node) -> void:
 		if up is Patch or up is Collectible:
 			return
 		up = up.get_parent()
-	_weather_art.call_deferred(node)
+	# Deferred, and the branch may be freed before then (a hit spark, a dropped scrap).
+	var weak: WeakRef = weakref(node)
+	(func() -> void:
+		var still: Node = weak.get_ref()
+		if still:
+			_weather_art(still)).call_deferred()
 
 
 func _has_companion(flag: String) -> bool:
