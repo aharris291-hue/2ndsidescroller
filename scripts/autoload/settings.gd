@@ -52,6 +52,7 @@ const REBINDABLE := {
 	&"grapple": "Thread grapple",
 	&"slam": "Pop-Up Slam",
 	&"interact": "Interact",
+	&"map": "Torn map",
 	&"pause": "Pause",
 }
 ## Ready-made keyboard layouts. "left_hand" puts everything under the left hand, so
@@ -61,7 +62,7 @@ const PRESETS := {
 		&"move_left": [KEY_A], &"move_right": [KEY_D], &"move_up": [KEY_W], &"move_down": [KEY_S],
 		&"jump": [KEY_SPACE], &"attack": [KEY_Q], &"heavy": [KEY_E], &"guard": [KEY_C],
 		&"dash": [KEY_SHIFT], &"mend": [KEY_R], &"grapple": [KEY_TAB], &"slam": [KEY_V],
-		&"interact": [KEY_F], &"pause": [KEY_ESCAPE],
+		&"interact": [KEY_F], &"map": [KEY_G], &"pause": [KEY_ESCAPE],
 	},
 }
 const TEXT_SCALES: Array[float] = [1.0, 1.25, 1.5]

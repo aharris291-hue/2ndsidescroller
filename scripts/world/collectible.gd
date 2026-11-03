@@ -56,7 +56,8 @@ func _on_body_entered(body: Node2D) -> void:
 	_taken = true
 	match kind:
 		Kind.SCRAP:
-			GameState.add_scraps(amount)
+			# Magpie Button charm: half again as much.
+			GameState.add_scraps(ceili(amount * 1.5) if GameState.has_charm(&"magpie_button") else amount)
 		Kind.LOST_LETTER:
 			GameState.collect_letter(letter)
 			DialogueUI.narrate("A Lost Letter: \"%s\" is back where it belongs." % letter)

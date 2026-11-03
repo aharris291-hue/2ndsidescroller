@@ -19,6 +19,8 @@ const OPTIONS := {
 
 var restart_button: Button
 var options_button: Button
+var map_button: Button
+var save_button: Button
 var _options: OptionsPanel
 var _option_buttons: Dictionary = {}
 
@@ -54,12 +56,27 @@ func _build_extra_controls() -> void:
 	box.add_child(restart_button)
 	box.move_child(restart_button, resume_button.get_index() + 1)
 
+	map_button = Button.new()
+	map_button.name = &"MapButton"
+	map_button.text = "The torn map"
+	map_button.pressed.connect(_open_map)
+	box.add_child(map_button)
+	box.move_child(map_button, restart_button.get_index() + 1)
+
+	# Out in the Margin (the real world) Patch can save anywhere.
+	save_button = Button.new()
+	save_button.name = &"SaveButton"
+	save_button.text = "Save here"
+	save_button.pressed.connect(_on_save_here)
+	box.add_child(save_button)
+	box.move_child(save_button, map_button.get_index() + 1)
+
 	options_button = Button.new()
 	options_button.name = &"OptionsButton"
 	options_button.text = "Controls, accessibility and assists"
 	options_button.pressed.connect(_open_options)
 	box.add_child(options_button)
-	box.move_child(options_button, restart_button.get_index() + 1)
+	box.move_child(options_button, save_button.get_index() + 1)
 
 	var grid := GridContainer.new()
 	grid.name = &"Options"
@@ -81,6 +98,12 @@ func _build_extra_controls() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"map") and not panel.visible and MapPanel.current == null \
+			and GameState.in_gameplay and not SceneManager.is_transitioning \
+			and not DialogueUI.is_active() and not get_tree().paused:
+		MapPanel.open_panel(get_tree().root)
+		get_viewport().set_input_as_handled()
+		return
 	if not event.is_action_pressed(&"pause") or is_instance_valid(_options):
 		return
 	if panel.visible:
@@ -100,6 +123,8 @@ func open() -> void:
 	var scene := get_tree().current_scene
 	book_view_button.visible = scene != null and scene.get(&"in_book") != false
 	restart_button.visible = not GameState.checkpoint_page.is_empty()
+	save_button.visible = in_margin()
+	save_button.text = "Save here"
 	_update_labels()
 	panel.visible = true
 	get_tree().paused = true
@@ -110,6 +135,28 @@ func close() -> void:
 	panel.visible = false
 	get_tree().paused = false
 	Settings.save()
+
+
+## True on a page out in the real world (the Margin), where Patch can save anywhere.
+static func in_margin() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var scene := tree.current_scene
+	# Margin pages are the ones staged on Gran's desk (a DeskDiorama).
+	return scene is Page and scene.has_node(^"Diorama") and not GameState.sandbox
+
+
+## Saves with Patch's current spot as the place to come back to.
+func _on_save_here() -> void:
+	var player := get_tree().get_first_node_in_group(&"player") as Node2D
+	if player == null:
+		return
+	GameState.set_checkpoint(get_tree().current_scene.scene_file_path, player.global_position)
+	save_button.text = "Saved" if GameState.save_game() else "Couldn't save"
+
+
+func _open_map() -> void:
+	close()
+	MapPanel.open_panel(get_tree().root)
 
 
 func _open_options() -> void:

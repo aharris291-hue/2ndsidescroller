@@ -2,7 +2,9 @@ extends Node
 ## Everything about the current playthrough that must survive page changes and saves:
 ## inventory, unlocked abilities, story flags, checkpoint, and the save-slot files.
 
-const SAVE_VERSION := 1
+## 2: heart patches, Thread spools, stitch charms, bookmarks for travel and the pages
+## seen (for the torn map). Version 1 saves load with none of those.
+const SAVE_VERSION := 2
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
@@ -19,7 +21,20 @@ var health := BASE_MAX_HEALTH
 var scraps := 0
 ## Patch's Thread meter, in charges (filled by landing hits; not saved).
 var thread := 0.0
-var thread_max := 3.0
+const BASE_THREAD := 3.0
+var thread_max := BASE_THREAD
+## Upgrades bought from Gran's sewing tin: each heart patch is one more paper token
+## (2 health), each spool one more Thread charge.
+var heart_patches := 0
+var spools := 0
+## Stitch charms owned, and the ones sewn on (at most charm_slots).
+var charms: Array[StringName] = []
+var equipped: Array[StringName] = []
+var charm_slots := 2
+## Bookmarks Patch has touched, for travel: "page#x,y" -> {page, x, y, title}.
+var bookmarks: Dictionary = {}
+## Pages Patch has been on, for the torn map.
+var visited: Dictionary = {}
 ## True in the Combat Lab: nothing is saved, so a save slot can't be overwritten.
 var sandbox := false
 var letters: Array[String] = []
@@ -58,6 +73,14 @@ func new_game(new_slot: int) -> void:
 	health = max_health
 	scraps = 0
 	thread = 0.0
+	thread_max = BASE_THREAD
+	heart_patches = 0
+	spools = 0
+	charms.clear()
+	equipped.clear()
+	charm_slots = 2
+	bookmarks.clear()
+	visited.clear()
 	letters.clear()
 	abilities = STARTING_ABILITIES.duplicate()
 	collected.clear()
@@ -72,6 +95,9 @@ func new_game(new_slot: int) -> void:
 # --- Inventory and progress --------------------------------------------------
 
 func add_thread(amount: float) -> void:
+	# Red Knot charm: Thread fills a quarter faster.
+	if amount > 0.0 and has_charm(&"red_knot"):
+		amount *= 1.25
 	var before := thread
 	thread = clampf(thread + amount, 0.0, thread_max)
 	if thread != before:
@@ -91,6 +117,55 @@ func unlock_ability(ability_id: StringName) -> void:
 func add_scraps(amount: int) -> void:
 	scraps += amount
 	EventBus.scraps_changed.emit(scraps)
+
+
+# --- Upgrades and charms ------------------------------------------------------
+
+func add_heart_patch() -> void:
+	heart_patches += 1
+	max_health += 2
+	health = max_health
+	EventBus.player_health_changed.emit(health, max_health)
+
+
+func add_spool() -> void:
+	spools += 1
+	thread_max = BASE_THREAD + spools
+	EventBus.thread_changed.emit(thread, thread_max)
+
+
+func gain_charm(charm_id: StringName) -> void:
+	if not charms.has(charm_id):
+		charms.append(charm_id)
+
+
+## Sews a charm on (true) or takes it off. Returns false when every slot is full.
+func set_charm_equipped(charm_id: StringName, on: bool) -> bool:
+	if not on:
+		equipped.erase(charm_id)
+		return true
+	if equipped.has(charm_id):
+		return true
+	if not charms.has(charm_id) or equipped.size() >= charm_slots:
+		return false
+	equipped.append(charm_id)
+	return true
+
+
+func has_charm(charm_id: StringName) -> bool:
+	return equipped.has(charm_id)
+
+
+# --- Bookmarks and the map ------------------------------------------------------
+
+func remember_bookmark(page_path: String, position: Vector2, title: String) -> void:
+	var key := "%s#%d,%d" % [page_path, roundi(position.x), roundi(position.y)]
+	bookmarks[key] = {"page": page_path, "x": position.x, "y": position.y, "title": title}
+
+
+func mark_visited(page_path: String) -> void:
+	if not page_path.is_empty():
+		visited[page_path] = true
 
 
 func collect_letter(letter: String) -> void:
@@ -192,6 +267,13 @@ func save_game() -> bool:
 		"version": SAVE_VERSION,
 		"max_health": max_health,
 		"scraps": scraps,
+		"heart_patches": heart_patches,
+		"spools": spools,
+		"charms": charms.map(func(c: StringName) -> String: return String(c)),
+		"equipped": equipped.map(func(c: StringName) -> String: return String(c)),
+		"charm_slots": charm_slots,
+		"bookmarks": bookmarks,
+		"visited": visited.keys(),
 		"letters": letters,
 		"abilities": abilities.map(func(a: StringName) -> String: return String(a)),
 		"collected": collected.keys(),
@@ -229,6 +311,23 @@ func load_game(save_slot: int) -> bool:
 	max_health = maxi(int(data.get("max_health", BASE_MAX_HEALTH)), BASE_MAX_HEALTH)
 	health = max_health
 	scraps = int(data.get("scraps", 0))
+	# Version 2: upgrades, charms, bookmarks and the map (absent in version 1 saves).
+	heart_patches = int(data.get("heart_patches", 0))
+	max_health = maxi(max_health, BASE_MAX_HEALTH + heart_patches * 2)
+	health = max_health
+	spools = int(data.get("spools", 0))
+	thread_max = BASE_THREAD + spools
+	for charm in data.get("charms", []):
+		charms.append(StringName(charm))
+	for charm in data.get("equipped", []):
+		if charms.has(StringName(charm)):
+			equipped.append(StringName(charm))
+	charm_slots = int(data.get("charm_slots", 2))
+	var marks: Variant = data.get("bookmarks", {})
+	if marks is Dictionary:
+		bookmarks = marks
+	for page_path in data.get("visited", []):
+		visited[String(page_path)] = true
 	for letter in data.get("letters", []):
 		letters.append(String(letter))
 	abilities.clear()
