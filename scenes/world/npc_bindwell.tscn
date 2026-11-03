@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/npc.gd" id="1_ekufq"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/bindwell.png" id="2_onlli"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/friends/bindwell.png" id="2_onlli"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_x443c"]
 size = Vector2(180, 140)
@@ -20,7 +20,7 @@ quest_turn_in_dialogue = "bindwell_done"
 prompt_offset = Vector2(0, -250)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2087002308]
-position = Vector2(0, -105)
+position = Vector2(0, -106)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_onlli")
 
