@@ -19,21 +19,9 @@ func _input(event: InputEvent) -> void:
 
 
 func interact_hint() -> String:
-	return "Y" if using_controller else "E"
+	return hint(&"interact")
 
 
+## The name of what's bound to `action` on the device in use (rebinding included).
 func hint(action: StringName) -> String:
-	var hints := {
-		&"jump": ["Space", "A"],
-		&"attack": ["J / Click", "X"],
-		&"dash": ["K / Shift", "B / RT"],
-		&"grapple": ["L / Q", "RB"],
-		&"heavy": ["I / Right-click", "Y"],
-		&"guard": ["O / Ctrl", "LB"],
-		&"mend": ["R", "LT"],
-		&"slam": ["F", "R3"],
-		&"interact": ["E", "Y"],
-		&"pause": ["Esc", "Start"],
-	}
-	var pair: Array = hints.get(action, ["?", "?"])
-	return pair[1] if using_controller else pair[0]
+	return Settings.binding_text(action, using_controller)

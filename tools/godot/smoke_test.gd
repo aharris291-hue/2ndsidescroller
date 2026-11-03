@@ -22,7 +22,12 @@ func _run() -> void:
 	var scene_manager := root.get_node("SceneManager")
 	var dialogue := root.get_node("DialogueUI")
 	# Test the standard rules, whatever this machine's pause-menu settings are.
-	root.get_node("Settings").assist = false
+	var settings := root.get_node("Settings")
+	for option in [&"assist", &"assist_safe_falls", &"assist_wide_parry", &"auto_guard", &"tell_shapes", &"sound_captions"]:
+		settings.set(option, false)
+	settings.game_speed = 1.0
+	settings.reset_bindings()
+	settings.apply()
 	game_state.slot = 2
 	game_state.delete_save(2)
 

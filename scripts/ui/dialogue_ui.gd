@@ -48,6 +48,7 @@ func _ready() -> void:
 	for path in DIALOGUE_FILES:
 		_conversations.merge(_load_json(path))
 	_style_dark()
+	Settings.changed.connect(_apply_text_scale)
 	box.visible = false
 	caption.visible = false
 	caption.modulate.a = 0.0
@@ -79,6 +80,15 @@ func _style_dark() -> void:
 	caption_label.add_theme_color_override(&"font_color", Color("d8d0c0"))
 	caption_label.add_theme_color_override(&"font_outline_color", Color(0.02, 0.02, 0.03, 0.85))
 	caption_label.add_theme_constant_override(&"outline_size", 12)
+	_apply_text_scale()
+
+
+## Accessibility: dialogue, names and captions grow with Settings.text_scale.
+func _apply_text_scale() -> void:
+	var scale := Settings.text_scale
+	text_label.add_theme_font_size_override(&"normal_font_size", roundi(32 * scale))
+	name_label.add_theme_font_size_override(&"font_size", roundi(30 * scale))
+	caption_label.add_theme_font_size_override(&"font_size", roundi(44 * scale))
 
 
 func is_active() -> bool:

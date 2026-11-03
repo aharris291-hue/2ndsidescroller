@@ -42,6 +42,7 @@ func _ready() -> void:
 	erase_toggle.toggled.connect(func(_on: bool) -> void: _refresh_slots())
 	quit_button.pressed.connect(get_tree().quit)
 	_add_lab_button()
+	_add_options_button()
 	for button in center.find_children("*", "BaseButton", true, false):
 		_style_button(button)
 	_refresh_slots()
@@ -174,6 +175,21 @@ func _add_lab_button() -> void:
 		GameState.new_game(0)
 		GameState.sandbox = true
 		SceneManager.change_page(COMBAT_LAB))
+
+
+## Controls, accessibility and assists, before starting (OptionsPanel).
+func _add_options_button() -> void:
+	var options := Button.new()
+	options.name = "OptionsButton"
+	options.text = "Controls and accessibility"
+	options.custom_minimum_size = Vector2(720, 56)
+	options.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var vbox := erase_toggle.get_parent()
+	vbox.add_child(options)
+	vbox.move_child(options, erase_toggle.get_index())
+	options.pressed.connect(func() -> void:
+		var panel := OptionsPanel.open_panel(self)
+		panel.closed.connect(options.grab_focus.call_deferred))
 
 
 func _on_slot_pressed(slot: int) -> void:
