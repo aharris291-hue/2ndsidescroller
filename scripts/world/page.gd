@@ -34,6 +34,8 @@ const COMPANIONS := {
 ## Overrides for this page's weather: the cold tint and how hard it rains.
 @export var weather_tint := Color(0.6, 0.65, 0.78)
 @export var rain_amount := 420
+## Indoor pages (the Spine) turn the lightning off.
+@export var lightning := true
 ## No companions follow Patch here, even if they've joined (he's alone in the Gutter).
 @export var no_companions := false
 
@@ -44,6 +46,7 @@ func _ready() -> void:
 		var atmosphere := DarkAtmosphere.new()
 		atmosphere.ambient = weather_tint
 		atmosphere.rain_amount = rain_amount
+		atmosphere.lightning = lightning
 		add_child(atmosphere)
 		_weathered = ShaderMaterial.new()
 		_weathered.shader = WEATHERED
@@ -51,6 +54,7 @@ func _ready() -> void:
 		get_tree().node_added.connect(_on_node_added)
 	add_to_group("page")
 	GameState.current_page = scene_file_path
+	GameState.mark_visited(scene_file_path)
 	GameState.in_gameplay = true
 
 	var player := get_tree().get_first_node_in_group("player") as Patch

@@ -37,7 +37,7 @@ func _run() -> void:
 	_painted_art()
 	# Every action must work on a controller (the slam once had no button, which
 	# stranded controller players at the ice on the flat Frostfold page).
-	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"pause"]:
+	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"map", &"pause"]:
 		var on_pad := false
 		for event in InputMap.action_get_events(action):
 			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
@@ -133,6 +133,15 @@ func _run() -> void:
 		await _frames(30)
 		Input.action_release(&"move_down")
 		_check(patch.global_position.y > start_y + 100.0, "Patch walks down in top-down view")
+	# Out in the Margin Patch can save anywhere, from the pause menu.
+	var pause_menu := root.get_node("PauseMenu")
+	_check(pause_menu.in_margin(), "the pause menu offers 'Save here' in the Margin")
+	if patch:
+		pause_menu._on_save_here()
+		_check(game_state.checkpoint_page == current_scene.scene_file_path
+			and game_state.checkpoint_position.distance_to(patch.global_position) < 1.0
+			and game_state.read_save(2).get("checkpoint_page", "") == current_scene.scene_file_path,
+			"'Save here' saves with Patch's own spot as the checkpoint")
 
 	await _chapter_one(game_state, scene_manager, dialogue)
 	await _chapter_two(game_state, scene_manager, dialogue)
@@ -177,6 +186,7 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	bridge.cut()
 	_check(game_state.get_flag("cut_the_thread"), "the thread bridge can be cut")
 	await _skip_dialogue(dialogue)
+	await _spine_hub(game_state, scene_manager, dialogue)
 
 	# Windmill Hills: the wind tab spins the big windmill; sheep count toward the quest.
 	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn")
@@ -769,6 +779,154 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _skip_dialogue(dialogue)
 	await _wait_for_scene("TitleScreen", 900)
 	_check(game_state.get_flag("game_complete") and current_scene.name == "TitleScreen", "the last page finishes the game and returns to the title")
+
+
+## Phase 1: the Spine hub. The Prologue leads into it; its doors open as regions are
+## mended; Gran's sewing tin sells heart patches, spools and charms; the torn map fills
+## in; bookmarks remember themselves for travel; the new save data round-trips.
+func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const HUB := "res://scenes/levels/hub/spine_hub.tscn"
+	var shop := load("res://scripts/ui/shop_panel.gd")
+	var map_script := load("res://scripts/ui/map_panel.gd")
+	var book_map := load("res://scripts/world/book_map.gd")
+	var exit_target := ""
+	for node in current_scene.get_node("Level").get_children():
+		if node.get("requires_flag") == "cut_the_thread":
+			exit_target = node.get("target_page")
+	_check(exit_target == HUB and book_map.HUB == HUB, "the Prologue's way out leads into the Spine")
+	game_state.remember_bookmark(current_scene.scene_file_path, Vector2(600, 1000), "The Rising")
+
+	await scene_manager.change_page(HUB)
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	_check(current_scene.name == "SpineHub" and patch != null and patch.is_on_floor(), "Patch stands in the Spine")
+	var doors := {}
+	for node in current_scene.get_node("Level").get_children():
+		if node.get("region_id") != null and node.get("region_id") != &"":
+			doors[node.get("region_id")] = node
+	_check(doors.size() == 6, "the Spine has a door for each of the six regions (%d)" % doors.size())
+	_check(doors[&"thistledown"].state() == "open" and doors[&"thistledown"].can_interact(), "Thistledown's door is open from the start")
+	_check(doors[&"lanternfold"].state() == "locked" and not doors[&"lanternfold"].can_interact(), "Lanternfold's door stays shut until Thistledown is mended")
+	_check(doors[&"marsh"].state() == "unwritten" and not doors[&"marsh"].can_interact(), "an unwritten region's door is stitched shut")
+	var stair := current_scene.get_node("Stair")
+	_check(not stair.is_open() and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).is_empty(),
+		"the stair to the gallery is broken until a region is mended")
+	game_state.set_flag("boss_millwheel_defeated")
+	await _frames(3)
+	_check(doors[&"lanternfold"].state() == "open" and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).size() == 2,
+		"mending Thistledown opens Lanternfold's door and nails the stair back")
+	_check(doors[&"thistledown"].state() == "mended", "Thistledown's door shows it mended")
+	# Climb: the two boards and the gallery are each within a jump of the last.
+	var tops: Array[float] = [960.0, 832.0, 704.0, 576.0]
+	var climbable := true
+	for i in tops.size() - 1:
+		climbable = climbable and tops[i] - tops[i + 1] <= 128.0
+	_check(climbable, "each step up to the gallery is two tiles, within Patch's jump")
+
+	# The torn map: the Prologue is mended, Thistledown seen-not-mended, the Marsh blank.
+	game_state.visited["res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn"] = true
+	var regions: Array = book_map.REGIONS
+	var states := {}
+	for entry in regions:
+		states[entry["id"]] = map_script.region_state(entry)
+	_check(states[&"prologue"] == "mended" and states[&"thistledown"] == "mended" and states[&"marsh"] == "unknown"
+		and states[&"lanternfold"] == "unknown", "the torn map shows mended, seen and blank regions (%s)" % str(states))
+	game_state.set_flag("boss_millwheel_defeated", false)
+	_check(map_script.region_state(regions[1]) == "seen", "a region Patch has been to but not mended is inked in")
+	var opened: Node = map_script.open_panel(root)
+	await _frames(2)
+	_check(paused and map_script.current == opened, "the torn map opens and pauses the game")
+	opened.close()
+	await _frames(2)
+	_check(not paused and map_script.current == null, "folding the map away unpauses")
+
+	# Bookmarks remember themselves; with two known, any bookmark offers travel.
+	var bookmark := get_first_node_in_group("bookmarks")
+	bookmark._on_body_entered(patch)
+	var hub_spot: Vector2 = bookmark.global_position + bookmark.respawn_offset
+	_check(game_state.bookmarks.size() >= 2 and map_script.travel_list().size() == game_state.bookmarks.size(),
+		"touching a bookmark remembers it for travel (%d known)" % game_state.bookmarks.size())
+	var travel_spot := bookmark.get_node("TravelSpot")
+	_check(travel_spot.can_interact(), "a bookmark offers travel once two are known")
+	var travel: Node = map_script.open_panel(root, true)
+	await _frames(2)
+	travel.go_to(HUB, hub_spot)
+	await _frames(40)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	_check(current_scene.name == "SpineHub" and not paused and patch.global_position.distance_to(hub_spot) < 80.0,
+		"travelling by bookmark puts Patch at that bookmark")
+
+	# Gran's sewing tin.
+	for i in 120:
+		if not scene_manager.is_transitioning:
+			break
+		await _frames(1)
+	var tin: Node
+	for node in current_scene.get_node("Level").get_children():
+		if node.get("prompt_text") == "Open Gran's sewing tin":
+			tin = node
+	_check(tin != null and tin.can_interact(), "Gran's sewing tin is in the Spine")
+	var before := {"scraps": game_state.scraps, "max_health": game_state.max_health}
+	game_state.scraps = 0
+	_check(not shop.buy_heart(), "a heart patch can't be bought without the scraps")
+	game_state.scraps = 1000
+	_check(shop.buy_heart() and game_state.max_health == before["max_health"] + 2
+		and patch.health.max_health == game_state.max_health and patch.health.current == patch.health.max_health,
+		"a heart patch adds a paper token, and Patch is mended to it")
+	_check(shop.buy_spool() and game_state.thread_max == 4.0, "a Thread spool adds a Thread charge")
+	_check(shop.buy_charm(&"magpie_button") and shop.buy_charm(&"red_knot") and shop.buy_charm(&"heron_pin")
+		and game_state.equipped.size() == 2 and not game_state.has_charm(&"heron_pin"),
+		"charms are sewn on until both slots are full")
+	game_state.thread = 0.0
+	game_state.add_thread(1.0)
+	_check(is_equal_approx(game_state.thread, 1.25), "the Red Knot fills Thread a quarter faster")
+	_check(game_state.set_charm_equipped(&"red_knot", false) and game_state.set_charm_equipped(&"heron_pin", true)
+		and game_state.has_charm(&"heron_pin"), "a charm can be taken off to make room for another")
+	var panel: Node = null
+	tin.interact(patch)
+	await _frames(2)
+	_check(paused, "opening the sewing tin pauses the game")
+	panel = tin._shop
+	var found_panel := panel != null
+	if found_panel:
+		panel.close()
+	await _frames(2)
+	_check(found_panel and not paused, "closing the sewing tin unpauses")
+
+	# Save format 2 keeps all of it.
+	game_state.save_game()
+	_check(game_state.read_save(2).get("version", 0) == 2, "saves are written as version 2")
+	game_state.load_game(2)
+	_check(game_state.heart_patches == 1 and game_state.spools == 1 and game_state.thread_max == 4.0
+		and game_state.charms.size() == 3 and game_state.has_charm(&"heron_pin")
+		and game_state.bookmarks.size() >= 2 and game_state.visited.has(HUB),
+		"loading restores upgrades, charms, bookmarks and the map")
+	# A version 1 save (from before the hub) still loads, with none of the new things.
+	var save_path: String = game_state.save_path(2)
+	var current_save := FileAccess.get_file_as_string(save_path)
+	var old_save := FileAccess.open(save_path, FileAccess.WRITE)
+	old_save.store_string(JSON.stringify({"version": 1, "max_health": 8, "scraps": 5,
+		"checkpoint_page": HUB, "flags": {}}))
+	old_save.close()
+	_check(game_state.load_game(2) and game_state.heart_patches == 0 and game_state.charms.is_empty()
+		and game_state.bookmarks.is_empty() and game_state.thread_max == 3.0, "a version 1 save still loads")
+
+	# Put the run back the way it was, so later checks see the standard game.
+	var restore := FileAccess.open(save_path, FileAccess.WRITE)
+	restore.store_string(current_save)
+	restore.close()
+	game_state.load_game(2)
+	game_state.heart_patches = 0
+	game_state.spools = 0
+	game_state.thread_max = 3.0
+	game_state.max_health = before["max_health"]
+	game_state.charms.clear()
+	game_state.equipped.clear()
+	game_state.scraps = before["scraps"]
+	patch.health.max_health = game_state.max_health
+	patch.health.set_health(game_state.max_health)
 
 
 func _wait_for_scene(scene_name: String, max_frames: int) -> void:

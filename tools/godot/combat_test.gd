@@ -164,6 +164,7 @@ func _run() -> void:
 	_check(is_equal_approx(Engine.time_scale, 1.0), "time returns to normal after slow motion")
 
 	await _auto_guard(sparring, swing)
+	await _charms(sparring, swing)
 
 	# --- Soggies have Hold and can be Unstitched.
 	var soggy: Node2D = null
@@ -223,6 +224,54 @@ func _auto_guard(sparring: Node2D, swing: Node) -> void:
 	swing.active = false
 	_check(patch.health.current == 5, "with auto-guard off the same hit lands (hp %d)" % patch.health.current)
 	await _frames(60)
+
+
+## Stitch charms from Gran's sewing tin: the Thimble takes the chip out of a guarded
+## heavy blow, and the Waxed Thread makes a Mend heal one more token.
+func _charms(sparring: Node2D, swing: Node) -> void:
+	var gs := root.get_node("GameState")
+	var lost: Array[int] = []
+	_put_patch(sparring.global_position.x - 95.0, 1.0)
+	await _frames(10)
+	swing.unblockable = false
+	swing.damage = 3
+	for thimble in [false, true]:
+		gs.charms.clear()
+		gs.equipped.clear()
+		if thimble:
+			gs.gain_charm(&"thimble")
+			gs.set_charm_equipped(&"thimble", true)
+		# A guard held well past the parry window, so the hit is a block.
+		patch.health.clear_invulnerability()
+		patch.health.set_health(6)
+		patch.set(&"_guard_time", 1.0)
+		patch.set(&"_block_cooldown", 0.0)
+		patch.call(&"_guard_hit", swing)
+		lost.append(6 - patch.health.current)
+	_check(lost[0] == 2 and lost[1] == 0, "a guarded heavy blow chips 2, and nothing with Gran's Thimble (%s)" % str(lost))
+	swing.damage = 1
+	patch.health.clear_invulnerability()
+	await _frames(20)
+
+	gs.gain_charm(&"wax_thread")
+	gs.set_charm_equipped(&"wax_thread", true)
+	_put_patch(sparring.global_position.x - 95.0, 1.0)
+	await _frames(10)
+	# Nothing should land while he mends; this checks only the heal.
+	patch.health.grant_invulnerability(3.0)
+	patch.health.set_health(2)
+	gs.thread = 1.5
+	await physics_frame
+	Input.action_press(&"mend")
+	for i in 90:
+		await physics_frame
+	Input.action_release(&"mend")
+	await _frames(5)
+	_check(patch.health.current == 6, "with the Waxed Thread a Mend heals one more token (%d hp)" % patch.health.current)
+	gs.charms.clear()
+	gs.equipped.clear()
+	swing.damage = 1
+	await _frames(30)
 
 
 ## Rebinding, the left-hand layout, button prompts, shapes on tells, sound captions,

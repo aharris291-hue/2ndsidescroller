@@ -48,7 +48,7 @@ entity_props = {
 "E": {
 "requires_flag": "cut_the_thread",
 "size": Vector2(320, 256),
-"target_page": "res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn",
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
 "target_spawn": &"Start"
 },
 "G": {

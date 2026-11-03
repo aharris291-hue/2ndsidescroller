@@ -1,0 +1,83 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_spine_hub.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/region_door.gd" id="5_door"]
+[ext_resource type="Script" path="res://scripts/world/sewing_tin.gd" id="6_tin"]
+[ext_resource type="Script" path="res://scripts/world/hub_stair.gd" id="7_stair"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/stove.png" id="8_stove"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/hanging_lamp.png" id="9_lamp"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="10_patch"]
+
+[node name="SpineHub" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Spine"
+opening_caption = "Every page of the book is sewn to the Spine. Gran used to say you mend a book from the middle out."
+music = ExtResource("2_music")
+weather_tint = Color(0.62, 0.6, 0.66, 1)
+rain_amount = 0
+lightning = false
+
+[node name="Background" type="Parallax2D" parent="."]
+z_index = -10
+scroll_scale = Vector2(0.3, 0.3)
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+scale = Vector2(1.16, 1.16)
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Stove" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(1952, 860)
+texture = ExtResource("8_stove")
+
+[node name="Lamp1" type="Sprite2D" parent="."]
+position = Vector2(608, 715)
+texture = ExtResource("9_lamp")
+
+[node name="Lamp2" type="Sprite2D" parent="."]
+position = Vector2(1504, 715)
+texture = ExtResource("9_lamp")
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/hub/spine_hub.txt"
+entities = {
+"A": ExtResource("5_door"),
+"B": ExtResource("5_door"),
+"C": ExtResource("5_door"),
+"D": ExtResource("5_door"),
+"F": ExtResource("5_door"),
+"I": ExtResource("5_door"),
+"T": ExtResource("6_tin")
+}
+entity_props = {
+"A": {
+"region_id": &"thistledown"
+},
+"B": {
+"region_id": &"lanternfold"
+},
+"C": {
+"region_id": &"marsh"
+},
+"D": {
+"region_id": &"peaks"
+},
+"F": {
+"region_id": &"fair"
+},
+"I": {
+"region_id": &"index"
+}
+}
+
+[node name="Stair" type="Node2D" parent="."]
+script = ExtResource("7_stair")
+boards = Array[Vector2]([Vector2(2336, 832), Vector2(2144, 704)])
+
+[node name="Patch" parent="." instance=ExtResource("10_patch")]
+position = Vector2(224, 956)

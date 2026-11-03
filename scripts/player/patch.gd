@@ -672,7 +672,8 @@ func _guard_hit(hitbox: Hitbox) -> bool:
 	velocity.x = -facing.x * guard_push
 	AudioManager.play_sfx(&"slam", 1.5)
 	_squash(Vector2(0.85, 1.1))
-	var chip := hitbox.damage - 1
+	# Gran's Thimble charm: guarding takes no chip damage.
+	var chip := 0 if GameState.has_charm(&"thimble") else hitbox.damage - 1
 	if chip > 0:
 		_blocking = true
 		health.take_damage(chip, hitbox.global_position)
@@ -742,7 +743,8 @@ func _process_mend(delta: float) -> void:
 		return
 	if _state_left <= 0.0:
 		GameState.add_thread(-1.0)
-		health.heal(mend_heal)
+		# Waxed Thread charm: one more paper token (2 health).
+		health.heal(mend_heal + (2 if GameState.has_charm(&"wax_thread") else 0))
 		AudioManager.play_sfx(&"grapple", 1.3)
 		_squash(Vector2(1.2, 0.85))
 		_spawn_parry_flash(Color("9fe39a"))
@@ -1079,7 +1081,7 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 		return
 	if state == State.DASH:
 		# A hit that arrives right at the start of a dodge is a perfect dodge.
-		if not _perfect_done and dash_time - _state_left <= perfect_dodge_window and hitbox.damage > 0:
+		if not _perfect_done and dash_time - _state_left <= perfect_dodge_window * (1.5 if GameState.has_charm(&"heron_pin") else 1.0) and hitbox.damage > 0:
 			_perfect_dodge()
 		return
 	if state == State.DEAD or state == State.FINISHER or (state == State.SLAM and _slam_phase == 1):

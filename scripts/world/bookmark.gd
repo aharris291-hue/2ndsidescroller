@@ -15,6 +15,10 @@ const TEXTURE_ON := preload("res://assets/art/dark/props/bookmark_on.png")
 func _ready() -> void:
 	add_to_group("bookmarks")
 	body_entered.connect(_on_body_entered)
+	# Once Patch knows two bookmarks he can travel between them from any of them.
+	var travel := TravelSpot.new()
+	travel.name = &"TravelSpot"
+	add_child(travel)
 	sprite.texture = TEXTURE_ON if _is_current() else TEXTURE_OFF
 
 
@@ -28,6 +32,9 @@ func _on_body_entered(body: Node2D) -> void:
 	if player == null:
 		return
 	player.health.set_health(player.health.max_health)
+	if not GameState.sandbox:
+		GameState.remember_bookmark(owner.scene_file_path, global_position + respawn_offset,
+			str(owner.get(&"page_title")))
 	if _is_current():
 		return
 	for other in get_tree().get_nodes_in_group("bookmarks"):
