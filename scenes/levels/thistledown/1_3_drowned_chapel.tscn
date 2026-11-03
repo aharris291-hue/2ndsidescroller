@@ -59,6 +59,7 @@ entities = {
 "D": ExtResource("8_gate"),
 "E": ExtResource("9_exit"),
 "G": ExtResource("10_spawn"),
+"R": ExtResource("10_spawn"),
 "L": ExtResource("14_letter"),
 "X": ExtResource("9_exit"),
 "b": ExtResource("7_stone"),
@@ -82,8 +83,12 @@ entity_props = {
 },
 "E": {
 "size": Vector2(64, 128),
-"target_page": "res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn",
-"target_spawn": &"Start"
+"target_page": "res://scenes/levels/thistledown/1_4_the_millrace.tscn",
+"target_spawn": &"FromChapel"
+},
+"R": {
+"name": &"FromMillrace",
+"offset": Vector2(0, -32)
 },
 "G": {
 "name": &"FromSheepfold",

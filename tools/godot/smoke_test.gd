@@ -50,10 +50,10 @@ func _run() -> void:
 	# The test walks through enemies on its way round; it checks systems, not survival.
 	game_state.max_health = 99
 	game_state.health = 99
-	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn")
+	await scene_manager.change_page("res://scenes/levels/thistledown/1_1_sodden_fields.tscn")
 	await _frames(60)
 	var patch := get_first_node_in_group("player") as CharacterBody2D
-	_check(patch != null, "Patch spawns on Thistledown page 1")
+	_check(patch != null, "Patch spawns in the Sodden Fields")
 	if patch == null:
 		_finish()
 		return
@@ -80,35 +80,8 @@ func _run() -> void:
 	await _frames(20)
 	_check(not patch.attack_hitbox.active, "attack hitbox switches off after the swipe")
 
-	# Talk to Shepherd Fluff.
-	var fluff := current_scene.get_node("Actors/ShepherdFluff") as Node2D
-	patch.global_position = fluff.global_position + Vector2(-60, -48)
-	await _frames(10)
-	Input.action_press(&"interact")
-	await _frames(2)
-	Input.action_release(&"interact")
-	await _frames(2)
-	_check(dialogue.is_active(), "interacting with Shepherd Fluff opens dialogue")
-	await _skip_dialogue(dialogue)
-	_check(not dialogue.is_active(), "dialogue can be advanced to the end")
-	_check(game_state.quest_started("lost_flock"), "Shepherd Fluff gives the Lost Flock quest")
-	await _frames(15)
-	_check(patch.input_enabled, "control returns to Patch after dialogue")
-
-	# Pull the bridge tab.
-	var tab := current_scene.get_node("Props/BridgeTab")
-	var bridge := current_scene.get_node("Props/TabBridge") as Node2D
-	var bridge_y := bridge.position.y
-	patch.global_position = tab.global_position + Vector2(-40, -48)
-	await _frames(10)
-	Input.action_press(&"interact")
-	await _frames(2)
-	Input.action_release(&"interact")
-	await _frames(70)
-	_check(bridge.position.y < bridge_y - 150.0, "pulling the tab raises the bridge")
-
 	# Hit a Soggy until it dries out.
-	var soggy := current_scene.get_node_or_null("Actors/Soggy1") as Node2D
+	var soggy := current_scene.get_node_or_null("Level/soggy_44_19") as Node2D
 	if soggy:
 		for i in 6:
 			if not is_instance_valid(soggy):
@@ -189,47 +162,10 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _spine_hub(game_state, scene_manager, dialogue)
 	await _thistledown(game_state, scene_manager, dialogue)
 
-	# Windmill Hills: the wind tab spins the big windmill; sheep count toward the quest.
-	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_02.tscn")
-	await _frames(20)
-	await _skip_dialogue(dialogue)
-	var wheel := current_scene.get_node("Props/BigWindmill")
-	var gondola := wheel.get_node("Gondola0") as Node2D
-	var seat_start := gondola.position
-	await current_scene.get_node("Props/WindTab").interact(null)
-	await _frames(60)
-	_check(wheel.spinning and gondola.position.distance_to(seat_start) > 20.0, "pulling the wind tab turns the windmill wheel")
-	for sheep_name in ["Sheep1", "Sheep2", "Sheep3"]:
-		current_scene.get_node("Actors/" + sheep_name).interact(null)
-	_check(game_state.quest_progress("lost_flock") == 3, "all three lost sheep can be found")
-
-	# Shepherd Fluff rewards the finished quest.
-	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn", &"FromHills")
-	await _frames(20)
-	var scraps_before: int = game_state.scraps
-	current_scene.get_node("Actors/ShepherdFluff").interact(null)
-	await _skip_dialogue(dialogue)
-	_check(game_state.quest_done("lost_flock") and game_state.scraps >= scraps_before + 15, "turning in the flock pays 15 Scraps")
-	current_scene.get_node("Actors/Dot").interact(null)
-	await _skip_dialogue(dialogue)
-	await _frames(10)
-	_check(get_first_node_in_group("companion") != null and current_scene.get_node_or_null("Actors/Dot") == null, "Dot joins Patch as a companion")
-
-	# The Ribbon Regatta runs from start to finish and returns to the dock.
-	Engine.time_scale = 8.0
-	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/ribbon_regatta.tscn")
-	var race := current_scene
-	for i in 600:
-		await physics_frame
-		if not is_instance_valid(race) or race.is_finished():
-			break
-	_check(is_instance_valid(race) and race.is_finished(), "the paper-boat race reaches the finish line")
-	await _frames(200)
-	Engine.time_scale = 1.0
-	_check(current_scene.name == "ThistledownPage02", "the race returns to the Windmill Hills dock")
+	await _thistledown_story(game_state, scene_manager, dialogue)
 
 	# Old Millwheel: jam the sails with the three tabs, hit the core, three times over.
-	await scene_manager.change_page("res://scenes/levels/ch1_thistledown/millwheel_arena.tscn")
+	await scene_manager.change_page("res://scenes/levels/thistledown/boss_mill_floor.tscn")
 	await _frames(20)
 	await _skip_dialogue(dialogue)
 	var patch = get_first_node_in_group("player")
@@ -305,8 +241,11 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _frames(150)
 	_check(current_scene.get_node("Props/ToGransTable").visible, "the way to Gran's table opens")
 
-	# The interlude closes Chapter 1 and turns to Chapter 2.
+	await _hayloft(game_state, scene_manager, dialogue)
+
+	# The interlude closes Thistledown and turns back to the Spine.
 	await scene_manager.change_page("res://scenes/levels/interludes/interlude_01.tscn")
+	_check(current_scene.get("next_page") == "res://scenes/levels/hub/spine_hub.tscn", "after the Millwheel's interlude Patch goes back to the Spine")
 	for i in 1200:
 		if dialogue.is_active():
 			break
@@ -957,6 +896,159 @@ func _thistledown(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	game_state.max_health = 99
 	game_state.health = 99
 
+
+## Thistledown's people and the rest of the region: Fluff's Lost Flock across 1-1 to
+## 1-3, Dot joining, 1-4's sluices and windmill, and 1-5's climb to the mill floor.
+func _thistledown_story(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R1 := "res://scenes/levels/thistledown/"
+	await scene_manager.change_page(R1 + "1_2_the_sheepfold.tscn", &"Start")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	var fluff := current_scene.get_node("Level/npc_shepherd_fluff_72_19") as Node2D
+	patch.global_position = fluff.global_position + Vector2(-60, -48)
+	patch.velocity = Vector2.ZERO
+	await _frames(10)
+	Input.action_press(&"interact")
+	await _frames(2)
+	Input.action_release(&"interact")
+	await _frames(2)
+	_check(dialogue.is_active(), "interacting with Shepherd Fluff opens dialogue")
+	await _skip_dialogue(dialogue)
+	_check(not dialogue.is_active(), "dialogue can be advanced to the end")
+	_check(game_state.quest_started("lost_flock"), "Shepherd Fluff gives the Lost Flock quest")
+	await _frames(15)
+	_check(patch.input_enabled, "control returns to Patch after dialogue")
+	# One sheep on each of the first three pages.
+	current_scene.get_node("Level/lost_sheep_46_13").interact(null)
+	await _skip_dialogue(dialogue)
+	await scene_manager.change_page(R1 + "1_1_sodden_fields.tscn", &"Start")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	current_scene.get_node("Level/lost_sheep_166_25").interact(null)
+	await _skip_dialogue(dialogue)
+	current_scene.get_node("Level/npc_dot_23_19").interact(null)
+	await _skip_dialogue(dialogue)
+	await _frames(10)
+	_check(get_first_node_in_group("companion") != null and current_scene.get_node_or_null("Level/npc_dot_23_19") == null, "Dot joins Patch as a companion")
+	await scene_manager.change_page(R1 + "1_3_drowned_chapel.tscn", &"FromSheepfold")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	current_scene.get_node("Level/lost_sheep_21_2").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_progress("lost_flock") == 3, "all three lost sheep can be found")
+	var exit_target := ""
+	for node in current_scene.get_node("Level").get_children():
+		if String(node.name).begins_with("page_exit_59"):
+			exit_target = node.get("target_page")
+	_check(exit_target == R1 + "1_4_the_millrace.tscn", "the chapel's back door leads on to the Millrace")
+	await scene_manager.change_page(R1 + "1_2_the_sheepfold.tscn", &"FromChapel")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var scraps_before: int = game_state.scraps
+	current_scene.get_node("Level/npc_shepherd_fluff_72_19").interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_done("lost_flock") and game_state.scraps >= scraps_before + 15, "turning in the flock pays 15 Scraps")
+
+	# 1-4 The Millrace: the deep race sweeps Patch back until its sluice drains it.
+	await scene_manager.change_page(R1 + "1_4_the_millrace.tscn", &"FromChapel")
+	await _wait_for_scene("TheMillrace", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(600.0)
+	var sluices := get_nodes_in_group(&"sluices")
+	sluices.sort_custom(func(a: Node2D, b: Node2D) -> bool: return a.global_position.x < b.global_position.x)
+	_check(sluices.size() == 3, "the Millrace has three sluices (%d)" % sluices.size())
+	if sluices.size() == 3:
+		var drained := true
+		for sluice in sluices:
+			drained = drained and sluice.drains().size() == 1
+		_check(drained, "each sluice drains its own section of the race")
+		var deep: Node2D = sluices[0].drains()[0]
+		patch.global_position = deep.global_position + Vector2(-500, -40)
+		patch.velocity = Vector2.ZERO
+		await _frames(10)
+		var x0 := patch.global_position.x
+		Input.action_press(&"move_right")
+		await _frames(50)
+		Input.action_release(&"move_right")
+		_check(patch.global_position.x < x0, "the deep race sweeps Patch back however hard he runs (%.0f px)" % (patch.global_position.x - x0))
+		await sluices[0].interact(null)
+		await _frames(60)
+		_check(not deep.flowing, "opening the sluice drains its section")
+		patch.global_position = deep.global_position + Vector2(-500, -40)
+		patch.velocity = Vector2.ZERO
+		await _frames(10)
+		x0 = patch.global_position.x
+		Input.action_press(&"move_right")
+		await _frames(50)
+		Input.action_release(&"move_right")
+		_check(patch.global_position.x > x0 + 300.0, "Patch can walk the drained race")
+	var mill := current_scene.get_node("Level/windmill_wheel_110_19")
+	var seat := mill.get_node("Gondola0") as Node2D
+	var seat_at := seat.position
+	await _frames(30)
+	_check(mill.spinning and seat.position.distance_to(seat_at) > 10.0, "the windmill's seats are turning")
+	var letter := current_scene.get_node_or_null("Level/lost_letter_191_25")
+	_check(letter != null and letter.letter == "W", "Letter W lies in the pit under the third section")
+	await scene_manager.change_page(R1 + "1_4_the_millrace.tscn", &"FromMill")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var reopened := get_nodes_in_group(&"sluices").filter(func(n: Node) -> bool: return n.is_open)
+	_check(reopened.size() == 1, "an opened sluice stays open when the page is turned again")
+
+	# 1-5 The Mill Stair: gears turning, sacks soaked, the crane and an inked elite on top.
+	await scene_manager.change_page(R1 + "1_5_the_mill_stair.tscn", &"Start")
+	await _wait_for_scene("TheMillStair", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	_check(patch.is_on_floor() and current_scene.bounds.size.y > 100 * 64, "the Mill Stair is a tall climb, and Patch starts at its foot")
+	var gears := current_scene.get_node("Level").get_children().filter(func(n: Node) -> bool: return String(n.name).begins_with("gear_wheel"))
+	_check(gears.size() == 3 and gears.all(func(n: Node) -> bool: return n.spinning), "three of the mill's gears turn, carrying seats")
+	var sacks := get_nodes_in_group(&"soaked_paper")
+	_check(sacks.size() == 12 and sacks.all(func(n: Node) -> bool: return n.wet_texture.resource_path.ends_with("flour_sack.png")), "the soaked flour sacks are slung between the beams (%d)" % sacks.size())
+	var level := current_scene.get_node("Level")
+	var crane := level.get_node_or_null("folded_crane_14_5")
+	var elite := level.get_node_or_null("soggy_22_5")
+	_check(crane != null and elite != null and elite.inked, "the Folded Crane and an Inked Soggy wait at the top")
+	var top_exit := ""
+	for node in level.get_children():
+		if node.get("target_page") != null and String(node.name).begins_with("page_exit_32"):
+			top_exit = node.get("target_page")
+	_check(top_exit == R1 + "boss_mill_floor.tscn", "the top of the stair opens onto the mill floor")
+
+
+## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
+## heart patch and 60 Scraps at the end of its gauntlet.
+func _hayloft(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R1 := "res://scenes/levels/thistledown/"
+	await scene_manager.change_page(R1 + "1_2_the_sheepfold.tscn", &"FromChapel")
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var door := current_scene.get_node("Level/page_door_141_18")
+	_check(door.is_open() and door.target_page == R1 + "hayloft.tscn", "beating the Millwheel breaks the hayloft's seal")
+	await scene_manager.change_page(R1 + "hayloft.tscn", &"FromSheepfold")
+	await _wait_for_scene("TheHayloft", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	_check(get_nodes_in_group(&"bookmarks").filter(func(n: Node) -> bool: return current_scene.is_ancestor_of(n)).is_empty(), "the Hayloft has no Bookmark")
+	var hearts_before: int = game_state.max_health
+	var scraps_before: int = game_state.scraps
+	var heart := current_scene.get_node("Level/heart_patch_110_11") as Node2D
+	patch.global_position = heart.global_position
+	await _frames(10)
+	var tin := current_scene.get_node("Level/scrap_113_11") as Node2D
+	patch.global_position = tin.global_position
+	await _frames(10)
+	_check(game_state.max_health == hearts_before + 2, "the Hayloft's heart patch adds a heart")
+	_check(game_state.scraps >= scraps_before + 60, "and Fluff's tin holds 60 Scraps")
+	await _skip_dialogue(dialogue)
+	game_state.max_health = 99
+	game_state.health = 99
+
 func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const HUB := "res://scenes/levels/hub/spine_hub.tscn"
 	var shop := load("res://scripts/ui/shop_panel.gd")
@@ -1009,7 +1101,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(climbable, "each step up to the gallery is two tiles, within Patch's jump")
 
 	# The torn map: the Prologue is mended, Thistledown seen-not-mended, the Marsh blank.
-	game_state.visited["res://scenes/levels/ch1_thistledown/thistledown_page_01.tscn"] = true
+	game_state.visited["res://scenes/levels/thistledown/1_1_sodden_fields.tscn"] = true
 	var regions: Array = book_map.REGIONS
 	var states := {}
 	for entry in regions:

@@ -16,6 +16,9 @@ const SAG := 12.0
 @export var tear_time := 0.9
 @export var return_time := 3.0
 @export var dry := false
+## The look when wet and once dried (flour sacks in the mill use the same rules).
+@export var wet_texture: Texture2D = WET_TEX
+@export var dry_texture: Texture2D = DRY_TEX
 
 var _load := 0.0
 var _torn := false
@@ -28,7 +31,7 @@ func _ready() -> void:
 	add_to_group(&"soaked_paper")
 	sync_to_physics = false
 	_sprite = Sprite2D.new()
-	_sprite.texture = DRY_TEX if dry else WET_TEX
+	_sprite.texture = dry_texture if dry else wet_texture
 	_sprite.position = Vector2(0, -16)
 	add_child(_sprite)
 	_shape = CollisionShape2D.new()
@@ -115,5 +118,5 @@ func dry_out(duration := 1.2) -> void:
 	_sprite.scale = Vector2.ONE
 	var swap := create_tween()
 	swap.tween_property(_sprite, "modulate", Color(1.3, 1.25, 1.1), duration * 0.5)
-	swap.tween_callback(func() -> void: _sprite.texture = DRY_TEX)
+	swap.tween_callback(func() -> void: _sprite.texture = dry_texture)
 	swap.tween_property(_sprite, "modulate", Color.WHITE, duration * 0.5)

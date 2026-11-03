@@ -1,0 +1,118 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_mill_interior.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/gear_wheel.tscn" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/soaked_paper.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/folded_crane.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="14_e"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/flour_sack.png" id="80_sack"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/flour_sack_dry.png" id="81_sack"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheMillStair" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Mill Stair"
+opening_caption = "The mill was hollow all the way up, and it was raining inside it."
+music = ExtResource("2_music")
+weather_tint = Color(0.52, 0.5, 0.5, 1)
+rain_amount = 180
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/thistledown/1_5_the_mill_stair.txt"
+region = "meadow"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"V": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"e": ExtResource("12_e"),
+"i": ExtResource("9_e"),
+"m": ExtResource("10_e"),
+"n": ExtResource("11_e"),
+"o": ExtResource("13_e"),
+"t": ExtResource("14_e"),
+"w": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "Water came down through every floor of the mill, and the great gears were still turning in it.",
+"size": Vector2(128, 640)
+},
+"2": {
+"caption": "Something had been living on the first floor. It had heard him come in.",
+"size": Vector2(128, 640)
+},
+"3": {
+"caption": "The flour sacks hung between the beams, soaked through. They would hold him, for a moment.",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "Halfway up, Patch could hear the wheel. Not the gears: the wheel, the big one, breathing.",
+"size": Vector2(128, 640)
+},
+"5": {
+"caption": "The top floor. Something folded itself up out of the dark, all neck and beak.",
+"size": Vector2(128, 640)
+},
+"6": {
+"caption": "Beyond the door, the mill floor, and the thing that turned it.",
+"size": Vector2(128, 640)
+},
+"E": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/thistledown/boss_mill_floor.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/thistledown/1_4_the_millrace.tscn",
+"target_spawn": &"FromMill"
+},
+"w": {
+"offset": Vector2(0, 28),
+"wet_texture": ExtResource("80_sack"),
+"dry_texture": ExtResource("81_sack")
+},
+"e": {
+"inked": true,
+"scrap_drop": 3
+},
+"i": {
+"scrap_drop": 1
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 2
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

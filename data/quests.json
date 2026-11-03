@@ -5,12 +5,6 @@
 		"goal": 3,
 		"reward_scraps": 15
 	},
-	"ribbon_regatta": {
-		"title": "The Ribbon Regatta",
-		"description": "Win the paper-boat race down the ribbon stream.",
-		"goal": 1,
-		"reward_scraps": 20
-	},
 	"festival_lanterns": {
 		"title": "Light Up Lanternfold",
 		"description": "Relight the five festival lanterns the damp put out.",

@@ -42,12 +42,13 @@ def sodden_fields() -> Grid:
     for x0 in (65, 69, 73):
         g.clear(x0, x0 + 2)
         g.put(x0 + 1, F - 1, "w")
-    # S5 the awning: a pit with two sheets, a wall two tiles above the field beyond it.
+    # S5 the awning: a pit with two sheets level with the field, and a wall two tiles up
+    # beyond it.
     # Off wet paper Patch can only hop; cut the rope and the dried sheets hold a jump.
     g.put(88, F - 1, "4")
     g.clear(92, 97)
-    g.put(93, F, "w")
-    g.put(96, F, "w")
+    g.put(93, F - 1, "w")
+    g.put(96, F - 1, "w")
     g.put(95, F - 3, "B")
     g.ground(98, 112, F - 2)
     g.put(105, F - 3, "o")
@@ -128,8 +129,10 @@ def the_sheepfold() -> Grid:
     # the chimney), and the hayloft's sealed door.
     g.ground(138, 156, F - 1, "$")
     g.put(141, F - 2, "H")
-    g.plank(144, 146, F - 4)
-    g.plank(148, 150, F - 7)
+    g.put(143, F - 2, "J")
+    g.plank(142, 144, F - 3)
+    g.plank(145, 147, F - 5)
+    g.plank(148, 149, F - 7)
     g.ground(150, 156, F - 9, "$")
     g.put(155, F - 10, "L")
     g.put(152, F - 10, "o")
@@ -140,9 +143,10 @@ def the_sheepfold() -> Grid:
     for x in (167, 170, 173):
         g.put(x, F - 1, "w")
     g.put(170, 3, "d")
-    g.ground(178, 183, F - 4, "$")
-    g.put(181, F - 5, "i")
+    g.ground(178, 183, F - 2, "$")
+    g.put(181, F - 3, "i")
     g.put(190, F - 1, "s")
+    g.clear(196, 231, F, F + 1)
     g.ground(196, 231, F + 2)
     g.put(205, F + 1, "s")
     g.put(214, F + 1, "o")
@@ -238,6 +242,223 @@ def drowned_chapel() -> Grid:
     g.put(22, 7, "2")
     g.put(42, 7, "3")
     g.put(59, 7, "E")
+    g.put(58, 6, "R")
+    return g
+
+
+def millrace() -> Grid:
+    """1-4 The Millrace: wading against the race, three sluices drained one section at a
+    time, a turning windmill whose seats carry Patch up to the high bank, Ink Spitters
+    on high ledges and an Inkwell Turret over the far bank. Letter W lies in the pit
+    under the third section, reachable only once it is drained."""
+    g = Grid(252, 28)
+    F = 20
+    g.ground(0, 251, F)
+    # S1 arrival from the chapel's back door.
+    g.put(0, F - 1, "X")
+    g.put(2, F - 1, "G")
+    g.put(4, F - 1, "@")
+    g.put(9, F - 1, "1")
+    g.put(18, F - 1, "o")
+    # S2 shallow water: the current pushes, but Patch can wade it. One Soggy in it.
+    g.put(27, F - 1, "2")
+    g.put(42, F - 1, "c")
+    g.put(49, F - 1, "s")
+    g.put(36, 3, "d")
+    # S3 the first sluice and the deep race behind it; an Ink Spitter on a ledge over it.
+    g.put(60, F - 1, "3")
+    g.put(62, F - 1, "S")
+    g.put(75, F - 1, "r")
+    g.plank(78, 81, F - 6)
+    g.put(79, F - 7, "i")
+    g.put(84, F - 1, "o")
+    g.put(92, F - 1, "k")
+    # S4 the windmill: its seats carry Patch up to the high bank (a 6-tile wall).
+    g.put(97, F - 1, "4")
+    g.put(110, F - 1, "V")
+    g.ground(114, 150, F - 6, "$")
+    # S5 the high bank: two Soggies, and the second sluice at its end.
+    g.put(128, F - 7, "s")
+    g.put(136, F - 7, "s")
+    g.put(140, F - 7, "o")
+    g.put(148, F - 7, "S")
+    g.put(163, F - 1, "r")
+    # S6 the third sluice; under its section, a pit with Letter W in it.
+    g.put(178, F - 1, "S")
+    g.put(176, F - 1, "5")
+    g.put(191, F - 1, "r")
+    g.clear(189, 193, F, 25)
+    g.plank(189, 193, 24)
+    g.plank(189, 193, 22)
+    g.put(191, 25, "L")
+    g.ground(206, 214, F - 2, "$")
+    g.put(211, F - 3, "q")
+    # S7 the mill's foot: Ink Spitters on two ledges, then the mill door.
+    g.put(218, F - 1, "6")
+    g.plank(224, 227, F - 5)
+    g.put(225, F - 6, "i")
+    g.plank(235, 238, F - 5)
+    g.put(236, F - 6, "i")
+    g.put(230, F - 1, "t")
+    g.put(242, F - 1, "o")
+    g.put(245, F - 1, "7")
+    g.put(250, F - 1, "E")
+    g.put(247, F - 1, "M")
+    return g
+
+
+STAIR_OFF = 18
+
+
+def mill_stair() -> Grid:
+    """1-5 The Mill Stair (vertical): planks up the inside of the mill under falling
+    water, the mill's turning gears carrying seats, soaked flour sacks slung between
+    beams that tear if Patch stands on them, a fight on each floor, and the Folded Crane
+    with an Inked Soggy at the top. The last Bookmark is by the door to the mill floor.
+
+    Every climb step is at most 2 tiles up with a gap of at most 2 tiles; the sacks are
+    only ever crossed level (a jump off a soaked sack is just a hop)."""
+    H = 130 - STAIR_OFF
+    g = Grid(36, H)
+
+    def r(row: int) -> int:
+        return row - STAIR_OFF
+
+    for x in (0, 1, 34, 35):
+        g.fill(x, x, 0, H - 1, "$")
+    g.fill(0, 35, 0, 1, "$")
+    g.ground(0, 35, r(127))
+
+    def floor(row: int) -> None:
+        g.plank(2, 33, r(row))
+
+    def zigzag(rows, xs) -> None:
+        for row, x0 in zip(rows, xs):
+            g.plank(x0, x0 + 5, r(row))
+
+    def sacks(row: int, xs) -> None:
+        # a 'w' sits one row above the surface it makes
+        for x in xs:
+            g.put(x, r(row) - 1, "w")
+
+    A, B, C = 3, 11, 19
+    D = 27
+    # the mill's foot: Start and the way back out to the race
+    g.put(3, r(126), "@")
+    g.put(2, r(126), "X")
+    g.put(6, r(126), "1")
+    zigzag(range(125, 108, -2), [A, B, C, D, C, B, A, B, C])
+    for x in (9, 23):
+        g.put(x, r(104), "d")
+    # floor 1: two Soggies
+    floor(107)
+    g.put(6, r(106), "2")
+    g.put(12, r(106), "s")
+    g.put(26, r(106), "s")
+    # the first gear: ride its seats up to the planks
+    g.put(17, r(106), "V")
+    g.plank(21, 26, r(98))
+    g.plank(28, 32, r(96))
+    sacks(96, [24, 20, 16, 12])
+    g.fill(2, 9, r(96), r(97), "$")
+    g.put(4, r(95), "o")
+    zigzag([94, 92, 90, 88], [10, A, B, C])
+    # floor 2: Bookmark, moths and a Soggy
+    floor(86)
+    g.put(4, r(85), "k")
+    g.put(7, r(85), "3")
+    g.put(14, r(81), "m")
+    g.put(22, r(81), "m")
+    g.put(28, r(85), "s")
+    # the second gear, then sacks west under the falling water
+    g.put(8, r(85), "V")
+    g.plank(12, 17, r(77))
+    g.plank(20, 25, r(75))
+    g.plank(27, 32, r(73))
+    sacks(73, [23, 19, 15, 11])
+    g.plank(3, 8, r(73))
+    for x in (13, 21):
+        g.put(x, r(66), "d")
+    zigzag([71, 69, 67], [10, 18, 26])
+    # floor 3: an Ink Spitter and a Soggy
+    floor(65)
+    g.put(6, r(64), "i")
+    g.put(20, r(64), "s")
+    g.put(30, r(64), "t")
+    # the third gear, then sacks east
+    g.put(26, r(64), "V")
+    g.plank(18, 23, r(56))
+    g.plank(10, 15, r(54))
+    g.plank(3, 8, r(52))
+    sacks(52, [11, 15, 19, 23])
+    g.plank(27, 32, r(52))
+    zigzag([50, 48, 46], [19, B, A])
+    # floor 4: moths and Soggies, a breath before the top
+    floor(44)
+    g.put(6, r(43), "4")
+    for x in (12, 20, 28):
+        g.put(x, r(39), "m")
+    g.put(16, r(43), "s")
+    g.put(24, r(43), "s")
+    g.put(31, r(43), "o")
+    zigzag(range(42, 25, -2), [B, C, D, C, B, A, B, C, D])
+    for x in (8, 16, 24):
+        g.put(x, r(25), "d")
+    # floor 5, the top: the Folded Crane and an Inked Soggy, then the last Bookmark
+    floor(24)
+    g.put(5, r(23), "5")
+    g.put(14, r(23), "n")
+    g.put(22, r(23), "e")
+    g.put(28, r(23), "k")
+    g.put(31, r(23), "6")
+    g.put(32, r(23), "E")
+    return g
+
+
+def hayloft() -> Grid:
+    """The Hayloft, 1-2's sealed back page: a gauntlet of soaked paper and awnings in the
+    rafters, with no Bookmark. The reward at the far end is a heart patch and 60 Scraps."""
+    g = Grid(120, 24)
+    F = 18
+    g.ground(0, 119, F)
+    g.put(1, F - 1, "X")
+    g.put(2, F - 1, "G")
+    g.put(4, F - 1, "@")
+    g.put(8, F - 1, "1")
+    # S1 five sheets over the long drop through the loft floor: keep moving
+    g.clear(16, 38)
+    for x in (18, 22, 26, 30, 34):
+        g.put(x, F - 1, "w")
+    g.put(37, 3, "d")
+    # S2 two sheets in a pit under an awning, and a Soggy on the wall above them
+    g.clear(42, 49)
+    g.put(44, F - 1, "w")
+    g.put(47, F - 1, "w")
+    g.put(45, F - 3, "B")
+    g.ground(50, 60, F - 2)
+    g.put(56, F - 3, "s")
+    # S3 sheets over the drop again, with moths over them
+    g.clear(62, 84)
+    for x in (64, 68, 72, 76, 80):
+        g.put(x, F - 3, "w")
+    g.ground(61, 61, F - 2)
+    g.ground(85, 87, F - 2)
+    for x in (68, 76):
+        g.put(x, F - 7, "m")
+    # S4 up into the rafters, then a last run of sheets under an awning tied off below
+    g.plank(89, 92, F - 4)
+    g.plank(94, 96, F - 6)
+    g.clear(97, 104)
+    g.ground(88, 96, F)
+    g.put(99, F - 7, "w")
+    g.put(103, F - 7, "w")
+    g.put(101, F - 10, "C")
+    g.ground(105, 119, F - 6, "$")
+    # the reward: a heart patch and the shepherds' tin of Scraps
+    g.put(110, F - 7, "P")
+    g.put(113, F - 7, "o")
+    g.put(116, F - 7, "2")
+    g.put(118, F - 7, "Y")
     return g
 
 
@@ -249,6 +470,12 @@ def main() -> None:
         "1-2 The Sheepfold (drawn by tools/levels/build_thistledown.py; legend in\nscenes/levels/thistledown/1_2_the_sheepfold.tscn)")
     drowned_chapel().write(os.path.join(OUT, "1_3_drowned_chapel.txt"),
         "1-3 The Drowned Chapel, top-down (drawn by tools/levels/build_thistledown.py;\nlegend in scenes/levels/thistledown/1_3_drowned_chapel.tscn)")
+    millrace().write(os.path.join(OUT, "1_4_the_millrace.txt"),
+        "1-4 The Millrace (drawn by tools/levels/build_thistledown.py; legend in\nscenes/levels/thistledown/1_4_the_millrace.tscn)")
+    mill_stair().write(os.path.join(OUT, "1_5_the_mill_stair.txt"),
+        "1-5 The Mill Stair, vertical (drawn by tools/levels/build_thistledown.py; legend\nin scenes/levels/thistledown/1_5_the_mill_stair.tscn)")
+    hayloft().write(os.path.join(OUT, "hayloft.txt"),
+        "The Hayloft, 1-2's sealed back page (drawn by tools/levels/build_thistledown.py;\nlegend in scenes/levels/thistledown/hayloft.tscn)")
     print("wrote Thistledown maps")
 
 

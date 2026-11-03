@@ -48,6 +48,7 @@ entities = {
 "C": ExtResource("7_awning"),
 "E": ExtResource("9_exit"),
 "G": ExtResource("10_spawn"),
+"J": ExtResource("10_spawn"),
 "H": ExtResource("11_door"),
 "K": ExtResource("5_story"),
 "L": ExtResource("14_letter"),
@@ -92,7 +93,12 @@ entity_props = {
 },
 "H": {
 "door_prompt": "Break the hayloft's seal",
-"requires_flag": "boss_millwheel_defeated"
+"requires_flag": "boss_millwheel_defeated",
+"target_page": "res://scenes/levels/thistledown/hayloft.tscn",
+"target_spawn": &"FromSheepfold"
+},
+"J": {
+"name": &"FromHayloft"
 },
 "K": {
 "page_method": "hold_the_fold",
