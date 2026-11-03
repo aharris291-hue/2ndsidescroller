@@ -15,7 +15,7 @@ const REGIONS := [
 		"spot": Vector2(0.5, 0.88),
 	},
 	{
-		"id": &"thistledown", "name": "Thistledown", "dirs": ["res://scenes/levels/thistledown/", "res://scenes/levels/ch1_thistledown/"], "subtitle": "the drowned meadow",
+		"id": &"thistledown", "name": "Thistledown", "dirs": ["res://scenes/levels/thistledown/"], "subtitle": "the drowned meadow",
 		"mended_flag": "boss_millwheel_defeated", "open_flag": "",
 		"door": "res://scenes/levels/thistledown/1_1_sodden_fields.tscn",
 		"spot": Vector2(0.2, 0.66),

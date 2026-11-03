@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/windmill.gd" id="1_ixoir"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/gear_wheel.png" id="3_1db5v"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/cardboard_platform.png" id="4_nfkne"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u7w36"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v6it"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o4vn0"]
+size = Vector2(112, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t3m5f"]
+size = Vector2(112, 24)
+
+[node name="GearWheel" type="Node2D"]
+script = ExtResource("1_ixoir")
+spinning = true
+spin_speed = 0.45
+gondola_count = 4
+radius = 200.0
+
+[node name="Sails" type="Node2D" parent="."]
+position = Vector2(0, -260)
+
+[node name="Sprite2D" type="Sprite2D" parent="Sails"]
+texture = ExtResource("3_1db5v")
+
+[node name="Gondola0" type="AnimatableBody2D" parent="."]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola0"]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola0"]
+shape = SubResource("RectangleShape2D_u7w36")
+one_way_collision = true
+
+[node name="Gondola1" type="AnimatableBody2D" parent="."]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola1"]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola1"]
+shape = SubResource("RectangleShape2D_2v6it")
+one_way_collision = true
+
+[node name="Gondola2" type="AnimatableBody2D" parent="."]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola2"]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola2"]
+shape = SubResource("RectangleShape2D_o4vn0")
+one_way_collision = true
+
+[node name="Gondola3" type="AnimatableBody2D" parent="."]
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Gondola3"]
+scale = Vector2(0.6, 1)
+texture = ExtResource("4_nfkne")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Gondola3"]
+shape = SubResource("RectangleShape2D_t3m5f")
+one_way_collision = true

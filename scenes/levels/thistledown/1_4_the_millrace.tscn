@@ -1,0 +1,137 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_millrace.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/sluice.gd" id="8_e"]
+[ext_resource type="Script" path="res://scripts/world/current.gd" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/windmill_wheel.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/inkwell_turret.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheMillrace" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Millrace"
+opening_caption = "The race ran under the mill and out the other side, carrying everything the flood had let go of."
+music = ExtResource("2_music")
+weather_tint = Color(0.46, 0.5, 0.6, 1)
+rain_amount = 420
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/thistledown/1_4_the_millrace.txt"
+region = "meadow"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"M": ExtResource("7_e"),
+"G": ExtResource("7_e"),
+"L": ExtResource("11_e"),
+"S": ExtResource("8_e"),
+"V": ExtResource("10_e"),
+"X": ExtResource("6_e"),
+"c": ExtResource("9_e"),
+"i": ExtResource("12_e"),
+"o": ExtResource("14_e"),
+"q": ExtResource("13_e"),
+"r": ExtResource("9_e"),
+"t": ExtResource("15_e")
+}
+entity_props = {
+"1": {
+"caption": "The chapel's back door let out onto the millrace. Somebody had cut it to drive the wheel. Now the whole flood came down it.",
+"size": Vector2(128, 640)
+},
+"2": {
+"caption": "Knee-deep, and pulling. Every step Patch took, the water tried to take back.",
+"size": Vector2(128, 640)
+},
+"3": {
+"caption": "Past the sluice, the race ran black and fast enough to carry a fox to the sea. The gate's winch was still on its post.",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "The mill's old windmill still turned in the storm, seats and all. Nobody had told it to stop.",
+"size": Vector2(128, 640)
+},
+"5": {
+"caption": "The third sluice. Below it, under the water, something small and pale was caught in the weeds.",
+"size": Vector2(128, 640)
+},
+"6": {
+"caption": "The mill stood over the race like a man over a grave. Its door hung open.",
+"size": Vector2(128, 640)
+},
+"7": {
+"caption": "Inside, something huge was turning in the dark, and the stair went up around it.",
+"size": Vector2(128, 640)
+},
+"E": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/thistledown/1_5_the_mill_stair.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/thistledown/1_3_drowned_chapel.tscn",
+"target_spawn": &"FromMillrace"
+},
+"G": {
+"name": &"FromChapel"
+},
+"M": {
+"name": &"FromMill"
+},
+"L": {
+"letter": "W",
+"offset": Vector2(0, -40)
+},
+"S": {
+"caption": "The winch groaned, and the gate went up, and the race ran out through it like breath."
+},
+"V": {
+"spinning": true
+},
+"c": {
+"size": Vector2(1280, 96),
+"strength": -200.0
+},
+"r": {
+"size": Vector2(1536, 160),
+"strength": -720.0
+},
+"i": {
+"scrap_drop": 1
+},
+"q": {
+"scrap_drop": 2
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

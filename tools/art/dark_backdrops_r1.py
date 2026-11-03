@@ -5,6 +5,8 @@ tools/art/source/ (spine_hub_raw.png, sodden_fields_raw.png).
   bg_sodden_fields.png  3840x1080, the flooded meadow mirrored into a seamless strip
   bg_sheepfold.png      3840x1080, Fluff's flooded sheepfold at night (1-2), mirrored strip
   bg_drowned_chapel.png 1920x1080, the chapel floor seen from above (1-3, top-down)
+  bg_millrace.png       3840x1080, the flooded millrace and its sluices (1-4), mirrored strip
+  bg_mill_interior.png  1920x1080, inside the drowned mill: gears and the stair (1-5, boss)
 
 Run: python3 tools/art/dark_backdrops_r1.py
 """
@@ -38,7 +40,14 @@ def main() -> None:
     ImageEnhance.Brightness(strip).enhance(0.9).save(os.path.join(DARK, "bg_sheepfold.png"))
     chapel = fit("drowned_chapel_raw.png")
     ImageEnhance.Brightness(chapel).enhance(0.75).save(os.path.join(DARK, "bg_drowned_chapel.png"))
-    print("wrote hub, fields, sheepfold and chapel backdrops")
+    race = fit("millrace_raw.png")
+    strip = Image.new("RGB", (3840, 1080))
+    strip.paste(race, (0, 0))
+    strip.paste(ImageOps.mirror(race), (1920, 0))
+    ImageEnhance.Brightness(strip).enhance(0.9).save(os.path.join(DARK, "bg_millrace.png"))
+    mill = fit("mill_interior_raw.png")
+    ImageEnhance.Brightness(mill).enhance(0.8).save(os.path.join(DARK, "bg_mill_interior.png"))
+    print("wrote hub, fields, sheepfold, chapel, millrace and mill backdrops")
 
 
 if __name__ == "__main__":

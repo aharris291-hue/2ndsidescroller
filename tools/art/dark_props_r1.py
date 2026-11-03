@@ -10,6 +10,9 @@ Writes to assets/art/dark/props/:
   bell_stone.png     a flagstone with an iron ring and bell rope (top-down plate), 64 x 64
   chapel_bell.png    a cracked bronze bell (top-down, rung by the three ropes), 128 x 128
   hay_bale.png       a sodden hay bale (side view crate), 96 x 72
+  gear_wheel.png     the mill's great wooden gear, turning behind the gear seats, 448 x 448
+  flour_sack.png     soaked flour sacks slung between two beams (a SoakedPaper look), 192 x 40
+  flour_sack_dry.png the same sacks dried stiff, 192 x 40
 
 Run: python3 tools/art/dark_props_r1.py
 """
@@ -209,6 +212,66 @@ def hay_bale():
     return finish(img, w, h)
 
 
+def gear_wheel():
+    w = h = 448
+    img = canvas(w, h)
+    d = ImageDraw.Draw(img)
+    cx, cy = w / 2 * S, h / 2 * S
+    teeth = 20
+    outer, inner = 214, 186
+    pts = []
+    for i in range(teeth * 4):
+        a = i / (teeth * 4) * math.tau
+        r = outer if (i % 4) in (1, 2) else inner
+        pts.append((cx + math.cos(a) * r * S, cy + math.sin(a) * r * S))
+    d.polygon(pts, fill=EDGE)
+    pts2 = [(cx + (px - cx) * 0.97, cy + (py - cy) * 0.97) for px, py in pts]
+    d.polygon(pts2, fill=WOOD)
+    d.ellipse([cx - 170 * S, cy - 170 * S, cx + 170 * S, cy + 170 * S], fill=EDGE)
+    d.ellipse([cx - 164 * S, cy - 164 * S, cx + 164 * S, cy + 164 * S], fill=WOOD_HI)
+    d.ellipse([cx - 138 * S, cy - 138 * S, cx + 138 * S, cy + 138 * S], fill=EDGE)
+    # spokes over a dark well, so the wheel reads as a frame and not a disc
+    d.ellipse([cx - 134 * S, cy - 134 * S, cx + 134 * S, cy + 134 * S], fill=(24, 18, 16, 255))
+    for k in range(6):
+        a = k / 6 * math.tau
+        dx, dy = math.cos(a), math.sin(a)
+        nx, ny = -dy * 12 * S, dx * 12 * S
+        ex, ey = cx + dx * 140 * S, cy + dy * 140 * S
+        d.polygon([(cx + nx, cy + ny), (ex + nx, ey + ny), (ex - nx, ey - ny), (cx - nx, cy - ny)], fill=EDGE)
+        d.polygon([(cx + nx * 0.7, cy + ny * 0.7), (ex + nx * 0.7, ey + ny * 0.7), (ex - nx * 0.7, ey - ny * 0.7), (cx - nx * 0.7, cy - ny * 0.7)], fill=WOOD)
+    d.ellipse([cx - 40 * S, cy - 40 * S, cx + 40 * S, cy + 40 * S], fill=EDGE)
+    d.ellipse([cx - 34 * S, cy - 34 * S, cx + 34 * S, cy + 34 * S], fill=STEEL_DARK)
+    d.rectangle([cx - 12 * S, cy - 12 * S, cx + 12 * S, cy + 12 * S], fill=EDGE)
+    img = paper_texture(img, 91, 0.16, 6)
+    return finish(img, w, h)
+
+
+def flour_sack(wet: bool):
+    w, h = 192, 40
+    img = canvas(w, h)
+    d = ImageDraw.Draw(img)
+    for x in (4, w - 14):
+        d.rectangle([x * S, 2 * S, (x + 10) * S, 34 * S], fill=EDGE)
+        d.rectangle([(x + 2) * S, 4 * S, (x + 8) * S, 34 * S], fill=WOOD_HI)
+    fill = (92, 90, 84, 255) if wet else (168, 156, 128, 255)
+    dark = (54, 54, 56, 255) if wet else (118, 106, 82, 255)
+    rnd = random.Random(101 if wet else 102)
+    for i, x0 in enumerate(range(14, w - 30, 42)):
+        sag = 4 if wet else 1
+        d.rounded_rectangle([x0 * S, 8 * S, (x0 + 44) * S, (30 + sag) * S], 9 * S, fill=EDGE)
+        d.rounded_rectangle([(x0 + 2) * S, 10 * S, (x0 + 42) * S, (28 + sag) * S], 8 * S, fill=fill)
+        d.line([((x0 + 6) * S, 12 * S), ((x0 + 38) * S, 12 * S)], fill=dark, width=2 * S)
+        # a stencilled mill mark, half washed off
+        d.rectangle([(x0 + 16) * S, 17 * S, (x0 + 28) * S, 23 * S], outline=dark, width=S)
+        if wet:
+            for _ in range(2):
+                x = rnd.uniform(x0 + 8, x0 + 36)
+                ln = rnd.uniform(4, 9)
+                d.line([(x * S, (28 + sag) * S), (x * S, (28 + sag + ln) * S)], fill=(60, 66, 80, 220), width=2 * S)
+    img = paper_texture(img, 103 if wet else 104, 0.12, 4)
+    return finish(img, w, h)
+
+
 def main() -> None:
     os.makedirs(PROPS, exist_ok=True)
     outputs = {
@@ -221,6 +284,9 @@ def main() -> None:
         "bell_stone.png": bell_stone(),
         "chapel_bell.png": chapel_bell(),
         "hay_bale.png": hay_bale(),
+        "gear_wheel.png": gear_wheel(),
+        "flour_sack.png": flour_sack(True),
+        "flour_sack_dry.png": flour_sack(False),
     }
     for name, img in outputs.items():
         img.save(os.path.join(PROPS, name))

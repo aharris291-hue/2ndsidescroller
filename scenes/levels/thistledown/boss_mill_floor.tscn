@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/page.gd" id="1_qsh8x"]
 [ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_qgpj2"]
-[ext_resource type="Texture2D" path="res://assets/art/dark/bg_meadow_drowned.png" id="3_qgbmx"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_mill_interior.png" id="3_qgbmx"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_x5fwb"]
 [ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_ya7ih"]
 [ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="6_ydiid"]
@@ -29,9 +29,10 @@ size = Vector2(120, 600)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lag6t"]
 size = Vector2(120, 600)
 
-[node name="MillwheelArena" type="Node2D" unique_id=1219717032]
+[node name="MillFloor" type="Node2D" unique_id=1219717032]
 script = ExtResource("1_qsh8x")
-page_title = "The Old Mill"
+page_title = "The Mill Floor"
+opening_caption = "The floor of the mill was a lake now, and in the middle of it the wheel turned on nothing."
 music = ExtResource("2_qgpj2")
 bounds = Rect2(0, 0, 1920, 1088)
 
@@ -117,7 +118,7 @@ collision_layer = 32
 collision_mask = 2
 script = ExtResource("11_mgngx")
 target_page = "res://scenes/levels/interludes/interlude_01.tscn"
-door_prompt = "Close Chapter 1"
+door_prompt = "Leave the mill"
 prompt_offset = Vector2(0, -170)
 
 [node name="OldMillwheel" type="Node2D" parent="." unique_id=1725122712 node_paths=PackedStringArray("tabs", "exit_door", "start_zone") instance=ExtResource("12_ubd61")]

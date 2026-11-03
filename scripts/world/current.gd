@@ -39,7 +39,8 @@ func _ready() -> void:
 	_surface.region_rect = Rect2(0, 0, size.x, 48)
 	_surface.centered = false
 	_surface.position = Vector2(-size.x / 2.0, -size.y * 0.55 - 24)
-	_surface.modulate = Color(0.3, 0.32, 0.42, 0.9)
+	# A race too strong to wade is churned white, so it reads before Patch steps in.
+	_surface.modulate = Color(0.62, 0.66, 0.74, 1.0) if absf(strength) > 500.0 else Color(0.3, 0.32, 0.42, 0.9)
 	add_child(_surface)
 
 
