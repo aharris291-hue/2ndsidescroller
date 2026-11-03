@@ -170,6 +170,7 @@ script = ExtResource("16_ajlbw")
 
 [node name="Soggy4" type="CharacterBody2D" parent="Actors" unique_id=577785429 instance=ExtResource("15_w5vle")]
 position = Vector2(1920, 576)
+inked = true
 collision_layer = 4
 script = ExtResource("16_ajlbw")
 

@@ -270,6 +270,10 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		if patch.state == 0 and patch.combo_step == 0:
 			break
 		await physics_frame
+	# The same random drips and Soggies can land mid-combo (CI saw [1, 2, 0, 1]): a hit
+	# flinches Patch and drops the chain. This checks the chain, not the arena, so no
+	# hit may land while it runs.
+	patch.health.grant_invulnerability(5.0)
 	for press in 4:
 		# Count physics frames here: the swipe reads input on the physics tick.
 		# Hitstop stretches a swing over more ticks, so wait for the step to change.
@@ -991,6 +995,10 @@ const PAINTED := {
 	"res://scenes/enemies/ink_spitter.tscn": Vector2(0.65, 0.85),
 	"res://scenes/enemies/tack_knight.tscn": Vector2(1.0, 1.3),
 	"res://scenes/enemies/ink_blob.tscn": Vector2(0.15, 0.5),
+	"res://scenes/enemies/paper_moth.tscn": Vector2(0.4, 0.7),
+	"res://scenes/enemies/inkwell_turret.tscn": Vector2(0.65, 0.85),
+	"res://scenes/enemies/folded_crane.tscn": Vector2(0.65, 0.85),
+	"res://scenes/enemies/mimic_book.tscn": Vector2(0.5, 0.75),
 	"res://scenes/enemies/ink_drip.tscn": Vector2(0.15, 0.5),
 	"res://scenes/enemies/boss_millwheel.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_kraken.tscn": Vector2(2.5, 6.0),
@@ -1030,6 +1038,7 @@ func _painted_art() -> void:
 		enemy.free()
 	_painted_tiles()
 	_painted_props()
+	_side_only_enemies()
 	# Patch himself: nothing of his comes from the old bright art any more.
 	for path in ["res://scenes/player/patch.tscn", "res://scripts/player/patch.gd", "res://scripts/player/dark_rig.gd", "res://scripts/minigames/shadow_theater.gd"]:
 		var text := FileAccess.get_file_as_string(path)
@@ -1091,6 +1100,24 @@ func _painted_props() -> void:
 		var old_size := (load("res://assets/art/props/" + file) as Texture2D).get_size()
 		var new_size := (load(painted) as Texture2D).get_size()
 		_check(old_size == new_size, "painted %s keeps the old canvas (%s vs %s)" % [file, new_size, old_size])
+
+
+## The Phase 2 enemies fly, dive or hop under gravity, so they only work on side-view
+## pages. A top-down page (view_mode = 1) must not place them.
+const SIDE_ONLY := ["paper_moth.tscn", "inkwell_turret.tscn", "folded_crane.tscn", "mimic_book.tscn"]
+
+
+func _side_only_enemies() -> void:
+	var offenders: Array[String] = []
+	for path in _files_under("res://scenes/levels", ".tscn"):
+		var text := FileAccess.get_file_as_string(path)
+		if not text.contains("\nview_mode = 1"):
+			continue
+		for scene in SIDE_ONLY:
+			if text.contains("enemies/" + scene):
+				offenders.append(path.get_file())
+				break
+	_check(offenders.is_empty(), "side-view enemies stay off top-down pages (%s)" % ", ".join(offenders))
 
 
 ## A Margin page is drawn as the 3D desk: the main screen no longer draws the 2D page,

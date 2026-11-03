@@ -28,6 +28,7 @@
 [ext_resource type="Script" path="res://scripts/player/patch.gd" id="26_e2h8u"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="95_spitter"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="95_knight"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/inkwell_turret.tscn" id="p2_turret"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_wlbjs"]
 normal = Vector2(1, 0)
@@ -305,3 +306,6 @@ collision_layer = 2
 floor_max_angle = 0.87266463
 floor_snap_length = 12.0
 script = ExtResource("26_e2h8u")
+
+[node name="InkwellTurret1" parent="Actors" instance=ExtResource("p2_turret")]
+position = Vector2(4908, 856)
