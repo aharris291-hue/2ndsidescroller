@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/cutscene_page.gd" id="1_q1bpo"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/foldwick_lullaby.wav" id="2_fmrjb"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_nell_dryer.png" id="3_nf5s5"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_table_dryer.png" id="3_nf5s5"]
 
 [node name="Interlude04" type="Control" unique_id=1672031694]
 layout_mode = 3

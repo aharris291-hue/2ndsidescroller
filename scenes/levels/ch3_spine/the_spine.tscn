@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/page.gd" id="1_cudky"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/spine_peaks.wav" id="2_5ckox"]
-[ext_resource type="Texture2D" path="res://assets/art/backgrounds/bg_spine.png" id="3_8ydb6"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_spine_summit.png" id="3_8ydb6"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="4_yt8td"]
 [ext_resource type="Script" path="res://scripts/world/dialogue_trigger.gd" id="5_lraa7"]
 [ext_resource type="PackedScene" path="res://scenes/world/narrator_trigger.tscn" id="6_5sxf8"]

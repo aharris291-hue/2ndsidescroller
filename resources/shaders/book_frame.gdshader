@@ -6,6 +6,8 @@ shader_type canvas_item;
 // edge and a stitched border, and the stacked edges of the other pages show
 // around it. Around the pages: a cover of folded navy paper with a running
 // stitch, thread binding at the spine, a ribbon bookmark, a soft shadow and the desk.
+// Dark rebuild: a worn charcoal cloth cover, flood-stained parchment margins, rust
+// thread and a faded oxblood ribbon, on Gran's kitchen table at night.
 
 uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
 uniform sampler2D desk_tex : source_color, filter_linear_mipmap;
@@ -20,11 +22,11 @@ uniform float stack_margin = 0.013;
 uniform float spine_dip = 0.018;
 // The blank paper margin, and where the printed frame lines sit inside it.
 uniform float margin = 0.026;
-uniform vec4 cover_color : source_color = vec4(0.17, 0.25, 0.52, 1.0);
-uniform vec4 thread : source_color = vec4(0.93, 0.77, 0.45, 1.0);
-uniform vec4 paper : source_color = vec4(0.98, 0.94, 0.84, 1.0);
-uniform vec4 frame_ink : source_color = vec4(0.50, 0.30, 0.20, 1.0);
-uniform vec4 ribbon : source_color = vec4(0.82, 0.18, 0.24, 1.0);
+uniform vec4 cover_color : source_color = vec4(0.12, 0.12, 0.14, 1.0);
+uniform vec4 thread : source_color = vec4(0.50, 0.30, 0.19, 1.0);
+uniform vec4 paper : source_color = vec4(0.70, 0.62, 0.48, 1.0);
+uniform vec4 frame_ink : source_color = vec4(0.28, 0.18, 0.13, 1.0);
+uniform vec4 ribbon : source_color = vec4(0.40, 0.10, 0.09, 1.0);
 uniform vec4 ink : source_color = vec4(0.14, 0.10, 0.12, 1.0);
 
 vec2 page_uv(vec2 s) {
@@ -163,7 +165,7 @@ void fragment() {
 	float d_page = outside(q, 0.0) + rough * step(0.004, from_spine(q.x));
 	// A white rim of torn paper fibres just outside the torn edge.
 	if (d_page > 0.0 && d_page < 0.0028 && outside(p, stack_margin) <= 0.0) {
-		col = mix(paper.rgb, vec3(1.0), 0.5);
+		col = mix(paper.rgb, vec3(0.86, 0.80, 0.68), 0.4);
 	}
 	if (d_page <= 0.0) {
 		col = texture(screen_tex, q).rgb;
@@ -187,7 +189,7 @@ void fragment() {
 		// A sewn-on button at the foot of each page, where a page number would be.
 		vec2 foot = vec2(sx - half_w * 0.5, 1.0 - q.y - margin * 0.5);
 		float button_d = length(foot) - 0.008;
-		col = mix(col, vec3(0.16, 0.22, 0.5) * (1.0 - 0.3 * smoothstep(-0.004, 0.0, button_d)), 1.0 - smoothstep(0.0, fwidth(button_d) * 1.5, button_d));
+		col = mix(col, vec3(0.17, 0.13, 0.11) * (1.0 - 0.3 * smoothstep(-0.004, 0.0, button_d)), 1.0 - smoothstep(0.0, fwidth(button_d) * 1.5, button_d));
 		frame = max(frame, max(line(foot.x - foot.y, 0.0007), line(foot.x + foot.y, 0.0007)) * step(max(abs(foot.x), abs(foot.y)), 0.0035));
 		col = mix(col, frame_ink.rgb, frame * 0.9);
 		// The page paper is folded too, very gently.
@@ -234,6 +236,6 @@ void fragment() {
 
 	// Warm desk-lamp falloff toward the corners.
 	vec2 v = UV - vec2(0.55, 0.42);
-	col *= 1.0 - 0.3 * dot(v, v);
+	col *= 1.0 - 0.55 * dot(v, v);
 	COLOR = vec4(col, 1.0);
 }
