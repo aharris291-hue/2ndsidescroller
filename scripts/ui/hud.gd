@@ -18,6 +18,10 @@ var _spools: HBoxContainer
 ## burns red and a line says how to Unstitch.
 var boss_hold: ProgressBar
 var boss_seam: Label
+## Top right: which form Gran's shears are in, and the style meter's rank.
+var form_label: Label
+var style_label: Label
+var style_bar: ProgressBar
 
 
 func _ready() -> void:
@@ -33,6 +37,7 @@ func _ready() -> void:
 	boss_bar.visible = false
 	_style_dark()
 	_build_hold_bar()
+	_build_combat_readout()
 	_spools = HBoxContainer.new()
 	_spools.name = "ThreadSpools"
 	_spools.add_theme_constant_override(&"separation", 6)
@@ -172,3 +177,59 @@ func _set_seam_open(open: bool) -> void:
 		boss_hold.value = boss_hold.max_value
 	boss_seam.text = "Its seams are open: %s to Unstitch" % InputGlyphs.hint(&"heavy") if open else ""
 	boss_seam.modulate.a = 1.0 if open else 0.0
+
+
+func _build_combat_readout() -> void:
+	var box := VBoxContainer.new()
+	box.name = "CombatReadout"
+	box.anchor_left = 1.0
+	box.anchor_right = 1.0
+	box.offset_left = -340.0
+	box.offset_right = -28.0
+	box.offset_top = 18.0
+	box.alignment = BoxContainer.ALIGNMENT_BEGIN
+	box.add_theme_constant_override(&"separation", 4)
+	$Root.add_child(box)
+	form_label = _readout_label(24, Color("d8d0c0"))
+	box.add_child(form_label)
+	style_label = _readout_label(30, Color("e05a48"))
+	box.add_child(style_label)
+	style_bar = ProgressBar.new()
+	style_bar.custom_minimum_size = Vector2(240, 6)
+	style_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
+	style_bar.show_percentage = false
+	style_bar.max_value = 1.0
+	var back := StyleBoxFlat.new()
+	back.bg_color = Color(0.06, 0.05, 0.05, 0.7)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("e05a48")
+	style_bar.add_theme_stylebox_override(&"background", back)
+	style_bar.add_theme_stylebox_override(&"fill", fill)
+	box.add_child(style_bar)
+	_set_form(GameState.shear_form)
+	_set_style(0, 0.0)
+	EventBus.shear_form_changed.connect(_set_form)
+	EventBus.style_changed.connect(_set_style)
+	EventBus.page_entered.connect(func(_page: Node) -> void: _set_form(GameState.shear_form))
+
+
+func _readout_label(size: int, colour: Color) -> Label:
+	var label := Label.new()
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label.add_theme_font_size_override(&"font_size", size)
+	label.add_theme_color_override(&"font_color", colour)
+	label.add_theme_color_override(&"font_outline_color", Color(0.04, 0.03, 0.03, 0.9))
+	label.add_theme_constant_override(&"outline_size", 8)
+	return label
+
+
+func _set_form(form: int) -> void:
+	# Only worth showing once there's more than one form to choose from.
+	var choices := ShearForms.unlocked().size()
+	form_label.text = "Shears: %s" % ShearForms.display_name(form) if choices > 1 else ""
+
+
+func _set_style(rank: int, fill: float) -> void:
+	style_label.text = StyleMeter.RANKS[rank]
+	style_bar.visible = rank > 0 or fill > 0.0
+	style_bar.value = fill

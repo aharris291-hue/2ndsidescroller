@@ -13,6 +13,12 @@ extends CharacterBody2D
 enum State { NORMAL, DASH, ATTACK, HURT, DEAD, GRAPPLE, SLAM, HEAVY, GUARD, MEND, FINISHER }
 enum Attack { LIGHT, THRUST, AIR, OVERHEAD, HEAVY, LAUNCHER, CHARGED, PLUNGE }
 enum Grapple { SHOOT, ZIP, RETRACT }
+## What each kind of cut counts as on the style meter.
+const STYLE_MOVES := {
+	Attack.LIGHT: &"light", Attack.THRUST: &"thrust", Attack.AIR: &"air",
+	Attack.OVERHEAD: &"overhead", Attack.HEAVY: &"heavy", Attack.LAUNCHER: &"launcher",
+	Attack.CHARGED: &"charged", Attack.PLUNGE: &"plunge",
+}
 
 ## After the finale Patch has a new tail: a strip of the Lanternfold map, taped on.
 
@@ -111,6 +117,10 @@ var _attack_active_left := 0.0
 var combo_step := 0
 var _combo_left := 0.0
 var _attack_scale := Vector2.ONE
+## How long the current light swing lasts (the shears' form changes it).
+var _swing_time := 0.18
+## Style meter (StyleMeter): rewards varied, clean fighting with extra Thread.
+var style: StyleMeter
 var _attack_knockback := 520.0
 var _attack_kind := Attack.LIGHT
 var _attack_buffer := 0.0
@@ -175,6 +185,11 @@ func _ready() -> void:
 	_attack_scale = attack_hitbox.scale
 	_attack_knockback = attack_hitbox.knockback
 	attack_hitbox.landed.connect(_on_attack_landed)
+	if not ShearForms.is_unlocked(GameState.shear_form):
+		GameState.shear_form = ShearForms.Form.BILL
+	style = StyleMeter.new()
+	style.name = &"StyleMeter"
+	add_child(style)
 	EventBus.thread_changed.emit(GameState.thread, GameState.thread_max)
 	EventBus.dialogue_started.connect(_on_dialogue_started)
 	EventBus.dialogue_finished.connect(_on_dialogue_finished)
@@ -295,6 +310,8 @@ func _process_normal(delta: float) -> void:
 		_start_mend()
 	elif _action_pressed(&"grapple") and GameState.has_ability(&"tape_tail"):
 		try_grapple()
+	elif _action_pressed(&"switch_form") and armed:
+		switch_form()
 	_update_grapple_highlight()
 
 
@@ -339,14 +356,16 @@ func _apply_gravity(delta: float) -> void:
 func _start_attack() -> void:
 	state = State.ATTACK
 	_attack_buffer = 0.0
-	_state_left = attack_time
+	var form := _form()
+	_swing_time = attack_time * float(form["speed"])
+	_state_left = _swing_time
 	_attack_active_left = attack_active_time
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
-	var length := _air_combo_length() if airborne else combo_length
+	var length := _air_combo_length() if airborne else _combo_length()
 	combo_step = combo_step + 1 if combo_step < length and _combo_left > 0.0 else 1
 	var last := combo_step == length
 	# Back off a little after the last hit, so the combo has a rhythm.
-	_attack_cooldown_left = attack_cooldown if last else 0.0
+	_attack_cooldown_left = attack_cooldown * float(form["speed"]) if last else 0.0
 	# Side view: hold up to cut overhead (things hanging above, flyers).
 	var aim := facing
 	if view_mode == PageView.Mode.SIDE and input_enabled and Input.is_action_pressed(&"move_up"):
@@ -361,8 +380,10 @@ func _start_attack() -> void:
 	else:
 		_attack_kind = Attack.THRUST if last else Attack.LIGHT
 	var heavy_hit := last and not airborne
+	var light_damage := int(form["light_damage"])
 	_configure_hitbox(aim, attack_reach, 1.3 if heavy_hit else 1.0,
-		finisher_damage if heavy_hit else 1, 1.0 if heavy_hit else 0.5,
+		finisher_damage + light_damage - 1 if heavy_hit else light_damage,
+		1.0 if heavy_hit else float(form["light_hold"]) / float(form["hold_scale"]),
 		finisher_knockback if heavy_hit else 1.0, false, Vector2.ONE,
 		Hitbox.Reaction.SEND if heavy_hit else Hitbox.Reaction.FLINCH)
 	AudioManager.play_sfx(&"shears", (0.85 if heavy_hit else randf_range(0.95, 1.12)), -4.0)
@@ -371,7 +392,7 @@ func _start_attack() -> void:
 	elif randf() < 0.35:
 		AudioManager.play_voice(&"light")
 	_squash(Vector2(1.3, 0.8) if heavy_hit else Vector2(1.15, 0.9))
-	_spawn_slash(aim, 1.3 if heavy_hit else 1.0, Color("fff6dc"))
+	_spawn_form_slash(aim, 1.3 if heavy_hit else 1.0)
 	if heavy_hit and view_mode == PageView.Mode.SIDE:
 		# The thrust lunges forward.
 		velocity.x += facing.x * 300.0
@@ -381,6 +402,8 @@ func _start_attack() -> void:
 func _configure_hitbox(aim: Vector2, reach: float, size: float, damage: int, hold: float,
 		knockback_scale: float, launch := false, stretch := Vector2.ONE,
 		reaction := Hitbox.Reaction.REEL) -> void:
+	var form := _form()
+	reach *= float(form["reach"])
 	var offset := aim * reach * maxf(stretch.x, 1.0) ** 0.5
 	if view_mode == PageView.Mode.SIDE and aim.y == 0.0:
 		offset.y -= 6.0
@@ -388,7 +411,9 @@ func _configure_hitbox(aim: Vector2, reach: float, size: float, damage: int, hol
 	attack_hitbox.rotation = aim.angle()
 	attack_hitbox.scale = _attack_scale * size * stretch
 	attack_hitbox.damage = damage
-	attack_hitbox.hold_damage = hold
+	attack_hitbox.hold_damage = hold * float(form["hold_scale"])
+	attack_hitbox.form = GameState.shear_form
+	attack_hitbox.pierces_guard = bool(form["pierce"])
 	attack_hitbox.knockback = _attack_knockback * knockback_scale
 	attack_hitbox.launch = launch
 	attack_hitbox.reaction = Hitbox.Reaction.LAUNCH if launch else reaction
@@ -411,25 +436,29 @@ func _process_attack(delta: float) -> void:
 			return
 		# So does a jump on the ground (it comes out next frame from the jump buffer).
 		if view_mode == PageView.Mode.SIDE and is_on_floor() and _jump_buffer_left > 0.0 \
-				and _state_left < attack_time * 0.5:
+				and _state_left < _swing_time * 0.5:
 			attack_hitbox.active = false
 			_combo_left = 0.0
 			combo_step = 0
 			state = State.NORMAL
 			return
 	var airborne := view_mode == PageView.Mode.SIDE and not is_on_floor()
-	var length := _air_combo_length() if airborne else combo_length
+	var length := _air_combo_length() if airborne else _combo_length()
+	# A form switch mid-swing comes out as a quick transition cut.
+	if _action_pressed(&"switch_form") and _state_left < _swing_time * 0.6:
+		switch_form()
+		return
 	# Pressing attack chains into the next hit. An early press is remembered and
 	# comes out as soon as the swing reaches its back half.
 	if _action_pressed(&"attack"):
 		_attack_buffer = 0.2
 	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
-	if combo_step < length and _state_left < attack_time * 0.5 and _attack_buffer > 0.0:
+	if combo_step < length and _state_left < _swing_time * 0.5 and _attack_buffer > 0.0:
 		_attack_buffer = 0.0
 		_combo_left = combo_window
 		_start_attack()
 		return
-	if _state_left < attack_time * 0.5 and _action_pressed(&"heavy"):
+	if _state_left < _swing_time * 0.5 and _action_pressed(&"heavy"):
 		_start_heavy()
 		return
 	if _state_left <= 0.0:
@@ -516,7 +545,7 @@ func _heavy_strike() -> void:
 	_attack_active_left = attack_active_time
 	match _attack_kind:
 		Attack.LAUNCHER:
-			_configure_hitbox(Vector2(facing.x, -0.6).normalized(), attack_reach, 1.2, heavy_damage, heavy_hold, 1.0, true)
+			_configure_hitbox(Vector2(facing.x, -0.6).normalized(), attack_reach, 1.2, _heavy_damage(heavy_damage), heavy_hold, 1.0, true)
 			_spawn_slash(Vector2(facing.x, -1.0).normalized(), 1.3, Color("fff6dc"))
 			AudioManager.play_sfx(&"shears", 0.9)
 			AudioManager.play_voice(&"effort", true)
@@ -524,21 +553,21 @@ func _heavy_strike() -> void:
 			var i := clampi(charge_level - 1, 0, 2)
 			if charge_level >= 3:
 				# The Full Cut: a slash that crosses most of the screen.
-				_configure_hitbox(facing, attack_reach, 1.0, charge_damage[i], charge_hold[i], 2.2, false, Vector2(7.0, 1.4), Hitbox.Reaction.SEND)
+				_configure_hitbox(facing, attack_reach, 1.0, _heavy_damage(charge_damage[i]), charge_hold[i], 2.2, false, Vector2(7.0, 1.4), Hitbox.Reaction.SEND)
 				_spawn_slash(facing, 4.5, Color("ffd36e"))
 				_shake_camera(10.0)
 				for node in get_tree().get_nodes_in_group(&"full_cut_listeners"):
 					if node.has_method("on_full_cut"):
 						node.on_full_cut(global_position, facing)
 			else:
-				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, charge_damage[i], charge_hold[i], 1.6 + 0.3 * i, false, Vector2.ONE, Hitbox.Reaction.SEND)
+				_configure_hitbox(facing, attack_reach, 1.3 + 0.35 * i, _heavy_damage(charge_damage[i]), charge_hold[i], 1.6 + 0.3 * i, false, Vector2.ONE, Hitbox.Reaction.SEND)
 				_spawn_slash(facing, 1.6 + 0.4 * i, Color("ffe7a8"))
 			AudioManager.play_sfx(&"shears", 0.7)
 			AudioManager.play_voice(&"heavy" if charge_level >= 2 else &"effort", true)
 			if view_mode == PageView.Mode.SIDE:
 				velocity.x += facing.x * 240.0
 		_:
-			_configure_hitbox(facing, attack_reach, 1.35, heavy_damage, heavy_hold, 1.4)
+			_configure_hitbox(facing, attack_reach, 1.35, _heavy_damage(heavy_damage), heavy_hold, 1.4)
 			_spawn_slash(facing, 1.5, Color("fff0c8"))
 			AudioManager.play_sfx(&"shears", 0.8)
 			AudioManager.play_voice(&"effort", true)
@@ -558,7 +587,8 @@ func _on_attack_landed(target: Node) -> void:
 		Attack.PLUNGE:
 			stop = 0.07
 			gain = 0.2
-	GameState.add_thread(gain)
+	style.add(STYLE_MOVES.get(_attack_kind, &"light"))
+	GameState.add_thread(gain * style.thread_bonus())
 	TimeFX.hitstop(stop)
 	AudioManager.play_sfx(&"hit_wet", randf_range(0.9, 1.1), -2.0)
 	_spawn_hit_spark(target)
@@ -585,7 +615,61 @@ func _finisher_point(target: Node2D) -> Vector2:
 
 
 func _air_combo_length() -> int:
-	return air_combo_length + (1 if GameState.has_pattern(&"blanket_stitch") else 0)
+	var by_form := int(_form()["air_combo"]) - 3
+	return air_combo_length + by_form + (1 if GameState.has_pattern(&"blanket_stitch") else 0)
+
+
+func _combo_length() -> int:
+	return combo_length + int(_form()["combo"]) - 4
+
+
+# --- Gran's shears: three forms (see ShearForms) --------------------------------
+
+func _form() -> Dictionary:
+	return ShearForms.stats(GameState.shear_form)
+
+
+func _heavy_damage(base: int) -> int:
+	return maxi(base + int(_form()["heavy_bonus"]), 1)
+
+
+## Cycles to the next unlocked form. Mid-swing it comes out as a quick transition cut,
+## so a switch keeps a combo going instead of costing it.
+func switch_form() -> bool:
+	var next := ShearForms.next(GameState.shear_form)
+	if next == GameState.shear_form:
+		return false
+	var mid_swing := state == State.ATTACK
+	GameState.shear_form = next
+	EventBus.shear_form_changed.emit(next)
+	AudioManager.play_sfx(&"shears", 1.35 if next == ShearForms.Form.WINGS else (0.7 if next == ShearForms.Form.BEAK else 1.0), -6.0)
+	_squash(Vector2(0.9, 1.1))
+	if mid_swing:
+		# The transition cut: one quick hit in the new form that keeps the chain alive.
+		_swing_time = attack_time * float(_form()["speed"])
+		_state_left = _swing_time
+		_attack_active_left = attack_active_time
+		_combo_left = combo_window
+		combo_step = mini(combo_step, _combo_length() - 1)
+		_configure_hitbox(facing, attack_reach, 1.1, 1, 0.75, 1.0, false, Vector2.ONE, Hitbox.Reaction.FLINCH)
+		_spawn_form_slash(facing, 1.15)
+		style.add(&"switch")
+	return true
+
+
+## The slash a cut leaves, by form: one arc (Bill), two crossing arcs (Wings), or a
+## wide pair of jaws snapping shut (Beak).
+func _spawn_form_slash(aim: Vector2, size: float) -> void:
+	var colour: Color = _form()["colour"]
+	match GameState.shear_form:
+		ShearForms.Form.WINGS:
+			_spawn_slash(aim.rotated(0.35), size * 0.8, colour)
+			_spawn_slash(aim.rotated(-0.35), size * 0.8, colour)
+		ShearForms.Form.BEAK:
+			_spawn_slash(aim.rotated(0.6), size * 1.25, colour)
+			_spawn_slash(aim.rotated(-0.6), size * 1.25, colour)
+		_:
+			_spawn_slash(aim, size, colour)
 
 
 func _parry_window() -> float:
@@ -652,6 +736,7 @@ func _process_finisher(delta: float) -> void:
 				hold.clear()
 			_spawn_hit_spark(target)
 		GameState.add_thread(1.0)
+		style.add(&"unstitch")
 		# Gran's Long Seam pattern: every Unstitch mends half a paper token.
 		if GameState.has_pattern(&"long_seam"):
 			health.heal(1)
@@ -1150,6 +1235,7 @@ func _on_damaged(_amount: int, _from: Vector2) -> void:
 	state = State.HURT
 	_state_left = hurt_time
 	_hurt_flash_left = health.invulnerability_time
+	style.hurt()
 	attack_hitbox.active = false
 	AudioManager.play_sfx(&"hurt", 0.8, -6.0)
 	AudioManager.play_voice(&"hurt" if randf() < 0.6 else &"hurt2", true)

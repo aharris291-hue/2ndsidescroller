@@ -20,6 +20,7 @@ const OPTIONS := {
 var restart_button: Button
 var options_button: Button
 var map_button: Button
+var bestiary_button: Button
 var save_button: Button
 var _options: OptionsPanel
 var _option_buttons: Dictionary = {}
@@ -56,12 +57,24 @@ func _build_extra_controls() -> void:
 	box.add_child(restart_button)
 	box.move_child(restart_button, resume_button.get_index() + 1)
 
+	# The torn map and Nell's bestiary share a row, to keep the panel short.
+	var books := HBoxContainer.new()
+	books.name = &"Books"
+	books.add_theme_constant_override(&"separation", 12)
+	box.add_child(books)
+	box.move_child(books, restart_button.get_index() + 1)
 	map_button = Button.new()
 	map_button.name = &"MapButton"
 	map_button.text = "The torn map"
+	map_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	map_button.pressed.connect(_open_map)
-	box.add_child(map_button)
-	box.move_child(map_button, restart_button.get_index() + 1)
+	books.add_child(map_button)
+	bestiary_button = Button.new()
+	bestiary_button.name = &"BestiaryButton"
+	bestiary_button.text = "Nell's bestiary"
+	bestiary_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bestiary_button.pressed.connect(_open_bestiary)
+	books.add_child(bestiary_button)
 
 	# Out in the Margin (the real world) Patch can save anywhere.
 	save_button = Button.new()
@@ -69,7 +82,7 @@ func _build_extra_controls() -> void:
 	save_button.text = "Save here"
 	save_button.pressed.connect(_on_save_here)
 	box.add_child(save_button)
-	box.move_child(save_button, map_button.get_index() + 1)
+	box.move_child(save_button, books.get_index() + 1)
 
 	options_button = Button.new()
 	options_button.name = &"OptionsButton"
@@ -157,6 +170,11 @@ func _on_save_here() -> void:
 func _open_map() -> void:
 	close()
 	MapPanel.open_panel(get_tree().root)
+
+
+func _open_bestiary() -> void:
+	close()
+	BestiaryPanel.open_panel(get_tree().root)
 
 
 func _open_options() -> void:

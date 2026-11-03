@@ -23,6 +23,7 @@ var _phase := 0.0
 
 
 func _init() -> void:
+	bestiary_id = "folded_crane"
 	flies = true
 	max_health = 4
 	max_hold = 3.0

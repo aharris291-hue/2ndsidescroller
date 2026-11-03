@@ -24,6 +24,14 @@ signal boss_hold_changed(current: float, maximum: float)
 signal boss_staggered(open: bool)
 ## An enemy Patch sent flying hit another one.
 signal enemy_bowled
+## Nell wrote a new page in her bestiary (the first time Patch beat this kind).
+signal bestiary_entry(enemy_id: String)
+## Gran's shears changed form (ShearForms.Form).
+signal shear_form_changed(form: int)
+## The style meter's rank (0 = none) and how full the current rank is (0..1).
+signal style_changed(rank: int, fill: float)
+## A companion helped in a fight (Dot's full stop, Corrugate's brace).
+signal companion_assisted(kind: StringName)
 ## Patch turned a blow with a well-timed guard / dodged right as it landed.
 signal player_parried
 signal player_perfect_dodge

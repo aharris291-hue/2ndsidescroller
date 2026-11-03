@@ -51,6 +51,7 @@ const REBINDABLE := {
 	&"mend": "Mend",
 	&"grapple": "Thread grapple",
 	&"slam": "Pop-Up Slam",
+	&"switch_form": "Switch shears form",
 	&"interact": "Interact",
 	&"map": "Torn map",
 	&"pause": "Pause",
@@ -62,7 +63,7 @@ const PRESETS := {
 		&"move_left": [KEY_A], &"move_right": [KEY_D], &"move_up": [KEY_W], &"move_down": [KEY_S],
 		&"jump": [KEY_SPACE], &"attack": [KEY_Q], &"heavy": [KEY_E], &"guard": [KEY_C],
 		&"dash": [KEY_SHIFT], &"mend": [KEY_R], &"grapple": [KEY_TAB], &"slam": [KEY_V],
-		&"interact": [KEY_F], &"map": [KEY_G], &"pause": [KEY_ESCAPE],
+		&"interact": [KEY_F], &"map": [KEY_G], &"pause": [KEY_ESCAPE], &"switch_form": [KEY_X],
 	},
 }
 const TEXT_SCALES: Array[float] = [1.0, 1.25, 1.5]
@@ -93,7 +94,8 @@ func _ready() -> void:
 		sound_captions = config.get_value("access", "sound_captions", sound_captions)
 		text_scale = config.get_value("access", "text_scale", text_scale)
 		for action: StringName in REBINDABLE:
-			var events = config.get_value("bindings", String(action), null)
+			# An action added since this file was written keeps its default binding.
+			var events = config.get_value("bindings", String(action)) if config.has_section_key("bindings", String(action)) else null
 			if events is Array and not events.is_empty():
 				_set_events(action, events)
 	apply()
@@ -237,6 +239,7 @@ static func event_name(event: InputEvent) -> String:
 			MOUSE_BUTTON_LEFT: return "Click"
 			MOUSE_BUTTON_RIGHT: return "Right-click"
 			MOUSE_BUTTON_MIDDLE: return "Middle-click"
+			MOUSE_BUTTON_WHEEL_DOWN: return "Wheel"
 			_: return "Mouse %d" % (event as InputEventMouseButton).button_index
 	if event is InputEventJoypadButton:
 		var buttons := ["A", "B", "X", "Y", "Back", "Guide", "Start", "L3", "R3", "LB", "RB", "D-pad up", "D-pad down", "D-pad left", "D-pad right"]

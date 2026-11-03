@@ -17,9 +17,14 @@ enum Reaction { FLINCH, REEL, LAUNCH, SEND, CRUSH }
 ## Inactive hitboxes are ignored (e.g. Patch's swipe between attacks).
 @export var active := true
 ## How much it wears down the target's Hold (see HoldComponent).
-@export var hold_damage := 1
+@export var hold_damage := 1.0
 ## Sends light enemies up into the air instead of back (Patch's launcher).
 @export var launch := false
 ## Enemy attacks: a red-glow attack can't be guarded or parried, only dodged.
 @export var unblockable := false
 @export var reaction := Reaction.FLINCH
+## Patch's cuts: which form the shears were in (ShearForms.Form), or -1. A form an
+## enemy is weak to hits harder (Bestiary).
+@export var form := -1
+## The Beak snips through guards: a Tack Knight's shield doesn't turn it.
+@export var pierces_guard := false

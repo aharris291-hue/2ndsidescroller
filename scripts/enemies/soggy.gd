@@ -13,6 +13,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var gravity := 2000.0
 ## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
 @export var inked := false
+## Nell's bestiary page for this kind (see Bestiary).
+var bestiary_id := "soggy"
 @export var scrap_drop := 2
 ## Side view: how far ahead (and how far up or down) it notices Patch.
 @export var notice_range := 460.0
@@ -51,6 +53,7 @@ func _ready() -> void:
 		motion_mode = MOTION_MODE_FLOATING
 		ledge_check.enabled = false
 	hurtbox.hit.connect(_on_hit)
+	add_to_group(&"enemies")
 	health.died.connect(_on_died)
 	if inked:
 		Inked.apply(self)
@@ -199,6 +202,7 @@ func unstitch(_by: Node) -> void:
 
 
 func _on_died() -> void:
+	Bestiary.record(self)
 	if inked:
 		Inked.on_died(self)
 	contact_hitbox.set_deferred("monitorable", false)

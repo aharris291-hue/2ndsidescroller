@@ -54,6 +54,7 @@ var _shadow: Polygon2D
 
 
 var hold: HoldComponent
+var bestiary_id := "sogg"
 
 
 func _ready() -> void:
@@ -241,6 +242,7 @@ func _recover() -> void:
 
 func _on_defeated() -> void:
 	state = State.DEFEATED
+	Bestiary.record(self)
 	_set_heart_exposed(false)
 	contact.active = false
 	_clear_shadow()

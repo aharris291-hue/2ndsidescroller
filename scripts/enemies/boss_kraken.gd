@@ -43,6 +43,7 @@ var _rest_position := Vector2.ZERO
 
 
 var hold: HoldComponent
+var bestiary_id := "kraken"
 
 
 func _ready() -> void:
@@ -221,6 +222,7 @@ func _recover() -> void:
 
 func _on_defeated() -> void:
 	state = State.DEFEATED
+	Bestiary.record(self)
 	_set_eye_exposed(false)
 	eye.visible = false
 	_set_rings_enabled(false)

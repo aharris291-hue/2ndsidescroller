@@ -22,6 +22,7 @@ var _dart_dir := Vector2.ZERO
 
 
 func _init() -> void:
+	bestiary_id = "paper_moth"
 	flies = true
 	max_health = 1
 	max_hold = 1.0

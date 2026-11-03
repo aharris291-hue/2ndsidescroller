@@ -929,15 +929,35 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 		and game_state.scraps == 50, "a pattern card can be bought at the tin")
 	_check(not shop_script.buy_pattern(&"long_seam"), "a pattern is only learned once")
 	_check(not shop_script.buy_pattern(&"blanket_stitch"), "a pattern can't be bought without the scraps")
-	# Save format 3 keeps all of it.
+	# Nell's bestiary: a page for each kind beaten; the pause menu opens it.
+	game_state.bestiary.clear()
+	game_state.record_defeat("soggy")
+	game_state.record_defeat("soggy")
+	game_state.shear_form = 1
+	var pause_menu_node := root.get_node("PauseMenu")
+	pause_menu_node.bestiary_button.pressed.emit()
+	await _frames(2)
+	var bestiary_panel = load("res://scripts/ui/bestiary_panel.gd").get(&"current")
+	_check(bestiary_panel != null and paused and bestiary_panel._title.text == "Soggy"
+		and bestiary_panel._count.text == "Beaten 2 times" and bestiary_panel._weak.text.contains("1 more"),
+		"the pause menu opens Nell's bestiary at the Soggy page, weakness still hidden")
+	if bestiary_panel:
+		bestiary_panel.close()
+	await _frames(2)
+	_check(not paused, "closing the bestiary unpauses")
+	# Save format 4 keeps all of it.
 	game_state.save_game()
-	_check(game_state.read_save(2).get("version", 0) == 3, "saves are written as version 3")
+	_check(game_state.read_save(2).get("version", 0) == 4, "saves are written as version 4")
+	game_state.shear_form = 0
+	game_state.bestiary.clear()
 	game_state.load_game(2)
 	_check(game_state.heart_patches == 1 and game_state.spools == 1 and game_state.thread_max == 4.0
 		and game_state.charms.size() == 3 and game_state.has_charm(&"heron_pin")
 		and game_state.bookmarks.size() >= 2 and game_state.visited.has(HUB)
 		and game_state.has_pattern(&"long_seam"),
 		"loading restores upgrades, charms, patterns, bookmarks and the map")
+	_check(game_state.shear_form == 1 and int(game_state.bestiary.get("soggy", 0)) == 2,
+		"loading restores the shears' form and Nell's bestiary")
 	# A version 1 save (from before the hub) still loads, with none of the new things.
 	var save_path: String = game_state.save_path(2)
 	var current_save := FileAccess.get_file_as_string(save_path)
@@ -954,6 +974,12 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	v2_save.close()
 	_check(game_state.load_game(2) and game_state.heart_patches == 1 and game_state.charms.size() == 1
 		and game_state.patterns.is_empty(), "a version 2 save still loads, with no patterns yet")
+	var v3_save := FileAccess.open(save_path, FileAccess.WRITE)
+	v3_save.store_string(JSON.stringify({"version": 3, "max_health": 10, "scraps": 5,
+		"patterns": ["backstitch"], "checkpoint_page": HUB, "flags": {}}))
+	v3_save.close()
+	_check(game_state.load_game(2) and game_state.has_pattern(&"backstitch") and game_state.shear_form == 0
+		and game_state.bestiary.is_empty(), "a version 3 save still loads, with Bill shears and an empty bestiary")
 
 	# Put the run back the way it was, so later checks see the standard game.
 	var restore := FileAccess.open(save_path, FileAccess.WRITE)
@@ -963,6 +989,8 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	game_state.heart_patches = 0
 	game_state.spools = 0
 	game_state.patterns.clear()
+	game_state.bestiary.clear()
+	game_state.shear_form = 0
 	game_state.thread_max = 3.0
 	game_state.max_health = before["max_health"]
 	game_state.charms.clear()

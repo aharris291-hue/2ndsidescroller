@@ -21,6 +21,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var knockback_taken := 0.6
 ## Inked elite: darker, half again as tough, quicker to attack. See Inked.
 @export var inked := false
+## Nell's bestiary page for this kind (see Bestiary); set by each subclass.
+var bestiary_id := ""
 
 var view_mode: PageView.Mode = PageView.Mode.SIDE
 var health: HealthComponent
@@ -160,6 +162,7 @@ func unstitch(_by: Node) -> void:
 
 
 func _on_died() -> void:
+	Bestiary.record(self)
 	contact_hitbox.set_deferred("monitorable", false)
 	contact_hitbox.active = false
 	hurtbox.set_deferred("monitoring", false)
