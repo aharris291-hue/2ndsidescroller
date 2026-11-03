@@ -663,7 +663,7 @@ func _guard_hit(hitbox: Hitbox) -> bool:
 	var dx := hitbox.global_position.x - global_position.x
 	if absf(dx) > 12.0 and signf(dx) != signf(facing.x):
 		return false
-	if _guard_time <= parry_window:
+	if _guard_time <= parry_window * (2.0 if Settings.assist_wide_parry else 1.0):
 		_parry(hitbox)
 		return true
 	if _block_cooldown > 0.0:
@@ -679,6 +679,18 @@ func _guard_hit(hitbox: Hitbox) -> bool:
 		_blocking = false
 	health.grant_invulnerability(0.3)
 	return true
+
+
+## Accessibility (Settings.auto_guard): standing or walking, Patch raises his guard by
+## himself against a blockable hit at his front. It's always a block, never a parry,
+## so timing the guard yourself still pays.
+func _auto_guard(hitbox: Hitbox) -> bool:
+	if not Settings.auto_guard or state != State.NORMAL or not is_on_floor() or not GameState.has_ability(&"crease_swipe"):
+		return false
+	if view_mode != PageView.Mode.SIDE:
+		return false
+	_guard_time = 99.0
+	return _guard_hit(hitbox)
 
 
 ## A parry: Patch snaps the attack aside. The attacker loses a lot of Hold and is
@@ -1054,7 +1066,9 @@ func _fell_off_page() -> void:
 	# Step back the way Patch came onto that ground, away from the edge he fell from.
 	global_position = _last_safe_position + Vector2(-_last_safe_facing * 48.0, -24.0)
 	velocity = Vector2.ZERO
-	health.take_damage(1, global_position)
+	# Assist: a fall just puts him back on the ledge.
+	if not Settings.assist_safe_falls:
+		health.take_damage(1, global_position)
 
 
 # --- Damage, death, interaction --------------------------------------------
@@ -1071,6 +1085,8 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 	if state == State.DEAD or state == State.FINISHER or (state == State.SLAM and _slam_phase == 1):
 		return
 	if state == State.GUARD and _guard_hit(hitbox):
+		return
+	if _auto_guard(hitbox):
 		return
 	# Assist mode: no single hit takes more than half a paper token.
 	var amount := mini(hitbox.damage, 1) if Settings.assist else hitbox.damage

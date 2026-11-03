@@ -16,7 +16,7 @@ func _initialize() -> void:
 func _run() -> void:
 	gs = root.get_node("GameState")
 	# Test the standard rules, whatever this machine's pause-menu settings are.
-	root.get_node("Settings").assist = false
+	_standard_settings()
 	gs.new_game(0)
 	gs.sandbox = true
 	change_scene_to_file("res://scenes/levels/combat_lab/combat_lab.tscn")
@@ -163,6 +163,8 @@ func _run() -> void:
 	await create_timer(1.0, true, false, true).timeout
 	_check(is_equal_approx(Engine.time_scale, 1.0), "time returns to normal after slow motion")
 
+	await _auto_guard(sparring, swing)
+
 	# --- Soggies have Hold and can be Unstitched.
 	var soggy: Node2D = null
 	for node in get_nodes_in_group("staggered"):
@@ -180,7 +182,105 @@ func _run() -> void:
 		_check(not is_instance_valid(soggy), "an Unstitched Soggy is gone")
 
 	_tells_read_on_painted_art()
+	await _accessibility(lab, sparring)
 	_finish()
+
+
+## Test the standard rules, whatever this machine's options say.
+func _standard_settings() -> void:
+	var settings := root.get_node("Settings")
+	for option in [&"assist", &"assist_safe_falls", &"assist_wide_parry", &"auto_guard", &"tell_shapes", &"sound_captions"]:
+		settings.set(option, false)
+	settings.game_speed = 1.0
+	settings.text_scale = 1.0
+	settings.reset_bindings()
+	settings.apply()
+
+
+## Auto-guard blocks a frontal hit while Patch just stands there (never a parry), and
+## with it off the same hit lands.
+func _auto_guard(sparring: Node2D, swing: Node) -> void:
+	var settings := root.get_node("Settings")
+	settings.auto_guard = true
+	patch.health.grant_invulnerability(0.0)
+	_put_patch(sparring.global_position.x - 95.0, 1.0)
+	await _frames(20)
+	patch.health.set_health(6)
+	var parries: int = patch.parries
+	swing.unblockable = false
+	swing.damage = 1
+	swing.active = true
+	await _frames(3)
+	swing.active = false
+	_check(patch.health.current == 6 and patch.parries == parries, "auto-guard blocks a frontal hit, without parrying (hp %d)" % patch.health.current)
+	settings.auto_guard = false
+	await _frames(40)
+	patch.health.grant_invulnerability(0.0)
+	_put_patch(sparring.global_position.x - 95.0, 1.0)
+	await _frames(5)
+	swing.active = true
+	await _frames(3)
+	swing.active = false
+	_check(patch.health.current == 5, "with auto-guard off the same hit lands (hp %d)" % patch.health.current)
+	await _frames(60)
+
+
+## Rebinding, the left-hand layout, button prompts, shapes on tells, sound captions,
+## text size and the options screen.
+func _accessibility(lab: Node, sparring: Node2D) -> void:
+	var settings := root.get_node("Settings")
+	var glyphs := root.get_node("InputGlyphs")
+	var g := InputEventKey.new()
+	g.physical_keycode = KEY_G
+	var space := InputEventKey.new()
+	space.physical_keycode = KEY_SPACE
+	settings.rebind(&"jump", g)
+	_check(settings.binding_text(&"jump", false) == "G" and not InputMap.action_has_event(&"jump", space), "jump rebinds to G and lets go of Space (%s)" % settings.binding_text(&"jump", false))
+	_check(settings.binding_text(&"jump", true) == "A", "rebinding the keyboard leaves the controller alone")
+	settings.rebind(&"attack", g)
+	_check(settings.binding_text(&"jump", false) == "-" and settings.binding_text(&"attack", false) == "G", "a key bound to a second action leaves the first")
+	settings.apply_preset(&"left_hand")
+	_check(settings.binding_text(&"attack", false) == "Q" and glyphs.hint(&"guard") == "C", "the left-hand layout puts light cut on Q and guard on C")
+	settings.reset_bindings()
+	_check(glyphs.hint(&"jump") == "Space" and settings.binding_text(&"attack", false) == "J / Click", "reset puts the default keys back (%s)" % glyphs.hint(&"jump"))
+
+	settings.assist_safe_falls = true
+	patch.health.set_health(6)
+	patch.call(&"_fell_off_page")
+	_check(patch.health.current == 6, "with safe falls, falling off the page costs nothing")
+	settings.assist_safe_falls = false
+	patch.health.clear_invulnerability()
+	patch.call(&"_fell_off_page")
+	_check(patch.health.current == 5, "without it, a fall costs half a token (hp %d)" % patch.health.current)
+	await _frames(30)
+
+	settings.tell_shapes = true
+	(load("res://scripts/components/tells.gd") as Script).call(&"red_glow", sparring, 0.5)
+	_check(sparring.get_parent().get_node_or_null(^"WarningSign") != null, "with shapes on, a red glow also shows a warning sign")
+	settings.tell_shapes = false
+	await create_timer(0.8).timeout
+	_check(sparring.get_parent().get_node_or_null(^"WarningSign") == null, "the warning sign goes when the glow ends")
+
+	var captions := root.get_node("AudioManager").find_child("SoundCaptions", true, false)
+	settings.sound_captions = true
+	root.get_node("AudioManager").play_sfx(&"growl")
+	_check(captions != null and captions.get_child_count() > 0 and (captions.get_child(-1) as Label).text == "[Growl]", "sound captions show [Growl] for a growl")
+	settings.sound_captions = false
+
+	settings.text_scale = 1.5
+	settings.apply()
+	var caption_label := root.get_node("DialogueUI").get_node(^"Caption/Margin/CaptionLabel") as Label
+	_check(caption_label.get_theme_font_size(&"font_size") == 66, "large text grows the narrator's captions (%d)" % caption_label.get_theme_font_size(&"font_size"))
+	settings.text_scale = 1.0
+	settings.apply()
+
+	var panel: Node = (load("res://scripts/ui/options_panel.gd") as Script).call(&"open_panel", root, &"controls")
+	await _frames(3)
+	var buttons := panel.find_children("*", "Button", true, false).size()
+	_check(buttons >= settings.REBINDABLE.size() * 2 + 10, "the options screen lists every action for both devices and every accessibility option (%d buttons)" % buttons)
+	panel.close()
+	await _frames(2)
+	_standard_settings()
 
 
 func _put_patch(x: float, face: float, dy := 0.0) -> void:

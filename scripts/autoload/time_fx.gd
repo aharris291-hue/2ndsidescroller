@@ -12,6 +12,16 @@ var _base_scale := 1.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_base_speed(Settings.game_speed)
+
+
+## The game's normal speed (the "slower game" assist sets 0.8). Hitstop and slow
+## motion scale from it and come back to it.
+func set_base_speed(speed: float) -> void:
+	if _active:
+		_base_scale = speed
+	else:
+		Engine.time_scale = speed
 
 
 func _process(delta: float) -> void:

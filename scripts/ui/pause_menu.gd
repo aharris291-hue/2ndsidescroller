@@ -6,7 +6,6 @@ const OPTIONS := {
 	&"screen_shake": "Screen shake",
 	&"flashing": "Lightning flashes",
 	&"high_effects": "Weather detail",
-	&"assist": "Assist mode",
 }
 
 @onready var panel: Control = $Root
@@ -19,6 +18,8 @@ const OPTIONS := {
 @onready var quest_log: Label = $Root/Panel/Margin/VBox/QuestLog
 
 var restart_button: Button
+var options_button: Button
+var _options: OptionsPanel
 var _option_buttons: Dictionary = {}
 
 
@@ -53,13 +54,20 @@ func _build_extra_controls() -> void:
 	box.add_child(restart_button)
 	box.move_child(restart_button, resume_button.get_index() + 1)
 
+	options_button = Button.new()
+	options_button.name = &"OptionsButton"
+	options_button.text = "Controls, accessibility and assists"
+	options_button.pressed.connect(_open_options)
+	box.add_child(options_button)
+	box.move_child(options_button, restart_button.get_index() + 1)
+
 	var grid := GridContainer.new()
 	grid.name = &"Options"
 	grid.columns = 2
 	grid.add_theme_constant_override(&"h_separation", 12)
 	grid.add_theme_constant_override(&"v_separation", 10)
 	box.add_child(grid)
-	box.move_child(grid, restart_button.get_index() + 1)
+	box.move_child(grid, options_button.get_index() + 1)
 	for button: Button in [fullscreen_button, book_view_button]:
 		button.reparent(grid, false)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -73,7 +81,7 @@ func _build_extra_controls() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed(&"pause"):
+	if not event.is_action_pressed(&"pause") or is_instance_valid(_options):
 		return
 	if panel.visible:
 		close()
@@ -102,6 +110,13 @@ func close() -> void:
 	panel.visible = false
 	get_tree().paused = false
 	Settings.save()
+
+
+func _open_options() -> void:
+	_options = OptionsPanel.open_panel(self)
+	_options.closed.connect(func() -> void:
+		_update_labels()
+		options_button.grab_focus.call_deferred())
 
 
 func _on_book_view() -> void:

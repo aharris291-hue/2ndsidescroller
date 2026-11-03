@@ -35,6 +35,18 @@ const VOICE := {
 	&"death": preload("res://assets/audio/dark/vo_death.ogg"),
 	&"dodge": preload("res://assets/audio/dark/vo_dodge.ogg"),
 }
+## Accessibility (Settings.sound_captions): sounds worth a caption, and its words.
+const SOUND_CAPTIONS := {
+	&"growl": "Growl",
+	&"dissolve": "Ink dissolves",
+	&"dryer": "Hair dryer roars",
+	&"checkpoint": "Bookmark rings",
+	&"page_flip": "Page turns",
+	&"parry": "Clang",
+	&"slam": "Thud",
+	&"enemy_pop": "Something tears",
+	&"tab_pull": "Tab pulls",
+}
 const POOL_SIZE := 10
 const FADE_TIME := 0.8
 
@@ -44,6 +56,9 @@ var _active_music: AudioStreamPlayer
 var _pool: Array[AudioStreamPlayer] = []
 var _next := 0
 var _voice := AudioStreamPlayer.new()
+var _captions: VBoxContainer
+## When each caption was last shown, so a burst of the same sound shows one line.
+var _caption_shown := {}
 
 
 func _ready() -> void:
@@ -63,6 +78,7 @@ func _ready() -> void:
 		_pool.append(player)
 	_voice.bus = &"SFX"
 	add_child(_voice)
+	_build_captions()
 
 
 func play_music(stream: AudioStream) -> void:
@@ -95,6 +111,41 @@ func play_sfx(sfx_name: StringName, pitch := 1.0, volume_db := 0.0) -> void:
 	player.pitch_scale = pitch
 	player.volume_db = volume_db
 	player.play()
+	if Settings.sound_captions and SOUND_CAPTIONS.has(sfx_name):
+		show_sound_caption(SOUND_CAPTIONS[sfx_name])
+
+
+## Shows "[words]" in the lower left for a moment (Settings.sound_captions).
+func show_sound_caption(words: String) -> void:
+	var now := Time.get_ticks_msec()
+	if now - int(_caption_shown.get(words, -10000)) < 900:
+		return
+	_caption_shown[words] = now
+	var label := Label.new()
+	label.text = "[%s]" % words
+	label.add_theme_font_size_override(&"font_size", roundi(30 * Settings.text_scale))
+	label.add_theme_color_override(&"font_color", Color("e6dccb"))
+	label.add_theme_color_override(&"font_outline_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override(&"outline_size", 10)
+	_captions.add_child(label)
+	while _captions.get_child_count() > 4:
+		_captions.get_child(0).free()
+	var tween := label.create_tween()
+	tween.tween_interval(1.8)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(label.queue_free)
+
+
+func _build_captions() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 25
+	add_child(layer)
+	_captions = VBoxContainer.new()
+	_captions.name = &"SoundCaptions"
+	_captions.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_captions.position = Vector2(40, 860)
+	_captions.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(_captions)
 
 
 ## Plays one of Patch's voice lines. `important` lines always cut in; others are
