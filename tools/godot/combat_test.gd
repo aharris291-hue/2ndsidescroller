@@ -187,6 +187,7 @@ func _run() -> void:
 	await _hit_reactions(lab)
 	await _boss_unstitch(lab)
 	await _patterns()
+	await _shears_and_style(lab)
 	await _accessibility(lab, sparring)
 	_finish()
 
@@ -524,6 +525,173 @@ func _patterns() -> void:
 	_put_patch(400.0, 1.0)
 	patch.attack_hitbox.active = false
 	await _frames(10)
+
+
+## Gran's shears in three forms, the weakness each enemy has, the style meter,
+## companions helping in a fight, and Nell's bestiary.
+func _shears_and_style(lab: Node) -> void:
+	patch.health.grant_invulnerability(60.0)
+	var forms: Script = load("res://scripts/player/shear_forms.gd")
+	var hud := root.get_node("HUD")
+	hud.show_hud(true)
+	gs.shear_form = 0
+	_check(forms.call(&"unlocked").size() == 3, "in the lab all three forms of the shears are there")
+	_put_patch(400.0, 1.0)
+	_check(patch.switch_form() and gs.shear_form == 1 and patch._combo_length() == 5
+		and patch._air_combo_length() == 5, "Wings: a five-cut combo, on the ground and in the air")
+	_check(hud.form_label.text == "Shears: Wings", "the HUD shows the form (%s)" % hud.form_label.text)
+	patch.switch_form()
+	_check(gs.shear_form == 2 and patch._combo_length() == 3 and patch._heavy_damage(2) == 3,
+		"Beak: a three-cut combo, and heavies hit one harder")
+	patch.switch_form()
+	_check(gs.shear_form == 0 and patch._combo_length() == 4, "and round again to Bill")
+
+	# A switch in the middle of a swing comes out as a transition cut.
+	patch.style.reset()
+	await _tap(&"attack", 2, 1)
+	var swinging: int = patch.state
+	patch.switch_form()
+	_check(patch.state == swinging and patch.attack_hitbox.active and patch.attack_hitbox.form == 1,
+		"switching mid-swing throws a quick cut in the new form")
+	_check(patch.style.points > 0.0, "and it counts on the style meter")
+	await _frames(30)
+	gs.shear_form = 2
+	_put_patch(400.0, 1.0)
+	patch._configure_hitbox(patch.facing, patch.attack_reach, 1.0, 1, 0.5, 1.0, false, Vector2.ONE, 0)
+	_check(patch.attack_hitbox.pierces_guard and is_equal_approx(patch.attack_hitbox.hold_damage, 0.8),
+		"Beak cuts pierce guards and do more Hold (%.2f)" % patch.attack_hitbox.hold_damage)
+	patch.attack_hitbox.active = false
+	gs.shear_form = 0
+
+	# The Beak snips through a Tack Knight's shield; other forms clang off it.
+	var knight: Node2D = (load("res://scenes/enemies/tack_knight.tscn") as PackedScene).instantiate()
+	knight.position = Vector2(7000, 958)
+	lab.get_node("Actors").add_child(knight)
+	await _frames(3)
+	knight.health.max_health = 20
+	knight.health.set_health(20)
+	var front := Vector2(knight.get(&"_direction") * 60.0, -40.0)
+	var results := []
+	for pierce in [false, true]:
+		var cut := Hitbox.new()
+		cut.collision_layer = 0
+		cut.pierces_guard = pierce
+		cut.damage = 1
+		lab.get_node("Actors").add_child(cut)
+		cut.global_position = knight.global_position + front
+		knight.health.clear_invulnerability()
+		knight.set(&"_clang_left", 0.0)
+		var before: int = knight.health.current
+		knight.get_node("Hurtbox").hit.emit(cut)
+		results.append(before - knight.health.current)
+		cut.queue_free()
+	_check(results == [0, 1], "the shield turns a Bill cut but not the Beak (%s)" % str(results))
+	knight.queue_free()
+
+	# Weakness: a Soggy fears the Wings. +1 damage, half again the Hold.
+	var damage_by_form := []
+	for form in [0, 1]:
+		var soggy: Node2D = (load("res://scenes/enemies/soggy.tscn") as PackedScene).instantiate()
+		soggy.position = Vector2(900, 900)
+		soggy.set("scrap_drop", 0)
+		lab.get_node("Actors").add_child(soggy)
+		await _frames(3)
+		soggy.health.max_health = 20
+		soggy.health.set_health(20)
+		soggy.health.clear_invulnerability()
+		var cut := _test_cut(lab, soggy.get_node("Hurtbox").global_position, form)
+		for i in 4:
+			await physics_frame
+		cut.queue_free()
+		damage_by_form.append(20 - soggy.health.current)
+		soggy.queue_free()
+	_check(damage_by_form == [1, 2], "a Soggy takes a Wings cut harder (%s)" % str(damage_by_form))
+
+	# The style meter: varied moves climb, the same move again is worth less,
+	# a hit drops a rank, and higher ranks give more Thread.
+	var style: Node = patch.style
+	style.reset()
+	style.add(&"light")
+	style.add(&"light")
+	_check(is_equal_approx(style.points, 1.6), "the same cut twice is worth less the second time (%.2f)" % style.points)
+	for move in [&"parry", &"unstitch", &"charged", &"bowled", &"launcher", &"plunge"]:
+		style.add(move)
+	_check(style.rank() == 2 and style.rank_name() == "Basted" and hud.style_label.text == "Basted",
+		"varied moves climb the ranks, shown on the HUD (%s)" % hud.style_label.text)
+	_check(is_equal_approx(style.thread_bonus(), 1.2), "rank two gives a fifth more Thread")
+	style.hurt()
+	_check(style.rank() == 1, "taking a hit drops a whole rank")
+	style._idle = 3.0
+	var points: float = style.points
+	style._process(0.5)
+	_check(style.points < points, "standing about lets it drain")
+	style.reset()
+
+	# Companions: Dot stops an enemy dead; Corrugate flattens one.
+	var target: Node2D = (load("res://scenes/enemies/soggy.tscn") as PackedScene).instantiate()
+	target.position = Vector2(430, 900)
+	target.set("scrap_drop", 0)
+	lab.get_node("Actors").add_child(target)
+	await _frames(3)
+	target.health.max_health = 20
+	target.health.set_health(20)
+	_put_patch(400.0, 1.0)
+	var dot: Node2D = (load("res://scenes/world/dot_companion.tscn") as PackedScene).instantiate()
+	lab.add_child(dot)
+	await _frames(2)
+	var nearest: Node = dot.nearest_enemy(patch)
+	_check(dot.assist == 1 and nearest == target, "Dot finds the nearest enemy to stop (assist %d, %s at %s)" % [dot.assist, nearest.name if nearest else "none", str(nearest.global_position) if nearest else ""])
+	dot._strike(target)
+	_check(float(target.get_meta(&"reel_left", 0.0)) >= 1.5, "Dot's full stop holds it still")
+	dot.queue_free()
+	var corrugate: Node2D = (load("res://scenes/world/corrugate_companion.tscn") as PackedScene).instantiate()
+	lab.add_child(corrugate)
+	await _frames(2)
+	var hold: Node = target.get_node("HoldComponent")
+	var hold_before: float = hold.current
+	target.health.clear_invulnerability()
+	corrugate._strike(target)
+	_check(corrugate.assist == 2 and target.health.current == 19 and hold.current <= hold_before - 2.5,
+		"Corrugate's brace flattens it (hp %d, Hold %.1f -> %.1f)" % [target.health.current, hold_before, hold.current])
+	corrugate.queue_free()
+
+	# Nell's bestiary: a beaten enemy goes in her book.
+	gs.bestiary.clear()
+	target.health.clear_invulnerability()
+	target.health.take_damage(999, target.global_position)
+	await _frames(3)
+	_check(int(gs.bestiary.get("soggy", 0)) == 1, "a beaten Soggy goes in Nell's bestiary")
+	var bestiary: Script = load("res://scripts/world/bestiary.gd")
+	_check(not bestiary.call(&"weakness_known", "soggy"), "its weakness isn't written in yet")
+	gs.bestiary["soggy"] = 3
+	_check(bestiary.call(&"weakness_known", "soggy"), "after three, Nell writes in what it fears")
+	var panel: Node = (load("res://scripts/ui/bestiary_panel.gd") as Script).call(&"open_panel", root)
+	await _frames(2)
+	_check(paused and panel._title.text == "Soggy" and panel._weak.text.contains("Wings"),
+		"the bestiary page names the Soggy's weakness (%s)" % panel._weak.text)
+	panel.close()
+	await _frames(2)
+	_check(not paused, "closing the bestiary unpauses")
+	gs.bestiary.clear()
+	_put_patch(400.0, 1.0)
+	await _frames(10)
+
+
+## A cut like Patch's, in a given form, at a spot (for weakness checks).
+func _test_cut(lab: Node, at: Vector2, form: int) -> Hitbox:
+	var cut := Hitbox.new()
+	cut.collision_layer = 8
+	cut.collision_mask = 0
+	cut.form = form
+	cut.damage = 1
+	var shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 70.0
+	shape.shape = circle
+	cut.add_child(shape)
+	lab.get_node("Actors").add_child(cut)
+	cut.global_position = at
+	return cut
 
 
 ## Rebinding, the left-hand layout, button prompts, shapes on tells, sound captions,

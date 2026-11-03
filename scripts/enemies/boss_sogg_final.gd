@@ -215,6 +215,7 @@ func _lose() -> void:
 
 func _on_defeated() -> void:
 	state = State.DEFEATED
+	Bestiary.record(self)
 	_set_heart_exposed(false)
 	contact.active = false
 	_clear_shadow()

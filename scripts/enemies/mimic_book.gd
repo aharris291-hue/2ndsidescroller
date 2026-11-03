@@ -21,6 +21,7 @@ var _state_left := 0.0
 
 
 func _init() -> void:
+	bestiary_id = "mimic_book"
 	max_health = 3
 	max_hold = 2.0
 	contact_damage = 1

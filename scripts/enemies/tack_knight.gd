@@ -19,6 +19,8 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var gravity := 2000.0
 ## Inked elite (see Inked): darker, tougher, quicker, leaves a pool of ink.
 @export var inked := false
+## Nell's bestiary page for this kind (see Bestiary).
+var bestiary_id := "tack_knight"
 @export var scrap_drop := 4
 ## Hits that get through the shield from the front anyway (the combo finisher, a slam).
 @export var guard_break_damage := 2
@@ -47,6 +49,7 @@ func _ready() -> void:
 		motion_mode = MOTION_MODE_FLOATING
 		ledge_check.enabled = false
 	hurtbox.hit.connect(_on_hit)
+	add_to_group(&"enemies")
 	health.died.connect(_on_died)
 	if inked:
 		Inked.apply(self)
@@ -136,7 +139,7 @@ func _on_hit(hitbox: Hitbox) -> void:
 	var from_front := signf(hitbox.global_position.x - global_position.x) == _direction
 	if view_mode == PageView.Mode.TOP:
 		from_front = (hitbox.global_position - global_position).normalized().dot(_aim) > 0.3
-	if from_front and state != State.DAZED and hitbox.damage < guard_break_damage:
+	if from_front and state != State.DAZED and hitbox.damage < guard_break_damage and not hitbox.pierces_guard:
 		if _clang_left > 0.0:
 			return
 		# Clang: the shield turns the blow and shoves Patch back.
@@ -161,6 +164,7 @@ func _on_hit(hitbox: Hitbox) -> void:
 
 
 func _on_died() -> void:
+	Bestiary.record(self)
 	if inked:
 		Inked.on_died(self)
 	contact_hitbox.set_deferred("monitorable", false)

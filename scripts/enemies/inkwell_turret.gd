@@ -18,6 +18,7 @@ var _windup_left := 0.0
 
 
 func _init() -> void:
+	bestiary_id = "inkwell_turret"
 	max_health = 5
 	max_hold = 4.0
 	contact_damage = 1

@@ -31,6 +31,7 @@ var state := State.WAITING
 var _drip_left := 0.0
 var _jam_left := 0.0
 var hold: HoldComponent
+var bestiary_id := "millwheel"
 
 @onready var body: Sprite2D = $Body
 @onready var sails: Node2D = $Sails
@@ -134,6 +135,7 @@ func _recover() -> void:
 
 func _on_defeated() -> void:
 	state = State.DEFEATED
+	Bestiary.record(self)
 	_set_core_exposed(false)
 	_set_blades_active(false)
 	GameState.set_flag(defeated_flag)

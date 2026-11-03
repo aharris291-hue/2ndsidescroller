@@ -107,7 +107,7 @@ func _fill_pen(pen: Dictionary) -> void:
 func _add_signs() -> void:
 	var h := func(action: StringName) -> String: return InputGlyphs.hint(action)
 	_sign(Vector2(300, 150), "COMBAT LAB\nNothing here is saved. Pause to leave.\nThread fills as your cuts land. Hold %s to spend a charge and Mend." % h.call(&"mend"))
-	_sign(Vector2(520, 330), "THE CUTTING POST\n%s x4: light combo, ending in a thrust\n%s: heavy cut (wears down Hold)\nHold %s: charge (3 levels; level 3 is the Full Cut)\nUp + %s: launcher\nBreak its Hold, then %s: UNSTITCH" % [h.call(&"attack"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy")])
+	_sign(Vector2(520, 330), "THE CUTTING POST\n%s x4: light combo, ending in a thrust\n%s: heavy cut (wears down Hold)\nHold %s: charge (3 levels; level 3 is the Full Cut)\nUp + %s: launcher\nBreak its Hold, then %s: UNSTITCH\n%s: switch the shears (Bill, Wings, Beak), even mid-combo" % [h.call(&"attack"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"heavy"), h.call(&"switch_form")])
 	_sign(Vector2(1240, 330), "THE SPARRING POST\nHold %s to guard. Tap it just as a swing lands to PARRY.\nWhite glint: parry it. Red glow: dodge it.\n%s: Edge-On dodge. Dodge at the last moment to slow time." % [h.call(&"guard"), h.call(&"dash")])
 	_sign(Vector2(1900, 200), "THE LEDGES\nIn the air, %s x3: air combo\nIn the air, Down + %s: PLUNGE (bounces off what it hits)\nOne dodge in the air." % [h.call(&"attack"), h.call(&"heavy")])
 	_sign(Vector2(2860, 330), "THE SOGGY PEN\nThey glint before they lunge: parry them.\nEnd a combo with the thrust to send one\ntumbling into the others. Heavies make them reel.\nBreak their Hold, then Unstitch.")

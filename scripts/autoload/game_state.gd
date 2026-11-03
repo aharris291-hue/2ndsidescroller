@@ -5,7 +5,8 @@ extends Node
 ## 2: heart patches, Thread spools, stitch charms, bookmarks for travel and the pages
 ## seen (for the torn map). Version 1 saves load with none of those.
 ## 3: Gran's patterns (sword techniques bought at the tin). Older saves load with none.
-const SAVE_VERSION := 3
+## 4: the shears' current form and Nell's bestiary (what Patch has beaten, how often).
+const SAVE_VERSION := 4
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
@@ -32,6 +33,10 @@ var spools := 0
 var charms: Array[StringName] = []
 ## Gran's patterns: techniques learned at the sewing tin (see Patterns).
 var patterns: Array[StringName] = []
+## Which form Gran's shears are in (ShearForms.Form).
+var shear_form := 0
+## Nell's bestiary: enemy id -> how many Patch has beaten (see Bestiary).
+var bestiary := {}
 var equipped: Array[StringName] = []
 var charm_slots := 2
 ## Bookmarks Patch has touched, for travel: "page#x,y" -> {page, x, y, title}.
@@ -81,6 +86,8 @@ func new_game(new_slot: int) -> void:
 	spools = 0
 	charms.clear()
 	patterns.clear()
+	shear_form = 0
+	bestiary.clear()
 	equipped.clear()
 	charm_slots = 2
 	bookmarks.clear()
@@ -167,6 +174,14 @@ func learn_pattern(pattern_id: StringName) -> void:
 
 func has_pattern(pattern_id: StringName) -> bool:
 	return patterns.has(pattern_id)
+
+
+## Counts a beaten enemy for Nell's bestiary. Returns the new count.
+func record_defeat(enemy_id: String) -> int:
+	bestiary[enemy_id] = int(bestiary.get(enemy_id, 0)) + 1
+	if bestiary[enemy_id] == 1:
+		EventBus.bestiary_entry.emit(enemy_id)
+	return bestiary[enemy_id]
 
 
 # --- Bookmarks and the map ------------------------------------------------------
@@ -286,6 +301,8 @@ func save_game() -> bool:
 		"equipped": equipped.map(func(c: StringName) -> String: return String(c)),
 		"charm_slots": charm_slots,
 		"patterns": patterns.map(func(p: StringName) -> String: return String(p)),
+		"shear_form": shear_form,
+		"bestiary": bestiary,
 		"bookmarks": bookmarks,
 		"visited": visited.keys(),
 		"letters": letters,
@@ -340,6 +357,12 @@ func load_game(save_slot: int) -> bool:
 	# Version 3: Gran's patterns.
 	for pattern in data.get("patterns", []):
 		learn_pattern(StringName(pattern))
+	# Version 4: the shears' form and Nell's bestiary.
+	shear_form = int(data.get("shear_form", 0))
+	var seen: Variant = data.get("bestiary", {})
+	if seen is Dictionary:
+		for id in seen:
+			bestiary[String(id)] = int(seen[id])
 	var marks: Variant = data.get("bookmarks", {})
 	if marks is Dictionary:
 		bookmarks = marks

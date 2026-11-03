@@ -21,6 +21,10 @@ const LINES := {
 	"bought_spool": "A fresh spool, still waxed. It smelled like her sewing room.",
 	"bought_charm": "He sewed it onto his bandana, crooked, the way she'd shown him.",
 	"bought_pattern": "Gran's handwriting on the card, slanting off the edge. Patch read it twice before he tried it.",
+	"style_top": "For a whole minute Patch fought the way Gran sewed: without looking, without a wasted stitch. Dad stopped writing and just watched.",
+	"form_wings": "Patch unscrewed the pivot and the shears came apart in his paws. Two blades. Gran would have smacked his hand for it.",
+	"form_beak": "He held them wide, like a mouth. When they closed, things stayed closed.",
+	"bestiary": "(A pencil note, in Nell's writing, taped inside the cover: I'm keeping a list. Pause to read it.)",
 	"bowled": "One Soggy went into the next like a dropped stack of plates. Dad underlined it twice.",
 	"mended": "Another page sewn back in. Somewhere, the music came a little closer.",
 }
@@ -41,7 +45,10 @@ func _ready() -> void:
 	EventBus.upgrade_bought.connect(func(kind: StringName) -> void: remark("bought_" + String(kind)))
 	EventBus.boss_defeated.connect(_on_mended)
 	EventBus.enemy_bowled.connect(remark.bind("bowled"))
-	EventBus.page_entered.connect(func(_page: Node) -> void: _idle = 0.0)
+	EventBus.bestiary_entry.connect(func(_id: String) -> void: remark("bestiary"))
+	EventBus.page_entered.connect(func(_page: Node) -> void:
+		_idle = 0.0
+		_tell_new_forms.call_deferred())
 
 
 ## Shows one of Dad's remarks if he hasn't made it before and isn't talking already.
@@ -95,3 +102,17 @@ func _on_health(current: int, _maximum: int) -> void:
 func _on_mended() -> void:
 	# The flag is per save: say it for the first boss, after that the music says it.
 	remark("mended", true)
+
+
+## The first page after a new form of the shears unlocks (see ShearForms), Dad
+## writes it in, with the key that switches forms.
+func _tell_new_forms() -> void:
+	if GameState.sandbox or not GameState.in_gameplay:
+		return
+	for form: int in [ShearForms.Form.WINGS, ShearForms.Form.BEAK]:
+		var id := "form_wings" if form == ShearForms.Form.WINGS else "form_beak"
+		if ShearForms.is_unlocked(form) and not GameState.get_flag("dad:" + id) and not DialogueUI.is_active():
+			GameState.set_flag("dad:" + id)
+			_since_last = 0.0
+			DialogueUI.narrate("%s (%s switches the shears' form.)" % [LINES[id], InputGlyphs.hint(&"switch_form")])
+			return
