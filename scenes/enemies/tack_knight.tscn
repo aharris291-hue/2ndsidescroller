@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/tack_knight.gd" id="1_tack"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/tack_knight.png" id="2_tack"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/enemies/tack_knight.png" id="2_tack"]
 [ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_tack"]
 [ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_tack"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_tack"]
@@ -20,8 +20,8 @@ collision_layer = 4
 script = ExtResource("1_tack")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1635261617]
-position = Vector2(0, -24)
-scale = Vector2(0.55, 0.55)
+position = Vector2(0, -22.5)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_tack")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1416121201]

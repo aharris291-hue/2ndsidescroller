@@ -179,6 +179,7 @@ func _run() -> void:
 		await create_timer(0.6).timeout
 		_check(not is_instance_valid(soggy), "an Unstitched Soggy is gone")
 
+	_tells_read_on_painted_art()
 	_finish()
 
 
@@ -204,6 +205,52 @@ func _tap(action: StringName, hold_frames: int, after: int) -> void:
 func _frames(n: int) -> void:
 	for i in n:
 		await process_frame
+
+
+## The tells must read on the painted art (docs/ART_STYLE.md, Readability): the red glow
+## multiplies the sprite's colour, so a body of solid black ink would hide it, and the
+## white glint must stay brighter than anything a tileset paints.
+const TELL_SPRITES := [
+	"res://assets/art/dark/sogg.png",
+	"res://assets/art/dark/enemies/ink_spitter.png",
+	"res://assets/art/dark/enemies/tack_knight.png",
+]
+const TILESET := "res://assets/art/dark/tiles/dark_tiles.png"
+const GLOW := Color(1.8, 0.45, 0.4)
+
+
+func _tells_read_on_painted_art() -> void:
+	var tiles := _mean_and_max(TILESET)
+	for path in TELL_SPRITES:
+		var body := _mean_and_max(path)
+		var mean: Color = body[0]
+		# How far the glow pushes the body toward red, against the tiles behind it.
+		var glow_red := minf(mean.r * GLOW.r, 1.0) - mean.g * GLOW.g
+		var tile_red: float = tiles[0].r - tiles[0].g
+		_check(glow_red - tile_red > 0.12, "the red glow shows on %s (%.2f over the tiles)" % [path.get_file(), glow_red - tile_red])
+		_check(body[1] < 0.005, "%s has no patch of white to mistake for a glint (%.2f%%)" % [path.get_file(), body[1] * 100.0])
+	_check(tiles[1] < 0.005, "the tiles have no patch of white to mistake for a glint (%.2f%%)" % [tiles[1] * 100.0])
+
+
+## Mean colour of the opaque pixels, and the share of them that are near white (a stray
+## highlight is fine; a patch of white would read as a glint).
+func _mean_and_max(path: String) -> Array:
+	var image := (load(path) as Texture2D).get_image()
+	if image.is_compressed():
+		image.decompress()
+	var total := Color(0, 0, 0, 0)
+	var count := 0
+	var white := 0
+	for y in range(0, image.get_height(), 3):
+		for x in range(0, image.get_width(), 3):
+			var c := image.get_pixel(x, y)
+			if c.a < 0.8:
+				continue
+			total += Color(c.r, c.g, c.b, 0)
+			count += 1
+			if c.get_luminance() > 0.93:
+				white += 1
+	return [total / maxf(count, 1), white / maxf(count, 1)]
 
 
 func _check(condition: bool, label: String) -> void:
