@@ -800,9 +800,10 @@ func _frames(count: int) -> void:
 		await physics_frame
 
 
-## Every enemy is painted (docs/ART_STYLE.md): its art comes from assets/art/dark, and it
-## stands within its size band next to Patch (150 px).
+## Every enemy and friend is painted (docs/ART_STYLE.md): its art comes from
+## assets/art/dark, and it stands within its size band next to Patch (150 px).
 const PATCH_HEIGHT := 150.0
+const FRIEND_BAND := Vector2(0.3, 1.6)
 const PAINTED := {
 	"res://scenes/enemies/soggy.tscn": Vector2(0.65, 0.85),
 	"res://scenes/enemies/ink_spitter.tscn": Vector2(0.65, 0.85),
@@ -813,6 +814,17 @@ const PAINTED := {
 	"res://scenes/enemies/boss_kraken.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_sogg.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_sogg_final.tscn": Vector2(2.5, 6.0),
+	"res://scenes/world/npc_shepherd_fluff.tscn": FRIEND_BAND,
+	"res://scenes/world/lost_sheep.tscn": FRIEND_BAND,
+	"res://scenes/world/npc_dot.tscn": FRIEND_BAND,
+	"res://scenes/world/dot_companion.tscn": FRIEND_BAND,
+	"res://scenes/world/npc_corrugate.tscn": FRIEND_BAND,
+	"res://scenes/world/corrugate_companion.tscn": FRIEND_BAND,
+	"res://scenes/world/npc_bindwell.tscn": FRIEND_BAND,
+	"res://scenes/world/npc_lamplighters.tscn": FRIEND_BAND,
+	"res://scenes/world/crumple.tscn": FRIEND_BAND,
+	"res://scenes/world/npc_drizzle.tscn": FRIEND_BAND,
+	"res://scenes/world/drizzle_companion.tscn": FRIEND_BAND,
 }
 
 

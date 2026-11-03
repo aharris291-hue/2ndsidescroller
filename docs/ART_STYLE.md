@@ -53,10 +53,10 @@ Check every new character next to Patch in a screenshot before committing it.
 | Small threat | 0.15–0.5 × Patch (22–75 px) | ink blobs, drips, Paper Moth |
 | Regular enemy | 0.65–0.85 × Patch (100–130 px) | Soggy, Ink Spitter |
 | Large enemy | 1.0–1.3 × Patch (150–195 px) | Tack Knight, elites |
-| Friend | 0.6–1.4 × Patch | Dot is small; Bindwell towers |
+| Friend | 0.3–1.6 × Patch (45–240 px) | Dot is a small floating blot; Bindwell and the Lamplighter sisters tower |
 | Boss | 2.5 × Patch or more, often larger than the screen | Millwheel, Kraken, the Sogg |
 
-The smoke test checks each enemy's painted height against these bands.
+The smoke test checks each enemy's and friend's painted height against these bands.
 
 ## Readability
 
@@ -84,7 +84,7 @@ Gameplay reads first.
    prompt wording below.
 2. Save the raw painting in `tools/art/source/<name>_raw.png` so the art can be rebuilt.
 3. Cut it out and size it with a script in `tools/art/` (`dark_enemies.py`,
-   `dark_drizzle.py`, `dark_assets.py`), writing to `assets/art/dark/`.
+   `dark_bosses.py`, `dark_friends.py`, `dark_drizzle.py`, `dark_assets.py`), writing to `assets/art/dark/`.
 4. Keep each sprite's origin and frame layout compatible with its scene, or change the
    collision and hurtbox shapes in the same commit so hitboxes match what's drawn.
 

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/npc_corrugate.gd" id="1_cnr8k"]
 [ext_resource type="PackedScene" path="res://scenes/world/corrugate_companion.tscn" id="2_urfnu"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/corrugate.png" id="3_gn2nu"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/friends/corrugate.png" id="3_gn2nu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wi7xp"]
 size = Vector2(220, 140)
@@ -17,8 +17,8 @@ quest_id = "lost_cat"
 prompt_offset = Vector2(0, -200)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1625215635]
-position = Vector2(-5, -96)
-scale = Vector2(0.5, 0.5)
+position = Vector2(-5, -94.5)
+scale = Vector2(0.4875, 0.4875)
 texture = ExtResource("3_gn2nu")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=842831660]

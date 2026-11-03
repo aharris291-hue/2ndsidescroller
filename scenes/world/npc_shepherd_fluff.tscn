@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/npc.gd" id="1_t1mre"]
-[ext_resource type="Texture2D" path="res://assets/art/characters/shepherd_fluff.png" id="2_caa3c"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/friends/shepherd_fluff.png" id="2_caa3c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pxas1"]
 size = Vector2(200, 140)
