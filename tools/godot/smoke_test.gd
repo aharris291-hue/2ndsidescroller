@@ -270,6 +270,10 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		if patch.state == 0 and patch.combo_step == 0:
 			break
 		await physics_frame
+	# The same random drips and Soggies can land mid-combo (CI saw [1, 2, 0, 1]): a hit
+	# flinches Patch and drops the chain. This checks the chain, not the arena, so no
+	# hit may land while it runs.
+	patch.health.grant_invulnerability(5.0)
 	for press in 4:
 		# Count physics frames here: the swipe reads input on the physics tick.
 		# Hitstop stretches a swing over more ticks, so wait for the step to change.
