@@ -1,0 +1,110 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/lanternfold/lamp_room.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_lamp_room.png" id="3_floor"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_story"]
+[ext_resource type="Script" path="res://scripts/world/beam_mirror.gd" id="6_mirror"]
+[ext_resource type="Script" path="res://scripts/world/beam_wick.gd" id="7_wick"]
+[ext_resource type="Script" path="res://scripts/world/chapel_gate.gd" id="8_gate"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="9_exit"]
+[ext_resource type="Script" path="res://scripts/world/beam_source.gd" id="10_lens"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_scrap"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="19_patch"]
+
+[node name="TheLampRoom" type="Node2D"]
+script = ExtResource("1_page")
+view_mode = 1
+page_title = "The Lamp Room"
+opening_caption = "From up in the lantern gallery, the lamp room was a clock face with its hands torn off."
+music = ExtResource("2_music")
+bounds = Rect2(0, 0, 3840, 960)
+weather_tint = Color(0.5, 0.5, 0.56, 1)
+rain_amount = 60
+lightning = false
+
+[node name="Floor1" type="Sprite2D" parent="."]
+z_index = -10
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+
+[node name="Floor2" type="Sprite2D" parent="."]
+z_index = -10
+position = Vector2(1280, 0)
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+flip_h = true
+
+[node name="Floor3" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.74, 0.66, 1)
+z_index = -10
+position = Vector2(2560, 0)
+scale = Vector2(0.6667, 0.8889)
+texture = ExtResource("3_floor")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/lanternfold/2_3_the_lamp_room.txt"
+region = "harbor"
+entities = {
+"1": ExtResource("5_story"),
+"2": ExtResource("5_story"),
+"3": ExtResource("5_story"),
+"B": ExtResource("10_lens"),
+"D": ExtResource("8_gate"),
+"E": ExtResource("9_exit"),
+"X": ExtResource("9_exit"),
+"m": ExtResource("6_mirror"),
+"n": ExtResource("6_mirror"),
+"o": ExtResource("15_scrap"),
+"w": ExtResource("7_wick")
+}
+entity_props = {
+"1": {
+"caption": "A crack in the lamp's great lens let one thin beam through the wall. There was a mirror on a swivel in its way. Turn a mirror to throw the beam; light every wick in a room at once.",
+"size": Vector2(128, 256)
+},
+"2": {
+"caption": "Two wicks here, and more mirrors than the beam needed. The keeper had built this room to be argued with.",
+"size": Vector2(128, 256)
+},
+"3": {
+"caption": "The last room, round the lamp itself. Three wicks round the lamp, and the beam would have to go most of the way round the room to reach them all.",
+"size": Vector2(128, 256)
+},
+"B": {
+"direction": Vector2i(0, 1),
+"offset": Vector2(0, -32)
+},
+"E": {
+"size": Vector2(64, 128),
+"target_page": "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(64, 128),
+"target_page": "res://scenes/levels/lanternfold/2_2_the_lamplighters_climb.tscn",
+"target_spawn": &"FromLampRoom"
+},
+"m": {
+"slant": 0,
+"offset": Vector2(0, -32)
+},
+"n": {
+"slant": 1,
+"offset": Vector2(0, -32)
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"w": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("19_patch")]
+position = Vector2(160, 480)

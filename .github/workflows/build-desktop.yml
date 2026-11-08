@@ -48,7 +48,7 @@ jobs:
 
       - name: Level climb check (every side level can be crossed with Patch's reach)
         run: |
-          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt
+          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt levels/lanternfold/2_1_the_drowned_quay.txt levels/lanternfold/2_2_the_lamplighters_climb.txt
 
       - name: Import project
         run: ~/godot/godot --headless --path . --import

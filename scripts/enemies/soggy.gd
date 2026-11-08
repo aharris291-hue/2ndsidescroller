@@ -40,6 +40,8 @@ var _windup_left := 0.0
 var _lunge_cooldown_left := 0.0
 var _lunging := false
 var _wool_sprite: Sprite2D
+## Lanternfold: seconds left running from a lantern lit on top of it.
+var _fleeing := 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var _sprite_scale := sprite.scale
@@ -138,12 +140,27 @@ func _side_behaviour(delta: float) -> void:
 			_lunge_cooldown_left = lunge_cooldown
 			velocity = Vector2(lunge_speed.x * _direction, lunge_speed.y)
 		return
+	# Lanternfold: a Soggy will not go into lantern light, and runs from it.
+	var lamp := LanternPost.light_at(get_tree(), global_position)
+	if lamp or _fleeing > 0.0:
+		_fleeing = maxf(_fleeing - delta, 0.0)
+		if lamp:
+			_direction = signf(global_position.x - lamp.global_position.x) if global_position.x != lamp.global_position.x else _direction
+		ledge_check.position.x = 40.0 * _direction
+		velocity.x = chase_speed * _direction if ledge_check.is_colliding() and not is_on_wall() else 0.0
+		sprite.self_modulate.b = 1.25
+		return
+	sprite.self_modulate.b = 1.0 if not inked else Inked.TINT.b
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player and is_on_floor():
 		var to_player := player.global_position - global_position
 		if absf(to_player.x) < notice_range and absf(to_player.y) < notice_height:
 			_direction = signf(to_player.x) if to_player.x != 0.0 else _direction
 			ledge_check.position.x = 40.0 * _direction
+			if _light_ahead():
+				# Patch is past the edge of the light: it waits there, in the dark.
+				velocity.x = move_toward(velocity.x, 0.0, 2400.0 * delta)
+				return
 			if absf(to_player.x) < lunge_range and _lunge_cooldown_left <= 0.0:
 				_windup_left = lunge_windup
 				# White glint: the lunge can be parried.
@@ -154,10 +171,23 @@ func _side_behaviour(delta: float) -> void:
 			velocity.x = chase_speed * _direction if ledge_check.is_colliding() and not is_on_wall() else 0.0
 			return
 	ledge_check.position.x = 40.0 * _direction
-	if is_on_floor() and (is_on_wall() or not ledge_check.is_colliding()):
+	if is_on_floor() and (is_on_wall() or not ledge_check.is_colliding() or _light_ahead()):
 		_direction = -_direction
 		ledge_check.position.x = 40.0 * _direction
 	velocity.x = patrol_speed * _direction
+
+
+## Lantern light just ahead of it (one stride in the way it faces).
+func _light_ahead() -> bool:
+	return LanternPost.light_at(get_tree(), global_position + Vector2(56.0 * _direction, 0)) != null
+
+
+## A lantern was lit on top of it: it runs for the dark.
+func flee_light(post: Node2D) -> void:
+	_windup_left = 0.0
+	_fleeing = 1.2
+	_direction = signf(global_position.x - post.global_position.x) if global_position.x != post.global_position.x else _direction
+	AudioManager.play_sfx(&"growl", 1.3, -6.0)
 
 
 func _top_behaviour(delta: float) -> void:

@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_drowned_quay.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/lantern_post.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/hand_lantern.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/moored_boat.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheDrownedQuay" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Drowned Quay"
+opening_caption = "Lanternfold had been a town of lamps. Somebody had gone round every night and lit them. Nobody had, since the flood."
+music = ExtResource("2_music")
+weather_tint = Color(0.4, 0.44, 0.56, 1)
+rain_amount = 380
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/lanternfold/2_1_the_drowned_quay.txt"
+region = "harbor"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"9": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"G": ExtResource("7_e"),
+"R": ExtResource("7_e"),
+"H": ExtResource("9_e"),
+"L": ExtResource("11_e"),
+"M": ExtResource("13_e"),
+"P": ExtResource("8_e"),
+"b": ExtResource("10_e"),
+"l": ExtResource("11_e"),
+"n": ExtResource("12_e"),
+"o": ExtResource("14_e"),
+"p": ExtResource("8_e"),
+"t": ExtResource("15_e"),
+"u": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "One lamp was still burning at the end of the quay. Patch stood in it for longer than he needed to.",
+"size": Vector2(128, 640)
+},
+"2": {
+"caption": "Between the lamps it was black. Things moved in the black, and stopped at the edge of the light, and waited.",
+"size": Vector2(128, 640)
+},
+"3": {
+"caption": "The lamplighter's handcart lay on its side in the mud: ladder, oil can, wicks in a tin. No lamplighter.",
+"size": Vector2(128, 640)
+},
+"4": {
+"caption": "A cardboard boat, tied up neat, with CORRUGATE painted on the bow in a careful hand. Nobody aboard. A tin bowl on the deck, licked clean.",
+"size": Vector2(128, 640)
+},
+"5": {
+"caption": "The lamps down this street had been trimmed short. They'd burn a little while after you'd gone, and then they'd go out, whoever was still out there.",
+"size": Vector2(128, 640)
+},
+"6": {
+"caption": "Something clanked in the dark ahead. It didn't stop at the light. Tacks don't mind light.",
+"size": Vector2(128, 640)
+},
+"7": {
+"caption": "The harbour mouth. Lanterns on both sides of it, both cold, and the dark between them full.",
+"size": Vector2(128, 640)
+},
+"8": {
+"caption": "A corner of the page had folded over in the wet. Through the gap: a lamp, a real one, and the edge of Gran's table.",
+"size": Vector2(128, 640)
+},
+"9": {
+"caption": "The mole ran out to the lighthouse. Its light had gone out the night of the flood. The keeper hadn't come down.",
+"size": Vector2(128, 640)
+},
+"E": {
+"size": Vector2(192, 384),
+"target_page": "res://scenes/levels/lanternfold/2_2_the_lamplighters_climb.tscn",
+"target_spawn": &"Start"
+},
+"G": {
+"name": &"FromMargin"
+},
+"R": {
+"name": &"FromLighthouse"
+},
+"L": {
+"letter": "E",
+"offset": Vector2(0, -40)
+},
+"M": {
+"door_prompt": "Step out onto Gran's table",
+"target_page": "res://scenes/levels/margin/tape_heist.tscn",
+"target_spawn": &"FromPage"
+},
+"P": {
+"lit": true
+},
+"l": {
+"letter": "L",
+"offset": Vector2(0, -40)
+},
+"n": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"p": {
+"lit": false
+},
+"u": {
+"gutter_after": 5.0,
+"lit": false
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

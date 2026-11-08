@@ -1,0 +1,134 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_lighthouse.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/lantern_post.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape_strip.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="16_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheLamplightersClimb" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Lamplighter's Climb"
+opening_caption = "The stair went round and round the inside of the tower, and the sea came in through the windows."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.48, 0.56, 1)
+rain_amount = 160
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/lanternfold/2_2_the_lamplighters_climb.txt"
+region = "harbor"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"G": ExtResource("7_e"),
+"O": ExtResource("9_e"),
+"P": ExtResource("8_e"),
+"T": ExtResource("10_e"),
+"X": ExtResource("6_e"),
+"e": ExtResource("13_e"),
+"m": ExtResource("14_e"),
+"n": ExtResource("12_e"),
+"o": ExtResource("15_e"),
+"p": ExtResource("8_e"),
+"r": ExtResource("11_e"),
+"t": ExtResource("16_e")
+}
+entity_props = {
+"1": {
+"caption": "The keeper's door had been left open. A burning lamp at the foot of the stair, and nothing at the top but dark.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The first landing. Two cold lamps, and the dark between them crowded.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "On the landing, a lamplighter's coat, folded, and on top of it a roll of tape and a note in a careful hand: FOR THE GIRLS. The window beside it was gone, frame and all, as if the sea had reached in and taken what it wanted.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "Up here the wind came straight through the tower. Things with wings rode it.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "Far below, two small lights moved along the quay, stopping at each post. The lamplighter's daughters, still doing their father's rounds.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "The lamp room door. Something in there was still turning, slowly, on its own.",
+"size": Vector2(128, 384)
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/2_3_the_lamp_room.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn",
+"target_spawn": &"FromLighthouse"
+},
+"G": {
+"name": &"FromLampRoom"
+},
+"O": {
+"offset": Vector2(0, -64)
+},
+"P": {
+"lit": true
+},
+"T": {
+"ability_id": &"tape_tail",
+"unlock_caption": "Patch took the lamplighter's tape and stuck a strip on where his tail used to be. It held. Press {grapple} to throw the Tape Tail at brass rings.",
+"offset": Vector2(0, -40)
+},
+"e": {
+"inked": true,
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"p": {
+"lit": false
+},
+"r": {
+"letter": "R",
+"offset": Vector2(0, -40)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]
