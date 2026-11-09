@@ -335,6 +335,7 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	_check(current_scene.name == "SpineHub", "the second interlude goes back to the Spine (now on %s)" % current_scene.name)
 	_check(load("res://scripts/world/book_map.gd").region_of(R2 + "boss_ink_deep.tscn").get("id") == &"lanternfold", "the Kraken's arena belongs to Lanternfold")
 	_check(not ResourceLoader.exists("res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"), "the old harbour town pages are retired")
+	await _watermark_marsh(game_state, scene_manager, dialogue)
 
 
 func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
@@ -1242,6 +1243,145 @@ func _lightkeepers_store(game_state: Node, scene_manager: Node, dialogue: Node) 
 	game_state.health = 99
 
 
+## Region 3, Watermark Marsh (part 1): ink that burns paper until Patch learns the
+## Blot Dive on the Sump Road, currents that carry a blot, and the sluice wheels.
+func _watermark_marsh(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R3 := "res://scenes/levels/marsh/"
+	var door: Node = null
+	for node in current_scene.get_node("Level").get_children():
+		if node.get("region_id") == &"marsh":
+			door = node
+	_check(door != null and door.state() == "open" and door.target_page == R3 + "3_1_the_sump_road.tscn", "beating the Kraken opens the door to Watermark Marsh")
+	_check(not game_state.has_ability(&"blot_dive"), "Patch can't Blot Dive before the Marsh")
+	await scene_manager.change_page(R3 + "3_1_the_sump_road.tscn", &"Start")
+	await _wait_for_scene("TheSumpRoad", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	var level := current_scene.get_node("Level")
+	var pools := _named(level, "Ink_")
+	_check(pools.size() > 4 and _named(level, "Current_").size() >= 1, "the Sump Road has ink to cross (%d pools) and a current" % pools.size())
+	var exits := _named(level, "page_exit")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == "res://scenes/levels/hub/spine_hub.tscn"), "the road starts at a way back into the Spine")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R3 + "3_2_the_drowned_ledger.tscn"), "and ends at the Drowned Ledger")
+	# Without the Blot Dive the ink burns a heart and puts him back on the road.
+	var ditch: Node2D = pools[0]
+	for pool in pools:
+		if (pool as Node2D).global_position.x < ditch.global_position.x:
+			ditch = pool
+	patch.global_position = Vector2(4 * 64, 17 * 64)
+	patch.velocity = Vector2.ZERO
+	for i in 30:
+		await physics_frame
+	patch.health.clear_invulnerability()
+	var hp: int = game_state.health
+	patch.global_position = ditch.global_position + Vector2(ditch.size.x / 2.0, 40.0)
+	patch.velocity = Vector2.ZERO
+	for i in 20:
+		await physics_frame
+	_check(game_state.health < hp and not patch.blotting and not ditch.covers(patch.global_position), "the ink burns paper: a heart lost and back on the road (hp %d of %d)" % [game_state.health, hp])
+	game_state.health = 99
+	patch.health.grant_invulnerability(900.0)
+	# The watermark on the hill.
+	var page := level.get_node("ability_page_92_15") as Node2D
+	_check(page.ability_id == &"blot_dive", "the watermark on the hill teaches the Blot Dive")
+	patch.global_position = page.global_position
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"blot_dive"), "Patch learns the Blot Dive")
+	# In the deep cut he lets the ink in: a blot, untouchable, on one breath.
+	var trench: Node2D = null
+	for pool in pools:
+		var p := pool as Node2D
+		if p.global_position.x > 128 * 64 and p.global_position.x < 140 * 64 and (trench == null or p.size.y > trench.size.y):
+			trench = p
+	_check(trench != null, "a deep cut of ink on the road")
+	patch.health.clear_invulnerability()
+	patch.global_position = trench.global_position + Vector2(trench.size.x / 2.0, trench.size.y / 2.0)
+	patch.velocity = Vector2.ZERO
+	for i in 10:
+		await physics_frame
+	_check(patch.blotting and patch.health.is_invulnerable(), "in the ink Patch is a blot, and nothing can hurt him")
+	var deep_y := patch.global_position.y
+	Input.action_press(&"move_down")
+	for i in 20:
+		await physics_frame
+	Input.action_release(&"move_down")
+	_check(patch.blotting and patch.global_position.y > deep_y + 20.0 or patch.is_on_floor(), "he swims down through it")
+	hp = game_state.health
+	patch.breath_left = 0.02
+	for i in 10:
+		await physics_frame
+	_check(game_state.health < hp and not patch.blotting, "when his breath runs out the ink takes a heart (hp %d of %d)" % [game_state.health, hp])
+	game_state.health = 99
+	# Up at the skin a jump throws him out.
+	patch.health.grant_invulnerability(900.0)
+	patch.global_position = trench.global_position + Vector2(trench.size.x / 2.0, 20.0)
+	patch.velocity = Vector2.ZERO
+	for i in 6:
+		await physics_frame
+	_check(patch.blotting, "back in the cut")
+	Input.action_press(&"jump")
+	for i in 3:
+		await physics_frame
+	Input.action_release(&"jump")
+	for i in 12:
+		await physics_frame
+	_check(not patch.blotting and patch.global_position.y < trench.global_position.y - 40.0, "a jump at the surface leaps him out of the ink")
+	# The culvert's current carries a blot along.
+	var culvert := level.get_node("Current_204_18") as Node2D
+	_check(culvert.direction == Vector2.RIGHT, "the culvert runs on towards the ledger house")
+	patch.global_position = culvert.global_position + Vector2(160, 100)
+	patch.velocity = Vector2.ZERO
+	for i in 4:
+		await physics_frame
+	var x0 := patch.global_position.x
+	for i in 30:
+		await physics_frame
+	_check(patch.blotting and patch.global_position.x > x0 + 100.0, "a current carries the blot along (%.0f px)" % (patch.global_position.x - x0))
+	patch.global_position = level.get_node("FromLedger").global_position
+	patch.velocity = Vector2.ZERO
+	await _frames(10)
+
+	await scene_manager.change_page(R3 + "3_2_the_drowned_ledger.tscn", &"Start")
+	await _wait_for_scene("TheDrownedLedger", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	_check(_named(level, "mimic_book").size() == 2, "books in the stacks that open by themselves (%d)" % _named(level, "mimic_book").size())
+	_check(_named(level, "Current_").any(func(c: Node) -> bool: return c.direction == Vector2.UP), "a drain that carries a blot up to the high shelves")
+	exits = _named(level, "page_exit")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R3 + "3_3_the_sluice_house.tscn"), "the ledger house leads on to the sluice")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R3 + "3_1_the_sump_road.tscn" and e.target_spawn == &"FromLedger"), "and back out to the road")
+
+	await scene_manager.change_page(R3 + "3_3_the_sluice_house.tscn", &"Start")
+	await _wait_for_scene("TheSluiceHouse", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	var wheels := get_nodes_in_group(&"sluice_wheels").filter(func(n: Node) -> bool: return current_scene.is_ancestor_of(n))
+	_check(wheels.size() == 3, "three wheels in the sluice house (%d)" % wheels.size())
+	var b_left := level.get_node("Current_6_13")
+	var b_right := level.get_node("Current_21_13")
+	_check(b_left.direction == Vector2.LEFT and b_right.direction == Vector2.LEFT, "both halves of the middle way run against Patch")
+	var w1 := level.get_node("sluice_wheel_2_9")
+	var w2 := level.get_node("sluice_wheel_26_7")
+	var w3 := level.get_node("sluice_wheel_12_7")
+	_check(w1.currents() == [b_left] and w2.currents() == [b_right], "a wheel for each half of the middle way")
+	_check(w3.currents().size() == 2 and not w3.currents().has(b_left) and not w3.currents().has(b_right), "the third wheel turns two channels that lead nowhere")
+	w1.interact(null)
+	w2.interact(null)
+	_check(b_left.direction == Vector2.RIGHT and b_right.direction == Vector2.RIGHT, "turning both wheels sends the middle way out towards the outflow")
+	w1.turn()
+	_check(b_left.direction == Vector2.LEFT, "and turning one back reverses it again")
+	w1.turn()
+	var outflow := level.get_node("page_exit_36_17") as Node2D
+	_check(outflow.target_page == "res://scenes/levels/hub/spine_hub.tscn" and load("res://scripts/world/ink_pool.gd").ink_at(self, outflow.global_position + Vector2(-64, -32)), "the outflow, under the ink, leads back to the Spine for now")
+	_check(load("res://scripts/world/book_map.gd").region_of(R3 + "3_3_the_sluice_house.tscn").get("id") == &"marsh", "the sluice house belongs to the Marsh")
+	game_state.max_health = 99
+	game_state.health = 99
+
+
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
 ## heart patch and 60 Scraps at the end of its gauntlet.
 func _hayloft(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
@@ -1301,7 +1441,8 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(doors.size() == 6, "the Spine has a door for each of the six regions (%d)" % doors.size())
 	_check(doors[&"thistledown"].state() == "open" and doors[&"thistledown"].can_interact(), "Thistledown's door is open from the start")
 	_check(doors[&"lanternfold"].state() == "locked" and not doors[&"lanternfold"].can_interact(), "Lanternfold's door stays shut until Thistledown is mended")
-	_check(doors[&"marsh"].state() == "unwritten" and not doors[&"marsh"].can_interact(), "an unwritten region's door is stitched shut")
+	_check(doors[&"fair"].state() == "unwritten" and not doors[&"fair"].can_interact(), "an unwritten region's door is stitched shut")
+	_check(doors[&"marsh"].state() == "locked", "the Marsh's door stays shut until the Kraken is beaten")
 	var stair := current_scene.get_node("Stair")
 	_check(not stair.is_open() and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).is_empty(),
 		"the stair to the gallery is broken until a region is mended")

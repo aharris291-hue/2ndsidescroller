@@ -14,6 +14,8 @@ extends Node2D
 ## Built-in entities:
 ##   @  Start (where a fresh visit spawns Patch)     k  Bookmark (checkpoint)
 ##   s  Soggy        d  ink drip spawner (drips onto the floor below it)
+##   ~  settled ink (InkPool): deadly without the Blot Dive, swum through with it
+##   > < ^ v  ink running that way (an InkCurrent inside the pool)
 ## Anything else ('.' or space included) is empty, unless `entities` names it.
 ## Lines that start with ';' are comments.
 ##
@@ -36,6 +38,10 @@ const REGION_TILESETS := {
 	"gutter": "res://resources/dark_tiles_gutter.tres",
 }
 const TERRAIN := {"#": 0, "%": 1, "&": 2, "$": 3}
+const INK := "~<>^v"
+## Ink that runs: an InkCurrent each way (it carries a Blot-Diving Patch).
+const CURRENTS := {">": Vector2.RIGHT, "<": Vector2.LEFT, "^": Vector2.UP, "v": Vector2.DOWN}
+const CURRENT_STRENGTH := 320.0
 const PLANK := "-"
 const PLANK_COLUMN := 7
 const BUILT_IN := {
@@ -109,8 +115,23 @@ func build() -> void:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(_piece(x, y), TERRAIN[c]))
 			elif c == PLANK:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(PLANK_COLUMN, plank_material))
+			elif INK.contains(c):
+				pass
 			elif not Engine.is_editor_hint():
 				_place(c, Vector2i(x, y), page)
+	if not Engine.is_editor_hint():
+		_add_blocks(INK, func(span: Vector2i, y: int, top: bool) -> Node2D:
+			var pool := InkPool.new()
+			pool.name = "Ink_%d_%d" % [span.x, y]
+			pool.surface = top
+			return pool)
+		for c in CURRENTS:
+			_add_blocks(c, func(span: Vector2i, y: int, _top: bool) -> Node2D:
+				var current := InkCurrent.new()
+				current.name = "Current_%d_%d" % [span.x, y]
+				current.direction = CURRENTS[c]
+				current.strength = CURRENT_STRENGTH
+				return current)
 	if not Engine.is_editor_hint() and page is Page:
 		var size := map_size()
 		(page as Page).bounds = Rect2(Vector2.ZERO, size)
@@ -198,6 +219,41 @@ func _place(c: String, cell: Vector2i, page: Node) -> void:
 	add_child(node)
 	# Bookmarks and pickups key their saved state off the page that owns them.
 	node.owner = page
+
+
+## Ink: each row's runs of `chars` become blocks, and a run with the same span on the
+## row below grows its block downward, so a pool is a few rectangles, not one per cell.
+## `make` builds each block's node (an InkPool or InkCurrent, both with a `size` from a
+## top-left origin); `top` is true for a block with no ink above it.
+func _add_blocks(chars: String, make: Callable) -> void:
+	var open := {}  # Vector2i(x0, x1) -> block still growing down
+	var blocks: Array[Node2D] = []
+	for y in rows.size():
+		var row := rows[y]
+		var next := {}
+		var x := 0
+		while x < row.length():
+			if not chars.contains(row[x]):
+				x += 1
+				continue
+			var x0 := x
+			while x < row.length() and chars.contains(row[x]):
+				x += 1
+			var span := Vector2i(x0, x - 1)
+			if open.has(span):
+				var grown: Node2D = open[span]
+				grown.size.y += TILE
+				next[span] = grown
+				continue
+			var top := y == 0 or x0 >= rows[y - 1].length() or not INK.contains(rows[y - 1][x0])
+			var block: Node2D = make.call(span, y, top)
+			block.position = Vector2(x0 * TILE, y * TILE)
+			block.size = Vector2((x - x0) * TILE, TILE)
+			next[span] = block
+			blocks.append(block)
+		open = next
+	for block in blocks:
+		add_child(block)
 
 
 func _floor_below(cell: Vector2i) -> float:

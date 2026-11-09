@@ -1,0 +1,117 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_drowned_ledger.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/mimic_book.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheDrownedLedger" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Drowned Ledger"
+opening_caption = "The ledger house, sunk to its sills. Nobody had come to close the books."
+music = ExtResource("2_music")
+weather_tint = Color(0.34, 0.4, 0.42, 1)
+rain_amount = 90
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/marsh/3_2_the_drowned_ledger.txt"
+region = "marsh"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"b": ExtResource("8_e"),
+"i": ExtResource("9_e"),
+"m": ExtResource("10_e"),
+"o": ExtResource("12_e"),
+"s": ExtResource("11_e")
+}
+entity_props = {
+"1": {
+"caption": "The ledger house had gone down by the stern. Its ground floor was a cellar of ink, and the clerks' desks stood in it to the drawers.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Two channels ran under the counting room, one over the other, the top one flowing out and the bottom one flowing in. The house was breathing through them.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "The stacks. Every book the clerks ever kept, swollen to twice its size, and some of them had learned to open by themselves.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "A drain in the floor, pulling hard, down and then up into the dark of the shaft above. Whatever goes in comes out somewhere high.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "The top shelves, where the oldest ledgers were kept dry. Someone had written the names of everyone on the river in them, and a line through some.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "He found the page for the flood night. There was a line through Drizzle's name, in a hand he didn't know. He tore it out.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "Past the drain, a door marked SLUICE. Behind it, the sound of a great deal of ink waiting to be let go.",
+"size": Vector2(128, 384)
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_1_the_sump_road.tscn",
+"target_spawn": &"FromLedger"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_3_the_sluice_house.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromSluice"
+},
+"i": {
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"b": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

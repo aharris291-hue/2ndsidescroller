@@ -5,7 +5,11 @@ ground, a soaked sheet 'w' (its surface is the row below it, ~2.75 tiles wide; s
 seats of a gear or windmill 'V' (sampled round their circle), and brass grapple rings
 'O' (the Tape Tail reels Patch up to a ring from any surface within 8 tiles of it, and
 he hops off it: a soft surface just under the ring), and shadow ledges 'h' (solid while
-their lantern burns: treated as always solid here). From a surface Patch can
+their lantern burns: treated as always solid here), and ink ('~', or '<>^v' where it
+runs that way): Patch drops into it like any lower surface, Blot Dives through it on one
+breath (26 tiles of swimming, a current carries him at about twice that and is nearly
+impossible to swim against), and leaps out of any surface cell of it as if from ground
+(the floor under ink is not something to stand on). From a surface Patch can
 reach another whose top is at most 2.5 rows higher (1 row from a soaked sheet: a hop)
 with a horizontal gap of at most 3 tiles, or any lower surface within 4 tiles. Ceilings
 are not modelled: keep solid ground out of the way of the climb.
@@ -17,6 +21,9 @@ import sys
 from collections import deque
 
 SOLID = set("#%&$")
+INK = set("~<>^v")
+CURRENT = {">": (1, 0), "<": (-1, 0), "^": (0, -1), "v": (0, 1)}
+BREATH = 26.0
 
 
 AWNING_HALF = {"A": 224 / 128, "B": 416 / 128, "C": 416 / 128}
@@ -39,10 +46,13 @@ def surfaces(rows):
         row = rows[y]
         while x < len(row):
             c = row[x]
-            standable = c == "-" or (c in SOLID and y > 0 and x < len(rows[y - 1]) and rows[y - 1][x] not in SOLID)
+            def ok_top(cx):
+                above = rows[y - 1][cx] if cx < len(rows[y - 1]) else "."
+                return above not in SOLID and above not in INK
+            standable = c == "-" or (c in SOLID and y > 0 and ok_top(x))
             if standable:
                 x0 = x
-                while x < len(row) and (row[x] == "-" or (row[x] in SOLID and rows[y - 1][x] not in SOLID)):
+                while x < len(row) and (row[x] == "-" or (row[x] in SOLID and ok_top(x))):
                     x += 1
                 out.append((y, x0, x - 1, False))
             else:
@@ -64,7 +74,34 @@ def surfaces(rows):
                 out.append((y + 1, x - 1, x + 1, False))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
+            elif c in INK and (y == 0 or (x < len(rows[y - 1]) and rows[y - 1][x] not in INK and rows[y - 1][x] not in SOLID) or x >= len(rows[y - 1])):
+                # the skin of a pool: dropped into, and leapt out of, like ground
+                out.append((y, x, x, False, "ink", (x, y)))
     return out
+
+
+def swim(rows, start):
+    """Ink cells a blot can reach from `start` on one breath (Dijkstra, in tiles of
+    swimming: 0.55 with a current, 6 against it, 1 otherwise)."""
+    import heapq
+    best = {start: 0.0}
+    q = [(0.0, start)]
+    while q:
+        d, (x, y) = heapq.heappop(q)
+        if d > best.get((x, y), 1e9):
+            continue
+        here = rows[y][x]
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if ny < 0 or ny >= len(rows) or nx < 0 or nx >= len(rows[ny]) or rows[ny][nx] not in INK:
+                continue
+            flow = CURRENT.get(here)
+            cost = 1.0 if flow is None else (0.55 if flow == (dx, dy) else 6.0 if flow == (-dx, -dy) else 1.0)
+            nd = d + cost
+            if nd <= BREATH and nd < best.get((nx, ny), 1e9):
+                best[(nx, ny)] = nd
+                heapq.heappush(q, (nd, (nx, ny)))
+    return best
 
 
 RING_RANGE = 8.0
@@ -104,12 +141,22 @@ def main(path):
         return best
 
     s, g = under(start), under(goal)
+    swims = {}
     seen = {s}
     q = deque([s])
     while q:
         i = q.popleft()
+        if len(surf[i]) > 4 and surf[i][4] == "ink":
+            swims[i] = swim(rows, surf[i][5])
         for j in range(len(surf)):
-            if j not in seen and reach(surf[i], surf[j]):
+            if j in seen:
+                continue
+            a_ink = len(surf[i]) > 4 and surf[i][4] == "ink"
+            b_ink = len(surf[j]) > 4 and surf[j][4] == "ink"
+            if a_ink and b_ink and surf[j][5] in swims[i]:
+                seen.add(j)
+                q.append(j)
+            elif reach(surf[i][:4], surf[j]) if not b_ink else reach(surf[i][:4], surf[j][:4]):
                 seen.add(j)
                 q.append(j)
     ok = g in seen

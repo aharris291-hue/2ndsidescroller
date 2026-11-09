@@ -27,8 +27,9 @@ const REGIONS := [
 		"spot": Vector2(0.8, 0.66),
 	},
 	{
-		"id": &"marsh", "name": "Watermark Marsh", "dirs": [], "subtitle": "where the ink settled",
-		"mended_flag": "", "open_flag": "", "door": "",
+		"id": &"marsh", "name": "Watermark Marsh", "dirs": ["res://scenes/levels/marsh/"], "subtitle": "where the ink settled",
+		"mended_flag": "", "open_flag": "boss_kraken_defeated",
+		"door": "res://scenes/levels/marsh/3_1_the_sump_road.tscn",
 		"spot": Vector2(0.17, 0.36),
 	},
 	{
