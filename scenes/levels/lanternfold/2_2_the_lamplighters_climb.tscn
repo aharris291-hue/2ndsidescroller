@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="14_e"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_e"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/tape.tscn" id="16_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="17_e"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
 
 [node name="TheLamplightersClimb" type="Node2D"]
@@ -47,9 +48,11 @@ entities = {
 "5": ExtResource("5_e"),
 "6": ExtResource("5_e"),
 "E": ExtResource("6_e"),
+"F": ExtResource("7_e"),
 "G": ExtResource("7_e"),
 "O": ExtResource("9_e"),
 "P": ExtResource("8_e"),
+"S": ExtResource("17_e"),
 "T": ExtResource("10_e"),
 "X": ExtResource("6_e"),
 "e": ExtResource("13_e"),
@@ -95,8 +98,17 @@ entity_props = {
 "target_page": "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn",
 "target_spawn": &"FromLighthouse"
 },
+"F": {
+"name": &"FromStore"
+},
 "G": {
 "name": &"FromLampRoom"
+},
+"S": {
+"door_prompt": "Try the low door",
+"requires_flag": "boss_kraken_defeated",
+"target_page": "res://scenes/levels/lanternfold/lightkeepers_store.tscn",
+"target_spawn": &"FromClimb"
 },
 "O": {
 "offset": Vector2(0, -64)

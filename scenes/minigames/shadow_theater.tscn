@@ -6,7 +6,7 @@
 
 [node name="ShadowTheater" type="Node2D" unique_id=555248990]
 script = ExtResource("1_8501q")
-return_page = "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"
+return_page = "res://scenes/levels/lanternfold/2_4_the_shadow_wharf.tscn"
 music = ExtResource("2_5ogry")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=890345354]

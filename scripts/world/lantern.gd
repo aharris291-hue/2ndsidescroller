@@ -1,7 +1,8 @@
 class_name FestivalLantern
 extends Interactable
-## A paper lantern for Lanternfold's festival. The damp put them all out; lighting
-## one counts toward the Lamplighter Sisters' "festival_lanterns" quest.
+## One of the lamplighter's last lamps on the Shadow Wharf, the ones he never got to
+## the night he didn't come home. Lighting one counts toward his daughters'
+## "festival_lanterns" quest.
 
 const TEXTURE_OFF := preload("res://assets/art/dark/props/lantern_off.png")
 const TEXTURE_ON := preload("res://assets/art/dark/props/lantern_on.png")
@@ -38,9 +39,9 @@ func interact(_player: Patch) -> void:
 	AudioManager.play_sfx(&"checkpoint", 1.2)
 	var all_lit := GameState.advance_quest(quest_id)
 	if all_lit:
-		DialogueUI.narrate("Every lantern in Lanternfold was glowing again. The Lamplighter Sisters would want to hear.")
+		DialogueUI.narrate("The last of their father's lamps. For the first time since the flood the whole wharf burned the way it used to, and back along the boards the girls were watching.")
 	else:
-		DialogueUI.narrate("The lantern caught and glowed. (%d/%d lit)" % [GameState.quest_progress(quest_id), GameState.quest_goal(quest_id)])
+		DialogueUI.narrate("The wick caught. One more of his lamps. (%d/%d)" % [GameState.quest_progress(quest_id), GameState.quest_goal(quest_id)])
 	var tween := create_tween()
 	tween.tween_property(sprite, "scale", Vector2(1.25, 1.25), 0.1)
 	tween.tween_property(sprite, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)

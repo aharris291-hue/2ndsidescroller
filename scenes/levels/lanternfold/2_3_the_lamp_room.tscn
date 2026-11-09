@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/world/chapel_gate.gd" id="8_gate"]
 [ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="9_exit"]
 [ext_resource type="Script" path="res://scripts/world/beam_source.gd" id="10_lens"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="11_spawn"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_scrap"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="19_patch"]
 
@@ -57,6 +58,7 @@ entities = {
 "B": ExtResource("10_lens"),
 "D": ExtResource("8_gate"),
 "E": ExtResource("9_exit"),
+"G": ExtResource("11_spawn"),
 "X": ExtResource("9_exit"),
 "m": ExtResource("6_mirror"),
 "n": ExtResource("6_mirror"),
@@ -82,8 +84,11 @@ entity_props = {
 },
 "E": {
 "size": Vector2(64, 128),
-"target_page": "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn",
+"target_page": "res://scenes/levels/lanternfold/2_4_the_shadow_wharf.tscn",
 "target_spawn": &"Start"
+},
+"G": {
+"name": &"FromWharf"
 },
 "X": {
 "size": Vector2(64, 128),

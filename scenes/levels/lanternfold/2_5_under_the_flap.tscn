@@ -1,0 +1,138 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_ink_sea.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/lost_letter.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/folded_crane.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/inkwell_turret.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="15_e"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/rising_water.png" id="16_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="UnderTheFlap" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "Under the Harbor Flap"
+opening_caption = "Under the flap the sea had turned to ink. It dripped from the underside of the card above and lay black and still in every gap, and it did not reflect anything."
+music = ExtResource("2_music")
+weather_tint = Color(0.3, 0.32, 0.46, 1)
+rain_amount = 40
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.25, 0.1)
+repeat_size = Vector2(1920, 0)
+repeat_times = 4
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="InkSea" type="ColorRect" parent="."]
+offset_left = -200.0
+offset_top = 1100.0
+offset_right = 15560.0
+offset_bottom = 2400.0
+mouse_filter = 2
+color = Color(0.04, 0.045, 0.09, 1)
+
+[node name="InkSurface" type="Sprite2D" parent="."]
+modulate = Color(0.22, 0.24, 0.4, 1)
+texture_repeat = 2
+position = Vector2(-200, 1066)
+texture = ExtResource("16_e")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 15760, 128)
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/lanternfold/2_5_under_the_flap.txt"
+region = "harbor"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"K": ExtResource("9_e"),
+"N": ExtResource("12_e"),
+"O": ExtResource("8_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("11_e"),
+"j": ExtResource("9_e"),
+"n": ExtResource("14_e"),
+"o": ExtResource("15_e"),
+"q": ExtResource("13_e"),
+"s": ExtResource("10_e")
+}
+entity_props = {
+"1": {
+"dialogue_id": "flap_arrival",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The ink took a dropped scrap without a sound. It did not float. Patch watched the place where it had been for a long moment.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Old pilings, and between them, things that had drowned in the flood and come back up wrong.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The chains here had been strung by somebody, once, to cross the harbor floor at low tide. Most of them still held.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "Ahead, the ink was moving. Slowly, all of it, in one direction, the way a chest moves.",
+"size": Vector2(128, 384)
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/boss_ink_deep.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/2_4_the_shadow_wharf.tscn",
+"target_spawn": &"FromFlap"
+},
+"R": {
+"name": &"FromArena"
+},
+"K": {
+"letter": "K",
+"offset": Vector2(0, -40)
+},
+"j": {
+"letter": "N",
+"offset": Vector2(0, -40)
+},
+"O": {
+"offset": Vector2(0, -64)
+},
+"i": {
+"scrap_drop": 3
+},
+"n": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"s": {
+"inked": true,
+"scrap_drop": 3
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

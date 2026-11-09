@@ -1,0 +1,104 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_lightkeepers_store.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/lantern_post.gd" id="8_e"]
+[ext_resource type="Script" path="res://scripts/world/shadow_platform.gd" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/heart_patch.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheLightkeepersStore" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Lightkeeper's Store"
+opening_caption = "Behind the stair, a door Patch hadn't seen before, and behind it the keeper's store: oil, wicks, and the dark, kept down here like everything else."
+music = ExtResource("2_music")
+weather_tint = Color(0.3, 0.3, 0.4, 1)
+rain_amount = 0
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/lanternfold/lightkeepers_store.txt"
+region = "harbor"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"G": ExtResource("7_e"),
+"H": ExtResource("13_e"),
+"X": ExtResource("6_e"),
+"Y": ExtResource("6_e"),
+"h": ExtResource("9_e"),
+"i": ExtResource("11_e"),
+"m": ExtResource("12_e"),
+"o": ExtResource("14_e"),
+"s": ExtResource("10_e"),
+"u": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "No Bookmark down here. Only the keeper's short lamps, trimmed to burn a breath at a time, so a man could see the next shelf and no more.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "At the end, the keeper's own corner: a cot, a mug, a tin, and a patch of good cloth folded on the blanket as if he meant to come back for it.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "The tin was full of Scraps, saved a few at a time for years. On the lid, in the same careful hand: FOR THE GIRLS. Patch put it back. Then he took it, and promised himself he'd make it right.",
+"size": Vector2(128, 384)
+},
+"G": {
+"name": &"FromClimb"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/2_2_the_lamplighters_climb.tscn",
+"target_spawn": &"FromStore"
+},
+"Y": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/lanternfold/2_2_the_lamplighters_climb.tscn",
+"target_spawn": &"FromStore"
+},
+"H": {
+"offset": Vector2(0, -40)
+},
+"o": {
+"amount": 60,
+"offset": Vector2(0, -32)
+},
+"u": {
+"gutter_after": 5.0,
+"lit": false
+},
+"i": {
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"inked": true,
+"scrap_drop": 3
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]
