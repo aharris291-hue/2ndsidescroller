@@ -37,6 +37,12 @@ const ICE_GRIP := 0.16
 ## FROG_JUMP times as strong: about five tiles instead of three.
 const FROG_CHARGE := 0.35
 const FROG_JUMP := 1.3
+## Paper Plane Glide (Gatefold Fair): hold jump while falling and Patch folds into a
+## paper plane: he falls at no more than GLIDE_FALL and flies GLIDE_SPEED times as
+## fast. In an Updraft the plane climbs at UPDRAFT_RISE.
+const GLIDE_FALL := 150.0
+const GLIDE_SPEED := 1.3
+const UPDRAFT_RISE := 460.0
 @export var jump_velocity := -940.0
 ## Releasing jump early multiplies upward speed by this, for short hops.
 @export var jump_cut := 0.45
@@ -136,6 +142,11 @@ var ice_left := 0.0
 ## How long he has crouched for a Frog Fold (the Spine Peaks): a folded-flat Patch
 ## springs much higher.
 var frog_charge := 0.0
+## True while Patch is gliding as a paper plane (the paper_plane ability).
+var gliding := false
+## Set each frame by an Updraft he is in: a glide climbs instead of falling.
+var updraft_left := 0.0
+var _wings: Polygon2D
 ## A shove for this physics frame only (a Current sets it); cleared after each move.
 var push := Vector2.ZERO
 
@@ -238,6 +249,28 @@ func _ready() -> void:
 	_tape_line.visible = false
 	add_child(_tape_line)
 	_make_blot_visual()
+	_make_wings()
+
+
+## The paper plane: two folded wings behind him, shown while he glides.
+func _make_wings() -> void:
+	_wings = Polygon2D.new()
+	_wings.name = &"PlaneWings"
+	_wings.polygon = PackedVector2Array([Vector2(-70, -64), Vector2(64, -78), Vector2(-40, -40), Vector2(-86, -44)])
+	_wings.color = Color(0.83, 0.79, 0.7)
+	_wings.z_index = -1
+	_wings.visible = false
+	var crease := Line2D.new()
+	crease.points = PackedVector2Array([Vector2(-80, -48), Vector2(64, -78)])
+	crease.width = 2.5
+	crease.default_color = Color(0.25, 0.22, 0.2)
+	_wings.add_child(crease)
+	var under := Polygon2D.new()
+	under.polygon = PackedVector2Array([Vector2(-64, -46), Vector2(60, -76), Vector2(-30, -26)])
+	under.color = Color(0.6, 0.56, 0.5)
+	under.show_behind_parent = true
+	_wings.add_child(under)
+	visual.add_child(_wings)
 
 
 func set_view_mode(mode: PageView.Mode) -> void:
@@ -256,6 +289,9 @@ func _physics_process(delta: float) -> void:
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	soft_ground_left = maxf(soft_ground_left - delta, 0.0)
 	ice_left = maxf(ice_left - delta, 0.0)
+	updraft_left = maxf(updraft_left - delta, 0.0)
+	if state != State.NORMAL or view_mode != PageView.Mode.SIDE or is_on_floor() or blotting:
+		gliding = false
 	_block_cooldown = maxf(_block_cooldown - delta, 0.0)
 	if input_enabled and Input.is_action_just_pressed(&"guard"):
 		_guard_press_age = 0.0
@@ -374,8 +410,16 @@ func _side_movement(input_x: float, delta: float) -> void:
 	if _carry_left > 0.0 and (input_x == 0.0 or signf(input_x) == signf(velocity.x)):
 		# Keep the swing's speed instead of capping it to running speed.
 		rate = air_acceleration * 0.12
+	gliding = _wants_glide()
+	if gliding:
+		target *= GLIDE_SPEED
 	velocity.x = move_toward(velocity.x, target, rate * delta)
 	_apply_gravity(delta)
+	if gliding:
+		if updraft_left > 0.0:
+			velocity.y = move_toward(velocity.y, -UPDRAFT_RISE, 2600.0 * delta)
+		else:
+			velocity.y = minf(velocity.y, GLIDE_FALL)
 
 	# Coyote time (a grace period to jump after walking off a ledge) and the jump
 	# buffer (a jump pressed just before landing still counts) tick in _physics_process.
@@ -393,6 +437,16 @@ func _side_movement(input_x: float, delta: float) -> void:
 		_squash(Vector2(0.8, 1.2))
 	if velocity.y < 0.0 and Input.is_action_just_released(&"jump"):
 		velocity.y *= jump_cut
+
+
+## Holding jump in the air once he is falling (or riding an updraft) folds him into a
+## paper plane.
+func _wants_glide() -> bool:
+	if not GameState.has_ability(&"paper_plane") or is_on_floor() or not input_enabled:
+		return false
+	if not Input.is_action_pressed(&"jump"):
+		return false
+	return velocity.y > -40.0 or (gliding and updraft_left > 0.0)
 
 
 func _top_movement(input: Vector2, delta: float) -> void:
@@ -1526,6 +1580,10 @@ func _update_visual(delta: float) -> void:
 		tilt = 0.0
 	if state == State.GUARD:
 		tilt = -0.1 * dir
+	if _wings:
+		_wings.visible = gliding
+		if gliding:
+			tilt = (-0.08 if updraft_left > 0.0 else 0.1) * dir
 	visual.rotation = lerpf(visual.rotation, tilt, 12.0 * delta)
 	if state == State.DASH:
 		# Edge-On: seen side-on, Patch is a thin line of paper.

@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_gatefold.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/updraft.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheGatefold" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Gatefold"
+opening_caption = "The Gatefold. A funhouse folded out of a single page."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.38, 0.46, 1)
+rain_amount = 220
+lightning = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/fair/5_3_the_gatefold.txt"
+region = "fair"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"A": ExtResource("8_e"),
+"B": ExtResource("8_e"),
+"C": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"J": ExtResource("9_e"),
+"T": ExtResource("9_e"),
+"U": ExtResource("9_e"),
+"X": ExtResource("6_e"),
+"o": ExtResource("7_e")
+}
+entity_props = {
+"1": {
+"caption": "The Gatefold: the fair's funhouse, made of one enormous fold-out page. Flaps on hinges over the vents in the floor, and pull tabs to work them, and every tab worked more than one.",
+"size": Vector2(128, 320)
+},
+"2": {
+"caption": "The top of the page. From here the funhouse was only a picture of a funhouse, folded small. Beyond it, the big top, lit.",
+"size": Vector2(128, 384)
+},
+"A": {
+"flap": true,
+"open": false,
+"size": Vector2(128, 640),
+"tag": "A"
+},
+"B": {
+"flap": true,
+"open": true,
+"size": Vector2(128, 448),
+"tag": "B"
+},
+"C": {
+"flap": true,
+"open": true,
+"size": Vector2(128, 448),
+"tag": "C"
+},
+"T": {
+"flips": PackedStringArray("A", "B")
+},
+"U": {
+"flips": PackedStringArray("B", "C")
+},
+"J": {
+"flips": PackedStringArray("A")
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_2_the_big_wheel.tscn",
+"target_spawn": &"FromGatefold"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

@@ -1759,6 +1759,109 @@ func _spine_peaks_part_two(game_state: Node, scene_manager: Node, dialogue: Node
 	_check(dialogue.is_active(), "by the fire, the low point plays")
 	await _skip_dialogue(dialogue, 80)
 	_check(game_state.get_flag("patch_told_truth"), "Patch tells them what he did to Drizzle")
+	await _gatefold_fair(game_state, scene_manager, dialogue)
+
+
+## Gatefold Fair part 1: the Midway (the carousel horse, the Paper Plane Glide and the
+## vents), the Big Wheel (riding a gondola) and the Gatefold (the vent flap puzzle).
+func _gatefold_fair(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R5 := "res://scenes/levels/fair/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	var fair: Dictionary = book_map.region(&"fair")
+	_check(fair.get("door") == R5 + "5_1_the_midway.tscn" and fair.get("open_flag") == "boss_bindwell_defeated", "Bindwell beaten, the Fair's door opens on the Midway")
+	await scene_manager.change_page(R5 + "5_1_the_midway.tscn", &"Start")
+	await _wait_for_scene("TheMidway", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	# The carousel horse: rears, charges; a parry topples it.
+	var horse := level.get_node("carousel_horse_52_21")
+	_check(horse.get_script().resource_path.ends_with("carousel_horse.gd"), "a carousel horse paces the Midway")
+	horse._rear()
+	_check(horse.state == 1, "it rears before it charges")
+	horse.on_parried(patch)
+	await _frames(5)
+	_check(horse.state == 3, "a parried charge topples it onto its side")
+	horse.queue_free()
+	# The Paper Plane Glide.
+	_check(not game_state.has_ability(&"paper_plane"), "Patch can't glide yet")
+	patch.global_position = (level.get_node("ability_page_70_18") as Node2D).global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"paper_plane"), "Gran's paper plane teaches the glide")
+	var speeds := []
+	for glide in [false, true]:
+		patch.global_position = Vector2(84 * 64, 8 * 64)
+		patch.velocity = Vector2.ZERO
+		if glide:
+			Input.action_press(&"jump")
+		await _frames(40)
+		speeds.append(patch.velocity.y)
+		_check(patch.gliding == glide, "holding jump in the air glides (%s)" % glide)
+		Input.action_release(&"jump")
+		await _frames(2)
+	_check(speeds[0] > 600.0 and speeds[1] <= 160.0, "a glide falls slowly (%.0f px/s, %.0f falling)" % [speeds[1], speeds[0]])
+	# A vent lifts a glider.
+	var vent := level.get_node("Updraft_101_9")
+	_check(vent.size.y == 13 * 64.0, "a column of vent cells is one updraft")
+	# (back on the boards first, so the glide test's fall into the dark is over)
+	patch.global_position = Vector2(97 * 64, 22 * 64 - 48)
+	patch.velocity = Vector2.ZERO
+	await _frames(30)
+	patch.global_position = vent.global_position + Vector2(0, -200)
+	patch.velocity = Vector2.ZERO
+	Input.action_press(&"jump")
+	await _frames(4)
+	var y0: float = patch.global_position.y
+	await _frames(30)
+	Input.action_release(&"jump")
+	_check(patch.global_position.y < y0 - 80.0, "a vent lifts the paper plane (rose %.0f px)" % (y0 - patch.global_position.y))
+	_check(level.get_node("page_exit_218_15").target_page == R5 + "5_2_the_big_wheel.tscn", "the Midway leads to the Big Wheel")
+
+	# The Big Wheel: the gondolas carry Patch round.
+	await scene_manager.change_page(R5 + "5_2_the_big_wheel.tscn", &"Start")
+	await _wait_for_scene("TheBigWheel", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var wheel := level.get_node("ferris_wheel_30_29")
+	_check(wheel.gondolas.size() == 8, "the Big Wheel hangs eight gondolas")
+	var low: Node2D = wheel.gondolas[0]
+	for g in wheel.gondolas:
+		if g.global_position.y > low.global_position.y:
+			low = g
+	var floor_y := 30 * 64.0
+	_check(low.global_position.y < floor_y - 40.0, "its lowest bench clears the boards (%.0f px up)" % (floor_y - low.global_position.y))
+	patch.global_position = low.global_position + Vector2(0, -60)
+	patch.velocity = Vector2.ZERO
+	await _frames(20)
+	var ride_y: float = patch.global_position.y
+	var on_seat: bool = patch.is_on_floor()
+	await _frames(90)
+	_check(on_seat and patch.is_on_floor() and absf(patch.global_position.y - ride_y) > 20.0, "Patch rides a gondola round (moved %.0f px)" % (ride_y - patch.global_position.y))
+	_check(level.get_node("page_exit_80_29").target_page == R5 + "5_3_the_gatefold.tscn", "the wheel's far side leads to the Gatefold")
+
+	# The Gatefold: three tabs flip the vent flaps; 1, 2, 3, 1, 2 opens all three.
+	await scene_manager.change_page(R5 + "5_3_the_gatefold.tscn", &"Start")
+	await _wait_for_scene("TheGatefold", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	var vents := [level.get_node("updraft_9_21"), level.get_node("updraft_16_13"), level.get_node("updraft_27_8")]
+	_check(not vents[0].open and vents[1].open and vents[2].open, "the Gatefold starts with the high vents open and the floor's shut")
+	var tabs := {"1": level.get_node("pull_tab_4_21"), "2": level.get_node("pull_tab_13_13"), "3": level.get_node("pull_tab_24_8")}
+	for t in ["1", "2", "3", "1", "2"]:
+		tabs[t].interact(null)
+		await _frames(70)
+	_check(vents.all(func(v: Node) -> bool: return v.open), "pulling 1, 2, 3, 1, 2 opens every vent")
+	tabs["3"].interact(null)
+	await _frames(70)
+	_check(not vents[0].open and vents[1].open, "a tab flips only its own flaps")
+	_check(level.get_node("page_exit_38_3").target_page == "res://scenes/levels/hub/spine_hub.tscn", "the top of the Gatefold goes back to the Spine, for now")
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
@@ -1820,7 +1923,8 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(doors.size() == 6, "the Spine has a door for each of the six regions (%d)" % doors.size())
 	_check(doors[&"thistledown"].state() == "open" and doors[&"thistledown"].can_interact(), "Thistledown's door is open from the start")
 	_check(doors[&"lanternfold"].state() == "locked" and not doors[&"lanternfold"].can_interact(), "Lanternfold's door stays shut until Thistledown is mended")
-	_check(doors[&"fair"].state() == "unwritten" and not doors[&"fair"].can_interact(), "an unwritten region's door is stitched shut")
+	_check(doors[&"index"].state() == "unwritten" and not doors[&"index"].can_interact(), "an unwritten region's door is stitched shut")
+	_check(doors[&"fair"].state() == "locked", "the Fair's door stays shut until Bindwell is beaten")
 	_check(doors[&"marsh"].state() == "locked", "the Marsh's door stays shut until the Kraken is beaten")
 	var stair := current_scene.get_node("Stair")
 	_check(not stair.is_open() and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).is_empty(),
@@ -2050,6 +2154,7 @@ const PAINTED := {
 	"res://scenes/enemies/inkwell_turret.tscn": Vector2(0.65, 0.85),
 	"res://scenes/enemies/folded_crane.tscn": Vector2(0.65, 0.85),
 	"res://scenes/enemies/mimic_book.tscn": Vector2(0.5, 0.75),
+	"res://scenes/enemies/carousel_horse.tscn": Vector2(1.0, 1.6),
 	"res://scenes/enemies/ink_drip.tscn": Vector2(0.15, 0.5),
 	"res://scenes/enemies/boss_millwheel.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_kraken.tscn": Vector2(2.5, 6.0),
@@ -2155,7 +2260,7 @@ func _painted_props() -> void:
 
 ## The Phase 2 enemies fly, dive or hop under gravity, so they only work on side-view
 ## pages. A top-down page (view_mode = 1) must not place them.
-const SIDE_ONLY := ["paper_moth.tscn", "inkwell_turret.tscn", "folded_crane.tscn", "mimic_book.tscn"]
+const SIDE_ONLY := ["paper_moth.tscn", "inkwell_turret.tscn", "folded_crane.tscn", "mimic_book.tscn", "carousel_horse.tscn"]
 
 
 func _side_only_enemies() -> void:

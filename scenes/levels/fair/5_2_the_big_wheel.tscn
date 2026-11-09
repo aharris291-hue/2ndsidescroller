@@ -1,0 +1,97 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_big_wheel.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/carousel_horse.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="Script" path="res://scripts/world/ferris_wheel.gd" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheBigWheel" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Big Wheel"
+opening_caption = "The Big Wheel. Round and round, and nobody to stop it."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.38, 0.46, 1)
+rain_amount = 220
+lightning = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/fair/5_2_the_big_wheel.txt"
+region = "fair"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"Z": ExtResource("12_e"),
+"c": ExtResource("10_e"),
+"m": ExtResource("11_e"),
+"o": ExtResource("9_e"),
+"s": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "The Big Wheel, still turning. The gondolas came down out of the rain one after another, empty, swung, and went back up.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "From the top of the wheel the helter-skelter was close enough to touch. Nearly.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Somebody had been up here before him. Scratched into the lead of the helter-skelter's roof: D. + P. And under it, newer, deeper: YOU SAID YOU'D COME BACK.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "He read it again on the way down. He didn't want to, and he did.",
+"size": Vector2(128, 384)
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_1_the_midway.tscn",
+"target_spawn": &"FromBigWheel"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_3_the_gatefold.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromGatefold"
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"scrap_drop": 2
+},
+"c": {
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

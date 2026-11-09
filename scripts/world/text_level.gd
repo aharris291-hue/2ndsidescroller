@@ -17,6 +17,8 @@ extends Node2D
 ##   s  Soggy        d  ink drip spawner (drips onto the floor below it)
 ##   ~  settled ink (InkPool): deadly without the Blot Dive, swum through with it
 ##   > < ^ v  ink running that way (an InkCurrent inside the pool)
+##   |  updraft (Gatefold Fair): each column of them is one Updraft, two tiles wide;
+##      entity_props["|"] sets its properties (blow_time, rest_time, phase)
 ## Anything else ('.' or space included) is empty, unless `entities` names it.
 ## Lines that start with ';' are comments.
 ##
@@ -45,6 +47,7 @@ const INK := "~<>^v"
 const CURRENTS := {">": Vector2.RIGHT, "<": Vector2.LEFT, "^": Vector2.UP, "v": Vector2.DOWN}
 const CURRENT_STRENGTH := 320.0
 const PLANK := "-"
+const UPDRAFT := "|"
 const PLANK_COLUMN := 7
 const BUILT_IN := {
 	"k": preload("res://scenes/world/bookmark.tscn"),
@@ -117,7 +120,7 @@ func build() -> void:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(_piece(x, y), TERRAIN[c]))
 			elif c == PLANK:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(PLANK_COLUMN, plank_material))
-			elif INK.contains(c):
+			elif INK.contains(c) or c == UPDRAFT:
 				pass
 			elif not Engine.is_editor_hint():
 				_place(c, Vector2i(x, y), page)
@@ -136,6 +139,7 @@ func build() -> void:
 				return current)
 	if not Engine.is_editor_hint():
 		_add_ice()
+		_add_updrafts()
 	if not Engine.is_editor_hint() and page is Page:
 		var size := map_size()
 		(page as Page).bounds = Rect2(Vector2.ZERO, size)
@@ -277,6 +281,25 @@ func _add_ice() -> void:
 			sheet.position = Vector2(x0 * TILE, y * TILE)
 			sheet.size = Vector2((x - x0) * TILE, TILE)
 			add_child(sheet)
+
+
+## Updrafts: each vertical run of '|' becomes one Updraft, its foot on the run's bottom.
+func _add_updrafts() -> void:
+	for y in rows.size():
+		for x in rows[y].length():
+			if rows[y][x] != UPDRAFT or (y > 0 and x < rows[y - 1].length() and rows[y - 1][x] == UPDRAFT):
+				continue
+			var y1 := y
+			while y1 + 1 < rows.size() and x < rows[y1 + 1].length() and rows[y1 + 1][x] == UPDRAFT:
+				y1 += 1
+			var draft := Updraft.new()
+			draft.name = "Updraft_%d_%d" % [x, y]
+			draft.size = Vector2(TILE * 2, (y1 - y + 1) * TILE)
+			draft.position = Vector2(x * TILE + TILE / 2.0, (y1 + 1) * TILE)
+			var props: Dictionary = entity_props.get(UPDRAFT, {})
+			for key in props:
+				draft.set(key, props[key])
+			add_child(draft)
 
 
 func _floor_below(cell: Vector2i) -> float:

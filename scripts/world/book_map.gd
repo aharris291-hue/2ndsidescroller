@@ -39,8 +39,9 @@ const REGIONS := [
 		"spot": Vector2(0.5, 0.14),
 	},
 	{
-		"id": &"fair", "name": "Gatefold Fair", "dirs": [], "subtitle": "the fair that never closed",
-		"mended_flag": "", "open_flag": "", "door": "",
+		"id": &"fair", "name": "Gatefold Fair", "dirs": ["res://scenes/levels/fair/"], "subtitle": "the fair that never closed",
+		"mended_flag": "", "open_flag": "boss_bindwell_defeated",
+		"door": "res://scenes/levels/fair/5_1_the_midway.tscn",
 		"spot": Vector2(0.83, 0.36),
 	},
 	{
