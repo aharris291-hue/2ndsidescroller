@@ -1861,7 +1861,197 @@ func _gatefold_fair(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	tabs["3"].interact(null)
 	await _frames(70)
 	_check(not vents[0].open and vents[1].open, "a tab flips only its own flaps")
-	_check(level.get_node("page_exit_38_3").target_page == "res://scenes/levels/hub/spine_hub.tscn", "the top of the Gatefold goes back to the Spine, for now")
+	_check(level.get_node("page_exit_38_3").target_page == R5 + "5_4_the_ghost_train.tscn", "the top of the Gatefold leads on to the Ghost Train")
+	await _gatefold_fair_two(game_state, scene_manager, dialogue)
+
+
+## Gatefold Fair, part 2: the Ghost Train (cars that run on their own, ghouls that
+## spring up across the rail), the Rigging up the big top, the Barker, and Lost
+## Property behind the door he kept shut.
+func _gatefold_fair_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R5 := "res://scenes/levels/fair/"
+	await scene_manager.change_page(R5 + "5_4_the_ghost_train.tscn", &"Start")
+	await _wait_for_scene("TheGhostTrain", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var train := level.get_node("GhostTrain_45_22")
+	var high := level.get_node("GhostTrain_114_18")
+	_check(train.length == 51 * 64.0 and high.length == 57 * 64.0, "each run of rail is one ghost train")
+	_check(train.state == 0, "its car waits at the platform")
+	var door := level.get_node("page_door_106_19")
+	_check(not door.is_open() and door.target_page == R5 + "lost_property.tscn", "Lost Property is shut while the Barker stands")
+	# Climb in: the car sets off on its own and carries him.
+	for g in get_nodes_in_group(&"pop_ghouls"):
+		g.set_physics_process(false)
+	var cart: Node2D = train.cart
+	patch.global_position = cart.global_position + Vector2(0, -90)
+	patch.velocity = Vector2.ZERO
+	await _frames(40)
+	_check(train.state == 1, "with Patch aboard, the car sets off")
+	var x0: float = patch.global_position.x
+	await _frames(60)
+	_check(patch.global_position.x > x0 + 300.0 and absf(patch.global_position.x - cart.global_position.x) < 100.0, "it carries him along the rail (%.0f px)" % (patch.global_position.x - x0))
+	# A jump off a moving car comes down in it again.
+	Input.action_press(&"jump")
+	await _frames(6)
+	Input.action_release(&"jump")
+	var airborne: bool = not patch.is_on_floor()
+	for i in 90:
+		if patch.is_on_floor():
+			break
+		await physics_frame
+	_check(airborne and patch.is_on_floor() and absf(patch.global_position.x - cart.global_position.x) < 100.0, "he jumps in the car and lands back in it (%.0f px off)" % (patch.global_position.x - cart.global_position.x))
+	for i in 600:
+		if train.state == 2:
+			break
+		await physics_frame
+	_check(train.state == 2, "it stops hard at the buffers")
+	patch.global_position = Vector2(100 * 64, 20 * 64 - 48)
+	patch.velocity = Vector2.ZERO
+	for i in 400:
+		if train.state == 0:
+			break
+		await physics_frame
+	_check(train.state == 0 and absf(cart.position.x - train.start_x()) < 1.0, "left empty, it rolls back for another rider")
+	# A ghoul springs up across the rail when something comes along it.
+	var ghoul := level.get_node("pop_ghoul_60_21")
+	_check(ghoul.get_script().resource_path.ends_with("pop_ghoul.gd"), "ghouls wait under the rail")
+	ghoul.set_physics_process(true)
+	patch.global_position = ghoul.global_position + Vector2(-260, -10)
+	patch.velocity = Vector2.ZERO
+	var told := false
+	for i in 60:
+		told = told or ghoul.state == 1
+		if ghoul.state == 2:
+			break
+		await physics_frame
+	_check(told and ghoul.state == 2 and ghoul.hitbox.active and ghoul.hitbox.unblockable, "it rattles, then springs up across the rail: jump it")
+	_check(level.get_node("page_exit_214_21").target_page == R5 + "5_5_the_rigging.tscn", "the end of the line leads to the big top")
+	patch.global_position = Vector2(100 * 64, 20 * 64 - 48)
+	await _frames(10)
+
+	# The Rigging.
+	await scene_manager.change_page(R5 + "5_5_the_rigging.tscn", &"Start")
+	await _wait_for_scene("TheRigging", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	_check(level.get_node("Updraft_62_10").size.y == 30 * 64.0, "the generator's exhaust rises up the side of the tent")
+	_check(level.get_node("page_exit_78_10").target_page == R5 + "the_big_top.tscn", "the hole at the top drops into the big top")
+
+	# The Barker.
+	await scene_manager.change_page(R5 + "the_big_top.tscn", &"FromRigging")
+	await _wait_for_scene("TheBigTop", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var boss := current_scene.get_node("Barker")
+	var exit_door := current_scene.get_node("ExitDoor")
+	_check(not exit_door.visible, "no way out of the ring while the Barker is talking")
+	boss.start_fight()
+	_check(boss.state == 1, "the Barker's show begins")
+	await _skip_dialogue(dialogue)
+	var hp: int = boss.health.current
+	var cut := Hitbox.new()
+	cut.damage = 1
+	cut.collision_layer = 0
+	cut.collision_mask = 0
+	current_scene.add_child(cut)
+	boss._on_hit(cut)
+	_check(boss.health.current == hp, "a cut while he's performing glances off")
+	# The Knife-Thrower: red, red, white; the white card parried cuts him open.
+	patch.global_position = Vector2(boss.global_position.x - 520.0, 896 - 50)
+	patch.velocity = Vector2.ZERO
+	boss._announce()
+	_check(boss.act == 0 and boss.announced == boss.act and boss.sign_label.text == "THE KNIFE-THROWER!", "in his first half the sign tells the truth")
+	var white: Node = null
+	var reds := 0
+	for i in 200:
+		for card in get_nodes_in_group(&"barker_cards"):
+			if card.parryable:
+				white = card
+			elif card.hitbox.unblockable:
+				reds = maxi(reds, 1)
+		if white:
+			break
+		await physics_frame
+	_check(reds > 0 and white != null, "he throws red cards, then a white one")
+	white.on_parried(patch)
+	for i in 120:
+		if boss.state == 7:
+			break
+		await physics_frame
+	_check(boss.state == 7 and boss.can_stagger(), "the parried white card spins back and cuts him open")
+	await _skip_dialogue(dialogue)
+	boss._on_hit(cut)
+	_check(boss.health.current < hp, "open, he can be cut (%d of %d)" % [boss.health.current, boss.health.max_health])
+	for i in 400:
+		if boss.state == 1:
+			break
+		await physics_frame
+	_check(boss.state == 1, "he gathers himself and goes on with the show")
+	# The Stampede and the Voice.
+	boss._stampede()
+	await _frames(10)
+	_check(get_nodes_in_group(&"barker_horses").size() >= 1 and boss.state == 4, "horses gallop out of the wings")
+	await _skip_dialogue(dialogue)
+	for i in 400:
+		if boss.state == 1:
+			break
+		await physics_frame
+	boss._voice()
+	await _frames(30)
+	_check(get_nodes_in_group(&"barker_waves").size() == 2, "his shout runs along the floor both ways")
+	_check(boss.state == 6 and boss.is_open(), "then he's out of breath, bent double, open")
+	await _skip_dialogue(dialogue)
+	for i in 400:
+		if boss.state == 1:
+			break
+		await physics_frame
+	# From half health, the sign lies.
+	boss.health.current = 7
+	_check(boss.phase() == 1, "at half health he starts lying")
+	boss._announce()
+	_check(boss.lies_told == 1 and boss.announced != boss.act, "his first act after that is announced as something else")
+	await _skip_dialogue(dialogue)
+	# Down.
+	boss.health.current = 1
+	boss.health.clear_invulnerability()
+	boss.health.take_damage(5, boss.global_position)
+	for i in 400:
+		if dialogue.is_active():
+			break
+		await physics_frame
+	await _skip_dialogue(dialogue)
+	await _frames(20)
+	_check(game_state.get_flag("boss_barker_defeated") and exit_door.visible, "the Barker says it was raining, and the lights go out")
+	_check(game_state.bestiary.get("barker", 0) >= 1, "Nell's book gets a page for the Barker")
+	_check(get_nodes_in_group(&"barker_cards").is_empty() and get_nodes_in_group(&"barker_horses").is_empty(), "his acts end with him")
+	var book_map := load("res://scripts/world/book_map.gd")
+	_check(book_map.region(&"fair").get("mended_flag") == "boss_barker_defeated", "beating the Barker mends the Fair")
+
+	# Lost Property opens.
+	await scene_manager.change_page(R5 + "5_4_the_ghost_train.tscn", &"FromLostProperty")
+	await _wait_for_scene("TheGhostTrain", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(current_scene.get_node("Level/page_door_106_19").is_open(), "with the show over, Lost Property opens")
+	await scene_manager.change_page(R5 + "lost_property.tscn", &"Start")
+	await _wait_for_scene("LostProperty", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	var hearts_before: int = game_state.max_health
+	patch.global_position = (current_scene.get_node("Level/heart_patch_52_10") as Node2D).global_position
+	await _frames(10)
+	_check(game_state.max_health == hearts_before + 2, "Lost Property kept a heart for whoever came back")
+	await _skip_dialogue(dialogue)
+	game_state.max_health = 99
+	game_state.health = 99
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
@@ -1915,7 +2105,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(card != null and card.place_name == "The Spine", "walking into the Spine writes its name across the screen")
 	# Music that fills in: with only the Prologue mended the music is still far off.
 	var audio := root.get_node("AudioManager")
-	_check(is_equal_approx(audio.fullness(), 0.2), "one region of five mended: the music is a fifth full (%.2f)" % audio.fullness())
+	_check(is_equal_approx(audio.fullness(), 1.0 / 6.0), "one region of six mended: the music is a sixth full (%.2f)" % audio.fullness())
 	var doors := {}
 	for node in current_scene.get_node("Level").get_children():
 		if node.get("region_id") != null and node.get("region_id") != &"":
@@ -1935,10 +2125,11 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 		"mending Thistledown opens Lanternfold's door and nails the stair back")
 	_check(doors[&"thistledown"].state() == "mended", "Thistledown's door shows it mended")
 	var cutoff_before: float = audio._lowpass.cutoff_hz
+	var wet_before: float = audio._reverb.wet
 	audio.update_fullness()
 	await create_timer(4.5).timeout
-	_check(is_equal_approx(audio.music_fullness, 0.4) and audio._lowpass.cutoff_hz > cutoff_before * 2.0
-		and audio._reverb.wet < 0.2, "mending a region fills the music in (cutoff %d Hz)" % audio._lowpass.cutoff_hz)
+	_check(is_equal_approx(audio.music_fullness, 2.0 / 6.0) and audio._lowpass.cutoff_hz > cutoff_before * 1.5
+		and audio._reverb.wet < wet_before - 0.03, "mending a region fills the music in (cutoff %d Hz)" % audio._lowpass.cutoff_hz)
 	# Climb: the two boards and the gallery are each within a jump of the last.
 	var tops: Array[float] = [960.0, 832.0, 704.0, 576.0]
 	var climbable := true

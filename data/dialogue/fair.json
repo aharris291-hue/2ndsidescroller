@@ -1,0 +1,52 @@
+{
+	"barker_yields": [
+		{
+			"speaker": "narrator",
+			"text": "The Barker folded down onto the sawdust a joint at a time, the way a puppet does when the strings are let go. He was still talking."
+		},
+		{
+			"speaker": "barker",
+			"text": "...a passing shower, ladies and gentlemen, nothing more, do not be alarmed, keep your seats, the finale is about to—"
+		},
+		{
+			"speaker": "patch",
+			"text": "There's nobody in the seats."
+		},
+		{
+			"speaker": "barker",
+			"text": "The finale is about to—"
+		},
+		{
+			"speaker": "patch",
+			"text": "It wasn't a shower. You watched the water come in under the canvas. You told them to stay, because if they left the night was over, and then you were just a man with a megaphone, standing in the rain."
+		},
+		{
+			"speaker": "barker",
+			"text": "...They were having such a wonderful time."
+		},
+		{
+			"speaker": "patch",
+			"text": "I know. I tell stories too. I told one about my tail to anyone who'd listen. It's easier than saying what happened. It's so much easier."
+		},
+		{
+			"speaker": "patch",
+			"text": "Say it. Just once. Not to them. To me."
+		},
+		{
+			"speaker": "barker",
+			"text": "..."
+		},
+		{
+			"speaker": "barker",
+			"text": "It was raining."
+		},
+		{
+			"speaker": "narrator",
+			"text": "He said it quietly, without the megaphone. Then he reached up into the dark over the ring and pulled a cord, and all over Gatefold Fair, one string at a time, the lights went out."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The rain sounded different after that. It sounded like rain. Like something that could stop."
+		}
+	]
+}

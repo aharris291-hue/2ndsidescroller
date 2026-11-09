@@ -26,7 +26,9 @@ column of them is one Updraft) lift a glider to the top of the column: Patch can
 into a column from any surface the same rule reaches, and leaves its top gliding (but
 never higher). A ferris wheel 'Z' stands on this cell: its seats ride a circle of
 7 tiles' radius whose centre is 11 rows over the cell's floor, each seat 2.65 rows
-under its rim point.
+under its rim point. A ghost train's rail '_' (a run of them is one train) is where
+Patch stands in its car: he can climb in only near the run's left end, where the car
+waits, and once aboard he rides it all the way and can jump off anywhere along it.
 
   python3 tools/levels/climb_check.py levels/thistledown/1_5_the_mill_stair.txt
 """
@@ -102,6 +104,11 @@ def surfaces(rows):
                 while y1 + 1 < len(rows) and x < len(rows[y1 + 1]) and rows[y1 + 1][x] == "|":
                     y1 += 1
                 out.append((y, x - 0.5, x + 1.5, False, "draft", y1 + 1))
+            elif c == "_" and (x == 0 or row[x - 1] != "_"):
+                x1 = x
+                while x1 + 1 < len(row) and row[x1 + 1] == "_":
+                    x1 += 1
+                out.append((y, x, x1, False, "ride", (x - 0.5, x + 3.0)))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
             elif c in INK and (y == 0 or (x < len(rows[y - 1]) and rows[y - 1][x] not in INK and rows[y - 1][x] not in SOLID) or x >= len(rows[y - 1])):
@@ -157,6 +164,10 @@ def glide_reach(ya, a0, a1, yb, b0, b1, launch=2.0):
 def reach(a, b, from_draft=False):
     ya, a0, a1, soft = a[:4]
     yb, b0, b1 = b[:3]
+    if len(b) > 4 and b[4] == "ride":
+        # the car waits at the left end of its rail
+        b0, b1 = b[5]
+        b = (yb, b0, b1, False)
     if len(b) > 4 and b[4] == "draft":
         # into a column of updraft, anywhere above its foot
         if not GLIDE:

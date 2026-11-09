@@ -48,6 +48,8 @@ const CURRENTS := {">": Vector2.RIGHT, "<": Vector2.LEFT, "^": Vector2.UP, "v": 
 const CURRENT_STRENGTH := 320.0
 const PLANK := "-"
 const UPDRAFT := "|"
+## A run of these is a ghost train's rail (GhostTrain): where Patch stands in its car.
+const TRACK := "_"
 const PLANK_COLUMN := 7
 const BUILT_IN := {
 	"k": preload("res://scenes/world/bookmark.tscn"),
@@ -120,7 +122,7 @@ func build() -> void:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(_piece(x, y), TERRAIN[c]))
 			elif c == PLANK:
 				tiles.set_cell(Vector2i(x, y), 0, Vector2i(PLANK_COLUMN, plank_material))
-			elif INK.contains(c) or c == UPDRAFT:
+			elif INK.contains(c) or c == UPDRAFT or c == TRACK:
 				pass
 			elif not Engine.is_editor_hint():
 				_place(c, Vector2i(x, y), page)
@@ -140,6 +142,7 @@ func build() -> void:
 	if not Engine.is_editor_hint():
 		_add_ice()
 		_add_updrafts()
+		_add_tracks()
 	if not Engine.is_editor_hint() and page is Page:
 		var size := map_size()
 		(page as Page).bounds = Rect2(Vector2.ZERO, size)
@@ -300,6 +303,28 @@ func _add_updrafts() -> void:
 			for key in props:
 				draft.set(key, props[key])
 			add_child(draft)
+
+
+## Ghost trains: each horizontal run of '_' becomes one GhostTrain along it.
+func _add_tracks() -> void:
+	for y in rows.size():
+		var x := 0
+		var row := rows[y]
+		while x < row.length():
+			if row[x] != TRACK:
+				x += 1
+				continue
+			var x0 := x
+			while x < row.length() and row[x] == TRACK:
+				x += 1
+			var train := GhostTrain.new()
+			train.name = "GhostTrain_%d_%d" % [x0, y]
+			train.length = (x - x0) * TILE
+			train.position = Vector2(x0 * TILE, y * TILE)
+			var props: Dictionary = entity_props.get(TRACK, {})
+			for key in props:
+				train.set(key, props[key])
+			add_child(train)
 
 
 func _floor_below(cell: Vector2i) -> float:

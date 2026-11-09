@@ -103,6 +103,13 @@ const ENTRIES := {
 		"tell": "The red stabs can't be guarded: step out of them. The white one can. Parry it and he's only wire for a moment. Jump his thread. When he sews the floor, stay in the middle.",
 		"weak": -1,
 	},
+	"barker": {
+		"name": "The Barker",
+		"art": "res://assets/art/dark/enemies/barker.png",
+		"note": "Gatefold Fair's showman. The night of the flood he stood in the big top's door with his megaphone and told the crowd it was only a shower, that the show would go on, that nobody leaves. They stayed. He kept telling it to the empty seats until Patch made him say what it was.",
+		"tell": "The sign over his head says which act is next; from half health it lies. Watch him, not the sign: cards glint in his hand (parry the white one and it cuts him open), hooves drum in the wings (jump the horses), and he swells before he shouts (jump the wave, then he's out of breath).",
+		"weak": -1,
+	},
 	"heron": {
 		"name": "The Grey Heron",
 		"art": "res://assets/art/dark/bosses/heron.png",
@@ -120,7 +127,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "inked", "millwheel", "kraken", "heron", "bindwell", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

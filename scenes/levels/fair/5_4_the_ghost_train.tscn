@@ -1,0 +1,116 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_ghost_train.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/carousel_horse.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="12_e"]
+[ext_resource type="Script" path="res://scripts/world/pop_ghoul.gd" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheGhostTrain" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Ghost Train"
+opening_caption = "The Ghost Train. Still running, after all this time, for nobody."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.38, 0.46, 1)
+rain_amount = 220
+lightning = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/fair/5_4_the_ghost_train.txt"
+region = "fair"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"D": ExtResource("14_e"),
+"E": ExtResource("6_e"),
+"L": ExtResource("7_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"c": ExtResource("10_e"),
+"g": ExtResource("13_e"),
+"k": ExtResource("12_e"),
+"m": ExtResource("11_e"),
+"o": ExtResource("9_e"),
+"s": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "The Ghost Train. The painted mouth over the way in had lost its lower jaw to the water, so you went in under its teeth. Nell used to make Gran hold her hand the whole way round. Gran used to pretend to be more frightened than Nell.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The cars still ran. Somebody had to have set them going, the night of the flood, and nobody had ever stopped them. One waited at the platform with its bar up.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "The middle station. A door marked LOST PROPERTY, and on it, in the Barker's best lettering: CLOSED UNTIL THE SHOW IS OVER.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The second car went quicker, the way they always did in the dark part, so you'd scream. Things were waiting under the rail. They'd been waiting a long time for someone to scare.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "The end of the line, and the far platform, and past it, through a torn flap in the ride's back wall, the big top. Its lamp was lit. Somebody was talking in there. Somebody had never stopped.",
+"size": Vector2(128, 384)
+},
+"D": {
+"door_prompt": "Go into Lost Property",
+"requires_flag": "boss_barker_defeated",
+"target_page": "res://scenes/levels/fair/lost_property.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_3_the_gatefold.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_5_the_rigging.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromRigging"
+},
+"L": {
+"name": &"FromLostProperty"
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"scrap_drop": 2
+},
+"c": {
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

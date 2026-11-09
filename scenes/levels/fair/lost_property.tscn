@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_gatefold.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/heart_patch.tscn" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="LostProperty" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "Lost Property"
+opening_caption = "Lost Property. Everything they left behind."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.38, 0.46, 1)
+rain_amount = 220
+lightning = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/fair/lost_property.txt"
+region = "fair"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"X": ExtResource("6_e"),
+"Y": ExtResource("7_e"),
+"m": ExtResource("8_e"),
+"o": ExtResource("9_e")
+}
+entity_props = {
+"1": {
+"caption": "Lost Property. Everything the crowd left behind when the water came, every piece ticketed and shelved in the Barker's best lettering: a pram with no wheels, a hundred odd gloves, a tin whistle, a programme somebody had folded into a paper boat, as if they'd known.",
+"size": Vector2(128, 320)
+},
+"2": {
+"caption": "On the top shelf, ticketed like the rest, a heart sewn from a ticket roll, kept for whoever came back to claim it. Nobody had come back. Patch took it, and he left the ticket where it was.",
+"size": Vector2(128, 384)
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_4_the_ghost_train.tscn",
+"target_spawn": &"FromLostProperty"
+},
+"o": {
+"amount": 60,
+"offset": Vector2(0, -32)
+},
+"m": {
+"scrap_drop": 1
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]
