@@ -1,0 +1,139 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_rime_slopes.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="Script" path="res://scripts/world/gust.gd" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/ice_block.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/fold_mark.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheRimeSlopes" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Rime Slopes"
+opening_caption = "The Spine Peaks. The cold top of the book, where the flood froze before it could finish."
+music = ExtResource("2_music")
+weather_tint = Color(0.4, 0.45, 0.55, 1)
+rain_amount = 260
+lightning = false
+snow = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/peaks/4_1_the_rime_slopes.txt"
+region = "peaks"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"B": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"F": ExtResource("13_e"),
+"G": ExtResource("11_e"),
+"H": ExtResource("11_e"),
+"I": ExtResource("12_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"f": ExtResource("9_e"),
+"o": ExtResource("10_e")
+}
+entity_props = {
+"1": {
+"caption": "Above the Marsh the book's spine stood up into the cold, and the pages there had folded themselves into mountains. Nothing up here was wet. Everything was frozen.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Black ice over the slate. It had been the flood once. Up here it never got the chance to drown anything. It just stopped, and waited.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "The wind came down off the spine in long breaths. Each one meant it.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "Soggies, rimed white. The frost had got into them and set like armour. The shears would only skid. Something heavier, then. Something from above.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "The snow gave under him. Not much. Just enough.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "A page frozen solid, with him inside it. Pinned in the ice in front of him was one of Gran's patterns: a pop-up, perfect, every fold marked. He knew how it went. She'd made him watch her do it a hundred times.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "A fold mark in the snow, printed and waiting. Somebody had left the whole mountain like this, ready to stand up when it was told.",
+"size": Vector2(128, 384)
+},
+"8": {
+"caption": "The ice field. Three of them, rimed and patient, standing on the black ice as if they'd been put there.",
+"size": Vector2(128, 384)
+},
+"B": {
+"ability_id": &"pop_up_slam",
+"offset": Vector2(0, -24),
+"unlock_caption": "Gran's pop-up pattern. Fold, fold, crease, and stamp it down hard, and the whole thing jumps up off the page. Patch stamped. The ice in front of him cracked from end to end. Pop-Up Slam: {slam} (or attack while holding down in mid-air). It cracks ice, springs fold marks, and breaks the frost on a rimed Soggy."
+},
+"G": {
+"blow_time": 2.4,
+"rest_time": 2.2,
+"size": Vector2(1280, 640),
+"snow": true,
+"strength": -540.0
+},
+"H": {
+"blow_time": 2.0,
+"phase": 1.0,
+"rest_time": 2.6,
+"size": Vector2(1920, 448),
+"snow": true,
+"strength": 380.0
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/peaks/4_2_the_fold_works.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromFoldWorks"
+},
+"f": {
+"frozen": true,
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"I": {
+"offset": Vector2(32, -64)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

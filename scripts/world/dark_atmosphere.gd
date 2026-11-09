@@ -11,6 +11,8 @@ const RAIN_SOUND := preload("res://assets/audio/dark/amb_rain.ogg")
 @export var ambient := Color(0.6, 0.65, 0.78)
 @export var rain_amount := 420
 @export var lightning := true
+## Snow instead of rain: soft round flakes drifting down and sideways, no rain sound.
+@export var snow := false
 
 var _modulate: CanvasModulate
 var _rain: CPUParticles2D
@@ -121,6 +123,32 @@ func _add_rain() -> void:
 	rain.scale_amount_min = 0.7
 	rain.scale_amount_max = 1.3
 	rain.color = Color(0.75, 0.8, 0.9, 0.28)
+	if snow:
+		var flake := GradientTexture2D.new()
+		var fg := Gradient.new()
+		fg.set_color(0, Color(1, 1, 1, 1))
+		fg.set_color(1, Color(1, 1, 1, 0))
+		flake.gradient = fg
+		flake.fill = GradientTexture2D.FILL_RADIAL
+		flake.fill_from = Vector2(0.5, 0.5)
+		flake.fill_to = Vector2(1.0, 0.5)
+		flake.width = 12
+		flake.height = 12
+		rain.texture = flake
+		rain.particle_flag_align_y = false
+		rain.lifetime = 7.0
+		rain.preprocess = 7.0
+		rain.direction = Vector2(-0.45, 1.0)
+		rain.spread = 18.0
+		rain.initial_velocity_min = 110.0
+		rain.initial_velocity_max = 230.0
+		rain.emission_rect_extents = Vector2(1700, 10)
+		rain.position = Vector2(1400, -60)
+		rain.angular_velocity_min = -90.0
+		rain.angular_velocity_max = 90.0
+		rain.scale_amount_min = 0.4
+		rain.scale_amount_max = 1.4
+		rain.color = Color(0.86, 0.92, 1.0, 0.6)
 	layer.add_child(rain)
 
 
@@ -139,6 +167,8 @@ func _add_overlay() -> void:
 
 
 func _add_rain_sound() -> void:
+	if snow:
+		return
 	var player := AudioStreamPlayer.new()
 	player.stream = RAIN_SOUND
 	player.bus = &"SFX"

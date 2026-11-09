@@ -82,6 +82,13 @@ const ENTRIES := {
 		"tell": "Yank both blotter rings to drop the blotters on it, then cut the eye.",
 		"weak": -1,
 	},
+	"clockwork_needle": {
+		"name": "Clockwork Needle",
+		"art": "res://assets/art/dark/props/clockwork_head.png",
+		"note": "Bindwell's sewing machines. He hung them over the Peaks to stitch the paper down so the flood couldn't lift it. Nobody told them the flood was over. They still sew anything that moves.",
+		"tell": "The pin shakes before it drops. Step out from under it, then cut the pin while it's stuck. Three cuts snap it.",
+		"weak": -1,
+	},
 	"heron": {
 		"name": "The Grey Heron",
 		"art": "res://assets/art/dark/bosses/heron.png",
@@ -99,7 +106,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "inked", "millwheel", "kraken", "heron", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "inked", "millwheel", "kraken", "heron", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

@@ -14,13 +14,18 @@ reach another whose top is at most 2.5 rows higher (1 row from a soaked sheet: a
 with a horizontal gap of at most 3 tiles, or any lower surface within 4 tiles. Ceilings
 are not modelled: keep solid ground out of the way of the climb.
 
+The Spine Peaks add: ice '=' (solid ground with black ice on top: stood on like any
+ground), fold marks 'F' (a Pop-Up Slam springs a paper peak 4 tiles tall and about 2
+wide: its top is a surface), and the Frog Fold: a map with a comment line
+"; abilities: frog" is checked with Patch able to spring 4.5 rows up instead of 2.5.
+
   python3 tools/levels/climb_check.py levels/thistledown/1_5_the_mill_stair.txt
 """
 import math
 import sys
 from collections import deque
 
-SOLID = set("#%&$")
+SOLID = set("#%&$=")
 INK = set("~<>^v")
 CURRENT = {">": (1, 0), "<": (-1, 0), "^": (0, -1), "v": (0, 1)}
 BREATH = 26.0
@@ -72,6 +77,10 @@ def surfaces(rows):
             elif c == "h":
                 # a lantern's shadow ledge (2-4): 3 tiles wide, its top on the row below
                 out.append((y + 1, x - 1, x + 1, False))
+            elif c == "F":
+                # a fold mark's pop-up peak: 4 tiles tall, 132 px wide
+                # (Patch rides it up from the ground it stands on)
+                out.append((y + 1 - 4, x - 0.5, x + 0.5, False, "fold", (x, y + 1)))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
             elif c in INK and (y == 0 or (x < len(rows[y - 1]) and rows[y - 1][x] not in INK and rows[y - 1][x] not in SOLID) or x >= len(rows[y - 1])):
@@ -114,9 +123,17 @@ def swim(rows, start):
 RING_RANGE = 8.0
 
 
+UP = 2.5
+
+
 def reach(a, b):
     ya, a0, a1, soft = a[:4]
     yb, b0, b1 = b[:3]
+    if len(b) > 4 and b[4] == "fold":
+        bx, by = b[5]
+        if ya == by and a0 - 0.5 <= bx <= a1 + 0.5:
+            return True
+        b = b[:4]
     if len(b) > 4:
         # zip to a ring: Patch stands about 0.7 rows above the surface he throws from
         nx = min(max(b0, a0), a1)
@@ -124,17 +141,27 @@ def reach(a, b):
     gap = max(b0 - a1, a0 - b1, 0)
     up = ya - yb
     if up > 0:
-        return up <= (1.0 if soft else 2.5) and gap <= 3
+        return up <= (1.0 if soft else UP) and gap <= 3
     return gap <= 4
 
 
 def main(path):
-    rows = [ln.rstrip("\n") for ln in open(path) if not ln.startswith(";")]
+    global UP
+    lines = open(path).read().splitlines()
+    UP = 4.5 if any(ln.startswith(";") and "abilities:" in ln and "frog" in ln for ln in lines) else 2.5
+    rows = [ln for ln in lines if not ln.startswith(";")]
+    ok, top, goal_row = climbable(rows)
+    print("%s: %s (highest surface reached: row %.1f, exit on row %d)" % (path, "climbable" if ok else "NOT climbable", top, goal_row))
+    return ok
+
+
+def climbable(rows, start=None, goal=None):
+    """Can Patch get from `start` (default '@') to `goal` (default the exit)? Returns
+    (ok, the highest surface row reached, the goal's surface row)."""
     surf = surfaces(rows)
-    start = goal = None
     for y, row in enumerate(rows):
         for x, c in enumerate(row):
-            if c == "@":
+            if c == "@" and start is None:
                 start = (x, y)
             elif c in "EY" and goal is None:
                 goal = (x, y)
@@ -168,8 +195,7 @@ def main(path):
                 q.append(j)
     ok = g in seen
     top = min(surf[i][0] for i in seen)
-    print("%s: %s (highest surface reached: row %.1f, exit on row %d)" % (path, "climbable" if ok else "NOT climbable", top, surf[g][0]))
-    return ok
+    return ok, top, surf[g][0]
 
 
 if __name__ == "__main__":

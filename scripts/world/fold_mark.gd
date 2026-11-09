@@ -16,6 +16,13 @@ signal popped
 ## Seconds before the peak folds away again (0 = it stays up).
 @export var stay_up_time := 0.0
 @export var pop_time := 0.3
+## Bindwell's pattern folds (4-3): a slam flips this fold (up folds down, down folds
+## up) instead of only springing it, and flips every fold whose `tag` is in `chain`
+## too. `start_up` has it standing when the page loads.
+@export var toggle := false
+@export var tag := ""
+@export var chain: PackedStringArray = []
+@export var start_up := false
 
 var is_up := false
 var _busy := false
@@ -27,9 +34,25 @@ var _busy := false
 
 func _ready() -> void:
 	add_to_group(&"slam_listeners")
+	add_to_group(&"fold_marks")
+	# The peak's collision hangs down from its top as deep as it rises.
+	var rect := _shape.shape as RectangleShape2D
+	if rect and not is_equal_approx(rect.size.y, rise_height):
+		rect = rect.duplicate() as RectangleShape2D
+		rect.size.y = rise_height
+		_shape.shape = rect
+		_shape.position.y = rise_height / 2.0
+	# Taller peaks stretch the paper art so the whole pop-up shows.
+	var art_h := _art.texture.get_height() * _art.scale.y
+	if rise_height > art_h:
+		_art.scale.y = rise_height / _art.texture.get_height()
 	peak.position = Vector2.ZERO
 	# Folded flat, the peak is nothing at all: it only becomes solid as it rises.
 	_shape.disabled = true
+	if start_up:
+		peak.position.y = -rise_height
+		_shape.disabled = false
+		is_up = true
 	_update_art()
 
 
@@ -41,6 +64,20 @@ func on_slam(at: Vector2, view: PageView.Mode) -> void:
 	if view != PageView.Mode.SIDE:
 		return
 	if absf(at.x - global_position.x) <= trigger_radius and absf(at.y - global_position.y) <= 260.0:
+		if not toggle:
+			pop()
+			return
+		flip()
+		for other in get_tree().get_nodes_in_group(&"fold_marks"):
+			if other != self and other.tag != "" and chain.has(other.tag):
+				other.flip()
+
+
+## Up folds down, down folds up (pattern folds).
+func flip() -> void:
+	if is_up:
+		fold_away()
+	else:
 		pop()
 
 

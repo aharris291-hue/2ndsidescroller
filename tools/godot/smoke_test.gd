@@ -1532,6 +1532,169 @@ func _marsh_part_two(game_state: Node, scene_manager: Node, dialogue: Node) -> v
 	_check(game_state.max_health == hearts_before + 2 and game_state.scraps >= scraps_before + 60, "the clerks' last tally: a heart patch and 60 Scraps")
 	game_state.max_health = 99
 	game_state.health = 99
+	await _spine_peaks(game_state, scene_manager, dialogue)
+
+
+## The Spine Peaks part 1: the Rime Slopes (black ice, frost gusts, rimed Soggies, the
+## frozen page and the Pop-Up Slam), the Fold Works (clockwork needles, the stair of
+## peaks, the Frog Fold) and Bindwell's Pattern Room (the linked folds).
+func _spine_peaks(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R4 := "res://scenes/levels/peaks/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	_check(book_map.region(&"peaks").get("door") == R4 + "4_1_the_rime_slopes.tscn", "the Peaks door opens on the Rime Slopes")
+	game_state.abilities.erase(&"pop_up_slam")
+	game_state.abilities.erase(&"frog_fold")
+	await scene_manager.change_page(R4 + "4_1_the_rime_slopes.tscn", &"Start")
+	await _wait_for_scene("TheRimeSlopes", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(book_map.region_of(R4 + "4_1_the_rime_slopes.tscn").get("id") == &"peaks" and current_scene.snow, "the Rime Slopes are in the Peaks, and it snows")
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	# Black ice: a running Patch slides on long after he lets go; on slate he stops.
+	_check(level.get_node("Ice_34_22").get_script().resource_path.ends_with("ice_sheet.gd"), "the first ice run is laid as black ice")
+	patch.global_position = Vector2(40 * 64, 22 * 64 - 4)
+	await _frames(20)
+	patch.velocity.x = 430.0
+	await _frames(20)
+	var on_ice: float = patch.velocity.x
+	patch.global_position = Vector2(10 * 64, 22 * 64 - 4)
+	await _frames(20)
+	patch.velocity.x = 430.0
+	await _frames(20)
+	_check(on_ice > 250.0 and absf(patch.velocity.x) < 40.0, "Patch skates on the ice (%.0f px/s after letting go) and stops on slate (%.0f)" % [on_ice, patch.velocity.x])
+	_check(level.get_node("gust_83_21").snow, "the frost gust blows snow")
+	# A rimed Soggy: the shears skid off; a crushing blow cracks the frost.
+	var rimed := level.get_node("soggy_106_21")
+	var cut := Hitbox.new()
+	cut.damage = 1
+	current_scene.add_child(cut)
+	cut.global_position = rimed.global_position + Vector2(-40, -30)
+	var hp_before: int = rimed.health.current
+	rimed._on_hit(cut)
+	_check(rimed.frozen and rimed.health.current == hp_before, "the shears skid off a rimed Soggy")
+	cut.reaction = Hitbox.Reaction.CRUSH
+	rimed.health.clear_invulnerability()
+	rimed._on_hit(cut)
+	_check(not rimed.frozen and rimed.health.current < hp_before, "a crushing blow cracks the frost and hurts it")
+	cut.queue_free()
+	for enemy in get_nodes_in_group(&"enemies"):
+		if current_scene.is_ancestor_of(enemy):
+			enemy.queue_free()
+	# The frozen page: no slam yet, the ice holds; Gran's pattern, then it shatters.
+	var ice_wall := level.get_node("ice_block_139_26")
+	patch.global_position = Vector2(137 * 64, 27 * 64 - 4)
+	await _frames(20)
+	patch._start_slam()
+	await _frames(60)
+	_check(is_instance_valid(ice_wall) and not ice_wall.is_queued_for_deletion(), "without the Pop-Up Slam the ice in the frozen page holds")
+	patch.global_position = (level.get_node("ability_page_132_26") as Node2D).global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"pop_up_slam"), "Gran's pop-up pattern in the frozen page teaches the Pop-Up Slam")
+	patch.global_position = Vector2(137 * 64, 27 * 64 - 4)
+	await _frames(20)
+	patch._start_slam()
+	await _frames(60)
+	_check(not is_instance_valid(ice_wall) or ice_wall.is_queued_for_deletion() or ice_wall.get_node("CollisionShape2D").disabled, "a Pop-Up Slam shatters the ice and lets him out")
+	# The fold mark under the cliff: slam it and ride the peak up.
+	var fold := level.get_node("fold_mark_164_21")
+	patch.global_position = fold.global_position + Vector2(0, -4)
+	await _frames(20)
+	var ground_y := patch.global_position.y
+	patch._start_slam()
+	await _frames(70)
+	_check(fold.is_up and patch.global_position.y < ground_y - 180.0, "the fold mark springs a peak and carries Patch up (%.0f px)" % (ground_y - patch.global_position.y))
+	var tunnel_ice := level.get_node("ice_block_177_17")
+	patch.global_position = Vector2(175 * 64, 18 * 64 - 4)
+	await _frames(20)
+	patch._start_slam()
+	await _frames(60)
+	_check(not is_instance_valid(tunnel_ice) or tunnel_ice.get_node("CollisionShape2D").disabled, "a slam clears the ice out of the tunnel")
+	_check(level.get_node("page_exit_228_21").target_page == R4 + "4_2_the_fold_works.tscn", "the Rime Slopes lead on to the Fold Works")
+
+	# The Fold Works: a needle stabs where Patch stands, sticks, and three cuts snap it.
+	await scene_manager.change_page(R4 + "4_2_the_fold_works.tscn", &"Start")
+	await _wait_for_scene("TheFoldWorks", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	var needle := level.get_node("clockwork_needle_46_17")  # (states: 3 stuck, 5 snapped)
+	needle.speed = 0.0
+	patch.global_position = Vector2(needle.global_position.x + needle.carriage.position.x, 26 * 64 - 4)
+	patch.velocity = Vector2.ZERO
+	await _frames(10)
+	patch.health.clear_invulnerability()
+	var hp: int = game_state.health
+	for i in 180:
+		if needle.state == 3:
+			break
+		await physics_frame
+	await _frames(4)
+	_check(needle.state == 3 and game_state.health < hp, "the needle stops over Patch, shakes, and stabs him (%d -> %d)" % [hp, game_state.health])
+	patch.health.grant_invulnerability(900.0)
+	var shears := Hitbox.new()
+	shears.damage = 1
+	current_scene.add_child(shears)
+	shears.global_position = needle.pin.global_position + Vector2(0, 150)
+	for i in 3:
+		needle._on_hit(shears)
+		await _frames(14)
+	shears.queue_free()
+	_check(needle.state == 5 and int(game_state.bestiary.get("clockwork_needle", 0)) >= 1,
+		"three cuts to the stuck pin snap it, and Nell's book gets a page")
+	# The Frog Fold: from Bindwell's bench; a folded-down jump goes far higher.
+	game_state.abilities.erase(&"frog_fold")
+	patch.global_position = (level.get_node("ability_page_160_17") as Node2D).global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"frog_fold"), "Bindwell's frog pattern teaches the Frog Fold")
+	var heights := []
+	for frog in [false, true]:
+		patch.global_position = Vector2(165 * 64, 18 * 64 - 4)
+		patch.velocity = Vector2.ZERO
+		await _frames(20)
+		var floor_y := patch.global_position.y
+		if frog:
+			Input.action_press(&"move_down")
+			await _frames(30)
+		Input.action_press(&"jump")
+		var top := floor_y
+		for i in 70:
+			await physics_frame
+			top = minf(top, patch.global_position.y)
+		Input.action_release(&"jump")
+		Input.action_release(&"move_down")
+		heights.append(floor_y - top)
+	_check(heights[0] > 150.0 and heights[0] < 230.0 and heights[1] > 290.0, "a plain jump rises %.0f px, a Frog Fold jump %.0f" % heights)
+	_check(level.get_node("page_exit_236_9").target_page == R4 + "4_3_the_pattern_room.tscn", "the Fold Works lead on to the Pattern Room")
+
+	# The Pattern Room: four linked folds; the solution raises them all into a stair.
+	await scene_manager.change_page(R4 + "4_3_the_pattern_room.tscn", &"Start")
+	await _wait_for_scene("ThePatternRoom", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	var folds := {}
+	for c in ["P", "T", "U", "W"]:
+		for node in get_nodes_in_group(&"fold_marks"):
+			if current_scene.is_ancestor_of(node) and node.tag == c:
+				folds[c] = node
+	_check(folds.size() == 4 and folds["P"].is_up and not folds["T"].is_up and not folds["U"].is_up and folds["W"].is_up,
+		"the pattern room starts with the shortest and tallest folds standing")
+	for c in ["P", "T", "U", "W"]:
+		var f: Node2D = folds[c]
+		f.on_slam(f.global_position + Vector2(-94, 0), 0)
+		await _frames(45)
+	_check(folds.values().all(func(f: Node) -> bool: return f.is_up), "slamming P, T, U, then W stands every fold up")
+	folds["P"].on_slam(folds["P"].global_position + Vector2(-94, 0), 0)
+	await _frames(45)
+	_check(not folds["P"].is_up and not folds["T"].is_up and folds["U"].is_up, "a slam flips only its own fold and its neighbours")
+	_check(level.get_node("page_exit_37_2").target_page == "res://scenes/levels/ch3_spine/the_spine.tscn", "the Pattern Room climbs on to the top of the spine")
+	game_state.max_health = 99
+	game_state.health = 99
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a

@@ -1,0 +1,149 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_fold_works.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/fold_mark.tscn" id="13_e"]
+[ext_resource type="Script" path="res://scripts/enemies/clockwork_needle.gd" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheFoldWorks" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Fold Works"
+opening_caption = "The Fold Works. The machines were still running. Nobody had told them to stop."
+music = ExtResource("2_music")
+weather_tint = Color(0.4, 0.45, 0.55, 1)
+rain_amount = 260
+lightning = false
+snow = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/peaks/4_2_the_fold_works.txt"
+region = "peaks"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"B": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"F": ExtResource("13_e"),
+"M": ExtResource("14_e"),
+"N": ExtResource("14_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"f": ExtResource("9_e"),
+"m": ExtResource("12_e"),
+"n": ExtResource("11_e"),
+"o": ExtResource("10_e"),
+"s": ExtResource("9_e")
+}
+entity_props = {
+"1": {
+"caption": "The Fold Works. Somebody had kept this mountain on a schedule: rails strung between the peaks, and a sound like a clock going wrong.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "A sewing machine the size of a cart, hung from a rail, running back and forth over the snow. Every so often it stopped, and shook, and drove its pin down into whatever was under it.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "They'd been sewing the paper down, he realised. Every fold on the mountain stitched flat, so the flood couldn't lift it. Somebody had been very afraid of the water.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "Tacks, frost, wet paper. The Sogg's things had got up here anyway.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "A stair of folds, one peak standing on the last. Whoever built it meant it to be climbed by someone who knew how.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "A bench at the top, under an iron lamp gone cold. A name burned into the wood: BINDWELL. Patterns pinned all over it, and one of them was a frog.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "Bindwell's note on the frog pattern: Fold small. Fold smaller. Then let go. Under it, in the same hand, smaller: I SEWED THE SPINE SHUT. I HEARD THEM KNOCKING AND I DID NOT OPEN IT.",
+"size": Vector2(128, 384)
+},
+"8": {
+"caption": "From the top ledge he could see down the whole spine of the book: the Marsh, the harbour, the drowned fields, all of it below. Up here had stayed dry. Somebody had made sure.",
+"size": Vector2(128, 384)
+},
+"B": {
+"ability_id": &"frog_fold",
+"offset": Vector2(0, -24),
+"unlock_caption": "A paper frog: the oldest fold there is. Patch folded himself down small, smaller, and let go, and the snow fell away under him. Frog Fold: stand still and hold down until you fold flat, then jump. You spring about five tiles."
+},
+"N": {
+"max_drop": 640.0,
+"rail_left": -384.0,
+"rail_right": 384.0,
+"speed": 150.0
+},
+"M": {
+"beat": 2.6,
+"max_drop": 900.0,
+"rail_left": -256.0,
+"rail_right": 256.0,
+"speed": 120.0
+},
+"F": {
+
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/peaks/4_1_the_rime_slopes.tscn",
+"target_spawn": &"FromFoldWorks"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/peaks/4_3_the_pattern_room.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromPatternRoom"
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"f": {
+"frozen": true,
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

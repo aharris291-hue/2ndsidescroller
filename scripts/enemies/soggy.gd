@@ -18,6 +18,10 @@ const SCRAP_SCENE := preload("res://scenes/pickups/scrap.tscn")
 @export var wool := false
 ## How close Patch has to come before a wool-wearer drops its disguise.
 @export var wool_range := 230.0
+## The Spine Peaks: rimed over with frost. Cuts glance off the ice; only a crushing
+## blow (the Plunge or a Pop-Up Slam) cracks it, and then it's an ordinary Soggy.
+@export var frozen := false
+const FROST := Color(0.72, 0.9, 1.3)
 ## Nell's bestiary page for this kind (see Bestiary).
 var bestiary_id := "soggy"
 @export var scrap_drop := 2
@@ -67,9 +71,11 @@ func _ready() -> void:
 		Inked.apply(self)
 	if wool:
 		_put_on_wool()
+	if frozen:
+		sprite.modulate = FROST
 	if hold:
 		hold.broken.connect(_on_hold_broken)
-		hold.recovered.connect(func() -> void: sprite.modulate = Color.WHITE)
+		hold.recovered.connect(func() -> void: sprite.modulate = _tint())
 
 
 func _physics_process(delta: float) -> void:
@@ -134,7 +140,7 @@ func _side_behaviour(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, 2400.0 * delta)
 		sprite.modulate = Color(1.0, 0.75, 0.75)
 		if _windup_left <= 0.0:
-			sprite.modulate = Color.WHITE
+			sprite.modulate = _tint()
 			contact_hitbox.damage = 2
 			_lunging = true
 			_lunge_cooldown_left = lunge_cooldown
@@ -249,8 +255,21 @@ func throw_off_wool() -> void:
 	shed.chain().tween_callback(wool_left.queue_free)
 
 
+func _tint() -> Color:
+	return FROST if frozen else Color.WHITE
+
+
 func _on_hit(hitbox: Hitbox) -> void:
 	throw_off_wool()
+	if frozen:
+		if HitReaction.reaction_of(hitbox) != Hitbox.Reaction.CRUSH:
+			# The shears skid off the frost with a ring of steel.
+			AudioManager.play_sfx(&"parry", 1.6, -6.0)
+			Tells.glint(self, Vector2(0, -40), 0.25)
+			var away := signf(global_position.x - hitbox.global_position.x)
+			_knockback = Vector2(away * 160.0, 0.0)
+			return
+		thaw()
 	if health.take_damage(hitbox.damage, hitbox.global_position):
 		# A hit knocks it out of a lunge wind-up; how far it goes depends on the move.
 		_windup_left = 0.0
@@ -260,7 +279,33 @@ func _on_hit(hitbox: Hitbox) -> void:
 			return
 		var tween := create_tween()
 		sprite.modulate = Color(1.6, 1.6, 1.6)
-		tween.tween_property(sprite, "modulate", Color.WHITE, 0.2)
+		tween.tween_property(sprite, "modulate", _tint(), 0.2)
+
+
+## The frost cracks off in a burst of white flakes.
+func thaw() -> void:
+	if not frozen:
+		return
+	frozen = false
+	sprite.modulate = Color.WHITE
+	AudioManager.play_sfx(&"enemy_pop", 1.7)
+	var flakes := CPUParticles2D.new()
+	flakes.one_shot = true
+	flakes.amount = 18
+	flakes.lifetime = 0.6
+	flakes.explosiveness = 1.0
+	flakes.direction = Vector2.UP
+	flakes.spread = 80.0
+	flakes.initial_velocity_min = 140.0
+	flakes.initial_velocity_max = 320.0
+	flakes.gravity = Vector2(0, 700)
+	flakes.scale_amount_min = 3.0
+	flakes.scale_amount_max = 6.0
+	flakes.color = Color(0.86, 0.94, 1.0)
+	flakes.position = Vector2(0, -40)
+	flakes.emitting = true
+	add_child(flakes)
+	get_tree().create_timer(1.0).timeout.connect(flakes.queue_free)
 
 
 ## Patch parried the lunge: it's batted back, out of the leap.
