@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/moored_boat.png" id="1_boat"]
+
+[node name="MooredBoat" type="Sprite2D"]
+position = Vector2(0, 0)
+texture = ExtResource("1_boat")
+offset = Vector2(0, -88)

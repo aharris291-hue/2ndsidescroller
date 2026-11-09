@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/collectible.gd" id="1_coll"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/hanging_lamp.png" id="2_lamp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lamp"]
+radius = 40.0
+
+[node name="HandLantern" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_coll")
+kind = 4
+flag = "hand_lantern"
+unlock_caption = "The lamplighter's hand lantern. Its wick was dry, and it caught first time. Stand by a cold lantern post and light it: Soggies won't come into the light."
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -20)
+texture = ExtResource("2_lamp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_lamp")

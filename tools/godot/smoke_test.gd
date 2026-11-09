@@ -257,14 +257,15 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 
 func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const CH2 := "res://scenes/levels/ch2_lanternfold/"
-	# Lanternfold: meet Corrugate (opens the way to the Margin) and the Lamplighter Sisters.
+	await _lanternfold(game_state, scene_manager, dialogue)
+	# The old harbour town (until Lanternfold part 2): Corrugate and the Lamplighter Sisters.
 	await scene_manager.change_page(CH2 + "lanternfold_town.tscn")
 	await _frames(30)
 	await _skip_dialogue(dialogue)
 	_check(current_scene.name == "LanternfoldTown" and get_first_node_in_group("player").view_mode == 1, "Lanternfold Harbor loads as a top-down page")
 	current_scene.get_node("Actors/Corrugate").interact(null)
 	await _skip_dialogue(dialogue)
-	_check(current_scene.get_node("Props/MarginDoor").is_open(), "meeting Corrugate opens the way to Gran's table")
+	_check(current_scene.get_node_or_null("Props/MarginDoor") == null, "the town's Margin door has moved to the Drowned Quay")
 	_check(not current_scene.get_node("Props/HarborFlap").is_open(), "the harbor flap stays shut until Corrugate joins")
 	current_scene.get_node("Actors/LamplighterSisters").interact(null)
 	await _skip_dialogue(dialogue)
@@ -276,15 +277,18 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _skip_dialogue(dialogue)
 	_check(game_state.quest_done("festival_lanterns"), "the Lamplighter Sisters reward the lit lanterns")
 
-	# The Margin heist: the 3D desk, and the strip of real tape that becomes the Tape Tail.
+	# The Margin heist: the 3D desk, and a strip of real tape that mends a heart.
 	await scene_manager.change_page("res://scenes/levels/margin/tape_heist.tscn", &"FromPage")
 	await _frames(30)
 	await _skip_dialogue(dialogue)
 	var patch = get_first_node_in_group("player")
 	_check(_drawn_as_desk(), "the Margin heist is drawn as the 3D desk, with Patch on it")
+	var hearts_before: int = game_state.max_health
 	patch.global_position = current_scene.get_node("Pickups/TapeStrip").global_position
 	await _frames(20)
-	_check(game_state.has_ability(&"tape_tail"), "the tape strip gives Patch the Tape Tail")
+	await _skip_dialogue(dialogue)
+	_check(game_state.max_health == hearts_before + 2, "the heist's strip of tape is a heart patch now (the Tape Tail is in the lighthouse)")
+	_check(current_scene.get_node("Props/BackIntoTheBook").target_page == "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn", "the way back from the heist leads to the Drowned Quay")
 
 	# Back in town: zip across the harbor with the Tape Tail to fetch Crumple.
 	await scene_manager.change_page(CH2 + "lanternfold_town.tscn", &"FromMargin")
@@ -644,7 +648,7 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _skip_dialogue(dialogue)
 	_check(boss.state != 0 and patch.health.floor_health == 1, "the last fight starts, and Patch can't be beaten in it")
 	patch.health._invulnerable_left = 0.0
-	patch.health.take_damage(99, patch.global_position)
+	patch.health.take_damage(999, patch.global_position)
 	_check(patch.health.current == 1 and not patch.health.is_dead(), "the Sogg wears Patch down to his last scrap")
 	for i in 300:
 		if dialogue.is_active():
@@ -1018,6 +1022,137 @@ func _thistledown_story(game_state: Node, scene_manager: Node, dialogue: Node) -
 		if node.get("target_page") != null and String(node.name).begins_with("page_exit_32"):
 			top_exit = node.get("target_page")
 	_check(top_exit == R1 + "boss_mill_floor.tscn", "the top of the stair opens onto the mill floor")
+
+
+func _named(level: Node, prefix: String) -> Array[Node]:
+	var out: Array[Node] = []
+	for node in level.get_children():
+		if String(node.name).begins_with(prefix):
+			out.append(node)
+	out.sort_custom(func(a: Node, b: Node) -> bool: return a.position.x < b.position.x if a.position.x != b.position.x else a.position.y > b.position.y)
+	return out
+
+
+## Lanternfold, part 1 (Phase 3): the Drowned Quay's lanterns and the Soggies who won't
+## come into their light, the Lamplighter's Climb and the Tape Tail, and the Lamp Room's
+## mirror puzzle.
+func _lanternfold(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R2 := "res://scenes/levels/lanternfold/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	_check(book_map.region(&"lanternfold")["door"] == R2 + "2_1_the_drowned_quay.tscn", "the Spine's Lanternfold door opens onto the Drowned Quay")
+	_check(book_map.region_of(R2 + "2_3_the_lamp_room.tscn").get("id") == &"lanternfold", "the new pages belong to Lanternfold")
+	await scene_manager.change_page(R2 + "2_1_the_drowned_quay.tscn", &"Start")
+	await _wait_for_scene("TheDrownedQuay", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var level := current_scene.get_node("Level")
+	var posts := _named(level, "lantern_post")
+	_check(posts.size() == 13, "the Drowned Quay has thirteen lantern posts (%d)" % posts.size())
+	_check(posts[0].lit and posts[1].lit and not posts[2].lit, "the first two lamps burn and the rest are cold")
+	# A Soggy won't come into a lamp's light, even after Patch standing in it.
+	var lamp: Node2D = posts[1]
+	var soggy := _named(level, "soggy")[1] as CharacterBody2D
+	soggy.global_position = Vector2(lamp.global_position.x - lamp.radius - 120.0, soggy.global_position.y)
+	patch.global_position = lamp.global_position + Vector2(40, -40)
+	patch.velocity = Vector2.ZERO
+	await _frames(120)
+	_check(soggy.global_position.x < lamp.global_position.x - lamp.radius + 8.0 and soggy.global_position.x > lamp.global_position.x - lamp.radius - 260.0,
+		"a Soggy chasing Patch stops at the edge of the light (%.0f px out)" % (lamp.global_position.x - lamp.radius - soggy.global_position.x))
+	# Cold posts need the hand lantern.
+	var cold: Node2D = posts[2]
+	_check(not cold.can_interact(), "a cold lantern can't be lit without the hand lantern")
+	var hand := _named(level, "hand_lantern")
+	_check(hand.size() == 1, "the lamplighter's hand lantern lies by his cart")
+	patch.global_position = (hand[0] as Node2D).global_position
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(game_state.get_flag("hand_lantern") and cold.can_interact(), "with the hand lantern Patch can light cold posts")
+	var fleeing := _named(level, "soggy")[2] as CharacterBody2D
+	fleeing.global_position = Vector2(cold.global_position.x + 120.0, cold.global_position.y - 40.0)
+	patch.global_position = cold.global_position + Vector2(-600, -40)
+	await _frames(10)
+	cold.interact(null)
+	for i in 3:
+		await physics_frame
+	# (Dot's Full Stop may pin it in place, so check it is running, not how far it got.)
+	_check(cold.lit and fleeing._fleeing > 0.0 and fleeing._direction > 0.0 and fleeing.velocity.x >= 0.0,
+		"lighting a lamp on top of a Soggy sends it running for the dark")
+	# The short-trimmed lamps gutter out behind Patch.
+	var short := posts.filter(func(p: Node) -> bool: return p.gutter_after > 0.0)
+	_check(short.size() == 5, "the street has five short-trimmed lamps (%d)" % short.size())
+	var trimmed: Node2D = short[0]
+	trimmed.gutter_after = 0.4
+	trimmed.light()
+	await create_timer(0.9).timeout
+	_check(not trimmed.lit, "a short-trimmed lamp goes out once Patch has left its light")
+	var letters := _named(level, "lost_letter").map(func(n: Node) -> String: return n.letter)
+	_check(letters == ["E", "L"], "Letters E and L are on the Drowned Quay (%s)" % [letters])
+	var margin := _named(level, "page_door")
+	_check(margin.size() == 1 and margin[0].target_page == "res://scenes/levels/margin/tape_heist.tscn" and margin[0].is_open(), "the Margin's folded corner leads to the tape heist")
+	var quay_exit := _named(level, "page_exit")
+	_check(quay_exit.size() == 1 and quay_exit[0].target_page == R2 + "2_2_the_lamplighters_climb.tscn", "the mole leads on to the lighthouse")
+	_check(_named(level, "tack_knight").size() == 2, "Tack Knights walk the quay")
+
+	# 2-2 The Lamplighter's Climb.
+	await scene_manager.change_page(R2 + "2_2_the_lamplighters_climb.tscn", &"Start")
+	await _wait_for_scene("TheLamplightersClimb", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	level = current_scene.get_node("Level")
+	_check(patch.is_on_floor() and current_scene.bounds.size.y > 60 * 64, "the lighthouse is a tall climb, and Patch starts at its foot")
+	_check(_named(level, "grapple_ring").size() == 4, "brass rings carry Patch up where the stair is gone")
+	var tail := _named(level, "tape_strip")
+	_check(tail.size() == 1 and not game_state.has_ability(&"tape_tail"), "the Tape Tail waits on the lamplighter's landing")
+	patch.global_position = (tail[0] as Node2D).global_position
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"tape_tail"), "the lamplighter's tape gives Patch the Tape Tail")
+	var ring := _named(level, "grapple_ring")[0] as Node2D
+	for r in _named(level, "grapple_ring"):
+		if r.global_position.y > ring.global_position.y:
+			ring = r
+	patch.global_position = ring.global_position + Vector2(-260, 300)
+	patch.velocity = Vector2.ZERO
+	patch.facing = Vector2.RIGHT
+	await _frames(20)
+	_check(patch.try_grapple(), "the first ring is in reach from the landing")
+	await _frames(60)
+	_check(patch.global_position.y < ring.global_position.y + 120.0, "and the Tape Tail reels Patch up to it")
+	var r_letter := _named(level, "lost_letter")
+	_check(r_letter.size() == 1 and r_letter[0].letter == "R", "Letter R is on a ledge off a ring")
+	var climb_exit := _named(level, "page_exit").filter(func(n: Node) -> bool: return n.target_page == R2 + "2_3_the_lamp_room.tscn")
+	_check(climb_exit.size() == 1, "the top of the stair opens into the Lamp Room")
+
+	# 2-3 The Lamp Room: carry the beam through every wick in each room.
+	await scene_manager.change_page(R2 + "2_3_the_lamp_room.tscn", &"Start")
+	await _wait_for_scene("TheLampRoom", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	_check(get_first_node_in_group("player").view_mode == 1, "the Lamp Room is seen from above")
+	var gates := _named(level, "chapel_gate")
+	_check(gates.size() == 3 and not gates.any(func(g: Node) -> bool: return g.is_open), "three grilles, all shut")
+	var wicks := _named(level, "beam_wick")
+	_check(wicks.size() == 6 and not wicks.any(func(w: Node) -> bool: return w.lit), "six cold wicks, none lit by the mirrors as they stand")
+	var solution := [[[5, 10]], [[23, 4], [30, 4], [30, 11], [36, 11]], [[43, 12], [56, 12], [56, 5]]]
+	for room in 3:
+		for cell in solution[room]:
+			level.get_node("beam_mirror_%d_%d" % [cell[0], cell[1]]).turn()
+		await _frames(5)
+		await _skip_dialogue(dialogue)
+		_check(game_state.get_flag(["lamp_room_1", "lamp_room_2", "lighthouse_lit"][room]) and gates[room].is_open,
+			"turning the mirrors right lights room %d's wicks and opens its grille" % (room + 1))
+	_check(wicks.all(func(w: Node) -> bool: return w.lit), "every wick burns once the great lamp is lit")
+	var lamp_exit := _named(level, "page_exit").filter(func(n: Node) -> bool: return n.target_page.ends_with("lanternfold_town.tscn"))
+	_check(lamp_exit.size() == 1, "the way down leads to the harbour town (until part 2)")
+	await scene_manager.change_page(R2 + "2_3_the_lamp_room.tscn", &"Start")
+	await _wait_for_scene("TheLampRoom", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(_named(current_scene.get_node("Level"), "chapel_gate").all(func(g: Node) -> bool: return g.is_open), "a solved Lamp Room stays solved")
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a

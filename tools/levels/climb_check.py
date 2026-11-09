@@ -2,7 +2,9 @@
 
 Surfaces are runs of cells Patch can stand on: a one-way plank '-', the top of solid
 ground, a soaked sheet 'w' (its surface is the row below it, ~2.75 tiles wide; soft\nunless an awning above can dry it), and the
-seats of a gear or windmill 'V' (sampled round their circle). From a surface Patch can
+seats of a gear or windmill 'V' (sampled round their circle), and brass grapple rings
+'O' (the Tape Tail reels Patch up to a ring from any surface within 8 tiles of it, and
+he hops off it: a soft surface just under the ring). From a surface Patch can
 reach another whose top is at most 2.5 rows higher (1 row from a soaked sheet: a hop)
 with a horizontal gap of at most 3 tiles, or any lower surface within 4 tiles. Ceilings
 are not modelled: keep solid ground out of the way of the climb.
@@ -56,12 +58,21 @@ def surfaces(rows):
                     sx = x + 0.5 + math.cos(a) * 200 / 64
                     sy = cy + math.sin(a) * 200 / 64 - 12 / 64
                     out.append((sy, sx - 0.9, sx + 0.9, False))
+            elif c == "O":
+                out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
     return out
 
 
+RING_RANGE = 8.0
+
+
 def reach(a, b):
-    ya, a0, a1, soft = a
-    yb, b0, b1, _ = b
+    ya, a0, a1, soft = a[:4]
+    yb, b0, b1 = b[:3]
+    if len(b) > 4:
+        # zip to a ring: Patch stands about 0.7 rows above the surface he throws from
+        nx = min(max(b0, a0), a1)
+        return math.hypot(b0 - nx, (ya - 0.7) - (yb - 1.25)) <= RING_RANGE
     gap = max(b0 - a1, a0 - b1, 0)
     up = ya - yb
     if up > 0:
@@ -83,7 +94,7 @@ def main(path):
     def under(cell):
         x, y = cell
         best = None
-        for i, (sy, s0, s1, _) in enumerate(surf):
+        for i, (sy, s0, s1) in enumerate(t[:3] for t in surf):
             if s0 - 0.5 <= x <= s1 + 0.5 and sy > y and (best is None or sy < surf[best][0]):
                 best = i
         return best

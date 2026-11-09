@@ -21,9 +21,9 @@ const REGIONS := [
 		"spot": Vector2(0.2, 0.66),
 	},
 	{
-		"id": &"lanternfold", "name": "Lanternfold", "dirs": ["res://scenes/levels/ch2_lanternfold/"], "subtitle": "the harbour that went dark",
+		"id": &"lanternfold", "name": "Lanternfold", "dirs": ["res://scenes/levels/lanternfold/", "res://scenes/levels/ch2_lanternfold/"], "subtitle": "the harbour that went dark",
 		"mended_flag": "boss_kraken_defeated", "open_flag": "boss_millwheel_defeated",
-		"door": "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn",
+		"door": "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn",
 		"spot": Vector2(0.8, 0.66),
 	},
 	{

@@ -59,7 +59,7 @@ position = Vector2(352, 256)
 collision_layer = 32
 collision_mask = 2
 script = ExtResource("5_phdvf")
-target_page = "res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"
+target_page = "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn"
 target_spawn = &"FromMargin"
 door_prompt = "Climb back into the book"
 prompt_offset = Vector2(0, -170)
@@ -149,9 +149,8 @@ position = Vector2(2144, 1152)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("15_74d0l")
-kind = 3
-ability_id = &"tape_tail"
-unlock_caption = "Patch peeled off a strip of real tape and stuck it on where his tail used to be. Press {grapple} to throw the Tape Tail at brass rings!"
+kind = 5
+unlock_caption = "A strip of real tape off Gran's roll. Patch stuck it over the weakest seam in his chest. Another paper token."
 
 [node name="LetterA" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("16_v3s2u")]
 position = Vector2(2560, 256)

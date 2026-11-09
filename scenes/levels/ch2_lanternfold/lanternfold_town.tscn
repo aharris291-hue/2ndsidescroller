@@ -238,17 +238,6 @@ target_page = "res://scenes/levels/ch2_lanternfold/shadow_theater.tscn"
 door_prompt = "See the shadow show"
 prompt_offset = Vector2(0, -170)
 
-[node name="MarginDoor" type="Area2D" parent="Props" unique_id=604226099 instance=ExtResource("15_wcd5j")]
-position = Vector2(1344, 1408)
-collision_layer = 32
-collision_mask = 2
-script = ExtResource("16_2j1sy")
-target_page = "res://scenes/levels/margin/tape_heist.tscn"
-target_spawn = &"FromPage"
-door_prompt = "Step out onto Gran's table"
-requires_flag = "met_corrugate"
-prompt_offset = Vector2(0, -170)
-
 [node name="HarborFlap" type="Area2D" parent="Props" unique_id=177751545 instance=ExtResource("15_wcd5j")]
 position = Vector2(1824, 1920)
 collision_layer = 32
@@ -376,22 +365,6 @@ position = Vector2(1760, 1056)
 [node name="Pickups" type="Node2D" parent="." unique_id=55568106]
 y_sort_enabled = true
 
-[node name="LetterL" type="Area2D" parent="Pickups" unique_id=839357957 instance=ExtResource("30_vlb1f")]
-position = Vector2(2476.8, 1952)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("31_hlupv")
-kind = 1
-letter = "L"
-
-[node name="LetterE" type="Area2D" parent="Pickups" unique_id=1856011325 instance=ExtResource("30_vlb1f")]
-position = Vector2(768, 512)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("31_hlupv")
-kind = 1
-letter = "E"
-
 [node name="Tape" type="Area2D" parent="Pickups" unique_id=1710296588 instance=ExtResource("32_eqdy5")]
 position = Vector2(2880, 1536)
 collision_layer = 0
@@ -459,10 +432,6 @@ position = Vector2(3328, 1433.6)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("31_hlupv")
-
-[node name="LetterR" parent="Pickups" unique_id=1268261986 instance=ExtResource("30_vlb1f")]
-position = Vector2(352, 1056)
-letter = "R"
 
 [node name="Patch" type="CharacterBody2D" parent="." unique_id=84479202 instance=ExtResource("34_5035c")]
 position = Vector2(256, 192)
