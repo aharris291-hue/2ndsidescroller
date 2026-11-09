@@ -31,6 +31,12 @@ const STYLE_MOVES := {
 @export var max_fall_speed := 1300.0
 ## How much of a jump Patch gets off soaked paper.
 const SOFT_JUMP := 0.6
+## On ice he gets this much grip, speeding up and slowing down (4-1).
+const ICE_GRIP := 0.16
+## Frog Fold: crouch this long (holding down, standing still) and the next jump is
+## FROG_JUMP times as strong: about five tiles instead of three.
+const FROG_CHARGE := 0.35
+const FROG_JUMP := 1.3
 @export var jump_velocity := -940.0
 ## Releasing jump early multiplies upward speed by this, for short hops.
 @export var jump_cut := 0.45
@@ -125,6 +131,11 @@ var _swing_time := 0.18
 var style: StyleMeter
 ## Seconds left of standing on soaked paper (SoakedPaper keeps it topped up).
 var soft_ground_left := 0.0
+## Set each frame by an IceSheet under his feet (4-1): Patch skates instead of running.
+var ice_left := 0.0
+## How long he has crouched for a Frog Fold (the Spine Peaks): a folded-flat Patch
+## springs much higher.
+var frog_charge := 0.0
 ## A shove for this physics frame only (a Current sets it); cleared after each move.
 var push := Vector2.ZERO
 
@@ -244,6 +255,7 @@ func _physics_process(delta: float) -> void:
 			combo_step = 0
 	_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	soft_ground_left = maxf(soft_ground_left - delta, 0.0)
+	ice_left = maxf(ice_left - delta, 0.0)
 	_block_cooldown = maxf(_block_cooldown - delta, 0.0)
 	if input_enabled and Input.is_action_just_pressed(&"guard"):
 		_guard_press_age = 0.0
@@ -353,6 +365,11 @@ func _side_movement(input_x: float, delta: float) -> void:
 	var rate := ground_acceleration if is_on_floor() else air_acceleration
 	if input_x == 0.0 and is_on_floor():
 		rate = ground_friction
+	if ice_left > 0.0 and is_on_floor():
+		# Skating: slow to get going, slower to stop, and a little faster flat out.
+		rate *= ICE_GRIP * (0.35 if input_x == 0.0 else 1.0)
+		target *= 1.15
+	_update_frog(input_x, delta)
 	_carry_left = 0.0 if is_on_floor() else maxf(_carry_left - delta, 0.0)
 	if _carry_left > 0.0 and (input_x == 0.0 or signf(input_x) == signf(velocity.x)):
 		# Keep the swing's speed instead of capping it to running speed.
@@ -365,6 +382,11 @@ func _side_movement(input_x: float, delta: float) -> void:
 	if _jump_buffer_left > 0.0 and _coyote_left > 0.0:
 		# Soaked paper gives under him: a jump off it is barely a hop.
 		velocity.y = jump_velocity * (SOFT_JUMP if soft_ground_left > 0.0 else 1.0)
+		if frog_charge >= FROG_CHARGE and soft_ground_left <= 0.0:
+			velocity.y = jump_velocity * FROG_JUMP
+			_squash(Vector2(0.6, 1.5))
+			AudioManager.play_sfx(&"page_flip", 0.7)
+		frog_charge = 0.0
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
 		AudioManager.play_sfx(&"jump", randf_range(0.95, 1.05))
@@ -942,6 +964,25 @@ func _process_hurt(delta: float) -> void:
 		_apply_gravity(delta)
 	if _state_left <= 0.0:
 		state = State.NORMAL
+
+
+# --- Frog Fold ---------------------------------------------------------------
+
+## The Frog Fold (learned in the Fold Works): standing still and holding down, Patch
+## folds himself flat like a paper frog. Once he's held it FROG_CHARGE seconds, his
+## next jump springs about five tiles high.
+func _update_frog(input_x: float, delta: float) -> void:
+	var crouched := GameState.has_ability(&"frog_fold") and is_on_floor() and input_x == 0.0 \
+		and input_enabled and Input.is_action_pressed(&"move_down")
+	if not crouched:
+		if is_on_floor():
+			frog_charge = 0.0
+		return
+	var was := frog_charge
+	frog_charge += delta
+	if was < FROG_CHARGE and frog_charge >= FROG_CHARGE:
+		AudioManager.play_sfx(&"tab_pull", 1.3)
+		_squash(Vector2(1.3, 0.7))
 
 
 # --- Pop-Up Slam -----------------------------------------------------------

@@ -11,6 +11,8 @@ extends Area2D
 @export var rest_time := 2.4
 ## Where in its cycle it starts, in seconds (so neighbouring gusts don't blow together).
 @export var phase := 0.0
+## The Spine Peaks: a frost gust, carrying snow instead of paper scraps.
+@export var snow := false
 
 const WARN := 0.7
 
@@ -43,6 +45,11 @@ func _ready() -> void:
 	_scraps.scale_amount_min = 2.0
 	_scraps.scale_amount_max = 5.0
 	_scraps.color = Color(0.72, 0.68, 0.6, 0.55)
+	if snow:
+		_scraps.amount = 90
+		_scraps.color = Color(0.88, 0.94, 1.0, 0.7)
+		_scraps.scale_amount_min = 1.5
+		_scraps.scale_amount_max = 3.5
 	_scraps.emitting = false
 	add_child(_scraps)
 	_t = phase

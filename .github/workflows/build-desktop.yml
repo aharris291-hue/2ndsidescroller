@@ -48,9 +48,11 @@ jobs:
 
       - name: Level climb check (every side level can be crossed with Patch's reach)
         run: |
-          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt levels/lanternfold/2_1_the_drowned_quay.txt levels/lanternfold/2_2_the_lamplighters_climb.txt levels/lanternfold/2_4_the_shadow_wharf.txt levels/lanternfold/2_5_under_the_flap.txt levels/lanternfold/lightkeepers_store.txt levels/marsh/3_1_the_sump_road.txt levels/marsh/3_2_the_drowned_ledger.txt levels/marsh/3_5_the_herons_reach.txt levels/marsh/tally_room.txt
+          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt levels/lanternfold/2_1_the_drowned_quay.txt levels/lanternfold/2_2_the_lamplighters_climb.txt levels/lanternfold/2_4_the_shadow_wharf.txt levels/lanternfold/2_5_under_the_flap.txt levels/lanternfold/lightkeepers_store.txt levels/marsh/3_1_the_sump_road.txt levels/marsh/3_2_the_drowned_ledger.txt levels/marsh/3_5_the_herons_reach.txt levels/marsh/tally_room.txt levels/peaks/4_1_the_rime_slopes.txt levels/peaks/4_2_the_fold_works.txt
           # The sluice house is a current puzzle, solved by its builder (fails unless it needs wheels 1 and 2).
           python3 tools/levels/build_marsh.py && git diff --exit-code levels/marsh
+          # The Peaks: 4-2 needs the Frog Fold for its exit, and the pattern room's folds are solved by its builder.
+          python3 tools/levels/build_peaks.py && git diff --exit-code levels/peaks
 
       - name: Import project
         run: ~/godot/godot --headless --path . --import

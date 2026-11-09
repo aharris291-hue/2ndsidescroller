@@ -36,6 +36,8 @@ const COMPANIONS := {
 @export var rain_amount := 420
 ## Indoor pages (the Spine) turn the lightning off.
 @export var lightning := true
+## The Spine Peaks: the rain falls as snow (slow, drifting flakes, and no rain sound).
+@export var snow := false
 ## No companions follow Patch here, even if they've joined (he's alone in the Gutter).
 @export var no_companions := false
 
@@ -52,6 +54,7 @@ func _ready() -> void:
 		atmosphere.ambient = weather_tint
 		atmosphere.rain_amount = rain_amount
 		atmosphere.lightning = lightning
+		atmosphere.snow = snow
 		add_child(atmosphere)
 		_weathered = ShaderMaterial.new()
 		_weathered.shader = WEATHERED

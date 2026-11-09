@@ -11,6 +11,7 @@ extends Node2D
 ##   #  main ground (shelf wood)      %  built (stacked books)
 ##   &  soft ground (sodden earth)    $  hard stone (damp stone)
 ##   -  one-way plank (jump up through it)
+##   =  ice: hard stone with black ice on top (an IceSheet: Patch skates on it)
 ## Built-in entities:
 ##   @  Start (where a fresh visit spawns Patch)     k  Bookmark (checkpoint)
 ##   s  Soggy        d  ink drip spawner (drips onto the floor below it)
@@ -37,7 +38,8 @@ const REGION_TILESETS := {
 	"index": "res://resources/dark_tiles_index.tres",
 	"gutter": "res://resources/dark_tiles_gutter.tres",
 }
-const TERRAIN := {"#": 0, "%": 1, "&": 2, "$": 3}
+const TERRAIN := {"#": 0, "%": 1, "&": 2, "$": 3, "=": 3}
+const ICE := "="
 const INK := "~<>^v"
 ## Ink that runs: an InkCurrent each way (it carries a Blot-Diving Patch).
 const CURRENTS := {">": Vector2.RIGHT, "<": Vector2.LEFT, "^": Vector2.UP, "v": Vector2.DOWN}
@@ -132,6 +134,8 @@ func build() -> void:
 				current.direction = CURRENTS[c]
 				current.strength = CURRENT_STRENGTH
 				return current)
+	if not Engine.is_editor_hint():
+		_add_ice()
 	if not Engine.is_editor_hint() and page is Page:
 		var size := map_size()
 		(page as Page).bounds = Rect2(Vector2.ZERO, size)
@@ -254,6 +258,25 @@ func _add_blocks(chars: String, make: Callable) -> void:
 		open = next
 	for block in blocks:
 		add_child(block)
+
+
+## Ice: an IceSheet along each run of '=' cells with open air above them.
+func _add_ice() -> void:
+	for y in rows.size():
+		var row := rows[y]
+		var x := 0
+		while x < row.length():
+			if row[x] != ICE or _solid(x, y - 1):
+				x += 1
+				continue
+			var x0 := x
+			while x < row.length() and row[x] == ICE and not _solid(x, y - 1):
+				x += 1
+			var sheet := IceSheet.new()
+			sheet.name = "Ice_%d_%d" % [x0, y]
+			sheet.position = Vector2(x0 * TILE, y * TILE)
+			sheet.size = Vector2((x - x0) * TILE, TILE)
+			add_child(sheet)
 
 
 func _floor_below(cell: Vector2i) -> float:
