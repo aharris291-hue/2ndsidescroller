@@ -174,7 +174,11 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	var boss := current_scene.get_node("OldMillwheel")
 	boss.start_fight()
 	_check(boss.state == 1, "the Old Millwheel fight starts")
-	for cycle in 3:
+	# Three jams win it; spare cycles cover a jam lost to a stray Soggy or drip knocking
+	# Patch off the core (their spawns are random).
+	for cycle in 8:
+		if game_state.get_flag("boss_millwheel_defeated") or boss.health.is_dead():
+			break
 		for tab_name in ["MooringTab1", "MooringTab2", "MooringTab3"]:
 			await current_scene.get_node("Props/" + tab_name).interact(null)
 		await _frames(5)
