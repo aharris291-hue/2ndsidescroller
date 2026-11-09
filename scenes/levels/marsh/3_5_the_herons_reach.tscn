@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_herons_reach.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheHeronsReach" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Heron's Reach"
+opening_caption = "The Heron's Reach. Nothing moved on the ink. Nothing had moved on it for a long time."
+music = ExtResource("2_music")
+weather_tint = Color(0.34, 0.4, 0.42, 1)
+rain_amount = 60
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/marsh/3_5_the_herons_reach.txt"
+region = "marsh"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"N": ExtResource("9_e"),
+"O": ExtResource("8_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("10_e"),
+"m": ExtResource("11_e"),
+"n": ExtResource("9_e"),
+"o": ExtResource("13_e"),
+"s": ExtResource("12_e")
+}
+entity_props = {
+"1": {
+"caption": "The Heron's Reach: the bottom of the marsh, where all the ink in the book had come to lie down.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Islands of peat, and between them ink so still it showed the moon. A feather lay on it, and did not drift.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "On a post someone had nailed a page from the ledger. It was the flood night again. There was a heron printed in the margin, watching.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The heron's larder: the bank was littered with what it had speared and left. Paper fish. Paper frogs. A paper fox's ear, not his.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "The black lake. Rings of old brass hung out over it from the dead trees, where the clerks had moored their boats.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "It stood on the far side, grey, enormous, perfectly still. It had been standing there the whole time.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "Through the reeds ahead, a clearing, and a nest the size of a room, woven out of torn ledgers.",
+"size": Vector2(128, 384)
+},
+"N": {
+"inked": true,
+"scrap_drop": 6
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_4_the_reed_beds.tscn",
+"target_spawn": &"FromReach"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/heronry.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromHeronry"
+},
+"i": {
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"b": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

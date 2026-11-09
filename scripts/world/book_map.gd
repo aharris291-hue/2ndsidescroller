@@ -28,13 +28,13 @@ const REGIONS := [
 	},
 	{
 		"id": &"marsh", "name": "Watermark Marsh", "dirs": ["res://scenes/levels/marsh/"], "subtitle": "where the ink settled",
-		"mended_flag": "", "open_flag": "boss_kraken_defeated",
+		"mended_flag": "boss_heron_defeated", "open_flag": "boss_kraken_defeated",
 		"door": "res://scenes/levels/marsh/3_1_the_sump_road.tscn",
 		"spot": Vector2(0.17, 0.36),
 	},
 	{
 		"id": &"peaks", "name": "The Spine Peaks", "dirs": ["res://scenes/levels/ch3_spine/"], "subtitle": "the cold top of the book",
-		"mended_flag": "boss_sogg_phase2_done", "open_flag": "boss_kraken_defeated",
+		"mended_flag": "boss_sogg_phase2_done", "open_flag": "boss_heron_defeated",
 		"door": "res://scenes/levels/ch3_spine/the_spine.tscn",
 		"spot": Vector2(0.5, 0.14),
 	},

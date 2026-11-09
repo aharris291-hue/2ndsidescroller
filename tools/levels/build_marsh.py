@@ -1,5 +1,6 @@
-"""Draws Region 3's text maps: Watermark Marsh, where the ink settled (Phase 3, part 1:
-3-1 to 3-3).
+"""Draws Region 3's text maps: Watermark Marsh, where the ink settled (Phase 3: 3-1 to
+3-5, the Heronry where the Grey Heron is fought, and the Tally Room, 3-4's sealed back
+page).
 
 Writes levels/marsh/*.txt. Each map's legend is in its scene's TextLevel node
 (scenes/levels/marsh/*.tscn); the shared characters are:
@@ -7,13 +8,14 @@ Writes levels/marsh/*.txt. Each map's legend is in its scene's TextLevel node
   ~  settled ink   > < ^ v  ink running that way (a current)
   @  start   k  bookmark   s  Soggy   d  drips   i  ink spitter   m  moth   n  Tack Knight
   b  mimic book   o  scrap   1-9  story triggers   E  exit   X  way back
+  N  Inked Tack Knight   O  tape ring   R Q  arrival points   W V U J  sluice wheels   D  sealed door   Y  heart patch (a back page's goal)
 Ink burns a heart until Patch has the Blot Dive (3-1); with it he swims through ink on
 one breath (26 tiles; a current carries him about twice as far, and can't be swum
 against).
 
-The Sluice House puzzle (3-3) is checked here too: `solve_sluice_house` tries every
-setting of its three wheels and fails the build unless exactly the intended ones open
-the way through.
+The wheel puzzles are checked here too: `solve_sluice_house` (3-3) and `solve_weir`
+(3-4) try every setting of their wheels and fail the build unless exactly the intended
+ones open the way through.
 
 Run: python3 tools/levels/build_marsh.py
 """
@@ -215,6 +217,180 @@ def solve_sluice_house() -> list:
     return wins
 
 
+def reed_beds() -> Grid:
+    """3-4 The Reed Beds: the outflow spits Patch into a marsh of paper reeds. Thickets
+    too tall to climb stand in the ink and are dived under; a fight on the bank and a
+    bookmark; the Weir (a wheel puzzle: the channel runs against him and the upwelling
+    shaft to the high bank must run up); the counting stalls on the high bank, with the
+    Tally Room's sealed door; and a long drain under two thickets to the far bank."""
+    g = Grid(240, 30)
+    F = 22
+    g.ground(0, 239, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(6, F - 1, "1")
+    g.put(12, F - 1, "s")
+    # S2 the thickets: dive under, breathe in the gap, dive again.
+    g.put(18, F - 1, "2")
+    ink(g, 22, 80, F, 5)
+    ink(g, 24, 79, F + 3, 2, ">")
+    g.fill(28, 47, F - 8, F, "$")
+    g.fill(53, 75, F - 8, F, "$")
+    g.put(50, F - 5, "m")
+    g.put(78, F - 5, "m")
+    # S3 the bank: a fight and a bookmark.
+    g.put(83, F - 1, "3")
+    g.put(86, F - 1, "s")
+    g.put(88, F - 1, "k")
+    g.put(92, F - 1, "n")
+    g.put(94, F - 1, "o")
+    # S4 the Weir. The channel runs back at him; the shaft up to the high bank runs up.
+    # Wheel 1 (on the bank) turns both the channel and the shaft; wheel 2 (on the reed
+    # mat over the channel) turns only the shaft. Both, and the way is open.
+    g.put(95, F - 1, "4")
+    g.put(96, F - 1, "W")
+    ink(g, 98, 131, F, 4, "<")
+    g.fill(100, 121, F - 2, F - 1, "$")
+    g.put(104, F - 3, "5")
+    g.put(110, F - 3, "J")   # ('V' would read as a gear seat to climb_check)
+    top = F - 8
+    g.fill(122, 175, top, F - 1, "$")
+    g.fill(130, 131, top, F - 1, "^")
+    # S5 the counting stalls on the high bank, and the Tally Room's door.
+    g.put(136, top - 1, "6")
+    g.put(142, top - 1, "s")
+    g.put(146, top - 6, "m")
+    g.put(150, top - 1, "D")
+    g.put(152, top - 1, "Q")
+    g.put(158, top - 1, "n")
+    g.put(166, top - 1, "s")
+    g.put(170, top - 1, "o")
+    g.ground(176, 178, F - 5, "$")
+    g.ground(179, 181, F - 3, "$")
+    # S6 the long drain, under two thickets with one breath of air between.
+    g.put(182, F - 1, "7")
+    ink(g, 184, 230, F, 4, ">")
+    g.fill(188, 207, F - 8, F - 1, "$")
+    g.fill(212, 228, F - 8, F - 1, "$")
+    g.put(233, F - 1, "R")   # back from the Heron's Reach
+    g.put(237, F - 1, "E")
+    return g
+
+
+def solve_weir() -> list:
+    """Every wheel setting of the Weir that gets Patch from the bank to the high bank.
+    Wheel 1 reverses the channel and the shaft, wheel 2 the shaft alone."""
+    wins = []
+    rev = {"<": ">", ">": "<", "^": "v", "v": "^"}
+    for w1, w2 in itertools.product((False, True), repeat=2):
+        rows = [list(r) for r in reed_beds().rows]
+        for y, row in enumerate(rows):
+            for x, c in enumerate(row):
+                in_channel = 98 <= x <= 131 and 22 <= y <= 25
+                in_shaft = 130 <= x <= 131 and 14 <= y <= 21
+                if (in_channel and w1) or (in_shaft and (w1 != w2)):
+                    row[x] = rev.get(c, c)
+        rows = ["".join(r) for r in rows]
+        if (130, 14) in climb_check.swim(rows, (98, 22)) or (131, 14) in climb_check.swim(rows, (98, 22)):
+            wins.append((w1, w2))
+    return wins
+
+
+def herons_reach() -> Grid:
+    """3-5 The Heron's Reach: the deepest of the marsh. Islands of peat in the ink, a
+    wall to dive under, a bookmark, the heron's larder (a hard fight, with Inked), tape
+    rings over the black lake, and the far bank where it stands waiting."""
+    g = Grid(210, 26)
+    F = 18
+    g.ground(0, 209, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(6, F - 1, "1")
+    # S2 the islands.
+    g.put(10, F - 1, "2")
+    ink(g, 12, 15, F, 4)
+    ink(g, 22, 26, F, 4)
+    g.put(24, F - 5, "m")
+    g.put(29, F - 1, "s")
+    ink(g, 32, 46, F, 5)
+    g.fill(39, 40, F - 8, F + 2, "$")
+    g.put(44, F - 6, "m")
+    g.ground(47, 52, F - 2, "$")
+    g.put(50, F - 3, "i")
+    ink(g, 53, 58, F, 4)
+    # S3 the bookmark.
+    g.put(62, F - 1, "3")
+    g.put(64, F - 1, "k")
+    # S4 the heron's larder.
+    g.put(68, F - 1, "4")
+    g.put(74, F - 1, "s")
+    g.put(80, F - 1, "N")   # Inked
+    g.put(88, F - 1, "s")
+    g.put(96, F - 1, "n")
+    g.ground(100, 106, F - 2, "$")
+    g.put(103, F - 3, "i")
+    g.put(108, F - 1, "o")
+    # S5 the black lake, and tape rings over it.
+    g.put(113, F - 1, "5")
+    ink(g, 116, 150, F, 5)
+    for x, dy in ((121, 5), (128, 6), (135, 5), (142, 6), (148, 5)):
+        g.put(x, F - dy, "O")
+    # S6 the far bank.
+    g.put(158, F - 1, "6")
+    g.put(164, F - 6, "m")
+    g.put(170, F - 1, "N")  # Inked
+    g.put(178, F - 6, "m")
+    g.put(196, F - 1, "7")
+    g.put(199, F - 1, "R")  # back from the Heronry
+    g.put(204, F - 1, "E")
+    return g
+
+
+def heronry() -> Grid:
+    """The Heronry, the Grey Heron's arena: one screen of peat between two ink pools,
+    deep enough to hide a blot from its wings."""
+    g = Grid(30, 17)
+    F = 14
+    g.ground(0, 29, F)
+    ink(g, 4, 8, F, 3)
+    ink(g, 21, 25, F, 3)
+    g.put(0, F - 1, "X")
+    g.put(3, F - 1, "@")
+    return g
+
+
+def tally_room() -> Grid:
+    """The Tally Room, 3-4's sealed back page (open once the heron is down): the clerks'
+    flooded strongroom, one long dive under four walls with a breath between each, the
+    currents mostly against him, and the clerks' last tally at the end: a heart patch
+    and 60 Scraps. No bookmark."""
+    g = Grid(120, 22)
+    F = 14
+    g.ground(0, 119, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(6, F - 1, "1")
+    ink(g, 8, 110, F, 6)
+    # A: two lanes under the wall, the top one against him.
+    g.fill(12, 34, F - 8, F + 1, "$")
+    g.fill(12, 34, F + 2, F + 3, "<")
+    g.fill(12, 34, F + 4, F + 5, ">")
+    # B: three rows, the lowest two with him.
+    g.fill(38, 62, F - 8, F + 2, "$")
+    g.fill(38, 62, F + 3, F + 3, "<")
+    g.fill(38, 62, F + 4, F + 5, ">")
+    # C: one lane, just wide enough, with him.
+    g.fill(66, 90, F - 8, F + 3, "$")
+    g.fill(66, 90, F + 4, F + 5, ">")
+    # D: still ink, short.
+    g.fill(94, 108, F - 8, F + 1, "$")
+    g.put(36, F - 5, "m")
+    g.put(64, F - 5, "m")
+    g.put(114, F - 1, "Y")   # the heart patch: a back page's goal for climb_check
+    g.put(117, F - 1, "o")
+    return g
+
+
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
     sump_road().write(os.path.join(OUT, "3_1_the_sump_road.txt"),
@@ -223,6 +399,27 @@ def main() -> None:
         "3-2 The Drowned Ledger (drawn by tools/levels/build_marsh.py; legend in\nscenes/levels/marsh/3_2_the_drowned_ledger.tscn)")
     sluice_house().write(os.path.join(OUT, "3_3_the_sluice_house.txt"),
         "3-3 The Sluice House (drawn by tools/levels/build_marsh.py; legend in\nscenes/levels/marsh/3_3_the_sluice_house.tscn)")
+    for build, name, title in ((reed_beds, "3_4_the_reed_beds", "3-4 The Reed Beds"),
+                               (herons_reach, "3_5_the_herons_reach", "3-5 The Heron's Reach"),
+                               (heronry, "heronry", "The Heronry"),
+                               (tally_room, "tally_room", "The Tally Room")):
+        build().write(os.path.join(OUT, name + ".txt"),
+            "%s (drawn by tools/levels/build_marsh.py; legend in\nscenes/levels/marsh/%s.tscn)" % (title, name))
+    import tempfile
+    solved = [list(r) for r in reed_beds().rows]
+    for y, row in enumerate(solved):
+        for x, c in enumerate(row):
+            if 98 <= x <= 131 and 22 <= y <= 25 and c == "<":
+                row[x] = ">"
+    with tempfile.NamedTemporaryFile("w", suffix="_3_4_weir_solved.txt", delete=False) as f:
+        f.write("\n".join("".join(r) for r in solved))
+    if not climb_check.main(f.name):
+        sys.exit(1)
+    weir = solve_weir()
+    print("weir solutions (wheel 1, wheel 2):", weir)
+    if weir != [(True, True)]:
+        print("FAIL: the Weir must need both wheels")
+        sys.exit(1)
     wins = solve_sluice_house()
     print("sluice house solutions (wheel 1, 2, 3):", wins)
     if not wins or (False, False, False) in wins or any(not (w[0] and w[1]) for w in wins):

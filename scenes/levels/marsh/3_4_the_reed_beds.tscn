@@ -1,0 +1,138 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_reed_beds.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/sluice_wheel.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheReedBeds" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Reed Beds"
+opening_caption = "The reed beds. The ink here had a pull to it, as if the whole marsh were draining somewhere."
+music = ExtResource("2_music")
+weather_tint = Color(0.34, 0.4, 0.42, 1)
+rain_amount = 140
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/marsh/3_4_the_reed_beds.txt"
+region = "marsh"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"D": ExtResource("9_e"),
+"E": ExtResource("6_e"),
+"J": ExtResource("8_e"),
+"Q": ExtResource("7_e"),
+"R": ExtResource("7_e"),
+"W": ExtResource("8_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("10_e"),
+"m": ExtResource("11_e"),
+"n": ExtResource("12_e"),
+"o": ExtResource("14_e"),
+"s": ExtResource("13_e")
+}
+entity_props = {
+"1": {
+"caption": "The outflow spat him out among reeds taller than houses: rolled paper, gone soft, standing up out of the ink in thickets.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The reeds grew too thick to climb and too tall to see over. The only way on was under them, through the dark at their roots.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Something had trampled the bank flat. There were feathers in the mud, long grey paper feathers, and they were wet.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The Weir. The channel ran hard back towards him, and at its far end a shaft of ink welled up out of the dark towards the high bank.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "From the reed mat he could see the gates: one wheel by the bank swung the channel and the shaft together. This one only the shaft.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "The counting stalls, up on the high bank where the clerks had carried the ledgers when the water came. They hadn't carried them far enough.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "A drain ran under the last of the reeds. Beyond it the marsh opened out, black and flat, and something stood far off in it on one leg.",
+"size": Vector2(128, 384)
+},
+"W": {
+"channels": Array[Rect2]([Rect2(104, 8, 2160, 112), Rect2(2152, -504, 112, 496)])
+},
+"J": {
+"channels": Array[Rect2]([Rect2(1256, -376, 112, 496)])
+},
+"D": {
+"door_prompt": "Go into the Tally Room",
+"requires_flag": "boss_heron_defeated",
+"target_page": "res://scenes/levels/marsh/tally_room.tscn",
+"target_spawn": &"Start"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_3_the_sluice_house.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_5_the_herons_reach.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromReach"
+},
+"Q": {
+"name": &"FromVault"
+},
+"i": {
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"b": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]
