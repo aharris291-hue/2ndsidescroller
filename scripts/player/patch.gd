@@ -149,6 +149,9 @@ var updraft_left := 0.0
 var _wings: Polygon2D
 ## A shove for this physics frame only (a Current sets it); cleared after each move.
 var push := Vector2.ZERO
+## Bookmark Warp (the Index): Gran's ribbon, while it's laid on this page.
+var ribbon: WarpRibbon
+var _warp_cooldown := 0.0
 
 @export_group("Blot Dive")
 ## Swimming speed through ink as a blot (Region 3, Watermark Marsh).
@@ -320,6 +323,7 @@ func _physics_process(delta: float) -> void:
 			_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
 
 	_blot_cooldown = maxf(_blot_cooldown - delta, 0.0)
+	_warp_cooldown = maxf(_warp_cooldown - delta, 0.0)
 	if not _blot_tick(delta):
 		match state:
 			State.NORMAL:
@@ -394,6 +398,8 @@ func _process_normal(delta: float) -> void:
 		try_grapple()
 	elif _action_pressed(&"switch_form") and armed:
 		switch_form()
+	elif _action_pressed(&"warp") and GameState.has_ability(&"bookmark_warp"):
+		bookmark_warp()
 	_update_grapple_highlight()
 
 
@@ -1328,6 +1334,86 @@ func _fell_off_page() -> void:
 	# Assist: a fall just puts him back on the ledge.
 	if not Settings.assist_safe_falls:
 		health.take_damage(1, global_position)
+
+
+# --- Bookmark Warp -----------------------------------------------------------
+# The Index: with no ribbon down, the warp button lays Gran's ribbon where Patch
+# stands (on the ground, side view). With it down, the button tears him back to it
+# from anywhere on the page, instantly, and picks it up. If something solid now
+# stands where the ribbon is, he can't come back there: the ribbon twitches and stays.
+
+## Lays the ribbon or warps back to it. Returns true if either happened.
+func bookmark_warp() -> bool:
+	if _warp_cooldown > 0.0 or view_mode != PageView.Mode.SIDE or blotting:
+		return false
+	if is_instance_valid(ribbon) and not ribbon.is_queued_for_deletion():
+		return _warp_to_ribbon()
+	if not is_on_floor():
+		return false
+	ribbon = WarpRibbon.lay(self)
+	_warp_cooldown = 0.25
+	AudioManager.play_sfx(&"tab_pull", 1.4, -4.0)
+	return true
+
+
+func _warp_to_ribbon() -> bool:
+	var target := ribbon.global_position
+	if not _room_at(target):
+		ribbon.blocked()
+		AudioManager.play_sfx(&"page_flip", 0.6, -6.0)
+		_warp_cooldown = 0.25
+		return false
+	_spawn_warp_tear(global_position)
+	if gliding:
+		gliding = false
+	ride_vx = 0.0
+	velocity = Vector2.ZERO
+	global_position = target
+	reset_physics_interpolation()
+	camera.reset_smoothing()
+	health.grant_invulnerability(0.35)
+	ribbon.queue_free()
+	ribbon = null
+	_warp_cooldown = 0.3
+	_coyote_left = coyote_time
+	AudioManager.play_sfx(&"swipe", 0.55)
+	_spawn_warp_tear(target)
+	_squash(Vector2(0.7, 1.3))
+	return true
+
+
+## Is there room for Patch at `at` (nothing solid where his body would be)?
+func _room_at(at: Vector2) -> bool:
+	var capsule := CapsuleShape2D.new()
+	capsule.radius = 22.0
+	capsule.height = 70.0
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = capsule
+	query.transform = Transform2D(0.0, at + Vector2(0, -4))
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	for hit in get_world_2d().direct_space_state.intersect_shape(query, 4):
+		var body: Object = hit.get("collider")
+		# A one-way plank (or drawer) under him isn't in the way.
+		if body is CollisionObject2D and (body as CollisionObject2D).is_shape_owner_one_way_collision_enabled(
+				(body as CollisionObject2D).shape_find_owner(int(hit.get("shape")))):
+			continue
+		return false
+	return true
+
+
+func _spawn_warp_tear(at: Vector2) -> void:
+	var tear := Line2D.new()
+	tear.top_level = true
+	tear.width = 10.0
+	tear.default_color = Color(0.62, 0.08, 0.09, 0.9)
+	tear.points = PackedVector2Array([at + Vector2(0, -60), at + Vector2(6, -10), at + Vector2(-5, 20), at + Vector2(0, 48)])
+	tear.z_index = 5
+	get_parent().add_child(tear)
+	var tween := tear.create_tween()
+	tween.tween_property(tear, "width", 0.0, 0.3)
+	tween.parallel().tween_property(tear, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(tear.queue_free)
 
 
 # --- Blot Dive ---------------------------------------------------------------

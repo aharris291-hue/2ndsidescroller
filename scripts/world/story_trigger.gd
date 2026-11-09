@@ -41,7 +41,7 @@ func _on_body_entered(body: Node2D) -> void:
 		GameState.set_flag(sets_flag)
 	if not caption.is_empty():
 		var text := caption
-		for action in [&"jump", &"attack", &"heavy", &"guard", &"mend", &"dash", &"grapple", &"slam", &"interact"]:
+		for action in [&"jump", &"attack", &"heavy", &"guard", &"mend", &"dash", &"grapple", &"slam", &"warp", &"interact"]:
 			text = text.replace("{%s}" % action, InputGlyphs.hint(action))
 		DialogueUI.narrate(text)
 	if not dialogue_id.is_empty() and not DialogueUI.is_active():

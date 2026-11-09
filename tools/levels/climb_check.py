@@ -30,6 +30,12 @@ under its rim point. A ghost train's rail '_' (a run of them is one train) is wh
 Patch stands in its car: he can climb in only near the run's left end, where the car
 waits, and once aboard he rides it all the way and can jump off anywhere along it.
 
+The Index adds card catalogue drawers ("; abilities: drawers" on the map, since 'r' and
+'q' may mean other things in older maps): 'r' slides out of the wall to its left, 'q' out
+of the wall to its right; the cell is the first cell of air, and out, the drawer's top is
+that row and it reaches 3 tiles into the air. Drawers come and go on a clock: here they
+are treated as always out. Shutters (letters in the legend) are treated as open.
+
   python3 tools/levels/climb_check.py levels/thistledown/1_5_the_mill_stair.txt
 """
 import math
@@ -111,6 +117,10 @@ def surfaces(rows):
                 out.append((y, x, x1, False, "ride", (x - 0.5, x + 3.0)))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
+            elif DRAWERS and c == "r":
+                out.append((y, x, x + 2, False))
+            elif DRAWERS and c == "q":
+                out.append((y, x - 2, x, False))
             elif c in INK and (y == 0 or (x < len(rows[y - 1]) and rows[y - 1][x] not in INK and rows[y - 1][x] not in SOLID) or x >= len(rows[y - 1])):
                 # the skin of a pool: dropped into, and leapt out of, like ground
                 out.append((y, x, x, False, "ink", (x, y)))
@@ -153,6 +163,7 @@ RING_RANGE = 8.0
 
 UP = 2.5
 GLIDE = False
+DRAWERS = False
 
 
 def glide_reach(ya, a0, a1, yb, b0, b1, launch=2.0):
@@ -197,11 +208,12 @@ def reach(a, b, from_draft=False):
 
 
 def main(path):
-    global UP, GLIDE
+    global UP, GLIDE, DRAWERS
     lines = open(path).read().splitlines()
     abilities = " ".join(ln for ln in lines if ln.startswith(";") and "abilities:" in ln)
     UP = 4.5 if "frog" in abilities else 2.5
     GLIDE = "glide" in abilities
+    DRAWERS = "drawers" in abilities
     rows = [ln for ln in lines if not ln.startswith(";")]
     ok, top, goal_row = climbable(rows)
     print("%s: %s (highest surface reached: row %.1f, exit on row %d)" % (path, "climbable" if ok else "NOT climbable", top, goal_row))

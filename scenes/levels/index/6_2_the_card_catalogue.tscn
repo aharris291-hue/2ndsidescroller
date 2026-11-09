@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_card_catalogue.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/silverfish.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/mimic_book.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="13_e"]
+[ext_resource type="Script" path="res://scripts/world/index_drawer.gd" id="14_e"]
+[ext_resource type="Script" path="res://scripts/world/shutter.gd" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="16_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheCardCatalogue" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Card Catalogue"
+opening_caption = "The Card Catalogue. Every word in the book has a drawer."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.46, 0.42, 1)
+rain_amount = 90
+lightning = false
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/index/6_2_the_card_catalogue.txt"
+region = "index"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"M": ExtResource("12_e"),
+"P": ExtResource("15_e"),
+"R": ExtResource("7_e"),
+"T": ExtResource("16_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("10_e"),
+"k": ExtResource("13_e"),
+"m": ExtResource("11_e"),
+"o": ExtResource("9_e"),
+"q": ExtResource("14_e"),
+"r": ExtResource("14_e"),
+"s": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "The card catalogue: a cabinet so big it had weather inside it. Somewhere up in the dark, drawers were sliding in and out on their own, the way they would if someone were still looking something up.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "A drawer came out of the wall over his head, stayed, thought about it, and went back in. Then the next one up. Then the next. As if the whole cabinet were breathing.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Half way up, a card had fallen out of a drawer into the dust: DRIZZLE, a dog of paper. See: the night of the flood. See: the window. See: who didn't come back.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The top of the catalogue, and the way on shut behind another sprung shutter. Its tab was down the shaft. Of course it was.",
+"size": Vector2(128, 384)
+},
+"r": {
+"cascade": 0.35,
+"dir": 1.0
+},
+"q": {
+"cascade": 0.35,
+"dir": -1.0
+},
+"P": {
+"open_time": 2.0,
+"size": Vector2(96, 320),
+"tag": "P"
+},
+"T": {
+"flips": PackedStringArray("P")
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/index/6_1_the_back_pages.tscn",
+"target_spawn": &"FromCatalogue"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/index/6_3_the_reading_room.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromReadingRoom"
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"scrap_drop": 2
+},
+"i": {
+"scrap_drop": 2
+},
+"M": {
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

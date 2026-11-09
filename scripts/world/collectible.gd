@@ -69,7 +69,7 @@ func _on_body_entered(body: Node2D) -> void:
 			GameState.unlock_ability(ability_id)
 			if not unlock_caption.is_empty():
 				var text := unlock_caption
-				for action in [&"dash", &"grapple", &"slam", &"attack", &"jump"]:
+				for action in [&"dash", &"grapple", &"slam", &"attack", &"jump", &"warp"]:
 					text = text.replace("{%s}" % action, InputGlyphs.hint(action))
 				DialogueUI.narrate(text)
 		Kind.HEART_PATCH:

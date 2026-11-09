@@ -1,0 +1,151 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_back_pages.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/silverfish.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/mimic_book.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="14_e"]
+[ext_resource type="Script" path="res://scripts/world/shutter.gd" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="16_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheBackPages" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Back Pages"
+opening_caption = "The Index. Everything in the book, listed."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.46, 0.42, 1)
+rain_amount = 90
+lightning = false
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/index/6_1_the_back_pages.txt"
+region = "index"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"B": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"M": ExtResource("13_e"),
+"P": ExtResource("15_e"),
+"Q": ExtResource("15_e"),
+"R": ExtResource("7_e"),
+"T": ExtResource("16_e"),
+"U": ExtResource("16_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("11_e"),
+"k": ExtResource("14_e"),
+"m": ExtResource("12_e"),
+"o": ExtResource("10_e"),
+"s": ExtResource("9_e")
+}
+entity_props = {
+"1": {
+"caption": "The Index. At the back of every book, after the story is over, the list of everything that was in it, filed by letter. Gran said you could tell what a book was really about by what it bothered to index.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The floor moved. Not the floor: something under the top sheet of it, long, nosing along, the paper lifting in a ridge over its back. Silverfish. They had eaten their way in and grown fat on the words.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "A reading desk with a book left open on it, face down, the way Gran always told Nell not to leave a book. Gran's book. Her red ribbon was still in it, keeping the place she'd never get back to.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "A shaft between the stacks, with something glinting at the bottom. A long way down. A long way back up, unless he left something to come back to.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "A roll shutter over the way through, and up on the stacks a tab to work it, on a spring. Gran's voice, from a long time ago: you never lose your place if you leave a ribbon in it.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "Index entries, pinned to the stacks in rows. FLOOD, THE: see NIGHT, THAT. NIGHT, THAT: see DRIZZLE. DRIZZLE: see PATCH.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "Another shutter, another tab, and something long and pale waiting by the door, chewing. It had eaten the bottom off the shutter's label. It would eat a ribbon just the same.",
+"size": Vector2(128, 384)
+},
+"8": {
+"caption": "PATCH, the entry said. Fox, paper. Left a friend in the rain. See also: everything after.",
+"size": Vector2(128, 384)
+},
+"B": {
+"ability_id": &"bookmark_warp",
+"offset": Vector2(0, -24),
+"unlock_caption": "Gran's ribbon. Patch took it out of her book and the page it kept closed for good. Bookmark Warp: press {warp} on the ground to lay the ribbon where you stand; press {warp} again, anywhere on the page, to tear back to it. It's paper. Silverfish eat paper."
+},
+"P": {
+"open_time": 1.6,
+"size": Vector2(96, 384),
+"tag": "P"
+},
+"Q": {
+"open_time": 1.4,
+"size": Vector2(96, 384),
+"tag": "Q"
+},
+"T": {
+"flips": PackedStringArray("P")
+},
+"U": {
+"flips": PackedStringArray("Q")
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/index/6_2_the_card_catalogue.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromCatalogue"
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"scrap_drop": 2
+},
+"i": {
+"scrap_drop": 2
+},
+"M": {
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

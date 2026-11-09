@@ -52,6 +52,7 @@ const REBINDABLE := {
 	&"grapple": "Thread grapple",
 	&"slam": "Pop-Up Slam",
 	&"switch_form": "Switch shears form",
+	&"warp": "Bookmark warp",
 	&"interact": "Interact",
 	&"map": "Torn map",
 	&"pause": "Pause",
@@ -64,6 +65,7 @@ const PRESETS := {
 		&"jump": [KEY_SPACE], &"attack": [KEY_Q], &"heavy": [KEY_E], &"guard": [KEY_C],
 		&"dash": [KEY_SHIFT], &"mend": [KEY_R], &"grapple": [KEY_TAB], &"slam": [KEY_V],
 		&"interact": [KEY_F], &"map": [KEY_G], &"pause": [KEY_ESCAPE], &"switch_form": [KEY_X],
+		&"warp": [KEY_Z],
 	},
 }
 const TEXT_SCALES: Array[float] = [1.0, 1.25, 1.5]

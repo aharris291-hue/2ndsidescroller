@@ -203,7 +203,7 @@ func _build_controls() -> Control:
 	left.pressed.connect(func() -> void:
 		Settings.apply_preset(&"left_hand")
 		_refresh())
-	left.focus_entered.connect(_set_hint.bind("Everything under the left hand: move WASD, jump Space, cut Q, heavy E, guard C, dodge Shift, mend R, grapple Tab, slam V, interact F."))
+	left.focus_entered.connect(_set_hint.bind("Everything under the left hand: move WASD, jump Space, cut Q, heavy E, guard C, dodge Shift, mend R, grapple Tab, slam V, warp Z, interact F."))
 	row.add_child(left)
 	var reset := _button("Reset to defaults")
 	reset.size_flags_horizontal = Control.SIZE_EXPAND_FILL
