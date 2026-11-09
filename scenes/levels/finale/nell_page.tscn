@@ -127,9 +127,8 @@ collision_layer = 32
 collision_mask = 2
 script = ExtResource("11_vhsx5")
 dialogue_id = "epilogue_bindwell"
+repeat_dialogue_id = "epilogue_bindwell"
 idle_bob = 3.0
-quest_progress_dialogue = "bindwell_progress"
-quest_turn_in_dialogue = "bindwell_done"
 prompt_offset = Vector2(0, -250)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=304524213]

@@ -14,6 +14,9 @@ const COMPANION_SCENE := preload("res://scenes/world/dot_companion.tscn")
 ## Story flag set after the first conversation, e.g. "met_shepherd_fluff".
 @export var first_talk_flag := ""
 @export var idle_bob := 4.0
+## Only on the page once this story flag is set (empty = always), e.g. Bindwell in the
+## Spine hub after his duel.
+@export var appears_flag := ""
 ## After the first conversation this NPC leaves the page and follows Patch (Dot).
 @export var joins_as_companion := false
 ## The follower that replaces this NPC when it joins.
@@ -32,6 +35,9 @@ var _time := randf() * TAU
 func _ready() -> void:
 	prompt_text = "Talk"
 	super._ready()
+	if not appears_flag.is_empty() and not GameState.get_flag(appears_flag):
+		queue_free()
+		return
 	if joins_as_companion and not first_talk_flag.is_empty() and GameState.get_flag(first_talk_flag):
 		queue_free()
 

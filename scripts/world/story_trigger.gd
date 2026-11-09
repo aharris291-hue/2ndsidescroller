@@ -11,6 +11,8 @@ extends Area2D
 @export var size := Vector2(128, 256)
 ## Only fires once this flag is set (empty = no condition).
 @export var requires_flag := ""
+## A story flag set when it fires, e.g. "patch_told_truth".
+@export var sets_flag := ""
 
 
 func _ready() -> void:
@@ -35,6 +37,8 @@ func _on_body_entered(body: Node2D) -> void:
 	if not requires_flag.is_empty() and not GameState.get_flag(requires_flag):
 		return
 	GameState.set_flag(_flag())
+	if not sets_flag.is_empty():
+		GameState.set_flag(sets_flag)
 	if not caption.is_empty():
 		var text := caption
 		for action in [&"jump", &"attack", &"heavy", &"guard", &"mend", &"dash", &"grapple", &"slam", &"interact"]:

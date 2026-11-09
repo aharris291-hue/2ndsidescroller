@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_low_point.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="11_e"]
+[ext_resource type="Script" path="res://scripts/enemies/clockwork_needle.gd" id="12_e"]
+[ext_resource type="Script" path="res://scripts/world/gust.gd" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/campfire.tscn" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheLowPoint" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Low Point"
+opening_caption = "The Low Point. The top of the spine, in the worst of the weather."
+music = ExtResource("2_music")
+weather_tint = Color(0.4, 0.45, 0.55, 1)
+rain_amount = 260
+lightning = false
+snow = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/peaks/4_5_the_low_point.txt"
+region = "peaks"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"G": ExtResource("13_e"),
+"L": ExtResource("15_e"),
+"N": ExtResource("12_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"f": ExtResource("8_e"),
+"k": ExtResource("14_e"),
+"m": ExtResource("11_e"),
+"n": ExtResource("10_e"),
+"o": ExtResource("9_e"),
+"s": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "Over the top of the spine the snow came sideways, and the wind came with it, and both of them were against him.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Out of the blizzard, shapes. Soggies, a knight, a moth, one of the needles still sewing. The Sogg's things, as close to the top as they could get. As close to her.",
+"size": Vector2(128, 384)
+},
+"3": {
+"dialogue_id": "peaks_lowpoint",
+"sets_flag": "patch_told_truth",
+"size": Vector2(192, 384)
+},
+"4": {
+"caption": "Above them, at the very top of the book, the sky was the colour of ink. Something up there was waiting for him. It had been waiting since the flood.",
+"size": Vector2(128, 384)
+},
+"G": {
+"blow_time": 2.6,
+"rest_time": 1.8,
+"size": Vector2(1920, 512),
+"snow": true,
+"strength": -520.0
+},
+"N": {
+"max_drop": 640.0,
+"rail_left": -384.0,
+"rail_right": 384.0,
+"speed": 150.0
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/peaks/bindwell_workshop.tscn",
+"target_spawn": &"FromLowPoint"
+},
+"E": {
+"requires_flag": "patch_told_truth",
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/ch3_spine/sogg_arena.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromSummit"
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"f": {
+"frozen": true,
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

@@ -89,6 +89,13 @@ const ENTRIES := {
 		"tell": "The pin shakes before it drops. Step out from under it, then cut the pin while it's stuck. Three cuts snap it.",
 		"weak": -1,
 	},
+	"bindwell": {
+		"name": "Old Bindwell",
+		"art": "res://assets/art/dark/friends/bindwell.png",
+		"note": "The bookbinder's needle. He sewed the spine shut the night of the flood, to keep the water out of the high pages, and when the low pages knocked he didn't open it. He knew Patch was out there. He sewed anyway.",
+		"tell": "The red stabs can't be guarded: step out of them. The white one can. Parry it and he's only wire for a moment. Jump his thread. When he sews the floor, stay in the middle.",
+		"weak": -1,
+	},
 	"heron": {
 		"name": "The Grey Heron",
 		"art": "res://assets/art/dark/bosses/heron.png",
@@ -106,7 +113,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "inked", "millwheel", "kraken", "heron", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "inked", "millwheel", "kraken", "heron", "bindwell", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

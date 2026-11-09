@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/dark/props/stove.png" id="8_stove"]
 [ext_resource type="Texture2D" path="res://assets/art/dark/props/hanging_lamp.png" id="9_lamp"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="10_patch"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_bindwell.tscn" id="11_bindwell"]
 
 [node name="SpineHub" type="Node2D"]
 script = ExtResource("1_page")
@@ -78,6 +79,10 @@ entity_props = {
 [node name="Stair" type="Node2D" parent="."]
 script = ExtResource("7_stair")
 boards = Array[Vector2]([Vector2(2336, 832), Vector2(2144, 704)])
+
+[node name="Bindwell" parent="." instance=ExtResource("11_bindwell")]
+position = Vector2(1440, 960)
+appears_flag = "boss_bindwell_defeated"
 
 [node name="Patch" parent="." instance=ExtResource("10_patch")]
 position = Vector2(224, 956)
