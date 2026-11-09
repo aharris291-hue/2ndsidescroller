@@ -82,6 +82,13 @@ const ENTRIES := {
 		"tell": "Yank both blotter rings to drop the blotters on it, then cut the eye.",
 		"weak": -1,
 	},
+	"heron": {
+		"name": "The Grey Heron",
+		"art": "res://assets/art/dark/bosses/heron.png",
+		"note": "It was printed in the paper of the marsh, like the other watermarks. It stood in the reeds the night of the flood and watched. So did Patch. He told me that part himself.",
+		"tell": "Get in close on the peat so it stabs the peat, not the ink. Then its beak sticks: cut its head. When it spreads its wings, get in the ink.",
+		"weak": -1,
+	},
 	"sogg": {
 		"name": "The Sogg",
 		"art": "res://assets/art/dark/bosses/sogg_body.png",
@@ -92,7 +99,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "inked", "millwheel", "kraken", "sogg"]
+	"folded_crane", "mimic_book", "inked", "millwheel", "kraken", "heron", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

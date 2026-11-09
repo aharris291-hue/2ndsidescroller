@@ -1376,8 +1376,160 @@ func _watermark_marsh(game_state: Node, scene_manager: Node, dialogue: Node) -> 
 	_check(b_left.direction == Vector2.LEFT, "and turning one back reverses it again")
 	w1.turn()
 	var outflow := level.get_node("page_exit_36_17") as Node2D
-	_check(outflow.target_page == "res://scenes/levels/hub/spine_hub.tscn" and load("res://scripts/world/ink_pool.gd").ink_at(self, outflow.global_position + Vector2(-64, -32)), "the outflow, under the ink, leads back to the Spine for now")
+	_check(outflow.target_page == R3 + "3_4_the_reed_beds.tscn" and load("res://scripts/world/ink_pool.gd").ink_at(self, outflow.global_position + Vector2(-64, -32)), "the outflow, under the ink, leads on to the reed beds")
 	_check(load("res://scripts/world/book_map.gd").region_of(R3 + "3_3_the_sluice_house.tscn").get("id") == &"marsh", "the sluice house belongs to the Marsh")
+	game_state.max_health = 99
+	game_state.health = 99
+	await _marsh_part_two(game_state, scene_manager, dialogue)
+
+
+## Watermark Marsh part 2: the Reed Beds and the Weir, the Heron's Reach, the Grey
+## Heron, and the Tally Room behind its seal.
+func _marsh_part_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R3 := "res://scenes/levels/marsh/"
+	await scene_manager.change_page(R3 + "3_4_the_reed_beds.tscn", &"Start")
+	await _wait_for_scene("TheReedBeds", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var channel := level.get_node("Current_98_22")
+	var shaft := level.get_node("Current_130_14")
+	_check(channel.direction == Vector2.LEFT and shaft.direction == Vector2.UP, "the Weir: the channel runs back at Patch, the shaft runs up")
+	var w1 := level.get_node("sluice_wheel_96_21")
+	var w2 := level.get_node("sluice_wheel_110_19")
+	_check(w1.currents().size() == 2 and w1.currents().has(channel) and w1.currents().has(shaft), "the bank wheel turns the channel and the shaft together")
+	_check(w2.currents() == [shaft], "the mat wheel turns only the shaft")
+	w1.turn()
+	_check(channel.direction == Vector2.RIGHT and shaft.direction == Vector2.DOWN, "one wheel alone sends the shaft the wrong way")
+	w2.turn()
+	_check(channel.direction == Vector2.RIGHT and shaft.direction == Vector2.UP, "both wheels open the way to the high bank")
+	# Ride the shaft: a blot at its foot is carried up and out.
+	patch.global_position = shaft.global_position + Vector2(64, shaft.size.y - 40)
+	patch.velocity = Vector2.ZERO
+	var y0 := patch.global_position.y
+	for i in 70:
+		await physics_frame
+	_check(patch.global_position.y < y0 - 200.0, "the upwelling carries the blot up the shaft (%.0f px)" % (y0 - patch.global_position.y))
+	var door := level.get_node("page_door_150_13")
+	_check(door.target_page == R3 + "tally_room.tscn" and not door.is_open(), "the Tally Room is sealed until the heron is down")
+	var exits := _named(level, "page_exit")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R3 + "3_5_the_herons_reach.tscn"), "the reed beds lead on to the Heron's Reach")
+
+	await scene_manager.change_page(R3 + "3_5_the_herons_reach.tscn", &"Start")
+	await _wait_for_scene("TheHeronsReach", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	_check(_named(level, "tack_knight").filter(func(n: Node) -> bool: return n.inked).size() == 2, "Inked Tack Knights in the heron's larder and on the far bank")
+	_check(_named(level, "grapple_ring").size() == 5, "rings over the black lake (%d)" % _named(level, "grapple_ring").size())
+	exits = _named(level, "page_exit")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R3 + "heronry.tscn"), "the reach ends at the Heronry")
+
+	# The Grey Heron.
+	await scene_manager.change_page(R3 + "heronry.tscn", &"Start")
+	await _wait_for_scene("TheHeronry", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	var heron := current_scene.get_node("GreyHeron")
+	var exit_door := current_scene.get_node("ExitDoor")
+	_check(not exit_door.visible, "no way out of the Heronry while the heron stands")
+	heron.start_fight()
+	_check(heron.state == 1, "the Grey Heron fight starts")
+	# A stab at the ink only splashes; at the peat it sticks.
+	heron._stab(Vector2(6 * 64, 14 * 64))
+	for i in 90:
+		await physics_frame
+	_check(heron.state != 4, "a stab into the ink doesn't stick")
+	for i in 60:
+		if heron.state == 1:
+			break
+		await physics_frame
+	var hp: int = game_state.health
+	patch.health.clear_invulnerability()
+	patch.global_position = Vector2(14 * 64, 14 * 64 - 50)
+	patch.velocity = Vector2.ZERO
+	heron._stab(patch.global_position + Vector2(0, 40))
+	for i in 80:
+		if heron.state == 4:
+			break
+		await physics_frame
+	_check(heron.state == 4, "a stab into the peat sticks fast")
+	_check(game_state.health < hp, "and it hurts, if Patch is standing there (hp %d of %d)" % [game_state.health, hp])
+	game_state.health = 99
+	patch.health.grant_invulnerability(900.0)
+	_check(heron.skull.monitoring, "while it's stuck its head can be cut")
+	var before: int = heron.health.current
+	# Let Patch shake off the hit, then cut at the beak where it's buried.
+	for i in 30:
+		if patch.state == 0:
+			break
+		await physics_frame
+	patch.global_position = Vector2(14 * 64 - 80, 14 * 64 - 50)
+	patch.velocity = Vector2.ZERO
+	patch.facing = Vector2.RIGHT
+	await _frames(2)
+	Input.action_press(&"attack")
+	await _frames(2)
+	Input.action_release(&"attack")
+	await _frames(20)
+	_check(heron.health.current < before, "a cut to the stuck head hurts the heron (%d of %d)" % [heron.health.current, heron.health.max_health])
+	# A sweep: anything on the peat is hit, a blot in the ink is not.
+	heron.health.current = 7
+	for i in 120:
+		if heron.state == 1:
+			break
+		await physics_frame
+	patch.health.clear_invulnerability()
+	patch.global_position = Vector2(23 * 64, 15 * 64 + 20)
+	patch.velocity = Vector2.ZERO
+	for i in 6:
+		await physics_frame
+	hp = game_state.health
+	heron._sweep()
+	for i in 120:
+		await physics_frame
+	_check(patch.blotting and game_state.health == hp, "a blot in the ink is untouched by the wing sweep")
+	patch.health.grant_invulnerability(900.0)
+	# Bring it down.
+	heron.health.current = 1
+	heron.health.take_damage(5, heron.global_position)
+	for i in 300:
+		if dialogue.is_active():
+			break
+		await physics_frame
+	await _skip_dialogue(dialogue)
+	await _frames(20)
+	_check(game_state.get_flag("boss_heron_defeated") and exit_door.visible, "the Grey Heron folds down, and the way back opens")
+	_check(game_state.bestiary.get("heron", 0) >= 1, "Nell's book gets a page for the heron")
+	var book_map := load("res://scripts/world/book_map.gd")
+	_check(book_map.region(&"marsh").get("mended_flag") == "boss_heron_defeated" and book_map.region(&"peaks").get("open_flag") == "boss_heron_defeated",
+		"the heron mends the Marsh and opens the way to the Peaks")
+
+	# The Tally Room, open now.
+	await scene_manager.change_page(R3 + "3_4_the_reed_beds.tscn", &"FromVault")
+	await _wait_for_scene("TheReedBeds", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(current_scene.get_node("Level/page_door_150_13").is_open(), "the heron down, the Tally Room unseals")
+	await scene_manager.change_page(R3 + "tally_room.tscn", &"Start")
+	await _wait_for_scene("TheTallyRoom", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	_check(get_nodes_in_group(&"bookmarks").filter(func(n: Node) -> bool: return current_scene.is_ancestor_of(n)).is_empty(), "the Tally Room has no Bookmark")
+	var hearts_before: int = game_state.max_health
+	var scraps_before: int = game_state.scraps
+	patch.global_position = (level.get_node("heart_patch_114_13") as Node2D).global_position
+	await _frames(10)
+	patch.global_position = (level.get_node("scrap_117_13") as Node2D).global_position
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	_check(game_state.max_health == hearts_before + 2 and game_state.scraps >= scraps_before + 60, "the clerks' last tally: a heart patch and 60 Scraps")
 	game_state.max_health = 99
 	game_state.health = 99
 
@@ -1433,7 +1585,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(card != null and card.place_name == "The Spine", "walking into the Spine writes its name across the screen")
 	# Music that fills in: with only the Prologue mended the music is still far off.
 	var audio := root.get_node("AudioManager")
-	_check(is_equal_approx(audio.fullness(), 0.25), "one region of four mended: the music is a quarter full (%.2f)" % audio.fullness())
+	_check(is_equal_approx(audio.fullness(), 0.2), "one region of five mended: the music is a fifth full (%.2f)" % audio.fullness())
 	var doors := {}
 	for node in current_scene.get_node("Level").get_children():
 		if node.get("region_id") != null and node.get("region_id") != &"":
@@ -1454,7 +1606,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	var cutoff_before: float = audio._lowpass.cutoff_hz
 	audio.update_fullness()
 	await create_timer(4.5).timeout
-	_check(is_equal_approx(audio.music_fullness, 0.5) and audio._lowpass.cutoff_hz > cutoff_before * 2.0
+	_check(is_equal_approx(audio.music_fullness, 0.4) and audio._lowpass.cutoff_hz > cutoff_before * 2.0
 		and audio._reverb.wet < 0.2, "mending a region fills the music in (cutoff %d Hz)" % audio._lowpass.cutoff_hz)
 	# Climb: the two boards and the gallery are each within a jump of the last.
 	var tops: Array[float] = [960.0, 832.0, 704.0, 576.0]

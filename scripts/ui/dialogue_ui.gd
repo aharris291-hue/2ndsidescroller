@@ -17,6 +17,7 @@ const DIALOGUE_FILES: Array[String] = [
 	"res://data/dialogue/margin.json",
 	"res://data/dialogue/prologue.json",
 	"res://data/dialogue/interludes.json",
+	"res://data/dialogue/marsh.json",
 ]
 const SPEAKERS_FILE := "res://data/speakers.json"
 const CHARS_PER_SECOND := 45.0

@@ -64,7 +64,7 @@ entity_props = {
 },
 "E": {
 "size": Vector2(128, 192),
-"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_page": "res://scenes/levels/marsh/3_4_the_reed_beds.tscn",
 "target_spawn": &"Start"
 }
 }

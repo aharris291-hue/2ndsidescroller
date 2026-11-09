@@ -80,6 +80,10 @@ def surfaces(rows):
     return out
 
 
+def _ink_at(rows, x, y):
+    return 0 <= y < len(rows) and 0 <= x < len(rows[y]) and rows[y][x] in INK
+
+
 def swim(rows, start):
     """Ink cells a blot can reach from `start` on one breath (Dijkstra, in tiles of
     swimming: 0.55 with a current, 6 against it, 1 otherwise)."""
@@ -94,6 +98,9 @@ def swim(rows, start):
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             nx, ny = x + dx, y + dy
             if ny < 0 or ny >= len(rows) or nx < 0 or nx >= len(rows[ny]) or rows[ny][nx] not in INK:
+                continue
+            # Patch is two tiles tall: a lane one tile high is too tight for him.
+            if not (_ink_at(rows, nx, ny - 1) or _ink_at(rows, nx, ny + 1)):
                 continue
             flow = CURRENT.get(here)
             cost = 1.0 if flow is None else (0.55 if flow == (dx, dy) else 6.0 if flow == (-dx, -dy) else 1.0)

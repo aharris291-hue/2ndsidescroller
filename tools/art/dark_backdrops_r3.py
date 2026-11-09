@@ -4,6 +4,9 @@ renders in tools/art/source/.
   bg_sump_road.png      3840x1080, the marsh's boardwalks over black ink (3-1), mirrored strip
   bg_drowned_ledger.png 3840x1080, the sunken archive and its ink channels (3-2), mirrored strip
   bg_sluice_house.png   1920x1080, inside the sluice house (3-3)
+  bg_reed_beds.png      3840x1080, paper reeds standing in the ink (3-4), mirrored strip
+  bg_herons_reach.png   3840x1080, the black lake with the heron in the mist (3-5), mirrored strip
+  bg_heronry.png        1920x1080, the reed ring round the heron's nest (the boss)
 
 Run: python3 tools/art/dark_backdrops_r3.py
 """
@@ -35,7 +38,10 @@ def main() -> None:
     ImageEnhance.Brightness(ledger).enhance(0.85).save(os.path.join(DARK, "bg_drowned_ledger.png"))
     sluice = fit("sluice_house_raw.png")
     ImageEnhance.Brightness(sluice).enhance(0.8).save(os.path.join(DARK, "bg_sluice_house.png"))
-    print("wrote sump road, drowned ledger and sluice house backdrops")
+    for raw, out in (("reed_beds_raw.png", "bg_reed_beds.png"), ("herons_reach_raw.png", "bg_herons_reach.png")):
+        ImageEnhance.Brightness(strip(fit(raw))).enhance(0.85).save(os.path.join(DARK, out))
+    ImageEnhance.Brightness(fit("heronry_raw.png")).enhance(0.85).save(os.path.join(DARK, "bg_heronry.png"))
+    print("wrote the Marsh backdrops")
 
 
 if __name__ == "__main__":
