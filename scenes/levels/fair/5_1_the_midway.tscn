@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_midway.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/carousel_horse.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheMidway" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Midway"
+opening_caption = "Gatefold Fair. The fair that never closed."
+music = ExtResource("2_music")
+weather_tint = Color(0.44, 0.38, 0.46, 1)
+rain_amount = 220
+lightning = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/fair/5_1_the_midway.txt"
+region = "fair"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"B": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"c": ExtResource("11_e"),
+"k": ExtResource("13_e"),
+"m": ExtResource("12_e"),
+"o": ExtResource("10_e"),
+"s": ExtResource("9_e")
+}
+entity_props = {
+"1": {
+"caption": "The Gatefold Fair. Gran took Nell every summer, and every summer Nell made her stay till the lights went off. Nobody turned them off this time. The flood did.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Something was still going round. It had come off the carousel with its pole through it and it went round on its own now, round and round the boards, looking for a rider.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "The ticket booth. Pinned inside the glass, among the old prices, a paper plane folded from the back page of a programme. Gran's folds. Nell's name on the wing, in Nell's writing, aged six.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "Where the boards had gone the fair went down and down into the dark, and somewhere a long way under it the organ was still playing.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "Warm air out of the vents, from the generators under the boards. Enough to lift a sheet of paper. Enough to lift a fox, folded right.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "From the roofs he could see the whole fair turning in the rain: the wheel, the helter-skelter, the big top with its lamps lit. All of it open. Nobody inside.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "The vent breathed. Stopped. Breathed. The whole fair did that now, like something asleep.",
+"size": Vector2(128, 384)
+},
+"8": {
+"caption": "A banner across the way to the wheel, painted fresh over the old one: ROLL UP. NOBODY LEAVES. EVERYBODY HAS A WONDERFUL TIME.",
+"size": Vector2(128, 384)
+},
+"B": {
+"ability_id": &"paper_plane",
+"offset": Vector2(0, -24),
+"unlock_caption": "Gran had folded it for Nell on the bus home, so she'd stop crying about the lights going off. Nose, wings, a crease down the middle. Patch folded himself the same way. Paper Plane Glide: hold {jump} while falling to glide. Warm air from the vents lifts a glider."
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/fair/5_2_the_big_wheel.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromBigWheel"
+},
+"m": {
+"scrap_drop": 1
+},
+"s": {
+"scrap_drop": 2
+},
+"c": {
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

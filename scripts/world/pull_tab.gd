@@ -10,6 +10,9 @@ signal toggled(is_pulled: bool)
 @export var move_offset := Vector2(0, -320)
 @export var duration := 0.9
 @export var one_shot := false
+## Gatefold Fair (5-3): the tags of the vent flaps (Updraft) on this page that each pull
+## flips.
+@export var flips: PackedStringArray = []
 
 var is_pulled := false
 var _start_position := Vector2.ZERO
@@ -53,4 +56,8 @@ func _slide(pulled: bool) -> void:
 		tween.parallel().tween_property(target, "position", _start_position + (move_offset if pulled else Vector2.ZERO), duration)
 	await tween.finished
 	_busy = false
+	if not flips.is_empty():
+		for draft in get_tree().get_nodes_in_group(&"vent_flaps"):
+			if draft.owner == owner and draft.tag in flips:
+				draft.flip()
 	toggled.emit(is_pulled)

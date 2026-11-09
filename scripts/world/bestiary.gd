@@ -89,6 +89,13 @@ const ENTRIES := {
 		"tell": "The pin shakes before it drops. Step out from under it, then cut the pin while it's stuck. Three cuts snap it.",
 		"weak": -1,
 	},
+	"carousel_horse": {
+		"name": "Carousel Horse",
+		"art": "res://assets/art/dark/enemies/carousel_horse.png",
+		"note": "Off the fair's carousel, with the pole still through it. Nell rode the white one every summer and called it Captain. It doesn't remember her. It goes round on its own now, looking for anyone to carry.",
+		"tell": "It rears before it charges. The charge is three big bounds and you can guard them: parry one, or let it run into a wall, and it goes over on its side. Cut it while it's down.",
+		"weak": -1,
+	},
 	"bindwell": {
 		"name": "Old Bindwell",
 		"art": "res://assets/art/dark/friends/bindwell.png",
@@ -113,7 +120,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "inked", "millwheel", "kraken", "heron", "bindwell", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "inked", "millwheel", "kraken", "heron", "bindwell", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

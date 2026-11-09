@@ -19,6 +19,15 @@ ground), fold marks 'F' (a Pop-Up Slam springs a paper peak 4 tiles tall and abo
 wide: its top is a surface), and the Frog Fold: a map with a comment line
 "; abilities: frog" is checked with Patch able to spring 4.5 rows up instead of 2.5.
 
+Gatefold Fair adds the Paper Plane Glide ("; abilities: glide" on the map): gliding,
+Patch covers 3 tiles across for every row he drops, so from the top of a jump he reaches
+any lower (or not much higher) surface 4 + 3 x (drop + 2) tiles away. Updrafts '|' (a
+column of them is one Updraft) lift a glider to the top of the column: Patch can glide
+into a column from any surface the same rule reaches, and leaves its top gliding (but
+never higher). A ferris wheel 'Z' stands on this cell: its seats ride a circle of
+7 tiles' radius whose centre is 11 rows over the cell's floor, each seat 2.65 rows
+under its rim point.
+
   python3 tools/levels/climb_check.py levels/thistledown/1_5_the_mill_stair.txt
 """
 import math
@@ -81,6 +90,18 @@ def surfaces(rows):
                 # a fold mark's pop-up peak: 4 tiles tall, 132 px wide
                 # (Patch rides it up from the ground it stands on)
                 out.append((y + 1 - 4, x - 0.5, x + 0.5, False, "fold", (x, y + 1)))
+            elif c == "Z":
+                cy = (y + 1) - 11
+                for k in range(16):
+                    a = k / 16 * math.tau
+                    sx = x + 0.5 + math.cos(a) * 7
+                    sy = cy + math.sin(a) * 7 + 2.65
+                    out.append((sy, sx - 1.1, sx + 1.1, False))
+            elif c == "|" and (y == 0 or rows[y - 1][x] != "|"):
+                y1 = y
+                while y1 + 1 < len(rows) and x < len(rows[y1 + 1]) and rows[y1 + 1][x] == "|":
+                    y1 += 1
+                out.append((y, x - 0.5, x + 1.5, False, "draft", y1 + 1))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
             elif c in INK and (y == 0 or (x < len(rows[y - 1]) and rows[y - 1][x] not in INK and rows[y - 1][x] not in SOLID) or x >= len(rows[y - 1])):
@@ -124,11 +145,28 @@ RING_RANGE = 8.0
 
 
 UP = 2.5
+GLIDE = False
 
 
-def reach(a, b):
+def glide_reach(ya, a0, a1, yb, b0, b1, launch=2.0):
+    """Gliding from a surface at row ya: how far across can he get down to row yb?"""
+    gap = max(b0 - a1, a0 - b1, 0)
+    return gap <= 4 + 3 * max(0.0, yb - ya + launch)
+
+
+def reach(a, b, from_draft=False):
     ya, a0, a1, soft = a[:4]
     yb, b0, b1 = b[:3]
+    if len(b) > 4 and b[4] == "draft":
+        # into a column of updraft, anywhere above its foot
+        if not GLIDE:
+            return False
+        launch = 0.0 if from_draft else min(UP, 2.0)
+        # its foot must be no higher than the top of his jump
+        return b[5] >= ya - launch and glide_reach(ya, a0, a1, b[5], b0, b1, launch)
+    if from_draft:
+        # off the top of an updraft: no jump, only the glide
+        return yb >= ya - 0.5 and glide_reach(ya, a0, a1, yb, b0, b1, 0.0)
     if len(b) > 4 and b[4] == "fold":
         bx, by = b[5]
         if ya == by and a0 - 0.5 <= bx <= a1 + 0.5:
@@ -140,15 +178,19 @@ def reach(a, b):
         return math.hypot(b0 - nx, (ya - 0.7) - (yb - 1.25)) <= RING_RANGE
     gap = max(b0 - a1, a0 - b1, 0)
     up = ya - yb
+    if GLIDE and not soft and up <= UP and glide_reach(ya, a0, a1, yb, b0, b1):
+        return True
     if up > 0:
         return up <= (1.0 if soft else UP) and gap <= 3
     return gap <= 4
 
 
 def main(path):
-    global UP
+    global UP, GLIDE
     lines = open(path).read().splitlines()
-    UP = 4.5 if any(ln.startswith(";") and "abilities:" in ln and "frog" in ln for ln in lines) else 2.5
+    abilities = " ".join(ln for ln in lines if ln.startswith(";") and "abilities:" in ln)
+    UP = 4.5 if "frog" in abilities else 2.5
+    GLIDE = "glide" in abilities
     rows = [ln for ln in lines if not ln.startswith(";")]
     ok, top, goal_row = climbable(rows)
     print("%s: %s (highest surface reached: row %.1f, exit on row %d)" % (path, "climbable" if ok else "NOT climbable", top, goal_row))
@@ -190,7 +232,7 @@ def climbable(rows, start=None, goal=None):
             if a_ink and b_ink and surf[j][5] in swims[i]:
                 seen.add(j)
                 q.append(j)
-            elif reach(surf[i][:4], surf[j]) if not b_ink else reach(surf[i][:4], surf[j][:4]):
+            elif reach(surf[i][:4], surf[j], len(surf[i]) > 4 and surf[i][4] == "draft") if not b_ink else reach(surf[i][:4], surf[j][:4]):
                 seen.add(j)
                 q.append(j)
     ok = g in seen
