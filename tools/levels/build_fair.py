@@ -1,5 +1,6 @@
-"""Draws Region 5's text maps: Gatefold Fair, the fair that never closed (Phase 3,
-part 1: 5-1 to 5-3).
+"""Draws Region 5's text maps: Gatefold Fair, the fair that never closed (Phase 3:
+5-1 to 5-5, the big top where the Barker waits, and Lost Property, 5-4's sealed back
+page).
 
 Writes levels/fair/*.txt. Each map's legend is in its scene's TextLevel node
 (scenes/levels/fair/*.tscn); the shared characters are:
@@ -8,6 +9,10 @@ Writes levels/fair/*.txt. Each map's legend is in its scene's TextLevel node
   @  start   k  bookmark   s  Soggy   c  carousel horse   m  moth   o  scrap
   1-9  story triggers   E  exit   X  way back   R  arrival point   B  ability page
   Z  the Big Wheel (stands on this cell; see climb_check)
+  _  a ghost train's rail (5-4: a run of them is one train; Patch boards at its left end)
+  g  a pop-up ghoul on its spring, under the rail (on the row above the '_')
+  D  a sealed door (5-4: to Lost Property, once the Barker is beaten); L  back out of it
+  O  a brass ring for the Tape Tail   Y  a heart patch (a back page's goal)
   T U J  pull tabs (5-3: each flips the vent flaps named in its scene's legend)
   A B C  vents under gatefold flaps (5-3: an Updraft each, its height in the legend)
 
@@ -187,6 +192,125 @@ def solve_gatefold() -> list:
     return None
 
 
+def ghost_train() -> Grid:
+    """5-4 The Ghost Train: in at the painted mouth, a fight on the station boards; the
+    first car, over the ink, with ghouls springing up across the rail; the middle
+    station (a bookmark, and a door the Barker keeps locked: Lost Property); the long
+    high ride, faster ghouls; and off the end of the line, gliding, over the dark to
+    the far platform and the way out to the big top."""
+    g = Grid(216, 30)
+    F = 22
+    g.ground(0, 44, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    g.put(16, F - 1, "s")
+    g.put(24, F - 1, "c")
+    g.put(30, F - 4, "m")
+    g.put(34, F - 1, "s")
+    g.put(38, F - 1, "2")
+    g.put(41, F - 2, "o")
+    # S2 the first ride: level with the station, over the ink.
+    g.fill(45, 95, F, F, "_")
+    for x in (60, 73, 86):
+        g.put(x, F - 1, "g")
+    # S3 the middle station, two rows up from the car; a bookmark and the sealed door.
+    g.fill(97, 113, F - 2, F - 1, "%")
+    g.put(99, F - 3, "3")
+    g.put(102, F - 3, "k")
+    g.put(106, F - 3, "D")
+    g.put(108, F - 3, "L")
+    g.put(110, F - 3, "o")
+    # S4 the long ride, two rows higher again, with more of them waiting.
+    g.fill(114, 170, F - 4, F - 4, "_")
+    for x in (126, 138, 150, 162):
+        g.put(x, F - 5, "g")
+    g.put(120, F - 5, "4")
+    # S5 off the end of the line: the far platform, four rows down, fifteen tiles off.
+    g.ground(186, 215, F)
+    g.put(188, F - 1, "5")
+    g.put(194, F - 1, "s")
+    g.put(200, F - 1, "c")
+    g.put(206, F - 1, "s")
+    g.put(209, F - 1, "o")
+    g.put(211, F - 1, "R")
+    g.put(214, F - 1, "E")
+    return g
+
+
+def big_top() -> Grid:
+    """5-5 The Rigging: the outside of the big top. A fight at the foot of the tent,
+    then up its rigging: guy-rope planks, a ring to swing from on the king pole, a
+    warm vent from the generator wagon, and the last glide in through the hole in
+    the canvas at the top, where the lamp is."""
+    g = Grid(80, 48)
+    F = 44
+    g.ground(0, 34, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    g.put(14, F - 1, "s")
+    g.put(20, F - 1, "c")
+    g.put(26, F - 1, "s")
+    g.put(24, F - 5, "m")
+    # The guy-ropes: planks stepping up the canvas.
+    g.plank(31, 35, F - 3)
+    g.plank(38, 42, F - 6)
+    g.put(39, F - 7, "2")
+    g.plank(31, 35, F - 9)
+    g.plank(38, 42, F - 12)
+    g.put(36, F - 14, "m")
+    # A ring in the rigging, out from the last guy-rope, and the trapeze board past it.
+    g.put(46, F - 19, "O")
+    g.plank(49, 55, F - 18)
+    g.put(52, F - 19, "k")
+    g.put(54, F - 19, "3")
+    # The generator wagon's exhaust, a column of warm air up the side of the tent.
+    g.fill(58, 79, F - 4, F - 3, "%")
+    draft(g, 62, F - 34, F - 5)
+    g.put(68, F - 5, "c")
+    g.put(74, F - 5, "s")
+    g.put(66, F - 21, "m")
+    # The top: the lamp, and the hole in the canvas, just under the top of the draft.
+    g.fill(66, 79, F - 33, F - 33, "%")
+    g.put(68, F - 34, "4")
+    g.put(72, F - 34, "o")
+    g.put(75, F - 34, "R")
+    g.put(78, F - 34, "E")
+    return g
+
+
+def ring() -> Grid:
+    """The big top: the empty ring, for the Barker."""
+    g = Grid(30, 17)
+    g.ground(0, 29, 14)
+    g.put(1, 13, "X")
+    g.put(3, 13, "@")
+    return g
+
+
+def lost_property() -> Grid:
+    """Lost Property, 5-4's sealed back page: the fair's lost property tent, where the
+    Barker ticketed everything the crowd left behind. Up the shelves, gliding between
+    them, to a heart patch kept for whoever came back to claim it."""
+    g = Grid(60, 22)
+    F = 18
+    g.ground(0, 59, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    g.ground(12, 16, F - 3, "%")
+    g.plank(19, 22, F - 6)
+    g.put(24, F - 9, "m")
+    g.ground(26, 29, F - 9, "%")
+    g.put(34, F - 12, "m")
+    g.ground(44, 59, F - 7, "%")
+    g.put(46, F - 8, "2")
+    g.put(52, F - 8, "Y")
+    g.put(56, F - 8, "o")
+    return g
+
+
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
     midway().write(os.path.join(OUT, "5_1_the_midway.txt"),
@@ -195,9 +319,17 @@ def main() -> None:
         "5-2 The Big Wheel (drawn by tools/levels/build_fair.py; legend in\nscenes/levels/fair/5_2_the_big_wheel.tscn)\nabilities: frog glide")
     gatefold().write(os.path.join(OUT, "5_3_the_gatefold.txt"),
         "5-3 The Gatefold (drawn by tools/levels/build_fair.py; legend in\nscenes/levels/fair/5_3_the_gatefold.tscn); A B C are the vents (B and C start open)")
+    ghost_train().write(os.path.join(OUT, "5_4_the_ghost_train.txt"),
+        "5-4 The Ghost Train (drawn by tools/levels/build_fair.py; legend in\nscenes/levels/fair/5_4_the_ghost_train.tscn)\nabilities: frog glide")
+    big_top().write(os.path.join(OUT, "5_5_the_rigging.txt"),
+        "5-5 The Rigging (drawn by tools/levels/build_fair.py; legend in\nscenes/levels/fair/5_5_the_rigging.tscn)\nabilities: frog glide")
+    ring().write(os.path.join(OUT, "the_big_top.txt"),
+        "The Big Top, the Barker's ring (drawn by tools/levels/build_fair.py; legend in\nscenes/levels/fair/the_big_top.tscn)")
+    lost_property().write(os.path.join(OUT, "lost_property.txt"),
+        "Lost Property, 5-4's sealed back page (drawn by tools/levels/build_fair.py;\nlegend in scenes/levels/fair/lost_property.tscn)\nabilities: frog glide")
     ok = True
     climb_check.UP = 4.5
-    for name, grid in (("5-1", midway()), ("5-2", big_wheel())):
+    for name, grid in (("5-1", midway()), ("5-2", big_wheel()), ("5-4", ghost_train()), ("5-5", big_top()), ("lost property", lost_property())):
         rows = _rows(grid)
         climb_check.GLIDE = False
         if name == "5-1":

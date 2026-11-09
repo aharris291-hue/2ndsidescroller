@@ -203,6 +203,9 @@ var _highlighted: GrapplePoint
 var _tape_line: Line2D
 ## After letting go of a ring, Patch keeps his swing for a moment even with no input.
 var _carry_left := 0.0
+## The speed of whatever moving thing he jumped off (a ghost train car), kept until
+## he lands: his steering in the air is relative to it.
+var ride_vx := 0.0
 ## Pop-Up Slam phases: rising into the hop, plunging, then landed (recovering).
 var _slam_phase := 0
 
@@ -407,6 +410,13 @@ func _side_movement(input_x: float, delta: float) -> void:
 		target *= 1.15
 	_update_frog(input_x, delta)
 	_carry_left = 0.0 if is_on_floor() else maxf(_carry_left - delta, 0.0)
+	if is_on_floor():
+		if ride_vx != 0.0:
+			# Landed: the car's speed is under his feet again, not in his legs.
+			velocity.x -= ride_vx
+			ride_vx = 0.0
+	else:
+		target += ride_vx
 	if _carry_left > 0.0 and (input_x == 0.0 or signf(input_x) == signf(velocity.x)):
 		# Keep the swing's speed instead of capping it to running speed.
 		rate = air_acceleration * 0.12
@@ -433,6 +443,10 @@ func _side_movement(input_x: float, delta: float) -> void:
 		frog_charge = 0.0
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
+		# Off something moving (a ghost train car): he keeps its speed in the air and
+		# steers relative to it, so a jump straight up comes down where it will be.
+		if is_on_floor():
+			ride_vx = get_platform_velocity().x
 		AudioManager.play_sfx(&"jump", randf_range(0.95, 1.05))
 		_squash(Vector2(0.8, 1.2))
 	if velocity.y < 0.0 and Input.is_action_just_released(&"jump"):

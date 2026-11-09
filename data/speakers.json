@@ -64,6 +64,11 @@
 		"color": "#2f7a6e",
 		"pitch": 1.15
 	},
+	"barker": {
+		"name": "The Barker",
+		"color": "#8a2a22",
+		"pitch": 0.85
+	},
 	"sogg": {
 		"name": "The Sogg",
 		"color": "#3e4c80",
