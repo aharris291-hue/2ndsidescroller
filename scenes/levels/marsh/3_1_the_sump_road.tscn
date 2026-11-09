@@ -1,0 +1,129 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_sump_road.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/ability_page.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheSumpRoad" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Sump Road"
+opening_caption = "Watermark Marsh. The flood had stopped here, and gone flat, and turned to ink."
+music = ExtResource("2_music")
+weather_tint = Color(0.34, 0.4, 0.42, 1)
+rain_amount = 160
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/marsh/3_1_the_sump_road.txt"
+region = "marsh"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"8": ExtResource("5_e"),
+"B": ExtResource("8_e"),
+"E": ExtResource("6_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("9_e"),
+"m": ExtResource("10_e"),
+"n": ExtResource("11_e"),
+"o": ExtResource("13_e"),
+"s": ExtResource("12_e")
+}
+entity_props = {
+"1": {
+"caption": "Past the Spine the flood had nowhere left to run. It lay down in the low pages and settled, and the ink in it sank and stayed.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "The road went out over the sump on boards someone had laid in a hurry. Some of them were floating now. The ink underneath did not move at all.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "On the rise, the ink had dried into the paper in pale lines, the way a watermark sits in a banknote. Held against the dark, the lines made pictures.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "A wall of sodden card stood across the road with the ink banked up against it. Over the top was nothing to hold. Under it, the black went on.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "The road dropped into a cut where the ink lay deep and still. Things had sunk in it. Some of them were still sinking.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "Peat banks, black and soft. Something had been living out here since the flood, eating what washed up.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "A culvert under the road, with the ink sliding through it towards the low ground. It pulled at his whiskers even from the bank.",
+"size": Vector2(128, 384)
+},
+"8": {
+"caption": "Beyond the culvert, the ledger house: a counting office that had sunk to its sills, its windows full of ink.",
+"size": Vector2(128, 384)
+},
+"B": {
+"ability_id": &"blot_dive",
+"offset": Vector2(0, -24),
+"unlock_caption": "The watermark on the hill was the flood night. A small fox on the bank. A blue-grey shape going under. The fox not following. Patch stood in front of it a long time. Then he walked into the ink and let it close over him, and it did not kill him. Walk into the ink to Blot Dive: swim with the stick or keys, and {jump} at the surface to leap out. The ring is your breath. When it empties, the ink starts to take you."
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/marsh/3_2_the_drowned_ledger.tscn",
+"target_spawn": &"Start"
+},
+"R": {
+"name": &"FromLedger"
+},
+"i": {
+"scrap_drop": 3
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"scrap_drop": 4
+},
+"s": {
+"scrap_drop": 2
+},
+"b": {
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

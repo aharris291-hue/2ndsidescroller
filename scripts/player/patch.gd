@@ -127,6 +127,22 @@ var style: StyleMeter
 var soft_ground_left := 0.0
 ## A shove for this physics frame only (a Current sets it); cleared after each move.
 var push := Vector2.ZERO
+
+@export_group("Blot Dive")
+## Swimming speed through ink as a blot (Region 3, Watermark Marsh).
+@export var swim_speed := 380.0
+@export var swim_acceleration := 2600.0
+## Seconds he can stay under before the ink starts to take him.
+@export var blot_breath := 4.5
+@export_group("")
+const BLOT_TEX := preload("res://assets/art/dark/props/patch_blot.png")
+## The ink pools Patch overlaps right now (InkPool calls enter_ink/leave_ink).
+var ink_pools: Array[Node] = []
+var blotting := false
+var breath_left := 4.5
+var _blot_cooldown := 0.0
+var _blot_sprite: Sprite2D
+var _breath_ring: Line2D
 var _attack_knockback := 520.0
 var _attack_kind := Attack.LIGHT
 var _attack_buffer := 0.0
@@ -210,6 +226,7 @@ func _ready() -> void:
 	_tape_line.z_index = 4
 	_tape_line.visible = false
 	add_child(_tape_line)
+	_make_blot_visual()
 
 
 func set_view_mode(mode: PageView.Mode) -> void:
@@ -251,29 +268,31 @@ func _physics_process(delta: float) -> void:
 		else:
 			_jump_buffer_left = maxf(_jump_buffer_left - delta, 0.0)
 
-	match state:
-		State.NORMAL:
-			_process_normal(delta)
-		State.ATTACK:
-			_process_attack(delta)
-		State.DASH:
-			_process_dash()
-		State.HURT:
-			_process_hurt(delta)
-		State.GRAPPLE:
-			_process_grapple(delta)
-		State.SLAM:
-			_process_slam(delta)
-		State.HEAVY:
-			_process_heavy(delta)
-		State.GUARD:
-			_process_guard(delta)
-		State.MEND:
-			_process_mend(delta)
-		State.FINISHER:
-			_process_finisher(delta)
-		State.DEAD:
-			velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
+	_blot_cooldown = maxf(_blot_cooldown - delta, 0.0)
+	if not _blot_tick(delta):
+		match state:
+			State.NORMAL:
+				_process_normal(delta)
+			State.ATTACK:
+				_process_attack(delta)
+			State.DASH:
+				_process_dash()
+			State.HURT:
+				_process_hurt(delta)
+			State.GRAPPLE:
+				_process_grapple(delta)
+			State.SLAM:
+				_process_slam(delta)
+			State.HEAVY:
+				_process_heavy(delta)
+			State.GUARD:
+				_process_guard(delta)
+			State.MEND:
+				_process_mend(delta)
+			State.FINISHER:
+				_process_finisher(delta)
+			State.DEAD:
+				velocity = velocity.move_toward(Vector2.ZERO, ground_friction * delta)
 
 	# Currents (and anything else that shoves Patch along) add to this frame's move
 	# only, so they never build up in his own velocity.
@@ -1167,7 +1186,7 @@ func _after_move() -> void:
 		var on_floor := is_on_floor()
 		if on_floor and not _was_on_floor:
 			_squash(Vector2(1.2, 0.82))
-		if on_floor and state == State.NORMAL and _on_safe_floor():
+		if on_floor and state == State.NORMAL and ink_pools.is_empty() and _on_safe_floor():
 			_last_safe_position = global_position
 			_last_safe_facing = facing.x if facing.x != 0.0 else _last_safe_facing
 		_was_on_floor = on_floor
@@ -1200,6 +1219,123 @@ func _fell_off_page() -> void:
 	# Assist: a fall just puts him back on the ledge.
 	if not Settings.assist_safe_falls:
 		health.take_damage(1, global_position)
+
+
+# --- Blot Dive ---------------------------------------------------------------
+# Watermark Marsh: ink is the one thing paper can't fight. Without the Blot Dive it
+# burns a heart and puts Patch back where he last stood. With it he lets the ink in
+# and swims through it as a blot, untouchable, for as long as his breath holds; a jump
+# near the surface (or swimming up hard through it) throws him back out.
+
+func enter_ink(pool: Node) -> void:
+	if not ink_pools.has(pool):
+		ink_pools.append(pool)
+
+
+func leave_ink(pool: Node) -> void:
+	ink_pools.erase(pool)
+
+
+## Handles the frame while Patch is in ink; false when he isn't (or has just leapt out).
+func _blot_tick(delta: float) -> bool:
+	if ink_pools.is_empty() or view_mode != PageView.Mode.SIDE or state == State.DEAD or _blot_cooldown > 0.0:
+		if blotting:
+			_end_blot()
+		return false
+	if not GameState.has_ability(&"blot_dive"):
+		_ink_burn()
+		return true
+	if not blotting:
+		_start_blot()
+	if state == State.GRAPPLE:
+		_end_grapple()
+	state = State.NORMAL
+	var input := _move_input()
+	if input.x != 0.0:
+		facing = Vector2(signf(input.x), 0)
+	var target := input * swim_speed
+	if input.y == 0.0:
+		target.y = 50.0  # let go, and the ink pulls him slowly down
+	velocity = velocity.move_toward(target, swim_acceleration * delta)
+	health.grant_invulnerability(0.1)
+	breath_left -= delta
+	if breath_left <= 0.0:
+		health.clear_invulnerability()
+		_ink_burn()
+		return true
+	if _jump_buffer_left > 0.0 and not InkPool.ink_at(get_tree(), global_position + Vector2(0, -60)):
+		_jump_buffer_left = 0.0
+		_leap_from_ink(1.0)
+	return true
+
+
+func _leap_from_ink(power: float) -> void:
+	velocity.y = jump_velocity * power
+	_blot_cooldown = 0.3
+	_end_blot()
+	AudioManager.play_sfx(&"jump", 0.7)
+	_squash(Vector2(0.7, 1.3))
+
+
+func _start_blot() -> void:
+	blotting = true
+	breath_left = blot_breath
+	visual.visible = false
+	_blot_sprite.visible = true
+	_breath_ring.visible = true
+	AudioManager.play_sfx(&"page_flip", 0.5, -4.0)
+
+
+func _end_blot() -> void:
+	blotting = false
+	visual.visible = true
+	_blot_sprite.visible = false
+	_breath_ring.visible = false
+	# Swimming up hard through the skin carries him out of it.
+	if ink_pools.is_empty() and velocity.y < -150.0:
+		velocity.y = minf(velocity.y, jump_velocity * 0.8)
+
+
+func _ink_burn() -> void:
+	if blotting:
+		_end_blot()
+	ink_pools.clear()
+	breath_left = blot_breath
+	AudioManager.play_sfx(&"hurt", 0.6)
+	_fell_off_page()
+
+
+func _make_blot_visual() -> void:
+	_blot_sprite = Sprite2D.new()
+	_blot_sprite.texture = BLOT_TEX
+	_blot_sprite.position = Vector2(0, 12)
+	_blot_sprite.visible = false
+	_blot_sprite.z_index = 4
+	add_child(_blot_sprite)
+	_breath_ring = Line2D.new()
+	_breath_ring.width = 5.0
+	_breath_ring.default_color = Color(0.85, 0.82, 0.72, 0.8)
+	_breath_ring.position = Vector2(0, 12)
+	_breath_ring.visible = false
+	_breath_ring.z_index = 5
+	add_child(_breath_ring)
+
+
+func _update_blot_visual(delta: float) -> void:
+	_anim_time += delta * 8.0
+	var dir := signf(facing.x) if facing.x != 0.0 else 1.0
+	var stretch := clampf(velocity.length() / swim_speed, 0.0, 1.0)
+	_blot_sprite.scale = Vector2((1.0 + 0.18 * stretch + 0.05 * sin(_anim_time)) * dir, 1.0 - 0.12 * stretch + 0.05 * cos(_anim_time))
+	_blot_sprite.rotation = lerpf(_blot_sprite.rotation, clampf(velocity.y / swim_speed, -1.0, 1.0) * 0.35 * dir, 10.0 * delta)
+	var left := clampf(breath_left / blot_breath, 0.0, 1.0)
+	var points := PackedVector2Array()
+	var steps := int(32 * left) + 1
+	for i in steps + 1:
+		var a := -PI / 2.0 + TAU * left * float(i) / float(steps)
+		points.append(Vector2(cos(a), sin(a)) * 58.0)
+	_breath_ring.points = points
+	var low := left < 0.33 and Time.get_ticks_msec() % 300 < 150
+	_breath_ring.default_color = Color(0.9, 0.3, 0.25, 0.9) if low else Color(0.85, 0.82, 0.72, 0.8)
 
 
 # --- Damage, death, interaction --------------------------------------------
@@ -1323,6 +1459,9 @@ func _update_visual(delta: float) -> void:
 	# Patch is a flat paper cut-out, so he animates like a puppet:
 	# flip to face, bob while walking, tilt into movement, and spring back from squashes.
 	if state == State.DEAD:
+		return
+	if blotting:
+		_update_blot_visual(delta)
 		return
 	var dir := signf(facing.x) if facing.x != 0.0 else signf(visual.scale.x)
 	var target_scale := Vector2(dir, 1.0)
