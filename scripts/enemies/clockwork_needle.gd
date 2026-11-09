@@ -185,7 +185,7 @@ func _start_stab() -> void:
 	await tween.finished
 	if state != State.STAB:
 		return
-	AudioManager.play_sfx(&"heavy", 0.7)
+	AudioManager.play_sfx(&"slam", 0.7)
 	stab.active = false
 	state = State.STUCK
 	pin_hurt.monitoring = true

@@ -10,13 +10,10 @@ size = Vector2(180, 140)
 collision_layer = 32
 collision_mask = 2
 script = ExtResource("1_ekufq")
-dialogue_id = "bindwell_intro"
-repeat_dialogue_id = "bindwell_repeat"
-first_talk_flag = "met_bindwell"
+dialogue_id = "bindwell_hub"
+repeat_dialogue_id = "bindwell_hub_repeat"
+first_talk_flag = "met_bindwell_hub"
 idle_bob = 3.0
-quest_id = "restring_spine"
-quest_progress_dialogue = "bindwell_progress"
-quest_turn_in_dialogue = "bindwell_done"
 prompt_offset = Vector2(0, -250)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2087002308]

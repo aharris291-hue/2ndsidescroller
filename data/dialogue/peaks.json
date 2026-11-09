@@ -1,0 +1,40 @@
+{
+	"bindwell_yields": [
+		{"speaker": "narrator", "text": "The old needle lay down on the boards he'd sewn, and didn't get up. The seams in the floor went slack, one by one."},
+		{"speaker": "bindwell", "text": "Go on, then. Cut the thread. It's what I'd have done."},
+		{"speaker": "patch", "text": "You sewed the spine shut. The night of the flood. Everyone down there was knocking."},
+		{"speaker": "bindwell", "text": "I heard them. Every one. I had the high pages to think of, and the water was coming up the binding, and I thought: if I open it, we all go."},
+		{"speaker": "bindwell", "text": "So I sewed. Kettle stitch, all the way up. I sewed until my eye bled thread, and I didn't stop when the knocking did."},
+		{"speaker": "patch", "text": "..."},
+		{"speaker": "patch", "text": "I'm not going to cut you."},
+		{"speaker": "bindwell", "text": "Then you're a fool, fox. Or you've done something of your own you can't put down."},
+		{"speaker": "patch", "text": "Come down to the Spine. There's a stove. The pages need sewing back together, and you're the only one who knows how they were sewn apart."},
+		{"speaker": "narrator", "text": "It was a long time before the needle answered. When he did, he only said: \"Mind the stitches.\" But he got up."}
+	],
+	"bindwell_hub": [
+		{"speaker": "bindwell", "text": "Don't look at me like that. I'm not here to be forgiven. I'm here because the binding's rotten and nobody else alive knows the stitch."},
+		{"speaker": "bindwell", "text": "Every page I open again, I'll have to look at what got left outside it. That's the price. I'll pay it."},
+		{"speaker": "patch", "text": "...Thank you."},
+		{"speaker": "bindwell", "text": "Don't. Go and do the thing you came up the mountain not saying."}
+	],
+	"bindwell_hub_repeat": [
+		{"speaker": "bindwell", "text": "Kettle stitch. Over, under, back through the last. It holds because every stitch is tied to the one before it. Remember that, fox."}
+	],
+	"peaks_lowpoint": [
+		{"speaker": "narrator", "text": "Past the workshop the snow came sideways, and there was nothing to do but get behind a rock and light what they had and wait."},
+		{"speaker": "corrugate", "text": "Say it, fox. You've been not saying it since the harbour. It's heavier than I am, and I'm wet."},
+		{"speaker": "patch", "text": "..."},
+		{"speaker": "patch", "text": "The night of the flood I was on the Weather Page. With Drizzle. We were always together. She'd follow me anywhere. I liked that she would."},
+		{"speaker": "patch", "text": "The water came over the edge of the page, and she was smaller than me, and slower, and she held onto my tail."},
+		{"speaker": "patch", "text": "And I pulled. I didn't pull her up. I pulled away. The tail tore off in her hands and I ran, and I didn't look back, and I heard her calling all the way down."},
+		{"speaker": "dot", "text": "Patch."},
+		{"speaker": "patch", "text": "Every story I've told since is about something that took my tail. Storms. Dragons. The moon. It was never anything. It was me getting away."},
+		{"speaker": "patch", "text": "And she went down into the ink and came up as the Sogg. That's what's drowning the book. That's what I left behind. Bindwell sewed a door shut. I didn't even need a door."},
+		{"speaker": "corrugate", "text": "..."},
+		{"speaker": "corrugate", "text": "I'm not going to tell you it's fine. It isn't."},
+		{"speaker": "corrugate", "text": "But you came back. Nobody else from that page came back. You came all the way up here, to the worst of it, to the top, to her."},
+		{"speaker": "dot", "text": "Still knocking."},
+		{"speaker": "patch", "text": "...Yeah. She is."},
+		{"speaker": "narrator", "text": "When the wind dropped they went on, up, to the top of the spine, where the Sogg was waiting. This time nobody told a story on the way."}
+	]
+}

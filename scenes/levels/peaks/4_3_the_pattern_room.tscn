@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="7_e"]
 [ext_resource type="PackedScene" path="res://scenes/world/fold_mark.tscn" id="8_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="9_e"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
 
 [node name="ThePatternRoom" type="Node2D"]
@@ -38,6 +39,7 @@ entities = {
 "2": ExtResource("5_e"),
 "E": ExtResource("6_e"),
 "P": ExtResource("8_e"),
+"R": ExtResource("9_e"),
 "T": ExtResource("8_e"),
 "U": ExtResource("8_e"),
 "W": ExtResource("8_e"),
@@ -45,6 +47,9 @@ entities = {
 "o": ExtResource("7_e")
 }
 entity_props = {
+"R": {
+"name": &"FromAscent"
+},
 "1": {
 "caption": "Bindwell's pattern room. Four folds in the floor, short to tall, and every one pinned to the ones beside it with red thread. Stamp one and its neighbours jump too. The way on was a ledge only the tallest could reach.",
 "size": Vector2(128, 320)
@@ -92,7 +97,7 @@ entity_props = {
 },
 "E": {
 "size": Vector2(128, 256),
-"target_page": "res://scenes/levels/ch3_spine/the_spine.tscn",
+"target_page": "res://scenes/levels/peaks/4_4_the_stitched_ascent.tscn",
 "target_spawn": &"Start"
 },
 "o": {

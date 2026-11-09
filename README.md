@@ -88,7 +88,7 @@ tools/         Asset generators (Python) and Godot helper scripts
 | `godot --headless --path . --script tools/godot/build_starter_content.gd` | **One-time bootstrap** that generated the starter scenes. Re-running it overwrites them, so once you edit scenes in the editor, leave it alone. |
 | `godot --headless --path . --script tools/godot/build_chapter1.gd` | **One-time bootstrap** that generated the Prologue and Chapter 1 scenes. Same warning: it overwrites them. |
 | `godot --headless --path . --script tools/godot/build_chapter2.gd` | **One-time bootstrap** that generated the Chapter 2 scenes and pointed the first interlude at them. Same warning: it overwrites them. |
-| `godot --headless --path . --script tools/godot/build_chapter3.gd` | **One-time bootstrap** that generated the Chapter 3 scenes, added the winter tiles, and pointed the second interlude at them. Same warning: it overwrites them. |
+| `godot --headless --path . --script tools/godot/build_chapter3.gd` | **One-time bootstrap** that generated the Chapter 3 scenes, added the winter tiles, and pointed the second interlude at them. Most of its pages are retired now (the Spine Peaks replaced them; only `sogg_arena` is left), so it can no longer be re-run. |
 | `godot --headless --path . --script tools/godot/build_finale.gd` | **One-time bootstrap** that generated the Finale scenes and the ending, added the Gutter and crayon tiles, and pointed the third interlude down into the Gutter. Same warning: it overwrites them. |
 
 ## Credits
