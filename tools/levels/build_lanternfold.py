@@ -163,6 +163,9 @@ def lamplighters_climb() -> Grid:
     g.put(22, f1 - 1, "s")
     g.put(28, f1 - 1, "p")
     g.put(31, f1 - 1, "o")
+    # the store under the stair: the sealed back page, shut until the Kraken is beaten
+    g.put(25, f1 - 1, "S")
+    g.put(26, f1 - 1, "F")
     zigzag(range(f1 - 2, f1 - 13, -2), [D, C, B, A, B, C])
     # landing 2: the lamplighter's things and the Tape Tail; a Bookmark; a Tack Knight
     f2 = f1 - 14
@@ -241,6 +244,7 @@ def lamp_room() -> Grid:
     g.put(59, 6, ".")
     g.put(58, 7, "D")
     g.put(59, 7, "E")
+    g.put(56, 6, "G")
     for room, lens, mirrors, wicks, pillars in ROOMS:
         ox = room * 20
         g.put(ox + lens[0], lens[1], "B")
@@ -309,6 +313,199 @@ def solve_lamp_room(g: Grid) -> bool:
     return ok
 
 
+def shadow_wharf() -> Grid:
+    """2-4 The Shadow Wharf: net sheds and cranes. Lit lanterns throw the shadows of slung
+    boards and nets onto the walls, and those shadows ('h') hold Patch only while their
+    lantern burns; short-trimmed lamps ('u') make the climbs a race. Gusts ('g') blow
+    off the sea in bursts. The Lamplighter's daughters ('S') want their father's last
+    five lamps ('f') lit. Corrugate ('C') hides in his net shed; his cat Crumple ('c')
+    is up a crane. The flap ('E') only opens once he has joined Patch."""
+    g = Grid(262, 30)
+    F = 22
+    g.ground(0, 261, F)
+    # S1 the wharf's end, under the lighthouse's new beam; the lamplighter's daughters.
+    g.put(1, F - 1, "X")
+    g.put(3, F - 1, "@")
+    g.put(6, F - 1, "1")
+    g.put(10, F - 1, "P")
+    g.put(15, F - 1, "S")
+    # S2 the first shadows: light the cold post, and the shadows of slung boards climb
+    # the shed wall.
+    g.put(19, F - 1, "2")
+    g.put(22, F - 1, "p")
+    g.put(26, F - 3, "h")
+    g.put(29, F - 5, "h")
+    g.ground(32, 44, F - 6, "$")
+    g.put(40, F - 7, "f")
+    g.put(36, F - 7, "o")
+    # S3 the gust lane: a headwind in bursts over three gaps, two Soggies, a Spitter.
+    g.put(47, F - 1, "3")
+    for x0 in (52, 62, 72):
+        g.clear(x0, x0 + 2)
+    g.put(50, F - 1, "g")
+    g.put(58, F - 1, "s")
+    g.put(68, F - 1, "s")
+    g.ground(76, 80, F - 2)
+    g.put(78, F - 3, "i")
+    g.put(84, F - 1, "P")
+    g.put(86, F - 1, "k")
+    # S4 the race up the shed: a short-trimmed lamp, shadows up the wall, moths on the roof.
+    g.put(90, F - 1, "4")
+    g.put(92, F - 1, "u")
+    for x, y in ((95, F - 3), (98, F - 5), (95, F - 7), (98, F - 9)):
+        g.put(x, y, "h")
+    g.ground(100, 112, F - 10, "$")
+    for x in (104, 110):
+        g.put(x, F - 14, "m")
+    g.put(108, F - 11, "f")
+    # S5 the crane yard: the shadows of crates on ropes bridge black water, in a gust.
+    g.put(118, F - 1, "P")
+    g.put(122, F - 1, "5")
+    g.put(126, F - 1, "p")
+    g.clear(128, 141)
+    for x in (130, 134, 138):
+        g.put(x, F - 1, "h")
+    g.put(131, F - 1, "W")
+    g.put(146, F - 1, "i")
+    g.put(152, F - 1, "s")
+    g.put(158, F - 1, "s")
+    g.put(160, F - 1, "f")
+    # S6 Corrugate's net shed, and Crumple up the crane: a second race up the shadows.
+    g.put(170, F - 1, "6")
+    g.put(174, F - 1, "P")
+    g.put(177, F - 1, "C")
+    g.put(186, F - 1, "u")
+    for x, y in ((189, F - 3), (192, F - 5), (189, F - 7), (192, F - 9), (193, F - 11)):
+        g.put(x, y, "h")
+    g.ground(196, 199, F - 12, "$")
+    g.put(197, F - 13, "c")
+    g.put(205, F - 1, "f")
+    # S7 the flap: a Tack Knight and a Soggy, a last lamp, and the flap itself.
+    g.put(214, F - 1, "7")
+    g.put(222, F - 1, "n")
+    g.put(230, F - 1, "s")
+    g.put(240, F - 1, "f")
+    g.put(244, F - 1, "P")
+    g.put(246, F - 1, "k")
+    g.put(250, F - 1, "8")
+    g.put(254, F - 1, "R")
+    g.put(258, F - 1, "E")
+    return g
+
+
+def under_the_flap() -> Grid:
+    """2-5 Under the Harbor Flap: islands and hanging chains over the ink sea, grapple
+    rings over the wide gaps, ink drips, Tack Knights on narrow ground, a turret and a
+    crane. Letters K and N off rings above the chains."""
+    g = Grid(240, 24)
+    F = 16
+    g.clear(0, 239)
+
+    def land(x0, x1, top=F, c="$"):
+        g.ground(x0, x1, top, c)
+
+    land(0, 22)
+    g.put(1, F - 1, "X")
+    g.put(3, F - 1, "@")
+    g.put(6, F - 1, "1")
+    g.put(12, F - 1, "k")
+    # S2 chains: islands and slung planks
+    land(26, 30)
+    g.plank(33, 36, F - 2)
+    land(40, 47)
+    g.put(43, F - 1, "s")
+    g.plank(50, 53, F - 2)
+    land(57, 70)
+    g.put(66, F - 1, "i")
+    for x in (30, 48, 61):
+        g.put(x, 1, "d")
+    # S3 rings over the first wide gap; Letter K up a ring off the island
+    g.put(72, F - 1, "2")
+    g.put(75, F - 6, "O")
+    g.plank(78, 81, F - 4)
+    g.put(86, F - 7, "O")
+    land(89, 96, F - 2)
+    g.put(93, F - 10, "O")
+    g.plank(95, 97, F - 9)
+    g.put(96, F - 10, "K")
+    land(97, 110)
+    g.put(102, F - 6, "N")
+    g.put(106, F - 1, "q")
+    g.put(110, F - 1, "k")
+    # S4 narrow ground and Tack Knights under the drips
+    g.put(112, F - 1, "3")
+    land(114, 123)
+    g.put(118, F - 1, "n")
+    land(126, 135, F - 2)
+    g.put(130, F - 3, "s")
+    g.plank(138, 141, F - 3)
+    land(145, 160)
+    g.put(152, F - 1, "n")
+    g.put(158, F - 1, "i")
+    for x in (120, 133, 150):
+        g.put(x, 1, "d")
+    # S5 the wide ink: three rings; Letter N off a fourth, high up
+    g.put(162, F - 1, "4")
+    g.put(165, F - 6, "O")
+    g.put(172, F - 7, "O")
+    g.put(179, F - 6, "O")
+    g.put(183, F - 11, "O")
+    g.plank(185, 187, F - 10)
+    g.put(186, F - 11, "j")
+    land(190, 239)
+    g.put(196, F - 1, "o")
+    # S6 the deep: a Bookmark, and the way down to the Kraken
+    g.put(205, F - 1, "k")
+    g.put(214, F - 1, "s")
+    g.put(220, F - 1, "s")
+    g.put(228, F - 1, "5")
+    g.put(232, F - 1, "R")
+    g.put(236, F - 1, "E")
+    return g
+
+
+def lightkeepers_store() -> Grid:
+    """The Lightkeeper's Store, 2-2's sealed back page: a dark run under the lighthouse,
+    lit only by short-trimmed lamps, with their shadows to climb. No Bookmark. At the far
+    end, a heart patch and the keeper's tin of 60 Scraps."""
+    g = Grid(132, 24)
+    F = 18
+    g.ground(0, 131, F)
+    g.put(1, F - 1, "X")
+    g.put(2, F - 1, "G")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    g.put(10, F - 1, "u")
+    g.put(18, F - 1, "s")
+    g.put(22, F - 1, "s")
+    g.put(14, 1, "d")
+    # the wall: shadows of the keeper's shelving, cast by a short lamp
+    g.put(28, F - 1, "u")
+    for x, y in ((31, F - 3), (34, F - 5), (31, F - 7), (34, F - 9)):
+        g.put(x, y, "h")
+    g.ground(36, 46, F - 8, "$")
+    g.put(40, F - 12, "m")
+    g.put(44, F - 12, "m")
+    # the cistern: shadows over black water, one lamp to cast them all
+    g.put(48, F - 1, "u")
+    g.clear(50, 68)
+    for x in (53, 57, 61, 65):
+        g.put(x, F - 1, "h")
+    g.put(59, 1, "d")
+    # the last stretch in the dark
+    g.put(76, F - 1, "s")
+    g.put(84, F - 1, "u")
+    g.put(90, F - 1, "i")
+    g.put(96, F - 1, "s")
+    g.put(102, F - 1, "s")
+    g.put(110, F - 1, "2")
+    g.put(116, F - 1, "H")
+    g.put(120, F - 1, "o")
+    g.put(124, F - 1, "3")
+    g.put(128, F - 1, "Y")
+    return g
+
+
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
     drowned_quay().write(os.path.join(OUT, "2_1_the_drowned_quay.txt"),
@@ -318,6 +515,12 @@ def main() -> None:
     room = lamp_room()
     room.write(os.path.join(OUT, "2_3_the_lamp_room.txt"),
         "2-3 The Lamp Room, top-down (drawn by tools/levels/build_lanternfold.py; legend\nin scenes/levels/lanternfold/2_3_the_lamp_room.tscn)")
+    shadow_wharf().write(os.path.join(OUT, "2_4_the_shadow_wharf.txt"),
+        "2-4 The Shadow Wharf (drawn by tools/levels/build_lanternfold.py; legend in\nscenes/levels/lanternfold/2_4_the_shadow_wharf.tscn)")
+    under_the_flap().write(os.path.join(OUT, "2_5_under_the_flap.txt"),
+        "2-5 Under the Harbor Flap (drawn by tools/levels/build_lanternfold.py; legend in\nscenes/levels/lanternfold/2_5_under_the_flap.tscn)")
+    lightkeepers_store().write(os.path.join(OUT, "lightkeepers_store.txt"),
+        "The Lightkeeper's Store, 2-2's sealed back page (drawn by\ntools/levels/build_lanternfold.py; legend in scenes/levels/lanternfold/lightkeepers_store.tscn)")
     print("wrote Lanternfold maps")
     if not solve_lamp_room(room):
         sys.exit("a Lamp Room can't be solved, or starts solved")

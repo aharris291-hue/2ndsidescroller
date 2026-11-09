@@ -7,6 +7,8 @@ Writes to assets/art/dark/props/:
   wick_cold.png     a great oil wick in a brass dish, cold and sooted, 64 x 64
   wick_lit.png      the same wick burning, 64 x 64
   beam_lens.png     the cracked lamp lens set in the wall, throwing the beam, 64 x 64
+  shadow_ledge.png  a lantern-thrown shadow of a slung board and net on a wall (2-4's
+                    shadow platforms), 192 x 40
 
 Run: python3 tools/art/dark_props_r2.py
 """
@@ -101,11 +103,46 @@ def lens():
     return finish(img, w, h)
 
 
+def shadow_ledge():
+    """A board-and-net shadow thrown on a lamp-lit wall: a warm pool of light, the hard
+    black silhouette of the slung board in it, and a lit rim along the board's top (the
+    edge Patch stands on). 224x80; the board is 192 px wide, its top 14 px down."""
+    pad, top = 16, 14
+    w, h = 192 + pad * 2, 80
+    img = Image.new("RGBA", (w * S, h * S), (0, 0, 0, 0))
+    # the light pool on the wall behind
+    glow = Image.new("RGBA", (w * S, h * S), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.ellipse([2 * S, 0, (w - 2) * S, (h - 4) * S], fill=(255, 170, 90, 120))
+    glow = glow.filter(ImageFilter.GaussianBlur(12 * S))
+    img.alpha_composite(glow)
+    d = ImageDraw.Draw(img)
+    ink = (6, 6, 10, 245)
+    x0, x1 = pad, pad + 192
+    # the slung board: a thick bar with ragged ends
+    d.polygon([((x0 + 2) * S, (top + 1) * S), ((x1 - 4) * S, top * S), ((x1) * S, (top + 12) * S), (x0 * S, (top + 14) * S)], fill=ink)
+    # the net hanging under it, in long diamonds, fading downward
+    for i in range(x0, x1, 12):
+        for j, a in ((0, 230), (1, 170), (2, 110), (3, 60)):
+            y0 = top + 12 + j * 8
+            d.line([(i * S, y0 * S), ((i + 6) * S, (y0 + 8) * S)], fill=(6, 6, 10, a), width=2 * S)
+            d.line([((i + 12) * S, y0 * S), ((i + 6) * S, (y0 + 8) * S)], fill=(6, 6, 10, a), width=2 * S)
+    # two ropes up out of frame
+    for x in (x0 + 18, x1 - 22):
+        d.line([(x * S, 0), (x * S, (top + 2) * S)], fill=ink, width=3 * S)
+    img = img.filter(ImageFilter.GaussianBlur(0.7 * S))
+    # the lit rim along the top of the board
+    d = ImageDraw.Draw(img)
+    d.line([((x0 + 3) * S, (top + 1) * S), ((x1 - 4) * S, top * S)], fill=(255, 196, 120, 230), width=2 * S)
+    return img.resize((w, h), Image.LANCZOS)
+
+
 def main():
     mirror().save(os.path.join(PROPS, "beam_mirror.png"))
     wick(False).save(os.path.join(PROPS, "wick_cold.png"))
     wick(True).save(os.path.join(PROPS, "wick_lit.png"))
     lens().save(os.path.join(PROPS, "beam_lens.png"))
+    shadow_ledge().save(os.path.join(PROPS, "shadow_ledge.png"))
     print("wrote beam_mirror, wick_cold, wick_lit and beam_lens")
 
 

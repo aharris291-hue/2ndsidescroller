@@ -138,12 +138,17 @@ ch1_thistledown/page_02      Windmill Hills: Windmill wheel, 3 LostSheep, doors 
 ch1_thistledown/ribbon_regatta   BoatRace minigame (ribbon_regatta quest), returns to page 2
 ch1_thistledown/millwheel_arena  BossMillwheel fight, exit door to the interlude
 interludes/interlude_01      CutscenePage at Gran's table, sets chapter1_complete, turns to Chapter 2
-ch2_lanternfold/lanternfold_town   Top-down town: Lamplighter Sisters (festival_lanterns), Corrugate, Crumple (lost_cat)
-margin/tape_heist            Top-down 3D desk at night: the tape strip unlocks tape_tail
-ch2_lanternfold/shadow_theater     ShadowTheater rhythm minigame (shadow_show quest), returns to town
-ch2_lanternfold/under_the_flap     Side view ink sea: zip rings, the yank-open FlapGate, drip spawners
-ch2_lanternfold/kraken_arena       BossKraken fight, Drizzle reveal, exit door to the interlude
-interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2_complete, turns to Chapter 3
+lanternfold/2_1_the_drowned_quay   Lantern posts Soggies won't enter, the hand lantern, short-trimmed lamps
+margin/tape_heist            3D desk at night: a strip of real tape (a heart patch), back to the quay
+lanternfold/2_2_the_lamplighters_climb   Vertical lighthouse climb: tape_tail, rings; sealed door to the store
+lanternfold/2_3_the_lamp_room      Top-down mirror/wick beam puzzle (lighthouse_lit)
+lanternfold/2_4_the_shadow_wharf   ShadowPlatforms (solid while their lamp burns), Gusts, the daughters' five
+                                   lamps (festival_lanterns), Corrugate + Crumple (lost_cat, corrugate_joined)
+lanternfold/2_5_under_the_flap     Islands and chains over the ink sea, rings, Letters K and N
+lanternfold/boss_ink_deep          BossKraken fight, Drizzle reveal, exit door to the interlude
+lanternfold/lightkeepers_store     2-2's sealed back page (after the Kraken): heart patch + 60 Scraps
+interludes/interlude_02      CutscenePage: Nell tells Dad to stop, sets chapter2_complete, back to the Spine hub
+minigames/shadow_theater     ShadowTheater rhythm minigame, unlinked (kept for the post-game arcade)
 ch3_spine/frostfold_slopes   Side view: pop_up_slam page, fold marks, ice walls, the cliff (LayPageFlat door)
 ch3_spine/frostfold_flat     The same page top-down: Bindwell (restring_spine), slam the ice gap, StandUpBeyond door
 margin/paperclip_heist       3D desk, very late: the paperclip (has_paperclip) and the plug ring (plug_moved)

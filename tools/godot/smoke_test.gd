@@ -174,7 +174,11 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	var boss := current_scene.get_node("OldMillwheel")
 	boss.start_fight()
 	_check(boss.state == 1, "the Old Millwheel fight starts")
-	for cycle in 3:
+	# Three jams win it; spare cycles cover a jam lost to a stray Soggy or drip knocking
+	# Patch off the core (their spawns are random).
+	for cycle in 8:
+		if game_state.get_flag("boss_millwheel_defeated") or boss.health.is_dead():
+			break
 		for tab_name in ["MooringTab1", "MooringTab2", "MooringTab3"]:
 			await current_scene.get_node("Props/" + tab_name).interact(null)
 		await _frames(5)
@@ -256,101 +260,29 @@ func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 
 
 func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
-	const CH2 := "res://scenes/levels/ch2_lanternfold/"
+	const R2 := "res://scenes/levels/lanternfold/"
 	await _lanternfold(game_state, scene_manager, dialogue)
-	# The old harbour town (until Lanternfold part 2): Corrugate and the Lamplighter Sisters.
-	await scene_manager.change_page(CH2 + "lanternfold_town.tscn")
-	await _frames(30)
-	await _skip_dialogue(dialogue)
-	_check(current_scene.name == "LanternfoldTown" and get_first_node_in_group("player").view_mode == 1, "Lanternfold Harbor loads as a top-down page")
-	current_scene.get_node("Actors/Corrugate").interact(null)
-	await _skip_dialogue(dialogue)
-	_check(current_scene.get_node_or_null("Props/MarginDoor") == null, "the town's Margin door has moved to the Drowned Quay")
-	_check(not current_scene.get_node("Props/HarborFlap").is_open(), "the harbor flap stays shut until Corrugate joins")
-	current_scene.get_node("Actors/LamplighterSisters").interact(null)
-	await _skip_dialogue(dialogue)
-	for lantern in current_scene.get_node("Props").get_children():
-		if lantern.name.begins_with("Lantern"):
-			lantern.interact(null)
-	_check(game_state.quest_progress("festival_lanterns") == 5, "all five festival lanterns can be lit")
-	current_scene.get_node("Actors/LamplighterSisters").interact(null)
-	await _skip_dialogue(dialogue)
-	_check(game_state.quest_done("festival_lanterns"), "the Lamplighter Sisters reward the lit lanterns")
-
 	# The Margin heist: the 3D desk, and a strip of real tape that mends a heart.
 	await scene_manager.change_page("res://scenes/levels/margin/tape_heist.tscn", &"FromPage")
 	await _frames(30)
 	await _skip_dialogue(dialogue)
-	var patch = get_first_node_in_group("player")
+	var heister = get_first_node_in_group("player")
 	_check(_drawn_as_desk(), "the Margin heist is drawn as the 3D desk, with Patch on it")
 	var hearts_before: int = game_state.max_health
-	patch.global_position = current_scene.get_node("Pickups/TapeStrip").global_position
+	heister.global_position = current_scene.get_node("Pickups/TapeStrip").global_position
 	await _frames(20)
 	await _skip_dialogue(dialogue)
 	_check(game_state.max_health == hearts_before + 2, "the heist's strip of tape is a heart patch now (the Tape Tail is in the lighthouse)")
 	_check(current_scene.get_node("Props/BackIntoTheBook").target_page == "res://scenes/levels/lanternfold/2_1_the_drowned_quay.tscn", "the way back from the heist leads to the Drowned Quay")
 
-	# Back in town: zip across the harbor with the Tape Tail to fetch Crumple.
-	await scene_manager.change_page(CH2 + "lanternfold_town.tscn", &"FromMargin")
-	await _frames(30)
-	current_scene.get_node("Actors/Corrugate").interact(null)
-	await _skip_dialogue(dialogue)
-	_check(game_state.quest_started("lost_cat"), "Corrugate asks Patch to find his cat")
-	patch = get_first_node_in_group("player")
-	patch.global_position = Vector2(31 * 64, 28.8 * 64)
-	patch.facing = Vector2.RIGHT
-	await _frames(5)
-	_check(patch.try_grapple(), "the Tape Tail finds the island ring")
-	await _frames(60)
-	_check(patch.global_position.x > 38 * 64 and patch.state == 0, "zipping carries Patch across the water to the island")
-	current_scene.get_node("Actors/Crumple").interact(null)
-	_check(game_state.quest_progress("lost_cat") == 1, "Crumple the cat can be found")
-	current_scene.get_node("Actors/Corrugate").interact(null)
-	await _skip_dialogue(dialogue)
-	await _frames(10)
-	_check(game_state.get_flag("corrugate_joined") and current_scene.get_node("Props/HarborFlap").is_open(), "Corrugate joins and the harbor flap opens")
-	var companions := get_nodes_in_group("companion")
-	_check(companions.any(func(c: Node) -> bool: return c.get("companion_flag") == "corrugate_joined"), "Corrugate follows Patch")
-
-	# The shadow theater runs a whole show (autoplayed) and returns to town.
-	Engine.time_scale = 6.0
-	await scene_manager.change_page(CH2 + "shadow_theater.tscn")
-	var show := current_scene
-	show.autoplay = true
-	for i in 900:
-		await physics_frame
-		if not is_instance_valid(show) or show.is_finished():
-			break
-	_check(is_instance_valid(show) and show.is_finished() and game_state.quest_done("shadow_show"), "the shadow show can be played and won")
-	await _frames(200)
-	Engine.time_scale = 1.0
-	_check(current_scene.name == "LanternfoldTown", "the shadow show returns to town")
-
-	# Under the harbor flap: zip over the first ink gap, then yank the flap gate open.
-	await scene_manager.change_page(CH2 + "under_the_flap.tscn")
-	await _frames(20)
-	await _skip_dialogue(dialogue)
-	patch = get_first_node_in_group("player")
-	patch.global_position = Vector2(16 * 64, 14 * 64 - 48)
-	patch.facing = Vector2.RIGHT
-	await _frames(5)
-	patch.try_grapple()
-	await _frames(150)
-	_check(patch.global_position.x > 25 * 64 and patch.is_on_floor(), "Patch zips over the first ink gap (x=%.0f)" % patch.global_position.x)
-	var gate := current_scene.get_node("Props/FlapGate") as Node2D
-	var gate_y := gate.position.y
-	patch.global_position = Vector2(44 * 64, 14 * 64 - 48)
-	patch.facing = Vector2.RIGHT
-	await _frames(10)
-	patch.try_grapple()
-	await _frames(70)
-	_check(gate.position.y < gate_y - 200.0, "yanking the gate ring lifts the flap gate")
+	await _shadow_wharf(game_state, scene_manager, dialogue)
+	await _under_the_flap(game_state, scene_manager, dialogue)
 
 	# The Blotch Kraken: yank both blotters to stun it, swipe its eye, three times over.
-	await scene_manager.change_page(CH2 + "kraken_arena.tscn")
+	await scene_manager.change_page(R2 + "boss_ink_deep.tscn")
 	await _frames(20)
 	await _skip_dialogue(dialogue)
-	patch = get_first_node_in_group("player")
+	var patch = get_first_node_in_group("player")
 	patch.health.max_health = 99
 	patch.health.set_health(99)
 	var boss := current_scene.get_node("BlotchKraken")
@@ -389,6 +321,8 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _frames(30)
 	_check(current_scene.get_node("Props/ToGransTable").visible, "the Drizzle reveal plays and the way out opens")
 
+	await _lightkeepers_store(game_state, scene_manager, dialogue)
+
 	await scene_manager.change_page("res://scenes/levels/interludes/interlude_02.tscn")
 	for i in 1200:
 		if dialogue.is_active():
@@ -397,12 +331,14 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	await _skip_dialogue(dialogue)
 	await _frames(90)
 	_check(game_state.get_flag("chapter2_complete"), "the second interlude marks Chapter 2 complete")
+	await _wait_for_scene("SpineHub", 240)
+	_check(current_scene.name == "SpineHub", "the second interlude goes back to the Spine (now on %s)" % current_scene.name)
+	_check(load("res://scripts/world/book_map.gd").region_of(R2 + "boss_ink_deep.tscn").get("id") == &"lanternfold", "the Kraken's arena belongs to Lanternfold")
+	_check(not ResourceLoader.exists("res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"), "the old harbour town pages are retired")
 
 
 func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const CH3 := "res://scenes/levels/ch3_spine/"
-	# The second interlude now turns the page to Frostfold.
-	_check(current_scene.name == "FrostfoldSlopes", "the second interlude turns to Chapter 3 (now on %s)" % current_scene.name)
 
 	# Frostfold Slopes: pick up the Pop-Up Slam, spring a fold mark, ride the peak up.
 	await scene_manager.change_page(CH3 + "frostfold_slopes.tscn")
@@ -1146,13 +1082,164 @@ func _lanternfold(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		_check(game_state.get_flag(["lamp_room_1", "lamp_room_2", "lighthouse_lit"][room]) and gates[room].is_open,
 			"turning the mirrors right lights room %d's wicks and opens its grille" % (room + 1))
 	_check(wicks.all(func(w: Node) -> bool: return w.lit), "every wick burns once the great lamp is lit")
-	var lamp_exit := _named(level, "page_exit").filter(func(n: Node) -> bool: return n.target_page.ends_with("lanternfold_town.tscn"))
-	_check(lamp_exit.size() == 1, "the way down leads to the harbour town (until part 2)")
+	var lamp_exit := _named(level, "page_exit").filter(func(n: Node) -> bool: return n.target_page == R2 + "2_4_the_shadow_wharf.tscn")
+	_check(lamp_exit.size() == 1, "the way down leads to the Shadow Wharf")
+	_check(level.get_node_or_null("spawn_point_56_6") == null and level.get_node_or_null("FromWharf") != null, "the Lamp Room has a way back up from the wharf")
 	await scene_manager.change_page(R2 + "2_3_the_lamp_room.tscn", &"Start")
 	await _wait_for_scene("TheLampRoom", 120)
 	await _frames(20)
 	await _skip_dialogue(dialogue)
 	_check(_named(current_scene.get_node("Level"), "chapel_gate").all(func(g: Node) -> bool: return g.is_open), "a solved Lamp Room stays solved")
+
+
+## 2-4 The Shadow Wharf: shadows that hold only while their lamp burns, gusts off the
+## sea, the lamplighter's daughters and their father's five lamps, and Corrugate and his
+## cat, whose joining opens the flap.
+func _shadow_wharf(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R2 := "res://scenes/levels/lanternfold/"
+	await scene_manager.change_page(R2 + "2_4_the_shadow_wharf.tscn", &"Start")
+	await _wait_for_scene("TheShadowWharf", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var level := current_scene.get_node("Level")
+	var ledges := _named(level, "shadow_platform")
+	_check(ledges.size() == 14, "the wharf has fourteen shadow ledges (%d)" % ledges.size())
+	var ledge := level.get_node("shadow_platform_26_19")
+	var post := level.get_node("lantern_post_22_21")
+	_check(ledge.lamp == post and not ledge.solid, "a shadow ledge belongs to its nearest lamp, and is nothing while the lamp is cold")
+	post.light()
+	for i in 3:
+		await physics_frame
+	_check(ledge.solid and not ledge.get_child(0).disabled, "lighting the lamp makes its shadows solid")
+	patch.global_position = ledge.global_position + Vector2(0, -60)
+	patch.velocity = Vector2.ZERO
+	for i in 40:
+		await physics_frame
+	_check(ledge.is_in_group(&"unsafe_floor") and patch._last_safe_position.y > ledge.global_position.y, "a fall never puts Patch back on a shadow")
+	_check(patch.is_on_floor() and patch.global_position.y < ledge.global_position.y and patch.global_position.y > ledge.global_position.y - 80.0,
+		"Patch can stand on a lit shadow (floor %s, %.0f px above it)" % [patch.is_on_floor(), ledge.global_position.y - patch.global_position.y])
+	post.snuff()
+	for i in 20:
+		await physics_frame
+	_check(not ledge.solid and patch.global_position.y > ledge.global_position.y + 20.0, "when the lamp goes out the shadow drops him")
+	post.light()
+	# Gusts shove Patch back along the boards.
+	var gust := level.get_node("gust_50_21")
+	patch.global_position = Vector2(58 * 64 + 32, 22 * 64 - 40)
+	patch.velocity = Vector2.ZERO
+	for i in 20:
+		await physics_frame
+	gust._t = 0.0
+	var x0 := patch.global_position.x
+	for i in 30:
+		await physics_frame
+	_check(gust.blowing and patch.global_position.x < x0 - 40.0, "a gust off the sea pushes Patch back (%.0f px)" % (x0 - patch.global_position.x))
+	gust._t = gust.blow_time + 0.1
+	for i in 5:
+		await physics_frame
+	_check(not gust.blowing, "and then drops")
+	# Father's rounds: five lamps for the lamplighter's daughters.
+	var sisters := level.get_node("npc_lamplighters_15_21")
+	sisters.interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_started("festival_lanterns"), "the lamplighter's daughters ask Patch to finish their father's rounds")
+	var lamps := _named(level, "lantern_").filter(func(n: Node) -> bool: return not String(n.name).begins_with("lantern_post"))
+	_check(lamps.size() == 5, "five of his lamps along the wharf (%d)" % lamps.size())
+	for lamp in lamps:
+		lamp.interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_progress("festival_lanterns") == 5, "all five can be lit")
+	sisters.interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_done("festival_lanterns"), "the daughters see it done")
+	# Corrugate, his cat up the crane, and the flap.
+	var flap := level.get_node("page_exit_258_21")
+	_check(flap.target_page == R2 + "2_5_under_the_flap.tscn" and flap.requires_flag == "corrugate_joined", "the flap leads under the harbour, once Corrugate is with Patch")
+	var corrugate := level.get_node("npc_corrugate_177_21")
+	corrugate.interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_started("lost_cat"), "Corrugate asks Patch to fetch his cat")
+	var crumple := level.get_node("crumple_197_9")
+	_check(crumple.global_position.y < 12 * 64, "Crumple is up the crane, at the top of the shadows")
+	crumple.interact(null)
+	await _skip_dialogue(dialogue)
+	_check(game_state.quest_progress("lost_cat") == 1, "Crumple can be fetched down")
+	corrugate.interact(null)
+	await _skip_dialogue(dialogue)
+	await _frames(10)
+	_check(game_state.get_flag("corrugate_joined"), "Corrugate joins Patch")
+	var companions := get_nodes_in_group("companion")
+	_check(companions.any(func(c: Node) -> bool: return c.get("companion_flag") == "corrugate_joined"), "Corrugate follows Patch")
+	_check(level.get_node("page_exit_1_21").target_spawn == &"FromWharf", "the wharf leads back up into the Lamp Room")
+
+
+## 2-5 Under the Harbor Flap: islands and chains over the ink, rings over the gaps,
+## Letters K and N, and the way to the Kraken.
+func _under_the_flap(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R2 := "res://scenes/levels/lanternfold/"
+	await scene_manager.change_page(R2 + "2_5_under_the_flap.tscn", &"Start")
+	await _wait_for_scene("UnderTheFlap", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var letters := _named(level, "lost_letter").map(func(n: Node) -> String: return n.letter)
+	_check(letters == ["K", "N"], "Letters K and N are under the flap (%s)" % [letters])
+	_check(_named(level, "grapple_ring").size() == 7, "rings over the widest ink (%d)" % _named(level, "grapple_ring").size())
+	_check(_named(level, "folded_crane").size() == 1 and _named(level, "inkwell_turret").size() == 1, "a crane and a turret guard the pilings")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	# Off the first island and into the ink is a fall.
+	var hp: int = game_state.health
+	patch.global_position = Vector2(20 * 64, 15 * 64)
+	patch.velocity = Vector2.ZERO
+	for i in 40:
+		await physics_frame
+	patch.health.clear_invulnerability()
+	patch.global_position = Vector2(24 * 64 + 32, 15 * 64)
+	patch.velocity = Vector2.ZERO
+	for i in 150:
+		await physics_frame
+	await _frames(30)
+	_check(current_scene.name == "UnderTheFlap" and game_state.health < hp and patch.global_position.y < 16 * 64, "falling in the ink hurts and puts Patch back on land (hp %d of %d, y %.0f)" % [game_state.health, hp, patch.global_position.y])
+	patch.health.grant_invulnerability(900.0)
+	level = current_scene.get_node("Level")
+	var exits := _named(level, "page_exit")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R2 + "boss_ink_deep.tscn"), "the far end leads to the Kraken")
+	_check(exits.any(func(e: Node) -> bool: return e.target_page == R2 + "2_4_the_shadow_wharf.tscn" and e.target_spawn == &"FromFlap"), "and the near end back up to the wharf")
+
+
+## The Lightkeeper's Store, 2-2's sealed back page: shut until the Kraken is beaten,
+## then a dark run of short lamps to a heart patch and the keeper's 60 Scraps.
+func _lightkeepers_store(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R2 := "res://scenes/levels/lanternfold/"
+	await scene_manager.change_page(R2 + "2_2_the_lamplighters_climb.tscn", &"Start")
+	await _wait_for_scene("TheLamplightersClimb", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var doors := _named(current_scene.get_node("Level"), "page_door").filter(func(d: Node) -> bool: return d.target_page == R2 + "lightkeepers_store.tscn")
+	_check(doors.size() == 1 and doors[0].is_open(), "beating the Kraken unseals the keeper's store")
+	await scene_manager.change_page(R2 + "lightkeepers_store.tscn", &"FromClimb")
+	await _wait_for_scene("TheLightkeepersStore", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	_check(get_nodes_in_group(&"bookmarks").filter(func(n: Node) -> bool: return current_scene.is_ancestor_of(n)).is_empty(), "the store has no Bookmark")
+	var level := current_scene.get_node("Level")
+	_check(_named(level, "shadow_platform").all(func(l: Node) -> bool: return l.lamp != null), "every shadow in the store has a lamp to cast it")
+	var hearts_before: int = game_state.max_health
+	var scraps_before: int = game_state.scraps
+	patch.global_position = (level.get_node("heart_patch_116_17") as Node2D).global_position
+	await _frames(10)
+	patch.global_position = (level.get_node("scrap_120_17") as Node2D).global_position
+	await _frames(10)
+	_check(game_state.max_health == hearts_before + 2, "the keeper's patch adds a heart")
+	_check(game_state.scraps >= scraps_before + 60, "and his tin holds 60 Scraps")
+	await _skip_dialogue(dialogue)
+	game_state.max_health = 99
+	game_state.health = 99
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a

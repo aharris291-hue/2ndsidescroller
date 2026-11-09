@@ -1,140 +1,114 @@
 {
-	"ch2_town_arrival": [
-		{
-			"speaker": "patch",
-			"text": "Lanternfold Harbor! Festival town! Lights, music, adoring crowds. I can feel the adoration from here."
-		},
-		{
-			"speaker": "dot",
-			"text": "That's damp."
-		},
-		{
-			"speaker": "patch",
-			"text": "...It's a bit damp. The lanterns are all out. And the bunting's sort of... dripping."
-		},
-		{
-			"speaker": "dot",
-			"text": "Sogg got here first."
-		},
-		{
-			"speaker": "patch",
-			"text": "Fine. We find whoever's in charge, fix the festival, and they name a lantern after me. Big one. Orange."
-		}
-	],
 	"lamplighters_intro": [
 		{
 			"speaker": "lamplighters",
-			"text": "A visitor! Hello! We're the Lamplighter Sisters. We were cut from the same strip of paper, so we share everything. Including sentences."
-		},
-		{
-			"speaker": "lamplighters",
-			"text": "The festival's meant to be tonight. Every year since the book was made. But the damp got into the wicks and every lantern in town went out."
+			"text": "You're not one of the wet ones. Good. We weren't sure, in the dark."
 		},
 		{
 			"speaker": "patch",
-			"text": "And you can't relight them yourselves because...?"
+			"text": "Patch. Fox. Hero, technically. You two are the ones doing the rounds."
 		},
 		{
 			"speaker": "lamplighters",
-			"text": "We're holding hands. Permanently. It makes ladders very complicated."
+			"text": "Our father's rounds. He lit every lamp in Lanternfold for forty years. The night of the flood he went up to the lighthouse and he didn't come down."
 		},
 		{
 			"speaker": "lamplighters",
-			"text": "There are five festival lanterns around town. Light them and we'll pay you in Scraps and undying gratitude. Mostly Scraps."
+			"text": "There are five lamps on the wharf he never reached. We can't get up to them. We've been cut from one strip of paper, and the wind takes us like a kite."
+		},
+		{
+			"speaker": "patch",
+			"text": "I'll light them."
+		},
+		{
+			"speaker": "lamplighters",
+			"text": "He'd have liked you. He liked people who said things like that and then did them."
 		}
 	],
 	"lamplighters_progress": [
 		{
 			"speaker": "lamplighters",
-			"text": "Still some dark corners out there. Five lanterns in all. Check by the hedges, the houses, and down near the water."
+			"text": "Five lamps. On the shed roof, the crane yard, out along the flap. He kept a list. We kept it for him."
 		}
 	],
 	"lamplighters_done": [
 		{
 			"speaker": "lamplighters",
-			"text": "Look at it! The whole harbor's glowing. It's not as bright as it used to be. The paper's gone a bit wavy."
+			"text": "That's all of them. That's the whole round."
 		},
 		{
 			"speaker": "lamplighters",
-			"text": "But it's ours, and it's lit. That counts for more than we thought it would. Here, take these Scraps."
+			"text": "It's stupid. It doesn't bring him back. But from up there it'll look like somebody's still doing it."
 		},
 		{
 			"speaker": "patch",
-			"text": "And the lantern you're naming after me?"
+			"text": "Somebody is."
 		},
 		{
 			"speaker": "lamplighters",
-			"text": "We'll think about it."
+			"text": "Take this. It was his. He'd want it spent, not kept."
 		}
 	],
 	"lamplighters_repeat": [
 		{
 			"speaker": "lamplighters",
-			"text": "If you've got rhythm, the shadow theater's running a show tonight. The crowd's tough. They're made of cardboard."
+			"text": "We'll keep the round going. Someone has to. You go and find whatever's doing this."
 		}
 	],
 	"corrugate_intro": [
 		{
 			"speaker": "corrugate",
-			"text": "Well. A fox. Haven't seen a fox on this page since the book was new. You're missing a bit."
+			"text": "Stay back. I'm armed. With a boathook. Somewhere."
 		},
 		{
 			"speaker": "patch",
-			"text": "Lost it in a duel with a sea serpent. You should see the serpent."
+			"text": "I'm not wet. Look. Dry fox."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Hm. I'm Corrugate. Captain, retired. That's my boat. It leaks. And under the harbor flap there's something big and inky that's been pulling the whole town down, one plank at a time."
-		},
-		{
-			"speaker": "patch",
-			"text": "So let's go and punch it."
-		},
-		{
-			"speaker": "corrugate",
-			"text": "The flap's soaked shut and my boat's got a hole you could post a letter through. I'd need real tape. Not drawn tape. Real."
-		},
-		{
-			"speaker": "dot",
-			"text": "Real tape. Is out there."
-		},
-		{
-			"speaker": "corrugate",
-			"text": "On the Great Light's table, yes. Through that page corner by the dock. Mind yourself. Everything out there is the size of a house, and none of it is on your side."
+			"text": "Hm. Corrugate. Captain, of a boat I won't sail. Something under the harbour flap has been dragging this town down plank by plank, and I've been in this shed for a week pretending I can't hear it."
 		}
 	],
 	"corrugate_need_tape": [
 		{
 			"speaker": "corrugate",
-			"text": "The page corner by the dock goes out onto the table. The tape roll's out there somewhere. Peel off a strip. Don't let it peel you."
+			"text": "You'll want something to swing on, out here. The lamplighter kept a roll of tape up in his tower. He won't be needing it."
 		}
 	],
 	"corrugate_cat": [
 		{
 			"speaker": "corrugate",
-			"text": "Real tape! On your tail, no less. Suits you. Very modern."
+			"text": "Stay back. I'm armed. With a boathook. Somewhere."
 		},
 		{
 			"speaker": "patch",
-			"text": "It's a Tape Tail. I can throw it. It sticks to brass rings and pulls me along. I'm basically a superhero now."
+			"text": "I'm not wet. Look. Dry fox. With tape, even."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Good, because I've a superhero problem. Crumple, my ship's cat, has gone and sat on the mooring post out across the water. Won't come in. Sulks when it's wet."
+			"text": "The lamplighter's tape. So you went up there. Then you know."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "I'm not going out there. I'm a sea captain who is afraid of the sea now, and I'd rather we didn't talk about it."
+			"text": "Corrugate. Captain, of a boat I won't sail any more. Something under the harbour flap has been eating this town from below, and I've been hiding in a net shed listening to it."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "My cat's up the big crane. Crumple. She went up when the water came and she won't come down for me. I can't climb. I've tried. I'm cardboard. I fold."
 		},
 		{
 			"speaker": "patch",
-			"text": "You stand on that dock, Captain. I'll swing across on the brass rings."
+			"text": "Then I'll go up. Light the lamp, ride the shadows, grab the cat. Easy."
+		},
+		{
+			"speaker": "corrugate",
+			"text": "Nothing out there's easy, fox. That's what it does to you. Bring her back and I'll open the flap. I owe the harbour that much."
 		}
 	],
 	"corrugate_cat_progress": [
 		{
 			"speaker": "corrugate",
-			"text": "She's out on the little mooring post across the water. Throw your tape at the brass ring by the dock's end and you'll see."
+			"text": "Up the crane. The short lamp by its foot throws shadows up it, but they don't last. Move fast, and don't look down."
 		}
 	],
 	"corrugate_joins": [
@@ -144,51 +118,51 @@
 		},
 		{
 			"speaker": "corrugate",
-			"text": "There she is. Dry as a biscuit and furious about it. Thank you, fox."
+			"text": "There she is. Dry, and furious about it. Thank you."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Right. I patched the boat with the rest of your tape. Which means I've run out of excuses."
+			"text": "Right. I said I'd open the flap. I'm going to open the flap."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "The harbor flap. I'll lift it. But I'm coming with you, slowly, and if anything wet touches me I reserve the right to complain."
+			"text": "And then I'm coming down there with you, because if I stay in this shed one more night I'll fold up for good."
 		},
 		{
 			"speaker": "dot",
-			"text": "Welcome aboard. Finally."
+			"text": "Welcome aboard."
 		}
 	],
 	"heist_arrival": [
 		{
 			"speaker": "patch",
-			"text": "Gran's table. At night. Okay. Very big, very dark, very quiet. Totally fine."
+			"text": "Gran's table. At night. Everything the size of a house, and all of it quiet."
 		},
 		{
 			"speaker": "dot",
-			"text": "Tape roll. Far end."
+			"text": "Tape. Far end."
 		},
 		{
 			"speaker": "patch",
-			"text": "Right. Grab the tape, get back to the book, nobody gets flattened by a mug. Easy."
+			"text": "In and out. Nothing out here's on our side."
 		}
 	],
 	"flap_arrival": [
 		{
 			"speaker": "corrugate",
-			"text": "Under the harbor. Haven't been down here since the book was dry. It used to be blue, you know. Properly blue."
+			"text": "Under the harbour. It used to be blue down here, you know. Properly blue. I learned to swim in it."
 		},
 		{
 			"speaker": "patch",
-			"text": "Now it's ink. Lots of ink. Is it supposed to drip?"
+			"text": "Now it's ink."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "No. Watch the gaps. Fall in that and you'll come out a different colour, if you come out."
+			"text": "Don't fall in. Things that fall in don't come out the colour they went in. Some of them don't come out."
 		},
 		{
 			"speaker": "dot",
-			"text": "Rings ahead. Use the tail."
+			"text": "Rings. Use the tail."
 		}
 	],
 	"kraken_arrival": [
@@ -198,33 +172,33 @@
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Blotch. I'd know it anywhere. It's been eating the harbor from underneath."
+			"text": "Blotch. It's been under the town since the flood, drinking."
 		},
 		{
 			"speaker": "dot",
-			"text": "Blotters. Up top. Pink."
+			"text": "Blotters. Up top."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Blotting paper soaks up ink. Drop it on the beast and it'll go limp. Then you swipe it, fox. I'll be here. Shouting encouragement. From the dry bit."
+			"text": "Blotting paper drinks ink faster than it does. Drop it on the beast and it'll sag. Then cut, fox, and don't stop."
 		}
 	],
 	"kraken_drizzle": [
 		{
 			"speaker": "kraken",
-			"text": "...I just wanted... it to stop... raining..."
+			"text": "...I only wanted... it to stop... raining..."
 		},
 		{
 			"speaker": "patch",
-			"text": "It talked. Why does it talk?"
+			"text": "It talked."
 		},
 		{
 			"speaker": "corrugate",
-			"text": "Look at the ink, fox. That's not harbor ink. That's Weather Page ink. That's Drizzle's ink."
+			"text": "Look at the ink, fox. That's not harbour ink. That's the Weather Page. That's Drizzle's ink."
 		},
 		{
 			"speaker": "patch",
-			"text": "Drizzle? The little rain cloud? The one that waters the meadow and says good morning to everyone?"
+			"text": "Drizzle."
 		},
 		{
 			"speaker": "dot",
@@ -232,15 +206,15 @@
 		},
 		{
 			"speaker": "corrugate",
-			"text": "The flood filled that cloud up until there was no room left for the cloud. It's not a monster. It's what's left when the water won't stop."
+			"text": "The flood filled that little cloud until there was no room left for it. This isn't a monster. It's what's left when the water won't stop and nobody comes."
 		},
 		{
 			"speaker": "patch",
-			"text": "...Oh."
+			"text": "...Nobody came."
 		},
 		{
 			"speaker": "patch",
-			"text": "I thought it was just the bad guy. It's easier when it's just the bad guy."
+			"text": "I know. I know nobody came."
 		}
 	]
 }

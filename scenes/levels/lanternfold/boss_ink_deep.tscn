@@ -1,7 +1,7 @@
 [gd_scene format=4]
 
 [ext_resource type="Script" path="res://scripts/world/page.gd" id="1_heot0"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/ink_deep.wav" id="2_765ir"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_765ir"]
 [ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_ink_sea.png" id="3_takoa"]
 [ext_resource type="Texture2D" path="res://assets/art/dark/props/rising_water.png" id="4_dimgi"]
 [ext_resource type="TileSet" path="res://resources/paper_tiles.tres" id="5_guq7w"]
@@ -34,6 +34,9 @@ size = Vector2(120, 600)
 [node name="KrakenArena" type="Node2D" unique_id=270915426]
 script = ExtResource("1_heot0")
 page_title = "The Ink Deep"
+opening_caption = "The harbor floor ended in open ink, flat and black, under a sky of wet card. Two old blotters hung from the flap above, on chains."
+weather_tint = Color(0.3, 0.32, 0.46, 1)
+rain_amount = 40
 music = ExtResource("2_765ir")
 bounds = Rect2(0, 0, 1920, 1088)
 
@@ -50,10 +53,10 @@ offset_top = 985.6
 offset_right = 2120.0
 offset_bottom = 2385.6
 mouse_filter = 2
-color = Color(0.078431375, 0.08627451, 0.20392157, 1)
+color = Color(0.04, 0.045, 0.09, 1)
 
 [node name="InkSurface" type="Sprite2D" parent="." unique_id=2081251162]
-modulate = Color(0.3, 0.32, 0.6, 1)
+modulate = Color(0.22, 0.24, 0.4, 1)
 texture_repeat = 2
 position = Vector2(-200, 951.6)
 texture = ExtResource("4_dimgi")
@@ -142,7 +145,7 @@ collision_layer = 32
 collision_mask = 2
 script = ExtResource("15_3lei5")
 target_page = "res://scenes/levels/interludes/interlude_02.tscn"
-door_prompt = "Close Chapter 2"
+door_prompt = "Climb out of the ink"
 prompt_offset = Vector2(0, -170)
 
 [node name="Pickups" type="Node2D" parent="." unique_id=1741560432]

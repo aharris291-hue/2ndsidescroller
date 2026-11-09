@@ -6,14 +6,14 @@
 		"reward_scraps": 15
 	},
 	"festival_lanterns": {
-		"title": "Light Up Lanternfold",
-		"description": "Relight the five festival lanterns the damp put out.",
+		"title": "Father's Rounds",
+		"description": "Light the five lamps on the wharf that the lamplighter never got to, the night he didn't come home.",
 		"goal": 5,
 		"reward_scraps": 20
 	},
 	"lost_cat": {
 		"title": "The Captain's Cat",
-		"description": "Find Crumple, Corrugate's origami cat, somewhere out across the harbor.",
+		"description": "Find Crumple, Corrugate's paper cat, somewhere up the cranes on the Shadow Wharf.",
 		"goal": 1,
 		"reward_scraps": 10
 	},
