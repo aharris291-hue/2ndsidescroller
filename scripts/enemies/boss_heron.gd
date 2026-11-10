@@ -76,7 +76,7 @@ func _ready() -> void:
 		start_zone.body_entered.connect(func(b: Node2D) -> void:
 			if b is Patch:
 				start_fight())
-	if GameState.get_flag(defeated_flag):
+	if GameState.get_flag(defeated_flag) and not Rematch.watch(self):
 		_show_exit()
 		queue_free()
 		return
@@ -361,6 +361,8 @@ func _on_skull_hit(hitbox: Hitbox) -> void:
 
 
 func _on_defeated() -> void:
+	if Rematch.intercept(self):
+		return
 	state = State.DEFEATED
 	_kill_tween()
 	beak.active = false

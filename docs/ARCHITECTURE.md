@@ -211,6 +211,11 @@ interludes/the_end           CutscenePage: the last line, in Nell's handwriting,
 
 - **BoatRace** generates its course from `course_seed`, so it's the same every try. Win with 2 bumps or fewer.
 
+### Post-game systems
+
+- **Rematch** (`scripts/world/rematch.gd`): Gran's proof press in the Spine's gallery (`ProofPress`, 'L' in the hub map) opens `RematchPanel`, which lists every boss in `Rematch.BOSSES` whose defeated flag is set. `Rematch.start(id)` sets `GameState.rematch` (never saved) and turns to the arena. A boss joins in with three calls: `Rematch.watch(self)` in `_ready` (so it fights although its flag is set), `Rematch.intercept(self)` first thing in its defeat handler, and an optional `inked()` method. The first time its health runs out it comes back inked: a third of its health, a dark tint, `INK_TUNING` multipliers on its timing exports, ink drips on the arena and a dark vignette. The second time the run ends: the boss is disabled and faded, a sticker card shows, the best sticker and time go into the flags `sticker:<id>` and `sticker_time:<id>`, and Patch is turned back to `Rematch.HUB_SPOT`. Torn during a rematch, Patch restarts the fight (`Rematch.retry`); turning to any other page ends it (`Rematch.page_loaded`).
+- **Stickers:** `Rematch.rank_for(seconds, hits, par)`: Paper for finishing, +1 for two hits or fewer (+2 for none), +1 for beating par. Gilt is a clean fight under par. Pars are estimates.
+
 ## Collision layers
 
 | # | Name | Used by |

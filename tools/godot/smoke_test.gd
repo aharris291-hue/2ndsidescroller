@@ -119,6 +119,7 @@ func _run() -> void:
 	await _chapter_one(game_state, scene_manager, dialogue)
 	await _chapter_two(game_state, scene_manager, dialogue)
 	await _blank_margins(game_state, scene_manager, dialogue)
+	await _rematches(game_state, scene_manager, dialogue)
 	await _chapter_three(game_state, scene_manager, dialogue)
 	await _finale(game_state, scene_manager, dialogue)
 
@@ -476,6 +477,119 @@ func _blank_margins(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	_check(not book_map.torn_regions().has("The Blank Margins"), "the Margins never hold up the finale")
 	if was_mended:
 		game_state.set_flag("boss_forecast_defeated")
+
+## Post-game: Gran's proof press and the boss rematches (scripts/world/rematch.gd).
+func _rematches(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	var rematch := load("res://scripts/world/rematch.gd")
+	_check(rematch.BOSSES.size() == 8, "every boss can be fought again (%d)" % rematch.BOSSES.size())
+	for b: Dictionary in rematch.BOSSES:
+		_check(ResourceLoader.exists(b["scene"]), "%s's arena is there" % b["name"])
+		_check(rematch.INK_TUNING.has(b["id"]), "%s has an inked phase" % b["name"])
+	_check(rematch.rank_for(80.0, 0, 100.0) == 4 and rematch.rank_for(80.0, 2, 100.0) == 3
+		and rematch.rank_for(140.0, 2, 100.0) == 2 and rematch.rank_for(140.0, 6, 100.0) == 1
+		and rematch.rank_for(140.0, 0, 100.0) == 3, "stickers: gilt only for a clean fight under par")
+	_check(rematch.clock(84.0) == "1:24" and rematch.clock(171.0) == "2:51", "fight times read as minutes and seconds")
+	var flags_before: Dictionary = game_state.flags.duplicate()
+	for b: Dictionary in rematch.BOSSES:
+		game_state.set_flag(b["flag"], false)
+	_check(not rematch.any_unlocked() and not rematch.start("millwheel"), "nothing to fight again before a page is mended")
+	game_state.set_flag("boss_forecast_defeated")
+	game_state.set_flag("sticker:forecast", 0)
+	game_state.set_flag("sticker_time:forecast", 0.0)
+	game_state.rematch = "forecast"
+	rematch.page_loaded("res://scenes/levels/hub/spine_hub.tscn")
+	_check(game_state.rematch == "", "turning to any other page ends a rematch")
+	_check(not rematch.retry(), "with no rematch running, a torn Patch goes back to his bookmark")
+
+	await scene_manager.change_page("res://scenes/levels/hub/spine_hub.tscn", &"Start")
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	var press := current_scene.get_node_or_null("Level/proof_press_30_8")
+	_check(press != null and press.can_interact(), "Gran's proof press stands in the gallery")
+	var panel_script := load("res://scripts/ui/rematch_panel.gd")
+	_check(panel_script.row_text("forecast").contains("no sticker yet") and panel_script.row_text("millwheel").contains("not mended"),
+		"the press lists mended pages, and keeps the rest back")
+
+	# Pull the Forecast's proof.
+	_check(rematch.start("forecast"), "a proof of the storm's page")
+	await _wait_for_scene("LastBlankPage", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.rematch == "forecast", "the rematch survives the page turn")
+	var boss := current_scene.get_node_or_null("TheForecast")
+	var run := current_scene.get_node_or_null("Rematch")
+	_check(boss != null and run != null and not current_scene.get_node("ExitDoor").visible,
+		"the storm is back on its mended page, and the way out is shut")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.global_position = current_scene.get_node("StartZone").global_position + Vector2(0, 200)
+	await _frames(8)
+	await _skip_dialogue(dialogue)
+	_check(boss.state != 0, "the rematch starts the same way")
+	await _frames(30)
+	_check(run.elapsed > 0.2, "the clock runs (%.2f s)" % run.elapsed)
+	patch.health.clear_invulnerability()
+	patch.health.take_damage(1, Vector2.ZERO)
+	_check(run.hits == 1, "and counts the hits Patch takes")
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	patch.health.grant_invulnerability(900.0)
+	var rain_was: Array = boss.rain_every.duplicate()
+	# Patch stands still here: the inked wind would blow him out of the page's exit.
+	boss.wind_strength = 0.0
+	boss.health.clear_invulnerability()
+	boss.health.take_damage(99, Vector2.ZERO)
+	await _frames(2)
+	_check(is_instance_valid(boss) and run.inked and boss.health.current == boss.health.max_health / 3 and boss.phase() == 2,
+		"out of health, it comes back inked with a third of it (%d)" % boss.health.current)
+	_check(absf(boss.rain_every[0] - rain_was[0] * 0.8) < 0.01, "inked, it calls the rain sooner")
+	_check(not game_state.get_flag("sticker:forecast", 0), "no sticker yet")
+	var inked := false
+	for i in 240:
+		if not get_nodes_in_group(&"rematch_ink").is_empty():
+			inked = true
+			break
+		await _frames(1)
+	_check(inked, "ink rains on the arena")
+	boss.health.clear_invulnerability()
+	boss.health.take_damage(99, Vector2.ZERO)
+	await _frames(4)
+	_check(run.finished and int(game_state.get_flag("sticker:forecast", 0)) >= 1 and float(game_state.get_flag("sticker_time:forecast", 0.0)) > 0.0,
+		"beaten for good, the ledger gets a %s sticker" % rematch.STICKERS[int(game_state.get_flag("sticker:forecast", 0))])
+	_check(not current_scene.get_node("ExitDoor").visible and (current_scene.get_node_or_null("HeartPatch") == null or not current_scene.get_node("HeartPatch").visible), "and the heart patch isn't given twice")
+	await _wait_for_scene("SpineHub", 600)
+	await _frames(60)
+	patch = current_scene.get_node("Patch") as CharacterBody2D
+	_check(game_state.rematch == "" and patch.global_position.distance_to(rematch.HUB_SPOT) < 120.0,
+		"then it's back to the press (%s, %s)" % [game_state.rematch, patch.global_position])
+	_check(panel_script.row_text("forecast").contains("sticker, best"), "the press shows the best sticker and time")
+
+	# The Sogg: in a rematch its last cut brings the ink back instead of Drizzle.
+	game_state.set_flag("boss_sogg_defeated")
+	game_state.rematch = "sogg"
+	await scene_manager.change_page("res://scenes/levels/finale/f_2_the_deepest_fold.tscn")
+	await _wait_for_scene("TheDeepestFold", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var sogg := current_scene.get_node("TheSogg")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	sogg.start_fight()
+	sogg.phase = 2
+	sogg.health.set_health(1)
+	sogg.health.clear_invulnerability()
+	sogg.health.take_damage(5, Vector2.ZERO)
+	await _frames(4)
+	_check(sogg.state != 10 and sogg.drizzle == null and sogg.health.current == sogg.health.max_health / 3,
+		"the Sogg comes back inked, and the flood with it")
+	sogg.health.clear_invulnerability()
+	sogg.health.take_damage(99, Vector2.ZERO)
+	await _frames(4)
+	_check(sogg.drizzle == null and int(game_state.get_flag("sticker:sogg", 0)) >= 1, "beaten again, no tail is given: a sticker instead")
+	await _wait_for_scene("SpineHub", 600)
+	await _frames(60)
+	game_state.flags = flags_before
+	game_state.rematch = ""
 
 func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const CH3 := "res://scenes/levels/ch3_spine/"
@@ -2625,7 +2739,8 @@ func _the_index_two(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	_check(not is_instance_valid(ribbon) or ribbon.is_queued_for_deletion(), "it eats a ribbon left behind")
 	var fish := level.get_node_or_null("silverfish_52_19")
 	_check(fish != null, "a silverfish in the way")
-	gnaw.front = 54 * 64
+	# Wherever the fish has crawled to by now (it moves), the front goes past it.
+	gnaw.front = maxf(54 * 64, fish.global_position.x + 200.0)
 	await _frames(3)
 	_check(not is_instance_valid(fish) or fish.is_queued_for_deletion(), "the Gnawing eats its own kind too")
 	var shutter_q := level.get_node("shutter_192_19")

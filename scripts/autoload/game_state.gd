@@ -45,6 +45,8 @@ var bookmarks: Dictionary = {}
 var visited: Dictionary = {}
 ## True in the Combat Lab: nothing is saved, so a save slot can't be overwritten.
 var sandbox := false
+## The boss being fought again from Gran's proof press (Rematch), or "". Never saved.
+var rematch := ""
 var letters: Array[String] = []
 var abilities: Array[StringName] = []
 ## Unique ids of one-time pickups that are already collected.
@@ -77,6 +79,7 @@ func _process(delta: float) -> void:
 func new_game(new_slot: int) -> void:
 	slot = new_slot
 	sandbox = false
+	rematch = ""
 	max_health = BASE_MAX_HEALTH
 	health = max_health
 	scraps = 0

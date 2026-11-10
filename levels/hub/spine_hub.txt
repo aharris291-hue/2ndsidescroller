@@ -2,8 +2,9 @@
 ; Ground floor: start, bookmark, doors to Thistledown (A), Lanternfold (B) and
 ; Watermark Marsh (C), Gran's sewing tin (T), and the way down to the Gutter (G,
 ; the finale, open once every region is mended). The gallery above (doors D Spine
-; Peaks, F Gatefold Fair, I The Index and M the optional Blank Margins) is reached
-; by the HubStair boards on the right once Thistledown is mended.
+; Peaks, F Gatefold Fair, I The Index and M the optional Blank Margins, and L Gran's
+; proof press for boss rematches) is reached by the HubStair boards on the right once
+; Thistledown is mended.
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $......................................$
 $......................................$
@@ -12,7 +13,7 @@ $......................................$
 $......................................$
 $......................................$
 $......................................$
-$.......D.....F.....I.....M............$
+$.......D.....F.....I.....M...L........$
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......$
 $......................................$
 $......................................$
