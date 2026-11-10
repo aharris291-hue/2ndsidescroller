@@ -269,7 +269,7 @@ func _sweep() -> void:
 	_tween.tween_property(body, "scale", Vector2(1.18, 0.9), sweep_warn).set_trans(Tween.TRANS_SINE)
 	_tween.parallel().tween_property(body, "self_modulate", Color(1.25, 1.2, 1.1), sweep_warn)
 	_tween.tween_callback(func() -> void:
-		AudioManager.play_sfx(&"dash", 0.5)
+		AudioManager.play_sfx(&"ink_rush", 0.7)
 		for d in [-1.0, 1.0]:
 			_gust(d)
 		if phase() == 2:

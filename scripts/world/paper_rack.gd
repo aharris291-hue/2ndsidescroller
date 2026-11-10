@@ -46,6 +46,7 @@ func interact(player: Patch) -> void:
 	elif not fresh.is_empty():
 		DialogueUI.narrate("A new sheet on the rack: %s." % ", ".join(fresh.map(func(id: String) -> String: return Papers.entry(id)["name"])))
 	GameState.save_game()
+	AudioManager.play_sfx(&"rustle")
 	_panel = RackPanel.open(get_tree().root, player)
 
 

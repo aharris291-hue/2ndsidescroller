@@ -135,7 +135,7 @@ class ArcadePanel extends CanvasLayer:
 
 	func _pick(id: String) -> void:
 		close()
-		AudioManager.play_sfx(&"pickup", 0.6)
+		AudioManager.play_sfx(&"penny")
 		Arcade.play(id)
 
 	func close() -> void:

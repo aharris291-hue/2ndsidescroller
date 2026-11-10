@@ -117,6 +117,7 @@ static func start(id: String) -> bool:
 		return false
 	GameState.rematch = id
 	GameState.health = GameState.max_health
+	AudioManager.play_sfx(&"press_thud")
 	SceneManager.change_page(entry(id)["scene"])
 	return true
 
@@ -331,6 +332,7 @@ func _finish() -> void:
 	if _veil:
 		_veil.queue_free()
 	AudioManager.play_sfx(&"page_flip", 0.7)
+	AudioManager.play_sfx(&"stamp")
 	_card(rank, new_best)
 	await get_tree().create_timer(4.2, false).timeout
 	GameState.rematch = ""

@@ -21,6 +21,14 @@ const SFX := {
 	&"parry": preload("res://assets/audio/dark/sfx_parry.ogg"),
 	&"growl": preload("res://assets/audio/dark/sfx_growl.ogg"),
 	&"dissolve": preload("res://assets/audio/dark/sfx_death.ogg"),
+	# Post-game set (tools/audio/synth_postgame_sfx.py).
+	&"press_thud": preload("res://assets/audio/postgame/press_thud.ogg"),
+	&"stamp": preload("res://assets/audio/postgame/stamp.ogg"),
+	&"penny": preload("res://assets/audio/postgame/penny.ogg"),
+	&"rustle": preload("res://assets/audio/postgame/rustle.ogg"),
+	&"ink_rush": preload("res://assets/audio/postgame/ink_rush.ogg"),
+	&"heartbeat": preload("res://assets/audio/postgame/heartbeat.ogg"),
+	&"drip": preload("res://assets/audio/postgame/drip.ogg"),
 }
 ## Patch's voice (ElevenLabs, voice "Jett"). One line at a time; a new line cuts the old one.
 const VOICE := {
