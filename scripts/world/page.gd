@@ -61,6 +61,7 @@ func _ready() -> void:
 		_weather_art(self)
 		get_tree().node_added.connect(_on_node_added)
 	GameState.current_page = scene_file_path
+	Rematch.page_loaded(scene_file_path)
 	GameState.mark_visited(scene_file_path)
 	GameState.in_gameplay = true
 

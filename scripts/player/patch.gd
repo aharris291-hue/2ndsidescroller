@@ -1607,7 +1607,8 @@ func _on_died() -> void:
 	tween.tween_property(visual, "rotation", deg_to_rad(90.0) * facing.x, 0.4)
 	tween.parallel().tween_property(visual, "modulate:a", 0.0, 0.8)
 	await tween.finished
-	SceneManager.respawn_at_checkpoint()
+	if not Rematch.retry():
+		SceneManager.respawn_at_checkpoint()
 
 
 func _try_interact() -> bool:

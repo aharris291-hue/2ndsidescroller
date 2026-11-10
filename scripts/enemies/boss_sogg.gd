@@ -113,6 +113,7 @@ func _ready() -> void:
 		start_zone.body_entered.connect(func(b: Node2D) -> void:
 			if b.is_in_group(&"player"):
 				start_fight())
+	Rematch.watch(self)
 
 
 func _build() -> void:
@@ -605,6 +606,8 @@ func _drain_to(new_stage: int) -> void:
 	while stage < new_stage and stage < DRAIN_LINES.size():
 		var lines: Array = DRAIN_LINES[stage]
 		stage += 1
+		if Rematch.on(self):
+			continue
 		DialogueUI.narrate(lines[0])
 		get_tree().create_timer(2.6, false).timeout.connect(DialogueUI.narrate.bind(lines[1]))
 	var left := 1.0 - float(stage) / DRAIN_LINES.size()
@@ -690,6 +693,8 @@ func unstitch(_by: Node) -> void:
 # --- Phase 4: the tail --------------------------------------------------------------
 
 func _tail() -> void:
+	if Rematch.intercept(self):
+		return
 	if phase == 3:
 		return
 	phase = 3
@@ -761,6 +766,16 @@ func give_tail() -> void:
 	GameState.save_game()
 	if not next_page.is_empty():
 		SceneManager.change_page(next_page)
+
+
+## Rematch, inked phase: the flood comes back up, black, and has to be drained again.
+func inked() -> void:
+	# A third of its health back puts it at stage 2 of 4: the water comes back to half.
+	stage = 2
+	flood.color = Color(0.07, 0.03, 0.1, 0.9)
+	var t := create_tween().set_parallel()
+	t.tween_method(_set_flood, _flood_level, 45.0, 1.4)
+	t.tween_property(warm, "modulate:a", 0.05, 1.4)
 
 
 func _say(key: String, line: String) -> void:
