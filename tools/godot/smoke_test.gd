@@ -120,6 +120,8 @@ func _run() -> void:
 	await _chapter_two(game_state, scene_manager, dialogue)
 	await _blank_margins(game_state, scene_manager, dialogue)
 	await _rematches(game_state, scene_manager, dialogue)
+	await _arcade(game_state, scene_manager, dialogue)
+	await _lab_trials(game_state, dialogue)
 	await _chapter_three(game_state, scene_manager, dialogue)
 	await _finale(game_state, scene_manager, dialogue)
 
@@ -590,6 +592,138 @@ func _rematches(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _frames(60)
 	game_state.flags = flags_before
 	game_state.rematch = ""
+
+## Post-game: Gran's penny theatre (scripts/world/arcade.gd) and its games.
+func _arcade(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	var arcade := load("res://scripts/world/arcade.gd")
+	var theater := load("res://scripts/minigames/shadow_theater.gd")
+	var race := load("res://scripts/minigames/boat_race.gd")
+	_check(arcade.GAMES.size() == 4, "the penny theatre has three shadow shows and Flood Run")
+	for g: Dictionary in arcade.GAMES:
+		_check(ResourceLoader.exists(g["scene"]), "%s's page is there" % g["name"])
+	_check(theater.arcade_rank(96) == 4 and theater.arcade_rank(90) == 3 and theater.arcade_rank(72) == 2 and theater.arcade_rank(40) == 1,
+		"shadow shows rank by the share of shadows caught")
+	_check(race.arcade_score(12, 2) == 70 and race.arcade_score(1, 3) == 0, "Flood Run scores scraps less bumps")
+	_check(race.arcade_rank(20, 24, 0, 3) == 4 and race.arcade_rank(5, 24, 1, 3) == 3 and race.arcade_rank(5, 24, 4, 3) == 1,
+		"a clean run with most of the scraps is Gilt; holed is Paper")
+	for g: Dictionary in arcade.GAMES:
+		game_state.set_flag("arcade:" + g["id"], 0)
+		game_state.set_flag("arcade_rank:" + g["id"], 0)
+	var scraps: int = game_state.scraps
+	_check(arcade.record("waltz", 80, 2, 2) == 40 and game_state.scraps == scraps + 40, "a first score pays scraps")
+	_check(arcade.record("waltz", 70, 1, 2) == 0 and arcade.best("waltz") == 80 and arcade.best_rank("waltz") == 2,
+		"a worse one pays nothing and the best stands")
+	game_state.set_flag("arcade:waltz", 0)
+	game_state.set_flag("arcade_rank:waltz", 0)
+
+	await scene_manager.change_page("res://scenes/levels/hub/spine_hub.tscn", &"Start")
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var cabinet := current_scene.get_node_or_null("Level/penny_theatre_16_14")
+	_check(cabinet != null and cabinet.can_interact(), "Gran's penny theatre stands on the Spine's ground floor")
+
+	# A short show, played by itself.
+	arcade.pending = {"id": "waltz", "settings": {"bpm": 240.0, "beats": 8, "chart_seed": 11, "autoplay": true}}
+	await scene_manager.change_page("res://scenes/minigames/shadow_theater.tscn")
+	await _wait_for_scene("ShadowTheater", 120)
+	_check(arcade.pending.is_empty() and current_scene.bpm == 240.0, "the show takes the theatre's settings")
+	for i in 900:
+		if current_scene.is_finished():
+			break
+		await _frames(1)
+	_check(current_scene.is_finished() and arcade.best("waltz") == 100 and arcade.best_rank("waltz") == 4,
+		"a perfect show is recorded as Gilt (%d)" % arcade.best("waltz"))
+	await _wait_for_scene("SpineHub", 900)
+	await _frames(30)
+	var patch := current_scene.get_node("Patch") as Node2D
+	_check(patch.global_position.distance_to(arcade.HUB_SPOT) < 120.0, "then back to the theatre")
+
+	# A short Flood Run.
+	arcade.pending = {"id": "flood_run", "settings": {"course_length": 2600.0}}
+	await scene_manager.change_page("res://scenes/minigames/flood_run.tscn")
+	await _wait_for_scene("FloodRun", 120)
+	_check(current_scene.course_length == 2600.0 and current_scene.quest_id == "", "Flood Run is the arcade's own race")
+	for i in 1200:
+		if current_scene.is_finished():
+			break
+		await _frames(1)
+	_check(current_scene.is_finished() and arcade.best_rank("flood_run") >= 1, "the boat reaches the end and the run is ranked")
+	await _wait_for_scene("SpineHub", 900)
+	await _frames(30)
+
+
+## Post-game: the Combat Lab's trial floor (scripts/world/lab_trials.gd).
+func _lab_trials(game_state: Node, dialogue: Node) -> void:
+	var trials_script := load("res://scripts/world/lab_trials.gd")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(trials_script.RECORDS_PATH))
+	_check(trials_script.TRIALS.size() == 6, "six trials on the board")
+	var clean: Dictionary = trials_script.trial("clean_cut")
+	_check(trials_script.medal_for(clean, 10.0) == 3 and trials_script.medal_for(clean, 25.0) == 2 and trials_script.medal_for(clean, 90.0) == 1,
+		"medals by time: gold, silver, bronze")
+	change_scene_to_file("res://scenes/levels/combat_lab/combat_lab.tscn")
+	await _wait_for_scene("CombatLab", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var lab := current_scene
+	var trials := lab.get_node_or_null("LabTrials")
+	_check(trials != null and lab.bounds.size.x >= 8900.0, "the Combat Lab runs on to a trial floor")
+	var patch := lab.get_node("Patch") as CharacterBody2D
+	patch.global_position = Vector2(7100, 900)
+	await _frames(10)
+	var board: Node = null
+	for child in trials.get_children():
+		if child.has_method("can_interact"):
+			board = child
+	_check(board != null and board.can_interact(), "a trial board stands by the gate")
+
+	_check(trials.start("clean_cut"), "Clean Cut starts")
+	await _frames(4)
+	_check(trials.running() and not trials._gate.get_child(0).disabled and get_nodes_in_group(&"lab_trial_enemies").size() == 4,
+		"the gate drops and four Soggies come")
+	_check(patch.global_position.x > trials_script.FLOOR_LEFT, "Patch is on the trial floor")
+	patch.health.grant_invulnerability(0.0)
+	for e in get_nodes_in_group(&"lab_trial_enemies"):
+		e.queue_free()
+	await _frames(6)
+	_check(not trials.running() and trials.won and int(trials_script.best("clean_cut").get("medal", 0)) == 3,
+		"cleared fast and untouched: gold")
+	await _frames(4)
+	_check(trials._gate.get_child(0).disabled, "and the gate lifts")
+
+	trials.start("clean_cut")
+	await _frames(4)
+	patch.health.clear_invulnerability()
+	patch.health.take_damage(1, Vector2.ZERO)
+	await _frames(4)
+	_check(not trials.running() and not trials.won and int(trials_script.best("clean_cut")["medal"]) == 3,
+		"touched once in Clean Cut, it fails, and the gold stands")
+	_check(get_nodes_in_group(&"lab_trial_enemies").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).is_empty(), "a failed trial clears the floor")
+	await _frames(4)
+
+	trials.start("glint")
+	await _frames(4)
+	patch.health.grant_invulnerability(600.0)
+	for i in 5:
+		root.get_node("EventBus").player_parried.emit()
+	await _frames(4)
+	_check(trials.won and int(trials_script.best("glint").get("medal", 0)) >= 1, "five parries win The Glint")
+
+	trials.start("grans_hand")
+	await _frames(4)
+	root.get_node("EventBus").style_changed.emit(5, 0.0)
+	await _frames(4)
+	_check(trials.won, "Gran's Hand on the style meter wins its trial")
+
+	trials.start("inked")
+	await _frames(4)
+	var inked := get_nodes_in_group(&"lab_trial_enemies").filter(func(n: Node) -> bool: return n.get(&"inked") == true)
+	_check(inked.size() == 2, "the Inked trial sends inked Soggies")
+	trials._end(false, "test")
+	await _frames(4)
+	_check(patch.health.floor_health == 0, "after a trial Patch can be torn again as usual")
+	game_state.sandbox = false
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(trials_script.RECORDS_PATH))
 
 func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const CH3 := "res://scenes/levels/ch3_spine/"

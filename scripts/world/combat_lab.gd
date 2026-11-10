@@ -3,11 +3,13 @@ extends Page
 ## Reached from the title screen. Nothing here is saved. It has four stations:
 ## a cutting post, a sparring post that fights back, platforms over a post for
 ## air combos and the Plunge, and pens of enemies that refill when they're empty:
-## Soggies, then (Phase 2) a pen for each new enemy and an Inked elite.
+## Soggies, then (Phase 2) a pen for each new enemy and an Inked elite. At the far
+## end, the trial floor (LabTrials): six timed challenges with medals.
 
 const GROUND_TEX := preload("res://assets/art/dark/ground.png")
 const GROUND_ROW := 15
-const WIDTH_TILES := 112
+## The last 28 tiles are the trial floor (LabTrials).
+const WIDTH_TILES := 140
 const LAB_WIDTH := WIDTH_TILES * 64
 ## Each pen: what lives in it, where, and any properties (no scrap drops: nothing here
 ## is kept). A pen refills a few seconds after its last enemy is gone.
@@ -47,6 +49,7 @@ func _ready() -> void:
 	_add_signs()
 	for pen: Dictionary in PENS:
 		_fill_pen(pen)
+	add_child(LabTrials.new())
 
 
 func _physics_process(delta: float) -> void:
@@ -114,6 +117,7 @@ func _add_signs() -> void:
 	_sign(Vector2(3980, 120), "PAPER MOTHS\nThey dart in one at a time after a glint.\nOne cut tears a moth. Quick cuts, not heavy ones.")
 	_sign(Vector2(4900, 330), "THE INKWELL TURRET\nIt glints at the nib, then fires straight.\nClose in, or cut the shot to send it back.")
 	_sign(Vector2(5640, 120), "THE FOLDED CRANE\nIt circles high, glows red, then dives: DODGE.\nIf it misses, its beak sticks in the ground.")
+	_sign(Vector2(7000, 120), "THE TRIAL FLOOR\nSix trials behind a gate, with medals.\nRead the board to start one.")
 	_sign(Vector2(6280, 330), "A BOOK\n...probably just a book.\n\nINKED ELITES (right) are darker, tougher\nand quicker, and leave a pool of ink.")
 
 

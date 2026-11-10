@@ -34,6 +34,8 @@ var _running := false
 var _finished := false
 var _rocks: Array[Sprite2D] = []
 var _pickups: Array[Sprite2D] = []
+## The arcade game being played ("" outside the arcade).
+var _arcade_id := ""
 
 @onready var camera: Camera2D = $Camera2D
 @onready var boat: Node2D = $Boat
@@ -44,6 +46,7 @@ var _pickups: Array[Sprite2D] = []
 
 func _ready() -> void:
 	GameState.in_gameplay = true
+	_arcade_id = Arcade.take(self)
 	HUD.show_hud(false)
 	if music:
 		AudioManager.play_music(music)
@@ -83,9 +86,9 @@ func _build_course() -> void:
 
 
 func _countdown() -> void:
-	for word in ["3", "2", "1", "Sail!"]:
+	for word in ["3", "2", "1", "Go."]:
 		big_label.text = word
-		AudioManager.play_sfx(&"voice_blip", 1.6 if word == "Sail!" else 1.0)
+		AudioManager.play_sfx(&"voice_blip", 1.6 if word == "Go." else 1.0)
 		await get_tree().create_timer(0.7).timeout
 	big_label.text = ""
 
@@ -140,15 +143,25 @@ func _finish() -> void:
 		return
 	_finished = true
 	_running = false
-	GameState.add_scraps(_scraps)
 	var won := _bumps <= max_bumps
+	if not _arcade_id.is_empty():
+		var points := arcade_score(_scraps, _bumps)
+		var rank := arcade_rank(_scraps, _pickups.size(), _bumps, max_bumps)
+		var paid := Arcade.record(_arcade_id, points, rank, 5)
+		big_label.text = "%d points: %d scraps, %d %s. %s.%s" % [points, _scraps, _bumps,
+			"bump" if _bumps == 1 else "bumps", Arcade.RANKS[rank], "\n%d scraps for a new best." % paid if paid > 0 else ""]
+		AudioManager.play_sfx(&"checkpoint" if won else &"hurt", 1.0)
+		await get_tree().create_timer(3.0).timeout
+		Arcade.back_to_theatre()
+		return
+	GameState.add_scraps(_scraps)
 	if won:
-		big_label.text = "You won the Ribbon Regatta!"
+		big_label.text = "The boat held. Ahead of the water, for once."
 		AudioManager.play_sfx(&"checkpoint")
 		GameState.advance_quest(quest_id)
 		GameState.complete_quest(quest_id)
 	else:
-		big_label.text = "Too many bumps! Have another go from the dock."
+		big_label.text = "Holed. The paper drank the water and went down. Again, from the dock."
 	await get_tree().create_timer(2.5).timeout
 	SceneManager.change_page(return_page, return_spawn)
 
@@ -156,3 +169,19 @@ func _finish() -> void:
 ## True once the race is over (used by the smoke test).
 func is_finished() -> bool:
 	return _finished
+
+
+## Arcade points: ten a scrap, less a quarter-hundred a bump, never below nothing.
+static func arcade_score(scraps: int, bumps: int) -> int:
+	return maxi(scraps * 10 - bumps * 25, 0)
+
+
+## Arcade rank (1 Paper .. 4 Gilt): Gilt is a clean run with most of the scraps.
+static func arcade_rank(scraps: int, total: int, bumps: int, allowed: int) -> int:
+	if bumps > allowed:
+		return 1
+	if bumps == 0 and scraps >= total * 0.8:
+		return 4
+	if bumps <= 1:
+		return 3
+	return 2

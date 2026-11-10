@@ -1,0 +1,110 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/minigames/boat_race.gd" id="1_race"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_millrace.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/props/paper_boat.png" id="4_boat"]
+
+[node name="FloodRun" type="Node2D"]
+script = ExtResource("1_race")
+return_page = "res://scenes/levels/hub/spine_hub.tscn"
+quest_id = ""
+course_seed = 19
+course_length = 14000.0
+start_speed = 520.0
+end_speed = 760.0
+max_bumps = 3
+music = ExtResource("2_music")
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.4, 0.0)
+repeat_size = Vector2(3840, 0)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Water" type="Parallax2D" parent="."]
+repeat_size = Vector2(1920, 0)
+repeat_times = 3
+
+[node name="Flood" type="ColorRect" parent="Water"]
+offset_top = 270.0
+offset_right = 1920.0
+offset_bottom = 870.0
+color = Color(0.04, 0.06, 0.09, 0.78)
+
+[node name="Bank" type="ColorRect" parent="Water"]
+offset_top = 262.0
+offset_right = 1920.0
+offset_bottom = 272.0
+color = Color(0.5, 0.48, 0.44, 0.55)
+
+[node name="Bank2" type="ColorRect" parent="Water"]
+offset_top = 868.0
+offset_right = 1920.0
+offset_bottom = 878.0
+color = Color(0.5, 0.48, 0.44, 0.55)
+
+[node name="Streak1" type="ColorRect" parent="Water"]
+offset_left = 120.0
+offset_top = 400.0
+offset_right = 520.0
+offset_bottom = 404.0
+color = Color(0.55, 0.6, 0.66, 0.18)
+
+[node name="Streak2" type="ColorRect" parent="Water"]
+offset_left = 900.0
+offset_top = 610.0
+offset_right = 1420.0
+offset_bottom = 614.0
+color = Color(0.55, 0.6, 0.66, 0.18)
+
+[node name="Streak3" type="ColorRect" parent="Water"]
+offset_left = 1500.0
+offset_top = 760.0
+offset_right = 1860.0
+offset_bottom = 764.0
+color = Color(0.55, 0.6, 0.66, 0.18)
+
+[node name="Course" type="Node2D" parent="."]
+
+[node name="Boat" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Boat"]
+texture = ExtResource("4_boat")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="UI"]
+offset_left = 40.0
+offset_top = 30.0
+offset_right = 40.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(0.9, 0.86, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.03, 0.05, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 40
+
+[node name="Hint" type="Label" parent="UI"]
+offset_left = 40.0
+offset_top = 980.0
+offset_right = 40.0
+offset_bottom = 980.0
+theme_override_colors/font_color = Color(0.8, 0.76, 0.7, 1)
+theme_override_font_sizes/font_size = 30
+text = "Steer up and down. The rocks hole the paper; the scraps are worth it."
+
+[node name="BigLabel" type="Label" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"TitleLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

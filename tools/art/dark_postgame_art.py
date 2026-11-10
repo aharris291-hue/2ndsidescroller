@@ -3,6 +3,8 @@
 Sprites:
   props/proof_press.png  Gran's proof press on its bench in the Spine's gallery (the
                          boss rematches), PRESS_HEIGHT px tall, feet on the bottom row
+  props/penny_theatre.png the coin-operated penny theatre in the Spine (the minigame
+                         arcade), THEATRE_HEIGHT px tall
 
 Run: python3 tools/art/dark_postgame_art.py
 """
@@ -15,6 +17,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 SRC = os.path.join(ROOT, "tools", "art", "source")
 DARK = os.path.join(ROOT, "assets", "art", "dark")
 PRESS_HEIGHT = 300
+THEATRE_HEIGHT = 300
 
 
 def cutout(name: str) -> Image.Image:
@@ -33,6 +36,11 @@ def main() -> None:
     rgb = ImageEnhance.Brightness(press.convert("RGB")).enhance(0.7)
     rgb.putalpha(press.getchannel("A"))
     rgb.save(os.path.join(DARK, "props", "proof_press.png"))
+    box = cutout("penny_theatre_raw.png")
+    box = box.resize((round(box.width * THEATRE_HEIGHT / box.height), THEATRE_HEIGHT), Image.LANCZOS)
+    rgb = ImageEnhance.Brightness(box.convert("RGB")).enhance(0.8)
+    rgb.putalpha(box.getchannel("A"))
+    rgb.save(os.path.join(DARK, "props", "penny_theatre.png"))
 
 
 if __name__ == "__main__":
