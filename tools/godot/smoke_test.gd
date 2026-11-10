@@ -22,7 +22,7 @@ func _run() -> void:
 	var scene_manager := root.get_node("SceneManager")
 	var dialogue := root.get_node("DialogueUI")
 	# Test the standard rules, whatever this machine's pause-menu settings are.
-	var settings := root.get_node("Settings")
+	var settings = root.get_node("Settings")
 	for option in [&"assist", &"assist_safe_falls", &"assist_wide_parry", &"auto_guard", &"tell_shapes", &"sound_captions"]:
 		settings.set(option, false)
 	settings.game_speed = 1.0
@@ -3404,6 +3404,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	game_state.save_game()
 	_check(game_state.read_save(2).get("version", 0) == 6, "saves are written as version 6")
 	await _play_report(game_state)
+	await _difficulty_curve(game_state)
 	game_state.shear_form = 0
 	game_state.bestiary.clear()
 	game_state.load_game(2)
@@ -3760,6 +3761,59 @@ func _enemy_bar(enemy: Node) -> Node2D:
 
 ## The play report: time, visits, deaths and hits are counted per page, saved with
 ## the game, written out as a readable report, and shown from the pause menu.
+## The difficulty curve: the main-path bosses get tougher in book order, and the last
+## regions cut one point deeper so found hearts don't make them soft.
+func _difficulty_curve(game_state: Node) -> void:
+	var book_map = load("res://scripts/world/book_map.gd")
+	var order := ["millwheel", "kraken", "heron", "bindwell", "barker", "redactor", "sogg"]
+	var last := 0
+	var rising := true
+	var seen: Array[String] = []
+	for id: String in order:
+		var state := (load("res://scenes/enemies/boss_%s.tscn" % id) as PackedScene).get_state()
+		var hp := 0
+		for n in state.get_node_count():
+			for k in state.get_node_property_count(n):
+				if state.get_node_property_name(n, k) == &"max_health":
+					hp = int(state.get_node_property_value(n, k))
+		seen.append("%s %d" % [id, hp])
+		rising = rising and hp > 0 and hp >= last
+		last = hp
+	_check(rising, "boss health rises through the book (%s)" % ", ".join(seen))
+	_check(book_map.ink_depth("res://scenes/levels/thistledown/1_1_x.tscn") == 0 and book_map.ink_depth("res://scenes/levels/marsh/3_1_x.tscn") == 0
+		and book_map.ink_depth("res://scenes/levels/fair/5_1_x.tscn") == 1 and book_map.ink_depth("res://scenes/levels/index/6_1_x.tscn") == 1
+		and book_map.ink_depth("res://scenes/levels/finale/f_1_x.tscn") == 1 and book_map.ink_depth("res://scenes/levels/combat_lab/lab.tscn") == 0,
+		"only the Fair, the Index and the Gutter cut deeper")
+	var patch = get_first_node_in_group("player")
+	if patch == null:
+		return
+	var was: String = game_state.current_page
+	var hit = load("res://scripts/components/hitbox.gd").new()
+	hit.damage = 2
+	root.add_child(hit)
+	var settings = root.get_node("Settings")
+	var kept: Array = [settings.auto_guard, settings.assist]
+	settings.auto_guard = false
+	settings.assist = false
+	var taken := []
+	for page in ["res://scenes/levels/thistledown/1_1_x.tscn", "res://scenes/levels/fair/5_1_x.tscn"]:
+		game_state.current_page = page
+		patch.state = 0
+		patch.health.clear_invulnerability()
+		patch.health.set_health(patch.health.max_health)
+		var before: int = patch.health.current
+		patch._on_hurtbox_hit(hit)
+		taken.append(before - patch.health.current)
+	settings.auto_guard = kept[0]
+	settings.assist = kept[1]
+	patch.state = 0
+	patch.health.set_health(patch.health.max_health)
+	game_state.current_page = was
+	hit.queue_free()
+	patch.health.clear_invulnerability()
+	_check(taken == [2, 3], "a 2-point hit takes 2 in Thistledown and 3 at the Fair (%s)" % [taken])
+
+
 func _play_report(game_state: Node) -> void:
 	var stats: Dictionary = game_state.page_stats
 	var here: Dictionary = stats.get(game_state.current_page, {})

@@ -68,6 +68,19 @@ static func region(region_id: StringName) -> Dictionary:
 	return {}
 
 
+## The deep pages: by the Fair, Patch has most of his heart patches, so the book's
+## last regions (and the Gutter below them) cut one point deeper on every hit.
+const DEEP_DIRS: Array[String] = ["res://scenes/levels/fair/", "res://scenes/levels/index/", "res://scenes/levels/finale/"]
+
+
+## Extra damage every enemy hit does to Patch on this page (0 or 1).
+static func ink_depth(page_path: String) -> int:
+	for dir in DEEP_DIRS:
+		if page_path.begins_with(dir):
+			return 1
+	return 0
+
+
 ## The region a page belongs to, or {} (the hub and the Margin belong to none).
 static func region_of(page_path: String) -> Dictionary:
 	for entry: Dictionary in REGIONS:
