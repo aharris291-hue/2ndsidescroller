@@ -75,6 +75,12 @@ func _build_extra_controls() -> void:
 	bestiary_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bestiary_button.pressed.connect(_open_bestiary)
 	books.add_child(bestiary_button)
+	var report_button := Button.new()
+	report_button.name = &"ReportButton"
+	report_button.text = "Play report"
+	report_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	report_button.pressed.connect(_open_report)
+	books.add_child(report_button)
 
 	# Out in the Margin (the real world) Patch can save anywhere.
 	save_button = Button.new()
@@ -170,6 +176,11 @@ func _on_save_here() -> void:
 func _open_map() -> void:
 	close()
 	MapPanel.open_panel(get_tree().root)
+
+
+func _open_report() -> void:
+	close()
+	PlayReport.ReportPanel.open_panel(get_tree().root)
 
 
 func _open_bestiary() -> void:

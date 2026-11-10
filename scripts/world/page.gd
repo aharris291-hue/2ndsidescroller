@@ -60,7 +60,7 @@ func _ready() -> void:
 		_weathered.shader = WEATHERED
 		_weather_art(self)
 		get_tree().node_added.connect(_on_node_added)
-	GameState.current_page = scene_file_path
+	GameState.note_visit(scene_file_path)
 	Rematch.page_loaded(scene_file_path)
 	if GameState.printing > 0 and not GameState.get_flag("printing_noted"):
 		GameState.set_flag("printing_noted")

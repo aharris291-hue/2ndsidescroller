@@ -3402,7 +3402,8 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(not paused, "closing the bestiary unpauses")
 	# Save format 4 keeps all of it.
 	game_state.save_game()
-	_check(game_state.read_save(2).get("version", 0) == 5, "saves are written as version 5")
+	_check(game_state.read_save(2).get("version", 0) == 6, "saves are written as version 6")
+	await _play_report(game_state)
 	game_state.shear_form = 0
 	game_state.bestiary.clear()
 	game_state.load_game(2)
@@ -3755,4 +3756,33 @@ func _enemy_bar(enemy: Node) -> Node2D:
 		if child.get_script() != null and child.get_script().get_global_name() == &"EnemyBar":
 			return child
 	return null
+
+
+## The play report: time, visits, deaths and hits are counted per page, saved with
+## the game, written out as a readable report, and shown from the pause menu.
+func _play_report(game_state: Node) -> void:
+	var stats: Dictionary = game_state.page_stats
+	var here: Dictionary = stats.get(game_state.current_page, {})
+	_check(float(here.get("t", 0.0)) > 1.0 and int(here.get("v", 0)) >= 1, "play time and visits are counted on this page (%s)" % [here])
+	var hits := 0
+	for page: String in stats:
+		hits += int(stats[page].get("h", 0))
+	_check(hits > 0, "hits taken are counted (%d)" % hits)
+	_check(game_state.read_save(2).has("page_stats"), "the play report is saved with the game")
+	var report := FileAccess.get_file_as_string("user://play_report_slot_2.txt")
+	_check(report.begins_with("Play report:") and report.contains("Thistledown"), "the play report is written next to the save")
+	var pause := root.get_node("PauseMenu")
+	pause.call(&"open")
+	await _frames(2)
+	var button: Button = pause.find_child("ReportButton", true, false)
+	_check(button != null, "the pause menu has a play report button")
+	if button:
+		button.pressed.emit()
+		await _frames(3)
+		var panel: Node = root.get_node_or_null("PlayReportPanel")
+		_check(panel != null and paused, "the play report opens and pauses the game")
+		if panel:
+			panel.call(&"close")
+			await _frames(2)
+		_check(not paused, "closing the play report unpauses")
 
