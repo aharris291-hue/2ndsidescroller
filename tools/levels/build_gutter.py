@@ -1,7 +1,7 @@
 """Draws the finale's text maps: the Gutter, the drowned crease at the middle of the book
 where all the flood ran in the end (F-1 The Gutter Descent).
 
-Writes levels/finale/*.txt. Each map's legend is in its scene's TextLevel node
+Writes levels/finale/*.txt (F-1, and F-2's arena). Each map's legend is in its scene's TextLevel node
 (scenes/levels/finale/*.tscn); the shared characters are:
   #  pulped pages and drowned books   =  frozen run-off (ice)   -  one-way plank
   ~  settled ink   > < ^ v  ink running that way   |  an updraft (a column is one)
@@ -127,6 +127,18 @@ def gutter_descent() -> Grid:
     return g
 
 
+def deepest_fold() -> Grid:
+    """F-2 The Deepest Fold: the bottom of the Gutter, where the Sogg stands in the
+    water at the right of the page (BossSogg, placed in the scene). A flat floor to
+    fight on, the length of the page (the Sogg stands at the right of it, and walls off
+    the rest itself), and the way back up behind Patch."""
+    g = Grid(32, 17)
+    g.ground(0, 31, 14)
+    g.put(1, 13, "X")
+    g.put(4, 13, "@")
+    return g
+
+
 def _rows(grid: Grid) -> list:
     return ["".join(r) for r in grid.rows]
 
@@ -136,6 +148,8 @@ def main() -> None:
     g = gutter_descent()
     g.write(os.path.join(OUT, "f_1_the_gutter_descent.txt"),
         "F-1 The Gutter Descent (drawn by tools/levels/build_gutter.py; legend in\nscenes/levels/finale/f_1_the_gutter_descent.tscn)\nabilities: frog glide")
+    deepest_fold().write(os.path.join(OUT, "f_2_the_deepest_fold.txt"),
+        "F-2 The Deepest Fold, the Sogg's arena (drawn by tools/levels/build_gutter.py;\nlegend in scenes/levels/finale/f_2_the_deepest_fold.tscn)")
     ok = True
     climb_check.UP, climb_check.GLIDE = 4.5, True
     rows = _rows(g)

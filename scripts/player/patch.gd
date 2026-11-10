@@ -225,6 +225,9 @@ func _ready() -> void:
 	add_to_group("player")
 	if GameState.get_flag("has_new_tail"):
 		rig.set_mended(true)
+		# He gave the Tape Tail to Drizzle in the Gutter; Nell's map tail reels like it did.
+		if GameState.get_flag("gave_tail") and not GameState.has_ability(&"tape_tail"):
+			GameState.abilities.append(&"tape_tail")
 	health.max_health = GameState.max_health
 	health.set_health(GameState.health)
 	health.changed.connect(_on_health_changed)

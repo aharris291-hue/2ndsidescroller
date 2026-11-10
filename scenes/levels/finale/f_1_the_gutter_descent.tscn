@@ -125,7 +125,7 @@ entity_props = {
 },
 "E": {
 "size": Vector2(128, 256),
-"target_page": "res://scenes/levels/finale/deepest_fold.tscn",
+"target_page": "res://scenes/levels/interludes/interlude_04.tscn",
 "target_spawn": &"Start"
 },
 "R": {
