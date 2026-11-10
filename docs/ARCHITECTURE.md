@@ -35,6 +35,14 @@ The autoloads load in this order (Project > Project Settings > Globals > Autoloa
 
 Saves are JSON at `user://save_slot_N.json`. Because `use_custom_user_dir` is on, that's `%APPDATA%\PatchPopUpKingdom\` on Windows and `~/Library/Application Support/PatchPopUpKingdom/` on macOS. Each save is written to a `.tmp` file and then renamed, so a crash can't corrupt it. Bump `GameState.SAVE_VERSION` when the format changes and migrate old saves in `load_game()`.
 
+## Health bars
+
+`PaperBar` (`scripts/ui/paper_bar.gd`) is the one health bar: a strip of torn paper with ink-red fill. A hit drops the red at once, and a bone-white strip shows what was lost before it drains after it. Healing flashes Mend green. Low health throbs, and `segment` sets the spacing of the stitches.
+
+- **Patch:** a strip on the HUD, beside a condition token that changes from crisp to creased to torn. It has a stitch every 2 points.
+- **Bosses:** a wide strip on the HUD. `BossHealth` stays as a hidden ProgressBar holding the value.
+- **Ordinary enemies:** a small `EnemyBar` over their heads, added by `HealthComponent` to anything in the `enemies` group with more than 1 health and no `boss_name`. It shows when the enemy is hurt, fades 3 s after the last hit, and goes when the enemy dies.
+
 ## How a page works
 
 Every level scene's root has `scripts/world/page.gd` (`class_name Page`). On `_ready` it:

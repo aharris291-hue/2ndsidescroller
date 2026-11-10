@@ -23,6 +23,15 @@ func _ready() -> void:
 		max_health = ceili(max_health * SecondPrinting.ENEMY_HEALTH)
 	if current <= 0:
 		current = max_health
+	# Enemies join their group in their own _ready, which runs after this one.
+	_add_enemy_bar.call_deferred()
+
+
+## Ordinary enemies get a small bar over their heads (bosses use the HUD's).
+func _add_enemy_bar() -> void:
+	var body := get_parent() as Node2D
+	if body and body.is_in_group(&"enemies") and not &"boss_name" in body and max_health > 1:
+		EnemyBar.attach(body, self)
 
 
 func _physics_process(delta: float) -> void:
