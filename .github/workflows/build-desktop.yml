@@ -48,7 +48,7 @@ jobs:
 
       - name: Level climb check (every side level can be crossed with Patch's reach)
         run: |
-          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt levels/lanternfold/2_1_the_drowned_quay.txt levels/lanternfold/2_2_the_lamplighters_climb.txt levels/lanternfold/2_4_the_shadow_wharf.txt levels/lanternfold/2_5_under_the_flap.txt levels/lanternfold/lightkeepers_store.txt levels/marsh/3_1_the_sump_road.txt levels/marsh/3_2_the_drowned_ledger.txt levels/marsh/3_5_the_herons_reach.txt levels/marsh/tally_room.txt levels/peaks/4_1_the_rime_slopes.txt levels/peaks/4_2_the_fold_works.txt levels/peaks/4_4_the_stitched_ascent.txt levels/peaks/4_5_the_low_point.txt levels/peaks/cold_store.txt levels/fair/5_1_the_midway.txt levels/fair/5_2_the_big_wheel.txt levels/fair/5_4_the_ghost_train.txt levels/fair/5_5_the_rigging.txt levels/fair/lost_property.txt levels/index/6_1_the_back_pages.txt levels/index/6_2_the_card_catalogue.txt levels/index/6_4_the_stacks.txt levels/index/6_5_the_gnawed_pages.txt levels/index/errata.txt levels/finale/f_1_the_gutter_descent.txt
+          python3 tools/levels/climb_check.py levels/thistledown/1_1_sodden_fields.txt levels/thistledown/1_2_the_sheepfold.txt levels/thistledown/1_4_the_millrace.txt levels/thistledown/1_5_the_mill_stair.txt levels/thistledown/hayloft.txt levels/lanternfold/2_1_the_drowned_quay.txt levels/lanternfold/2_2_the_lamplighters_climb.txt levels/lanternfold/2_4_the_shadow_wharf.txt levels/lanternfold/2_5_under_the_flap.txt levels/lanternfold/lightkeepers_store.txt levels/marsh/3_1_the_sump_road.txt levels/marsh/3_2_the_drowned_ledger.txt levels/marsh/3_5_the_herons_reach.txt levels/marsh/tally_room.txt levels/peaks/4_1_the_rime_slopes.txt levels/peaks/4_2_the_fold_works.txt levels/peaks/4_4_the_stitched_ascent.txt levels/peaks/4_5_the_low_point.txt levels/peaks/cold_store.txt levels/fair/5_1_the_midway.txt levels/fair/5_2_the_big_wheel.txt levels/fair/5_4_the_ghost_train.txt levels/fair/5_5_the_rigging.txt levels/fair/lost_property.txt levels/index/6_1_the_back_pages.txt levels/index/6_2_the_card_catalogue.txt levels/index/6_4_the_stacks.txt levels/index/6_5_the_gnawed_pages.txt levels/index/errata.txt levels/finale/f_1_the_gutter_descent.txt levels/margins/m_1_the_blank_margins.txt
           # The sluice house is a current puzzle, solved by its builder (fails unless it needs wheels 1 and 2).
           python3 tools/levels/build_marsh.py && git diff --exit-code levels/marsh
           # The Peaks: 4-2 needs the Frog Fold for its exit, and the pattern room's folds are solved by its builder.
@@ -61,6 +61,8 @@ jobs:
           python3 tools/levels/build_index.py && git diff --exit-code levels/index
           # The Gutter: its chasm needs the updraft, the shutter needs the warp, and every wave lock is roofed.
           python3 tools/levels/build_gutter.py && git diff --exit-code levels/finale
+          # The Margins: every gap needs the rain.
+          python3 tools/levels/build_margins.py && git diff --exit-code levels/margins
 
       - name: Import project
         run: ~/godot/godot --headless --path . --import

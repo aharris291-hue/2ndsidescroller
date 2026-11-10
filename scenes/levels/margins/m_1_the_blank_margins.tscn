@@ -1,0 +1,140 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_blank_margins.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="Script" path="res://scripts/world/rain_platform.gd" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="15_e"]
+[ext_resource type="Script" path="res://scripts/world/gust.gd" id="16_e"]
+[ext_resource type="Script" path="res://scripts/world/rain_shower.gd" id="17_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheBlankMargins" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Blank Margins"
+opening_caption = "Past the last written page, the paper goes on."
+music = ExtResource("2_music")
+weather_tint = Color(0.6, 0.62, 0.68, 1)
+rain_amount = 70
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="RainShower" type="Node2D" parent="."]
+script = ExtResource("17_e")
+dry_time = 2.8
+gather_time = 1.0
+pour_time = 4.2
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/margins/m_1_the_blank_margins.txt"
+region = "blank"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"7": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"O": ExtResource("15_e"),
+"R": ExtResource("7_e"),
+"X": ExtResource("6_e"),
+"g": ExtResource("16_e"),
+"k": ExtResource("14_e"),
+"m": ExtResource("12_e"),
+"n": ExtResource("13_e"),
+"o": ExtResource("10_e"),
+"p": ExtResource("11_e"),
+"s": ExtResource("9_e"),
+"u": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "The margins. Gran never wrote in them; she said a book should be allowed to breathe. Out here the paper had been left blank so long it had forgotten it was ever meant for anything.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Nothing between him and the next sheet but a long way down. Then the rain thickened, and where it fell on nothing, it wrote: a grey outline first, then a ledge of wet ink, for as long as it poured.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Footprints on the blank paper, and not his. Something had come out here before him and not gone back. The rain had half washed them away.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "Someone had stuck a bookmark in the margin, a long way from any story. Patch didn't like to think who, or what they'd been waiting for.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "A wind off the edge of the book, steady as a hand pushing him back. The slate pillar was the only thing out here that didn't move. He waited for the next shower on it.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "Writing, at last, on the paper at his feet: one word, over and over, smaller and smaller, the way you write when your hand is shaking. CHANGE. CHANGE. CHANGE.",
+"size": Vector2(128, 384)
+},
+"7": {
+"caption": "The last of the margins, and over it the eye of the storm, turning, as if it had been waiting for someone to come out far enough.",
+"size": Vector2(128, 384)
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/margins/the_forecast.tscn",
+"target_spawn": &"Start"
+},
+"O": {
+"offset": Vector2(0, -64)
+},
+"R": {
+"name": &"FromForecast"
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"g": {
+"offset": Vector2(832, 0),
+"size": Vector2(1664, 640),
+"strength": -420.0,
+"blow_time": 2.4,
+"rest_time": 2.2
+},
+"m": {
+"scrap_drop": 1
+},
+"n": {
+"inked": true,
+"scrap_drop": 3
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"p": {
+"scrap_drop": 2
+},
+"s": {
+"scrap_drop": 2
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

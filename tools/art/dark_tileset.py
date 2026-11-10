@@ -9,11 +9,11 @@ Rows are materials, columns are pieces. TextLevel picks the piece from each cell
 neighbours, so a map only says which material goes where, and its `region` picks the
 atlas. Every region fills the same four roles, so one map reads in any region:
 
-  row  map  role          shelf          meadow      harbor       marsh       peaks         fair           index           gutter
-  0    #    main ground   shelf wood     turf        pier planks  peat        folded slate  boardwalk      drawer fronts   ink pulp
-  1    %    built         stacked books  hay bales   crates       logs        board stacks  stall canvas   ledger stacks   drowned books
-  2    &    soft ground   sodden earth   mud         black silt   bog         scree         sawdust        paper pulp      ink sludge
-  3    $    hard stone    damp stone     fieldstone  sea wall     flagstones  granite       painted brick  marble          black stone
+  row  map  role          shelf          meadow      harbor       marsh       peaks         fair           index           gutter         blank
+  0    #    main ground   shelf wood     turf        pier planks  peat        folded slate  boardwalk      drawer fronts   ink pulp       blank sheets
+  1    %    built         stacked books  hay bales   crates       logs        board stacks  stall canvas   ledger stacks   drowned books  folded sheets
+  2    &    soft ground   sodden earth   mud         black silt   bog         scree         sawdust        paper pulp      ink sludge     wet pulp
+  3    $    hard stone    damp stone     fieldstone  sea wall     flagstones  granite       painted brick  marble          black stone    grey slate
 
   columns: 0 fill A   1 fill B   2 top   3 top-left   4 top-right   5 left   6 right
            7 one-way plank (thin board, collides on its top only)
@@ -358,6 +358,37 @@ def black_stone(v):
     return stones(v, 540, (8, 8, 10), (60, 58, 60), cells=7)
 
 
+# blank: the unwritten margins, white paper going grey in the rain
+def blank_sheets(v):
+    """The edge of a stack of blank pages: fine leaves, a seam every few, water stains."""
+    yy, xx = np.mgrid[0:T, 0:T].astype(np.float32)
+    warp = noise(550 + v, 4) * 3
+    leaf = (yy + warp) % 4.0
+    rgb = ramp(0.6 + 0.1 * noise(552 + v, 1.0), (66, 66, 72), (150, 148, 144))
+    rgb[leaf < 1.0] *= 0.72
+    seam = ((yy + warp * 2) % 16.0) < 1.4
+    rgb[seam] = rgb[seam] * 0.45
+    stain = gaussian_filter(np.random.default_rng(556 + v).normal(0, 1, (T, T)), 7)
+    stain = np.clip((stain - 0.04) * 40, 0, 1)
+    rgb *= (1 - 0.35 * stain)[..., None]
+    rgb[..., 2] += 6 * stain
+    return rgb
+
+
+def folded_sheets(v):
+    yy, xx = np.mgrid[0:T, 0:T].astype(np.float32)
+    fold = np.abs(((xx + yy * 0.5 + v * 13) % 32) - 16) / 16.0
+    return ramp(0.45 + 0.35 * fold + 0.06 * noise(560 + v, 1.0), (58, 60, 68), (168, 168, 172))
+
+
+def wet_pulp(v):
+    return sheen(strata(v, 570, (40, 42, 50), (120, 122, 130), freq=0.25), 575 + v, 34)
+
+
+def grey_slate(v):
+    return stones(v, 580, (34, 36, 42), (110, 112, 118), cells=8)
+
+
 def material(fill, growth=None, rough=False, lip_h=3) -> dict:
     return {"fill": fill, "growth": growth, "rough": rough, "lip_h": lip_h}
 
@@ -372,6 +403,7 @@ REGIONS = {
     "fair": [material(boardwalk), material(canvas, lip_h=4), material(sawdust, None, True), material(painted_brick)],
     "index": [material(drawers), material(ledgers, lip_h=4), material(paper_pulp, None, True), material(marble)],
     "gutter": [material(ink_pulp, None, True), material(drowned_books, lip_h=4), material(ink_sludge, None, True), material(black_stone)],
+    "blank": [material(blank_sheets), material(folded_sheets, lip_h=4), material(wet_pulp, None, True), material(grey_slate)],
 }
 # Which row's material the one-way planks are cut from (shelf: wood boards, and iron
 # grates in damp stone).

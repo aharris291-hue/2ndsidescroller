@@ -55,6 +55,7 @@ entities = {
 "F": ExtResource("5_door"),
 "G": ExtResource("12_finale"),
 "I": ExtResource("5_door"),
+"M": ExtResource("5_door"),
 "T": ExtResource("6_tin")
 }
 entity_props = {
@@ -75,6 +76,9 @@ entity_props = {
 },
 "I": {
 "region_id": &"index"
+},
+"M": {
+"region_id": &"margins"
 }
 }
 

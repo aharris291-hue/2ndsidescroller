@@ -36,6 +36,10 @@ of the wall to its right; the cell is the first cell of air, and out, the drawer
 that row and it reaches 3 tiles into the air. Drawers come and go on a clock: here they
 are treated as always out. Shutters (letters in the legend) are treated as open.
 
+The Blank Margins add rain ledges ("; abilities: rain" on the map): 'u' is a ledge the
+rain writes on the paper (RainPlatform), 3 tiles wide with its top on the row below,
+like a shadow ledge. It's only there while it pours: here it is treated as always there.
+
   python3 tools/levels/climb_check.py levels/thistledown/1_5_the_mill_stair.txt
 """
 import math
@@ -117,6 +121,8 @@ def surfaces(rows):
                 out.append((y, x, x1, False, "ride", (x - 0.5, x + 3.0)))
             elif c == "O":
                 out.append((y + 1.25, x + 0.5, x + 0.5, True, "ring"))
+            elif RAIN and c == "u":
+                out.append((y + 1, x - 1, x + 1, False))
             elif DRAWERS and c == "r":
                 out.append((y, x, x + 2, False))
             elif DRAWERS and c == "q":
@@ -164,6 +170,7 @@ RING_RANGE = 8.0
 UP = 2.5
 GLIDE = False
 DRAWERS = False
+RAIN = False
 
 
 def glide_reach(ya, a0, a1, yb, b0, b1, launch=2.0):
@@ -208,12 +215,13 @@ def reach(a, b, from_draft=False):
 
 
 def main(path):
-    global UP, GLIDE, DRAWERS
+    global UP, GLIDE, DRAWERS, RAIN
     lines = open(path).read().splitlines()
     abilities = " ".join(ln for ln in lines if ln.startswith(";") and "abilities:" in ln)
     UP = 4.5 if "frog" in abilities else 2.5
     GLIDE = "glide" in abilities
     DRAWERS = "drawers" in abilities
+    RAIN = "rain" in abilities
     rows = [ln for ln in lines if not ln.startswith(";")]
     ok, top, goal_row = climbable(rows)
     print("%s: %s (highest surface reached: row %.1f, exit on row %d)" % (path, "climbable" if ok else "NOT climbable", top, goal_row))

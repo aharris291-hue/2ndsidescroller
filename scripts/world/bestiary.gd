@@ -131,17 +131,24 @@ const ENTRIES := {
 		"tell": "Get in close on the peat so it stabs the peat, not the ink. Then its beak sticks: cut its head. When it spreads its wings, get in the ink.",
 		"weak": -1,
 	},
+	"forecast": {
+		"name": "The Unwritten Forecast",
+		"art": "res://assets/art/dark/bosses/forecast.png",
+		"note": "Out in the margins nobody ever wrote what the weather would do, so it did everything. It had Gran's barometer in it, the one from the hall. She tapped it every morning and said 'change'. Patch says it never said anything else.",
+		"tell": "Wait for the rain to write the ledges over the gap, and be off them before it eases (they flicker). When it glows red over you, move: it comes down like a weight, and then it's spent on the page and the barometer is in reach. White lines on the floor are where the lightning lands. Loose sheets blow the other way just before the wind turns.",
+		"weak": -1,
+	},
 	"sogg": {
 		"name": "The Sogg",
 		"art": "res://assets/art/dark/bosses/sogg_body.png",
 		"note": "I don't want to write this one. It is the water. It is what came in under the door.",
-		"tell": "Get it down beside a fold mark and slam the peak up through it.",
+		"tell": "When an arm hangs over you and glints, parry it: the fist sticks in the floor and the arm is open. Jump the wave when the wall glows red. When it comes out of the wall and lunges, it is spent after: cut the pale cloud in it. At the end the shears are no use at all.",
 		"weak": -1,
 	},
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "silverfish", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "redactor", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "silverfish", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "redactor", "forecast", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

@@ -50,6 +50,14 @@ const REGIONS := [
 		"door": "res://scenes/levels/index/6_1_the_back_pages.tscn",
 		"spot": Vector2(0.5, 0.36),
 	},
+	{
+		# Optional: one hard level and its boss, off the edge of the written book. It
+		# isn't needed for the finale and doesn't count toward the music filling in.
+		"id": &"margins", "name": "The Blank Margins", "dirs": ["res://scenes/levels/margins/"], "subtitle": "where nothing was written",
+		"mended_flag": "boss_forecast_defeated", "open_flag": "boss_kraken_defeated", "optional": true,
+		"door": "res://scenes/levels/margins/m_1_the_blank_margins.tscn",
+		"spot": Vector2(0.86, 0.88),
+	},
 ]
 
 
@@ -74,11 +82,11 @@ static func is_written(entry: Dictionary) -> bool:
 
 
 ## The names of the regions not mended yet (whose boss still stands). The way down to
-## the Gutter (the finale) stays shut until this is empty.
+## the Gutter (the finale) stays shut until this is empty. Optional regions don't count.
 static func torn_regions() -> Array[String]:
 	var out: Array[String] = []
 	for entry: Dictionary in REGIONS:
 		var flag: String = entry.get("mended_flag", "")
-		if not flag.is_empty() and not GameState.get_flag(flag):
+		if not flag.is_empty() and not entry.get("optional", false) and not GameState.get_flag(flag):
 			out.append(entry["name"])
 	return out

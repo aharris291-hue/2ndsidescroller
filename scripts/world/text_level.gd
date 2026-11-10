@@ -39,6 +39,7 @@ const REGION_TILESETS := {
 	"fair": "res://resources/dark_tiles_fair.tres",
 	"index": "res://resources/dark_tiles_index.tres",
 	"gutter": "res://resources/dark_tiles_gutter.tres",
+	"blank": "res://resources/dark_tiles_blank.tres",
 }
 const TERRAIN := {"#": 0, "%": 1, "&": 2, "$": 3, "=": 3}
 const ICE := "="

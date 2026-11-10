@@ -1,0 +1,84 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_forecast.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/rain_platform.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/rain_shower.gd" id="7_rain"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_forecast.tscn" id="90_boss"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="91_door"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/heart_patch.tscn" id="92_heart"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_start"]
+size = Vector2(160, 600)
+
+[node name="LastBlankPage" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Last Blank Page"
+opening_caption = "The edge of the book. Past it, nothing at all."
+music = ExtResource("2_music")
+weather_tint = Color(0.6, 0.6, 0.7, 1)
+rain_amount = 90
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="RainShower" type="Node2D" parent="."]
+script = ExtResource("7_rain")
+gather_time = 1.0
+pour_time = 3.4
+manual = true
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/margins/the_forecast.txt"
+region = "blank"
+entities = {
+"X": ExtResource("5_e"),
+"u": ExtResource("6_e")
+}
+entity_props = {
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/margins/m_1_the_blank_margins.tscn",
+"target_spawn": &"FromForecast"
+}
+}
+
+[node name="StartZone" type="Area2D" parent="."]
+position = Vector2(480, 600)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StartZone"]
+shape = SubResource("RectangleShape2D_start")
+
+[node name="ExitDoor" parent="." instance=ExtResource("91_door")]
+position = Vector2(1760, 896)
+target_page = "res://scenes/levels/hub/spine_hub.tscn"
+target_spawn = &"Start"
+door_prompt = "Go home to the Spine"
+
+[node name="HeartPatch" parent="." instance=ExtResource("92_heart")]
+position = Vector2(1600, 850)
+
+[node name="TheForecast" parent="." node_paths=PackedStringArray("start_zone", "exit_door", "reward", "shower") instance=ExtResource("90_boss")]
+position = Vector2(1300, 466)
+start_zone = NodePath("../StartZone")
+exit_door = NodePath("../ExitDoor")
+reward = NodePath("../HeartPatch")
+shower = NodePath("../RainShower")
+arena_left = 128.0
+arena_right = 1792.0
+floor_y = 896.0
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

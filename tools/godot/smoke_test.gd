@@ -118,6 +118,7 @@ func _run() -> void:
 
 	await _chapter_one(game_state, scene_manager, dialogue)
 	await _chapter_two(game_state, scene_manager, dialogue)
+	await _blank_margins(game_state, scene_manager, dialogue)
 	await _chapter_three(game_state, scene_manager, dialogue)
 	await _finale(game_state, scene_manager, dialogue)
 
@@ -337,6 +338,144 @@ func _chapter_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 	_check(not ResourceLoader.exists("res://scenes/levels/ch2_lanternfold/lanternfold_town.tscn"), "the old harbour town pages are retired")
 	await _watermark_marsh(game_state, scene_manager, dialogue)
 
+
+
+## The optional Blank Margins: showers that write ledges over the gaps, and the Unwritten
+## Forecast (rain, lightning, wind) with a heart patch.
+func _blank_margins(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const M := "res://scenes/levels/margins/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	var entry: Dictionary = book_map.region(&"margins")
+	_check(entry.get("optional", false) and entry["open_flag"] == "boss_kraken_defeated" and entry["door"] == M + "m_1_the_blank_margins.tscn",
+		"the Blank Margins are an optional region, open after Lanternfold")
+	var was_mended: bool = game_state.get_flag("boss_forecast_defeated")
+	game_state.set_flag("boss_forecast_defeated", false)
+	_check(not book_map.torn_regions().has("The Blank Margins"), "the finale doesn't wait on the optional Margins")
+	await scene_manager.change_page("res://scenes/levels/hub/spine_hub.tscn", &"Start")
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(10)
+	await _skip_dialogue(dialogue)
+	var door := current_scene.get_node_or_null("Level/region_door_26_8")
+	_check(door != null and door.region_id == &"margins" and door.target_page == entry["door"], "the Spine's gallery has a door out to the Margins")
+
+	await scene_manager.change_page(entry["door"])
+	await _wait_for_scene("TheBlankMargins", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(600.0)
+	var shower := current_scene.get_node("RainShower")
+	shower.manual = true
+	shower._set_state(&"dry")
+	await _frames(4)
+	var ledges := get_nodes_in_group(&"rain_platforms")
+	_check(ledges.size() >= 12, "the rain writes %d ledges across the Margins" % ledges.size())
+	var first: Node2D = current_scene.get_node("Level/rain_platform_18_19")
+	_check(not first.solid and first._shape.disabled, "dry, a rain ledge is only an outline")
+	shower._set_state(&"pouring")
+	shower._left = 99.0
+	await _frames(4)
+	_check(first.solid and not first._shape.disabled, "in the downpour it's solid")
+	patch.global_position = first.global_position + Vector2(0, -60)
+	patch.velocity = Vector2.ZERO
+	await _frames(30)
+	_check(patch.is_on_floor() and absf(patch.global_position.y - first.global_position.y) < 64.0, "Patch stands on a ledge of rain over nothing (floor %s, %.0f vs %.0f)" % [patch.is_on_floor(), patch.global_position.y, first.global_position.y])
+	shower._set_state(&"dry")
+	await _frames(30)
+	_check(patch.global_position.y > first.global_position.y + 100.0, "when the rain stops, so does the ledge")
+	# A self-running shower goes round dry, gathering, pouring.
+	shower.manual = false
+	var seen := {}
+	for i in 600:
+		seen[shower.state] = true
+		if shower.state == &"pouring" and shower.easing:
+			seen[&"easing"] = true
+		await _frames(1)
+	_check(seen.has(&"dry") and seen.has(&"gathering") and seen.has(&"pouring") and seen.has(&"easing"), "the showers come and go, with a tell before and a flicker before they stop (%s)" % str(seen.keys()))
+	var gust := current_scene.get_node("Level/gust_97_12")
+	_check(gust.strength < 0.0 and gust.size.x > 1500.0, "a wind blows back across the ledges")
+	_check(FileAccess.get_file_as_string("res://levels/margins/m_1_the_blank_margins.txt").contains("abilities: rain"), "the Margins' map is climb-checked with its rain ledges")
+	_check(current_scene.get_node("Level/page_exit_198_19").target_page == M + "the_forecast.tscn", "the far edge of the Margins leads to the storm")
+
+	# The Unwritten Forecast.
+	await scene_manager.change_page(M + "the_forecast.tscn")
+	await _wait_for_scene("LastBlankPage", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.max_health = 99
+	patch.health.set_health(99)
+	patch.health.grant_invulnerability(900.0)
+	var boss := current_scene.get_node("TheForecast")
+	var reward := current_scene.get_node("HeartPatch")
+	var exit := current_scene.get_node("ExitDoor")
+	_check(boss.state == 0 and not reward.visible and not exit.visible, "the storm waits, keeping its heart patch, and the way home is shut")
+	patch.global_position = current_scene.get_node("StartZone").global_position + Vector2(0, 200)
+	await _frames(8)
+	await _skip_dialogue(dialogue)
+	_check(boss.state != 0, "the fight starts")
+	var rain: Node = current_scene.get_node("RainShower")
+	var rained := false
+	for i in 300:
+		if rain.state != &"dry":
+			rained = true
+			break
+		await _frames(1)
+	_check(rained, "it calls the rain, and the ledges over the gap come with it")
+	var cut := Hitbox.new()
+	cut.damage = 1
+	current_scene.add_child(cut)
+	var hp: int = boss.health.current
+	boss._on_hit(cut)
+	_check(boss.health.current == hp, "cuts glance off it in the sky")
+	boss._kill_tween()
+	boss._downburst()
+	for i in 200:
+		if boss.state == 5:
+			break
+		await _frames(1)
+	_check(boss.state == 5 and boss.is_open() and absf(boss.global_position.y - boss.floor_y) < 2.0, "a downburst brings it down on the page, spent")
+	boss.health.clear_invulnerability()
+	boss._on_hit(cut)
+	_check(boss.health.current == hp - 1, "spent, the barometer is in reach")
+	# Lightning, from two thirds.
+	boss.health.set_health(boss.health.max_health * 2 / 3)
+	boss._recover()
+	_check(boss.phase() == 1, "at two thirds the lightning starts")
+	boss._kill_tween()
+	boss._lightning(2)
+	await _frames(4)
+	var marks := get_nodes_in_group(&"forecast_marks").size()
+	_check(marks == 2 and get_nodes_in_group(&"forecast_bolts").is_empty(), "white lines mark the floor before the bolts")
+	await _frames(int(boss.bolt_tell * 60.0) + 6)
+	_check(get_nodes_in_group(&"forecast_bolts").size() == 2, "then the bolts come down them")
+	# Wind, from one third.
+	boss.health.set_health(boss.health.max_health / 3)
+	await _frames(10)
+	_check(boss.phase() == 2 and boss.wind != 0.0, "at one third the wind gets up")
+	var first_way: float = boss.wind
+	boss._wind_left = 0.05
+	await _frames(6)
+	_check(boss.wind == -first_way, "and turns round")
+	# Down.
+	boss.health.clear_invulnerability()
+	boss.health.take_damage(99, Vector2.ZERO)
+	cut.queue_free()
+	for i in 400:
+		if reward.visible:
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue)
+	_check(game_state.get_flag("boss_forecast_defeated") and boss.wind == 0.0, "the storm comes apart and the wind drops")
+	_check(reward.visible and exit.visible, "under it, a heart patch, and the way home opens")
+	var hearts: int = game_state.max_health
+	reward._on_body_entered(patch)
+	_check(game_state.max_health > hearts, "the heart patch is Patch's")
+	await _frames(4)
+	await _skip_dialogue(dialogue)
+	_check(not book_map.torn_regions().has("The Blank Margins"), "the Margins never hold up the finale")
+	if was_mended:
+		game_state.set_flag("boss_forecast_defeated")
 
 func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const CH3 := "res://scenes/levels/ch3_spine/"
@@ -2734,12 +2873,13 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	for node in current_scene.get_node("Level").get_children():
 		if node.get("region_id") != null and node.get("region_id") != &"":
 			doors[node.get("region_id")] = node
-	_check(doors.size() == 6, "the Spine has a door for each of the six regions (%d)" % doors.size())
+	_check(doors.size() == 7 and doors.has(&"margins"), "the Spine has a door for each of the six regions and the optional Margins (%d)" % doors.size())
 	_check(doors[&"thistledown"].state() == "open" and doors[&"thistledown"].can_interact(), "Thistledown's door is open from the start")
 	_check(doors[&"lanternfold"].state() == "locked" and not doors[&"lanternfold"].can_interact(), "Lanternfold's door stays shut until Thistledown is mended")
 	_check(doors[&"index"].state() == "locked" and not doors[&"index"].can_interact(), "the Index's door stays shut until the Barker is beaten")
 	_check(doors[&"fair"].state() == "locked", "the Fair's door stays shut until Bindwell is beaten")
 	_check(doors[&"marsh"].state() == "locked", "the Marsh's door stays shut until the Kraken is beaten")
+	_check(doors[&"margins"].state() == "locked", "the Margins' door stays shut until the Kraken is beaten")
 	var stair := current_scene.get_node("Stair")
 	_check(not stair.is_open() and stair.get_children().filter(func(n: Node) -> bool: return n is StaticBody2D).is_empty(),
 		"the stair to the gallery is broken until a region is mended")
