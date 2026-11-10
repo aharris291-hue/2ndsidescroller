@@ -1,0 +1,115 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_gnawed_pages.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="8_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/silverfish.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="10_e"]
+[ext_resource type="Script" path="res://scripts/world/index_drawer.gd" id="11_e"]
+[ext_resource type="Script" path="res://scripts/world/shutter.gd" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="13_e"]
+[ext_resource type="Script" path="res://scripts/world/gnawing.gd" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheGnawedPages" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Gnawed Pages"
+opening_caption = "The Gnawed Pages. The last of the book, eaten through."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.46, 0.42, 1)
+rain_amount = 90
+lightning = false
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(3840, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/index/6_5_the_gnawed_pages.txt"
+region = "index"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"E": ExtResource("6_e"),
+"G": ExtResource("14_e"),
+"P": ExtResource("12_e"),
+"R": ExtResource("7_e"),
+"T": ExtResource("13_e"),
+"X": ExtResource("6_e"),
+"i": ExtResource("9_e"),
+"k": ExtResource("10_e"),
+"o": ExtResource("8_e"),
+"q": ExtResource("11_e")
+}
+entity_props = {
+"1": {
+"caption": "The Gnawed Pages: the last leaves of the book, so eaten there was more hole than page. You could see the dark through them. Not the dark of a room. The dark of nothing, where the book stopped.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "Chewing. All round him, inside the paper, a sound like rain that hadn't decided to fall. Then it stopped, all of it at once, the way a room goes quiet when someone says your name.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "He didn't look back. He had done this before: run from something coming and not looked back. This time there was nobody behind him to leave.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "The shutter came down and the Gnawing hit it like surf. It chewed at the slats, and then it drew back into the dark, and the dark was quiet again. For now.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "Beyond the shutter, the last page of the book, and a sound coming from it that Patch knew now: a nib, scratching, steady, patient, striking things out. It had got to P.",
+"size": Vector2(128, 384)
+},
+"q": {
+"cascade": 0.25,
+"dir": -1.0
+},
+"P": {
+"open_time": 2.6,
+"size": Vector2(96, 384),
+"tag": "P"
+},
+"T": {
+"flips": PackedStringArray("P")
+},
+"G": {
+"stop_x": 12228.0
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/index/6_4_the_stacks.tscn",
+"target_spawn": &"FromGnawedPages"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/index/the_last_entry.tscn",
+"target_spawn": &"FromGnawedPages"
+},
+"R": {
+"name": &"FromLastEntry"
+},
+"i": {
+"scrap_drop": 2
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

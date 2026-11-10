@@ -2306,12 +2306,13 @@ func _the_index(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 		await physics_frame
 	Input.action_release(&"move_right")
 	_check(patch.global_position.x > 37 * 64, "Patch walks through into the stair of desks")
-	_check(level.get_node("page_exit_48_7").target_page == "res://scenes/levels/hub/spine_hub.tscn", "for now the Reading Room's way on comes back to the Spine")
+	_check(level.get_node("page_exit_48_7").target_page == R6 + "6_4_the_stacks.tscn", "the Reading Room's way on goes deeper, into the Stacks")
+	await _the_index_two(game_state, scene_manager, dialogue)
 
 	# The way down to the Gutter: shut until every region is mended.
 	game_state.set_flag("patch_told_truth")
 	var torn: Array = book_map.torn_regions()
-	_check(torn.is_empty(), "with every boss so far beaten, no region is still torn (%s)" % [torn])
+	_check(torn.is_empty(), "with every boss beaten, no region is still torn (%s)" % [torn])
 	game_state.set_flag("boss_barker_defeated", false)
 	torn = book_map.torn_regions()
 	_check(torn == ["Gatefold Fair"], "with the Barker standing, the Fair is still torn (%s)" % [torn])
@@ -2330,11 +2331,276 @@ func _the_index(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(index_door.state() == "locked", "the Index's door is shut while the Barker stands")
 	game_state.set_flag("boss_barker_defeated")
 	await _frames(3)
-	_check(finale_door.is_open() and index_door.state() == "open", "with the Barker beaten, the Index opens, and (for now) the way down")
+	_check(finale_door.is_open() and index_door.state() == "mended", "with the Barker beaten (and the rest), the Index is open and mended, and the way down opens")
 	var low_point: Node = (load("res://scenes/levels/peaks/4_5_the_low_point.tscn") as PackedScene).instantiate()
 	var summit_props: Dictionary = low_point.get_node("Level").entity_props["E"]
 	low_point.free()
 	_check(summit_props.get("requires_whole_book") == true and summit_props.get("fallback_page") == book_map.HUB, "the Low Point's summit only goes down to the Gutter once the whole book is mended")
+
+
+## The Index part 2: the Stacks (6-4) and its book-lift shutter, the Gnawing that chases
+## Patch down the Gnawed Pages (6-5), the Redactor on the last page, and the Errata.
+func _the_index_two(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R6 := "res://scenes/levels/index/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	_check(book_map.region(&"index").get("mended_flag") == "boss_redactor_defeated", "the Redactor's defeat mends the Index")
+	_check("The Index" in book_map.torn_regions(), "until then the Index is torn")
+	# 6-4 The Stacks.
+	await scene_manager.change_page(R6 + "6_4_the_stacks.tscn", &"Start")
+	await _wait_for_scene("TheStacks", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	for e in get_nodes_in_group(&"enemies"):
+		e.queue_free()
+	await _frames(2)
+	var errata_door := level.get_node("page_door_97_7")
+	_check(not errata_door.is_open() and errata_door.target_page == R6 + "errata.tscn", "the Errata is sealed while the Redactor works")
+	var drawers := get_nodes_in_group(&"index_drawers").filter(func(d: Node) -> bool: return d.get_parent() == level)
+	_check(drawers.size() == 7, "a column of drawers up the face of the stack (%d)" % drawers.size())
+	_check(level.get_node_or_null("InkPool") != null or not get_nodes_in_group(&"ink").is_empty() or level.get_children().any(func(n: Node) -> bool: return n.get_script() != null and n.get_script().resource_path.ends_with("ink_pool.gd")), "the low aisle is flooded with ink")
+	var shutter_p := level.get_node("shutter_138_21")
+	var tab_t := level.get_node("pull_tab_114_32")
+	_check(shutter_p.open_time > 0.0 and not shutter_p.open, "a spring shutter over the way on")
+	# The book lift: pull at the bottom, warp back to the ribbon by the door, and through.
+	await _stand(patch, Vector2(136 * 64, 22 * 64))
+	var by_door := patch.global_position
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	_check(patch.ribbon != null, "Gran's ribbon laid by the shutter")
+	await _stand(patch, (tab_t as Node2D).global_position)
+	tab_t.interact(patch)
+	for i in 60:
+		if shutter_p.open and shutter_p._shape.disabled:
+			break
+		await physics_frame
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	_check(patch.global_position.distance_to(by_door) < 6.0, "from the bottom of the lift shaft, straight back to the shutter")
+	Input.action_press(&"move_right")
+	await _frames(40)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > (shutter_p as Node2D).global_position.x + 64.0, "and through it before it drops")
+	_check(level.get_node("page_exit_198_21").target_page == R6 + "6_5_the_gnawed_pages.tscn", "the Stacks lead on to the Gnawed Pages")
+
+	# 6-5 The Gnawed Pages: the Gnawing.
+	await scene_manager.change_page(R6 + "6_5_the_gnawed_pages.tscn", &"Start")
+	await _wait_for_scene("TheGnawedPages", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var gnaw := level.get_node("gnawing_18_19")
+	_check(not gnaw.running, "the Gnawing waits for him to come in")
+	await _stand(patch, Vector2(26 * 64, 20 * 64))
+	await _skip_dialogue(dialogue)
+	_check(gnaw.running, "once he's past it, it comes after him")
+	var front_was: float = gnaw.front
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	var ribbon: Node2D = patch.ribbon
+	for i in 300:
+		if patch.global_position.x > gnaw.front + 40.0 and gnaw.front > 28 * 64:
+			break
+		await physics_frame
+	_check(gnaw.front > front_was + 300.0, "it comes on down the page (%.0f px)" % (gnaw.front - front_was))
+	_check(patch.global_position.x > gnaw.front, "standing still, Patch is thrown on ahead of it, never left inside it")
+	_check(not is_instance_valid(ribbon) or ribbon.is_queued_for_deletion(), "it eats a ribbon left behind")
+	var fish := level.get_node_or_null("silverfish_52_19")
+	_check(fish != null, "a silverfish in the way")
+	gnaw.front = 54 * 64
+	await _frames(3)
+	_check(not is_instance_valid(fish) or fish.is_queued_for_deletion(), "the Gnawing eats its own kind too")
+	var shutter_q := level.get_node("shutter_192_19")
+	var tab_q := level.get_node("pull_tab_186_19")
+	await _stand(patch, (tab_q as Node2D).global_position)
+	gnaw.front = 180 * 64
+	tab_q.interact(patch)
+	for i in 60:
+		if shutter_q.open and shutter_q._shape.disabled:
+			break
+		await physics_frame
+	_check(shutter_q.open, "the last shutter, pulled on the run")
+	Input.action_press(&"move_right")
+	await _frames(90)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > (shutter_q as Node2D).global_position.x + 64.0, "Patch gets through under it")
+	for i in 400:
+		if gnaw.done:
+			break
+		await physics_frame
+	_check(gnaw.done and not gnaw.running and gnaw.front <= 192 * 64, "the Gnawing stops at the shutter and falls back")
+	_check(level.get_node("page_exit_229_19").target_page == R6 + "the_last_entry.tscn", "and on, to the last page")
+
+	# The Redactor.
+	await scene_manager.change_page(R6 + "the_last_entry.tscn", &"FromGnawedPages")
+	await _wait_for_scene("TheLastEntry", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var boss := current_scene.get_node("Redactor")
+	var exit_door := current_scene.get_node("ExitDoor")
+	_check(not exit_door.visible, "no way out while the Redactor works")
+	boss.start_fight()
+	_check(boss.state == 1, "the Redactor uncaps its pen")
+	await _skip_dialogue(dialogue)
+	var cut := Hitbox.new()
+	cut.damage = 1
+	cut.collision_layer = 0
+	cut.collision_mask = 0
+	current_scene.add_child(cut)
+	var hp: int = boss.health.current
+	boss._on_hit(cut)
+	_check(boss.health.current == hp, "a cut while it's closed glances off")
+	# Strike: the pen comes down a red line, and a ribbon in the line goes with it.
+	await _stand(patch, Vector2(900, 896))
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	ribbon = patch.ribbon
+	boss._strike()
+	await _frames(4)
+	_check(get_nodes_in_group(&"redactor_strikes").size() == 1 and boss.state == 2, "a red line down the page where he stands")
+	await create_timer(0.9).timeout
+	_check(not is_instance_valid(ribbon) or ribbon.is_queued_for_deletion(), "the pen comes down it and strikes the ribbon out")
+	await _skip_dialogue(dialogue)
+	for i in 300:
+		if boss.state == 1:
+			break
+		await physics_frame
+	_check(boss.state == 1 and get_nodes_in_group(&"redactor_strikes").is_empty(), "two strikes, and it drifts again")
+	# Stamp: it comes down in front of it and sticks; it's pinned, open.
+	boss._stamp()
+	for i in 120:
+		if boss.state == 5:
+			break
+		await physics_frame
+	_check(boss.state == 5 and boss.is_open() and boss.can_stagger(), "the stamp sticks in the page and pins its arm: open")
+	await _skip_dialogue(dialogue)
+	boss._on_hit(cut)
+	_check(boss.health.current < hp, "pinned, it can be cut (%d of %d)" % [boss.health.current, boss.health.max_health])
+	for i in 300:
+		if boss.state == 1:
+			break
+		await physics_frame
+	_check(boss.state == 1 and not boss.is_open(), "it pulls the stamp free and closes up")
+	# Redact, with no ribbon down: walled in, and the ink takes him.
+	await _stand(patch, Vector2(1000, 896))
+	if patch.ribbon:
+		patch.ribbon.queue_free()
+		patch.ribbon = null
+	boss._redact()
+	var box: Node2D = null
+	for i in 120:
+		var boxes := get_nodes_in_group(&"redactor_boxes")
+		if not boxes.is_empty() and boxes[0].is_shut:
+			box = boxes[0]
+			break
+		await physics_frame
+	_check(box != null and box.holds(patch.global_position), "a box rules itself round him and the walls come down")
+	await _skip_dialogue(dialogue)
+	Input.action_press(&"move_left")
+	await _frames(30)
+	Input.action_release(&"move_left")
+	_check(box.holds(patch.global_position), "he can't walk out of it")
+	Input.action_press(&"jump")
+	await _frames(20)
+	Input.action_release(&"jump")
+	await _frames(30)
+	_check(box.holds(patch.global_position), "or jump out of it")
+	for i in 200:
+		if boss.state != 4:
+			break
+		await physics_frame
+	_check(boss.caught == 1 and not boss.is_open(), "the ink rises to the brim with him in it")
+	await _skip_dialogue(dialogue)
+	for i in 300:
+		if boss.state == 1:
+			break
+		await physics_frame
+	# Redact, with Gran's ribbon outside the lines: warp out, and it has spent its ink.
+	await _stand(patch, Vector2(500, 896))
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	var ribbon_at := patch.global_position
+	await _stand(patch, Vector2(1100, 896))
+	boss._redact()
+	for i in 120:
+		var boxes := get_nodes_in_group(&"redactor_boxes")
+		if not boxes.is_empty() and boxes[0].is_shut:
+			box = boxes[0]
+			break
+		await physics_frame
+	await _skip_dialogue(dialogue)
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	_check(patch.global_position.distance_to(ribbon_at) < 6.0 and not box.holds(patch.global_position), "Gran's ribbon gets him out of the box")
+	for i in 200:
+		if boss.state == 6:
+			break
+		await physics_frame
+	_check(boss.escaped == 1 and boss.state == 6 and boss.is_open(), "the box fills with nobody in it: it has spent its ink, open")
+	await _skip_dialogue(dialogue)
+	hp = boss.health.current
+	boss._on_hit(cut)
+	_check(boss.health.current < hp, "and it can be cut")
+	for i in 400:
+		if boss.state == 1:
+			break
+		await physics_frame
+	# From half health, silverfish come up after a redaction.
+	boss.health.current = 7
+	_check(boss.phase() == 1, "at half health it gets worse")
+	await _stand(patch, Vector2(500, 896))
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	await _stand(patch, Vector2(1100, 896))
+	boss._redact()
+	for i in 200:
+		if boss.state != 4:
+			break
+		await physics_frame
+	_check(get_nodes_in_group(&"redactor_silverfish").size() == 1, "after a redaction a silverfish comes up out of the page")
+	await _skip_dialogue(dialogue)
+	# Down.
+	boss.health.current = 1
+	boss.health.clear_invulnerability()
+	boss.health.take_damage(5, boss.global_position)
+	for i in 400:
+		if dialogue.is_active():
+			break
+		await physics_frame
+	await _skip_dialogue(dialogue)
+	await _frames(20)
+	_check(game_state.get_flag("boss_redactor_defeated") and exit_door.visible, "the Redactor leaves it all in, and the Index is whole")
+	_check(game_state.bestiary.get("redactor", 0) >= 1, "Nell's book gets a page for the Redactor")
+	_check(get_nodes_in_group(&"redactor_boxes").is_empty() and get_nodes_in_group(&"redactor_silverfish").is_empty(), "its work goes with it")
+	_check(not ("The Index" in book_map.torn_regions()), "the Index is mended")
+
+	# The Errata opens.
+	await scene_manager.change_page(R6 + "6_4_the_stacks.tscn", &"FromErrata")
+	await _wait_for_scene("TheStacks", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(current_scene.get_node("Level/page_door_97_7").is_open(), "with the Redactor beaten, the Errata opens")
+	await scene_manager.change_page(R6 + "errata.tscn", &"Start")
+	await _wait_for_scene("Errata", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	var hearts_before: int = game_state.max_health
+	patch.global_position = (current_scene.get_node("Level/heart_patch_34_9") as Node2D).global_position
+	await _frames(10)
+	_check(game_state.max_health == hearts_before + 2, "for 'lost' read 'kept': a heart in the Errata")
+	await _skip_dialogue(dialogue)
+	game_state.max_health = 99
+	game_state.health = 99
+	await scene_manager.change_page(R6 + "6_3_the_reading_room.tscn", &"FromStacks")
+	await _wait_for_scene("TheReadingRoom", 120)
+	await _frames(10)
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
@@ -2388,7 +2654,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(card != null and card.place_name == "The Spine", "walking into the Spine writes its name across the screen")
 	# Music that fills in: with only the Prologue mended the music is still far off.
 	var audio := root.get_node("AudioManager")
-	_check(is_equal_approx(audio.fullness(), 1.0 / 6.0), "one region of six mended: the music is a sixth full (%.2f)" % audio.fullness())
+	_check(is_equal_approx(audio.fullness(), 1.0 / 7.0), "one region of seven mended: the music is a seventh full (%.2f)" % audio.fullness())
 	var doors := {}
 	for node in current_scene.get_node("Level").get_children():
 		if node.get("region_id") != null and node.get("region_id") != &"":
@@ -2411,7 +2677,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	var wet_before: float = audio._reverb.wet
 	audio.update_fullness()
 	await create_timer(4.5).timeout
-	_check(is_equal_approx(audio.music_fullness, 2.0 / 6.0) and audio._lowpass.cutoff_hz > cutoff_before * 1.5
+	_check(is_equal_approx(audio.music_fullness, 2.0 / 7.0) and audio._lowpass.cutoff_hz > cutoff_before * 1.5
 		and audio._reverb.wet < wet_before - 0.03, "mending a region fills the music in (cutoff %d Hz)" % audio._lowpass.cutoff_hz)
 	# Climb: the two boards and the gallery are each within a jump of the last.
 	var tops: Array[float] = [960.0, 832.0, 704.0, 576.0]

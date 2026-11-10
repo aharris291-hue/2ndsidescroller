@@ -5,12 +5,16 @@ Backdrops (assets/art/dark/):
   bg_back_pages.png      3840x1080, the archive at the back of the book (6-1), mirrored strip
   bg_card_catalogue.png  1920x1080, inside the great card catalogue (6-2)
   bg_reading_room.png    1920x1080, the domed reading room (6-3)
+  bg_stacks.png          3840x1080, the flooded stacks (6-4), mirrored strip
+  bg_gnawed_pages.png    3840x1080, the last pages, eaten through (6-5), mirrored strip
+  bg_last_entry.png      1920x1080, the Redactor's chamber, the last page of the book
 Sprites:
   enemies/silverfish.png  a book-eating silverfish, SILVERFISH_WIDTH px long, facing left
   props/index_drawer.png  a card catalogue drawer in profile, DRAWER_WIDTH px long, its
                           front (handle) at the right
   props/index_shutter.png a roll shutter, SHUTTER_WIDTH px wide; its red tab hangs below
                           the bottom rail (the game cuts the tab off and draws its own)
+  enemies/redactor.png    the Index's boss, REDACTOR_HEIGHT px tall, facing left
 
 Run: python3 tools/art/dark_index_art.py
 """
@@ -24,6 +28,7 @@ DARK = os.path.join(ROOT, "assets", "art", "dark")
 SILVERFISH_WIDTH = 230
 DRAWER_WIDTH = 256
 SHUTTER_WIDTH = 96
+REDACTOR_HEIGHT = 600
 
 
 def fit(path: str) -> Image.Image:
@@ -56,6 +61,12 @@ def main() -> None:
     ImageEnhance.Brightness(strip(fit(os.path.join(SRC, "back_pages_raw.png")))).enhance(0.9).save(os.path.join(DARK, "bg_back_pages.png"))
     ImageEnhance.Brightness(fit(os.path.join(SRC, "card_catalogue_raw.png"))).enhance(0.9).save(os.path.join(DARK, "bg_card_catalogue.png"))
     ImageEnhance.Brightness(fit(os.path.join(SRC, "reading_room_raw.png"))).enhance(0.85).save(os.path.join(DARK, "bg_reading_room.png"))
+    ImageEnhance.Brightness(strip(fit(os.path.join(SRC, "stacks_raw.png")))).enhance(0.95).save(os.path.join(DARK, "bg_stacks.png"))
+    ImageEnhance.Brightness(strip(fit(os.path.join(SRC, "gnawed_pages_raw.png")))).enhance(0.8).save(os.path.join(DARK, "bg_gnawed_pages.png"))
+    ImageEnhance.Brightness(fit(os.path.join(SRC, "last_entry_raw.png"))).enhance(0.9).save(os.path.join(DARK, "bg_last_entry.png"))
+    redactor = cutout("redactor_raw.png")
+    redactor = redactor.resize((round(redactor.width * REDACTOR_HEIGHT / redactor.height), REDACTOR_HEIGHT), Image.LANCZOS)
+    redactor.save(os.path.join(DARK, "enemies", "redactor.png"))
     fish = to_width(cutout("silverfish_raw.png"), SILVERFISH_WIDTH)
     fish.save(os.path.join(DARK, "enemies", "silverfish.png"))
     drawer = to_width(cutout("drawer_raw.png"), DRAWER_WIDTH)
@@ -68,7 +79,7 @@ def main() -> None:
     rail = max(i for i, w in enumerate(widths) if w > shutter.width * 0.8)
     shutter = to_width(shutter.crop((0, 0, shutter.width, rail + 1)), SHUTTER_WIDTH)
     shutter.save(os.path.join(DARK, "props", "index_shutter.png"))
-    print("wrote the Index's art: silverfish %s, drawer %s, shutter %s" % (fish.size, drawer.size, shutter.size))
+    print("wrote the Index's art: redactor %s, silverfish %s, drawer %s, shutter %s" % (redactor.size, fish.size, drawer.size, shutter.size))
 
 
 if __name__ == "__main__":

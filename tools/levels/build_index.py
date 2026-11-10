@@ -1,5 +1,5 @@
 """Draws Region 6's text maps: the Index, the archive at the back of the book where
-everything in it is filed (Phase 3, part 1: 6-1 to 6-3).
+everything in it is filed (Phase 3: 6-1 to 6-5, the Redactor's chamber and the Errata).
 
 Writes levels/index/*.txt. Each map's legend is in its scene's TextLevel node
 (scenes/levels/index/*.tscn); the shared characters are:
@@ -173,6 +173,154 @@ def card_catalogue() -> Grid:
     return g
 
 
+def the_stacks() -> Grid:
+    """6-4 The Stacks: the Index's deep shelving, where the Marsh's ink got in. A fight
+    in the dry aisle; the flooded aisle, swum on a Blot Dive from shelf-top to
+    shelf-top; up the side of a stack on a column of drawers (a bookmark on top, and
+    the Errata's door, sealed until the Redactor is beaten); down into the stacks, where
+    a spring shutter's tab is at the bottom of a book-lift shaft (lay the ribbon by the
+    shutter, a silverfish nosing about it); and a last fight before the way on."""
+    g = Grid(200, 36)
+    F = 22
+    g.ground(0, 199, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    # S1 the dry aisle.
+    g.put(16, F - 1, "i")
+    g.put(22, F - 1, "s")
+    g.put(26, F - 5, "m")
+    g.put(30, F - 1, "M")
+    g.put(34, F - 1, "i")
+    # S2 the flooded aisle: ink four deep, shelf-tops sticking out of it.
+    g.put(38, F - 1, "2")
+    g.fill(40, 74, F, F + 3, "~")
+    g.fill(50, 52, F - 2, F + 3, "#")
+    g.fill(62, 63, F - 1, F + 3, "#")
+    g.put(51, F - 3, "o")
+    g.put(57, F - 6, "m")
+    g.put(68, F - 5, "m")
+    # S3 the stack: a column of drawers up its face, to the top of the shelving.
+    g.put(76, F - 1, "3")
+    g.fill(80, 100, F - 14, F - 1, "#")
+    for row in range(F - 2, F - 15, -2):
+        g.put(79, row, "q")
+    g.put(83, F - 15, "k")
+    g.put(86, F - 15, "4")
+    g.put(90, F - 19, "m")
+    g.put(94, F - 15, "L")
+    g.put(97, F - 15, "D")
+    # S4 down in the stacks: the book-lift shaft with the shutter's tab at the bottom
+    # (and a slow way back up on planks), then the spring shutter 'P'.
+    g.put(104, F - 1, "5")
+    g.clear(112, 117, F, F + 10)
+    g.fill(111, 111, F, F + 11, "#")
+    g.fill(118, 118, F, F + 11, "#")
+    g.fill(111, 118, F + 11, F + 11, "#")
+    g.put(114, F + 10, "T")
+    g.put(116, F + 10, "o")
+    g.plank(112, 113, F + 7)
+    g.plank(116, 117, F + 4)
+    g.plank(112, 113, F + 1)
+    g.put(128, F - 1, "i")
+    g.fill(136, 158, 0, F - 7, "#")
+    shutter(g, 138, F, 6, "P")
+    g.put(142, F - 1, "o")
+    # S5 the last fight in the stacks.
+    g.put(160, F - 1, "6")
+    g.ground(166, 170, F - 3, "#")
+    g.put(168, F - 4, "m")
+    g.put(172, F - 1, "s")
+    g.put(176, F - 1, "i")
+    g.put(180, F - 1, "M")
+    g.put(184, F - 1, "i")
+    g.put(186, F - 6, "m")
+    g.put(192, F - 1, "7")
+    g.put(195, F - 1, "R")
+    g.put(198, F - 1, "E")
+    return g
+
+
+# The Gnawing's start and the shutter it stops at, in 6-5 (columns).
+GNAW_START = 18
+GNAW_STOP = 192
+
+
+def the_gnawed_pages() -> Grid:
+    """6-5 The Gnawed Pages: the last pages of the book, eaten through. The Gnawing
+    ('G', a wall of silverfish the height of the page) comes after Patch from the left,
+    and he runs: steps, gaps, planks, a silverfish in the way, a cliff of drawers, a
+    channel of running ink to Blot Dive down, and at the end a spring shutter he has
+    to pull open on the run; it drops behind him and the Gnawing stops at it."""
+    g = Grid(232, 30)
+    F = 20
+    g.ground(0, 231, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(8, F - 1, "1")
+    g.put(11, F - 1, "k")
+    g.put(14, F - 1, "2")
+    g.put(GNAW_START, F - 1, "G")
+    # The run.
+    g.ground(30, 40, F - 2)
+    g.clear(44, 46, F, 99)
+    g.put(52, F - 1, "i")
+    g.plank(58, 61, F - 3)
+    g.plank(64, 67, F - 5)
+    g.ground(70, 90, F - 4)
+    g.put(80, F - 5, "o")
+    g.clear(96, 99, F, 99)
+    g.put(104, F - 1, "3")
+    # A cliff, climbed on a column of drawers.
+    g.ground(116, 140, F - 6)
+    for row in range(F - 2, F - 7, -2):
+        g.put(115, row, "q")
+    g.clear(145, 148, F, 99)
+    g.put(152, F - 1, "i")
+    # Running ink: dive in and it carries you.
+    g.fill(158, 172, F, F + 2, ">")
+    g.ground(176, 179, F - 2)
+    # The last shutter, pulled on the run.
+    g.put(186, F - 1, "T")
+    g.fill(GNAW_STOP - 2, 202, 0, F - 7, "#")
+    shutter(g, GNAW_STOP, F, 6, "P")
+    g.put(198, F - 1, "4")
+    g.put(206, F - 1, "k")
+    g.put(212, F - 1, "5")
+    g.put(226, F - 1, "R")
+    g.put(229, F - 1, "E")
+    return g
+
+
+def last_entry() -> Grid:
+    """The Last Entry: the Redactor's chamber, on the last page of the book. A bare
+    floor, thirty tiles across, for the duel."""
+    g = Grid(30, 17)
+    g.ground(0, 29, 14)
+    g.put(1, 13, "X")
+    g.put(3, 13, "@")
+    return g
+
+
+def errata() -> Grid:
+    """The Errata, 6-4's sealed back page: the slip pasted in at the back of a book to
+    put right what was printed wrong. Up the shelves to a heart patch."""
+    g = Grid(40, 20)
+    F = 16
+    g.ground(0, 39, F)
+    g.put(1, F - 1, "X")
+    g.put(4, F - 1, "@")
+    g.put(7, F - 1, "1")
+    g.ground(12, 15, F - 2)
+    g.plank(18, 21, F - 4)
+    g.ground(24, 39, F - 6)
+    g.put(22, F - 9, "m")
+    g.put(30, F - 7, "2")
+    g.put(34, F - 7, "Y")
+    g.put(37, F - 7, "o")
+    return g
+
+
 # The Reading Room (6-3): rooms in a row under the gallery floor, left to right.
 ROOMS = ["L", "H", "R", "K"]
 # Shutter -> the rooms it stands between.
@@ -218,6 +366,7 @@ def reading_room() -> Grid:
     g.plank(38, 41, F - 9)
     g.plank(43, 49, F - 12)
     g.put(45, F - 13, "o")
+    g.put(44, F - 13, "R")
     g.put(46, F - 13, "4")
     g.put(48, F - 13, "E")
     return g
@@ -302,9 +451,18 @@ def main() -> None:
         "6-2 The Card Catalogue (drawn by tools/levels/build_index.py; legend in\nscenes/levels/index/6_2_the_card_catalogue.tscn)\nabilities: frog glide drawers")
     reading_room().write(os.path.join(OUT, "6_3_the_reading_room.txt"),
         "6-3 The Reading Room (drawn by tools/levels/build_index.py; legend in\nscenes/levels/index/6_3_the_reading_room.tscn); A B C are the shutters (all start shut)")
+    the_stacks().write(os.path.join(OUT, "6_4_the_stacks.txt"),
+        "6-4 The Stacks (drawn by tools/levels/build_index.py; legend in\nscenes/levels/index/6_4_the_stacks.tscn)\nabilities: frog glide drawers")
+    the_gnawed_pages().write(os.path.join(OUT, "6_5_the_gnawed_pages.txt"),
+        "6-5 The Gnawed Pages (drawn by tools/levels/build_index.py; legend in\nscenes/levels/index/6_5_the_gnawed_pages.tscn)\nabilities: frog glide drawers")
+    last_entry().write(os.path.join(OUT, "the_last_entry.txt"),
+        "The Last Entry, the Redactor's chamber (drawn by tools/levels/build_index.py; legend in\nscenes/levels/index/the_last_entry.tscn)")
+    errata().write(os.path.join(OUT, "errata.txt"),
+        "The Errata, 6-4's sealed back page (drawn by tools/levels/build_index.py;\nlegend in scenes/levels/index/errata.tscn)\nabilities: frog glide")
     ok = True
     climb_check.UP, climb_check.GLIDE = 4.5, True
-    for name, grid, drawers in (("6-1", back_pages(), False), ("6-2", card_catalogue(), True)):
+    for name, grid, drawers in (("6-1", back_pages(), False), ("6-2", card_catalogue(), True),
+                                ("6-4", the_stacks(), True), ("6-5", the_gnawed_pages(), True), ("errata", errata(), False)):
         climb_check.DRAWERS = drawers
         rows = _rows(grid)
         reach = climb_check.climbable(rows)[0]
@@ -327,6 +485,20 @@ def main() -> None:
     out_of_shaft = climb_check.climbable(rows, start=tab, goal=(door[0] - 2, door[1]))[0]
     print("6-2 the slow way back up out of the shaft:", out_of_shaft)
     ok &= out_of_shaft
+    # 6-4: the lift shaft's tab can't be reached and run back from in time: from the
+    # tab, the shutter is a climb and a long run away.
+    rows = _rows(the_stacks())
+    tab = next((x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if c == "T")
+    door = next((x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if c == "P")
+    back_up = climb_check.climbable(rows, start=tab, goal=(door[0] - 2, door[1]))[0]
+    print("6-4 the slow way back up out of the lift shaft:", back_up, "(%d tiles from the tab to the shutter)" % (door[0] - tab[0]))
+    ok &= back_up and door[0] - tab[0] >= 20
+    # 6-5: the chase never asks Patch to go back left (nothing above the run he has to
+    # climb to and come back from), and the Gnawing stops at the last shutter.
+    rows = _rows(the_gnawed_pages())
+    gx = next(x for r in rows for x, c in enumerate(r) if c == "G")
+    px = next(x for r in rows for x, c in enumerate(r) if c == "P")
+    ok &= gx == GNAW_START and px == GNAW_STOP
     ok_map = check_reading_room_map(reading_room())
     print("6-3 map matches the room model:", ok_map)
     ok &= ok_map
