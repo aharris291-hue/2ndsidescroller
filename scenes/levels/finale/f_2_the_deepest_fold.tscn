@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/backdrops/bg_gutter.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="5_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_sogg.tscn" id="90_boss"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_start"]
+size = Vector2(160, 600)
+
+[node name="TheDeepestFold" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Deepest Fold"
+opening_caption = "The bottom of the Gutter. The water had nowhere left to go, and it was waiting."
+music = ExtResource("2_music")
+weather_tint = Color(0.38, 0.4, 0.46, 1)
+rain_amount = 200
+lightning = true
+no_companions = true
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/finale/f_2_the_deepest_fold.txt"
+region = "gutter"
+entities = {
+"X": ExtResource("5_e")
+}
+entity_props = {
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/finale/f_1_the_gutter_descent.tscn",
+"target_spawn": &"FromDeepestFold"
+}
+}
+
+[node name="StartZone" type="Area2D" parent="."]
+position = Vector2(560, 600)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StartZone"]
+shape = SubResource("RectangleShape2D_start")
+
+[node name="TheSogg" parent="." node_paths=PackedStringArray("start_zone") instance=ExtResource("90_boss")]
+position = Vector2(1780, 896)
+start_zone = NodePath("../StartZone")
+arena_left = 192.0
+arena_right = 1500.0
+floor_y = 896.0
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

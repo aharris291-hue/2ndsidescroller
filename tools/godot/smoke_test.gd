@@ -474,69 +474,132 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	await _frames(40)
 	Input.action_release(&"move_right")
 	_check(patch.global_position.x > (shutter_p as Node2D).global_position.x + 64.0, "and through it before it drops")
-	_check(level.get_node("page_exit_228_27").target_page == FIN + "deepest_fold.tscn", "the Gutter goes on down into the deepest fold")
+	_check(level.get_node("page_exit_228_27").target_page == "res://scenes/levels/interludes/interlude_04.tscn", "the Gutter goes on down, and the page cuts to Gran's table first")
 
-	# The deepest fold, first time: Patch can't win, and it cuts to Gran's table.
-	await scene_manager.change_page(FIN + "deepest_fold.tscn")
-	await _frames(20)
-	await _skip_dialogue(dialogue)
-	patch = get_first_node_in_group("player")
-	var boss := current_scene.get_node("TheSogg")
-	patch.global_position = current_scene.get_node("Story/FightStart").global_position + Vector2(0, 150)
-	await _frames(10)
-	await _skip_dialogue(dialogue)
-	_check(boss.state != 0 and patch.health.floor_health == 1, "the last fight starts, and Patch can't be beaten in it")
-	patch.health._invulnerable_left = 0.0
-	patch.health.take_damage(999, patch.global_position)
-	_check(patch.health.current == 1 and not patch.health.is_dead(), "the Sogg wears Patch down to his last scrap")
-	for i in 300:
-		if dialogue.is_active():
-			break
-		await _frames(1)
-	await _skip_dialogue(dialogue)
-	await _wait_for_scene("Interlude04", 600)
-	_check(current_scene.name == "Interlude04", "losing to the Sogg cuts to Nell at Gran's table")
+	# Interlude 4: Nell, at 2am, with the hairdryer. Then the deepest fold.
+	await scene_manager.change_page("res://scenes/levels/interludes/interlude_04.tscn")
+	await _wait_for_scene("Interlude04", 300)
 	for i in 1200:
 		if dialogue.is_active():
 			break
 		await _frames(1)
 	await _skip_dialogue(dialogue)
-	await _wait_for_scene("DeepestFold", 600)
-	_check(game_state.get_flag("nell_has_dryer") and current_scene.name == "DeepestFold", "Nell picks up the hairdryer and the fight goes on")
-
-	# Second time: the warm air follows Patch and dries the Sogg wherever it comes down.
+	await _wait_for_scene("TheDeepestFold", 900)
+	_check(game_state.get_flag("nell_has_dryer") and current_scene.name == "TheDeepestFold", "Nell sits up with the hairdryer, and Patch goes down into the deepest fold")
+	_check(not ResourceLoader.exists(FIN + "deepest_fold.tscn") and not ResourceLoader.exists("res://scripts/enemies/boss_sogg_final.gd") and not ResourceLoader.exists("res://scripts/world/hairdryer_beam.gd"), "the old hairdryer fight is gone")
 	await _frames(20)
-	for i in 300:
-		if dialogue.is_active():
-			break
-		await _frames(1)
 	await _skip_dialogue(dialogue)
-	await _frames(20)
 	patch = get_first_node_in_group("player")
-	boss = current_scene.get_node("TheSogg")
-	var beam := current_scene.get_node("HairdryerBeam")
-	_check(boss.state != 0 and beam.active and beam.visible, "the hairdryer switches on over the page")
 	patch.health.max_health = 99
 	patch.health.set_health(99)
-	var shrank := false
-	for attempt in 900:
-		if boss.state == 6 or boss.health.is_dead():
-			break
-		if boss._sections_left < 4:
-			shrank = true
-		# Stay near the Sogg, so the warm air that follows Patch lands on it.
-		patch.global_position = Vector2(clampf(boss.global_position.x - 160.0, 3 * 64, 27 * 64), 14 * 64 - 48)
-		patch.velocity = Vector2.ZERO
-		await _frames(10)
-	_check(shrank, "the Sogg dries out a section at a time")
-	_check(game_state.get_flag("sogg_dried"), "the warm air dries the Sogg out completely")
+	patch.health.grant_invulnerability(900.0)
+	var boss := current_scene.get_node("TheSogg")
+	_check(boss.get_script().resource_path.ends_with("boss_sogg.gd") and boss.state == 0, "the Sogg waits at the bottom of the Gutter")
+	_check(get_nodes_in_group("companion").is_empty(), "Patch faces it alone")
+	patch.global_position = current_scene.get_node("StartZone").global_position
+	await _frames(6)
+	await _skip_dialogue(dialogue)
+	_check(boss.state != 0 and boss.phase == 0, "the water stands up: the fight starts")
+	var cut := Hitbox.new()
+	cut.damage = 1
+	current_scene.add_child(cut)
+
+	# Phase 1, the wall: an arm comes down over Patch; parried, the fist sticks.
+	var slam_seen := false
+	var parried_ok := false
 	for i in 600:
-		if is_instance_valid(boss) and boss.body.texture.resource_path.ends_with("drizzle.png") and dialogue.is_active():
+		if boss.state == 2:
+			slam_seen = true
+			var falling: Array = boss.arms.filter(func(a: Node2D) -> bool: return (a.get_node("Hit") as Hitbox).active)
+			if not falling.is_empty():
+				boss.on_parried(patch)
+				parried_ok = boss.state == 4 and boss.parried == 1
+				break
+		await _frames(1)
+	_check(slam_seen and parried_ok, "an arm comes down over Patch, and a parry buries the fist in the floor")
+	var arm: Node2D = boss._down_arm
+	_check(arm != null and arm.get_node("Shadow").color.a > 0.2, "its shadow lies on the floor where it fell")
+	var hp: int = boss.health.current
+	boss._on_arm_hit(cut, boss.arms[1] if arm == boss.arms[0] else boss.arms[0])
+	_check(boss.health.current == hp, "a cut on the other arm glances off")
+	boss.health.clear_invulnerability()
+	boss._on_arm_hit(cut, arm)
+	_check(boss.health.current == hp - 1, "the buried arm is open to the shears")
+	# A surge: the wall glows red and a wave runs along the floor.
+	var surge_seen := false
+	for i in 900:
+		if not get_nodes_in_group(&"sogg_waves").is_empty():
+			surge_seen = true
 			break
 		await _frames(1)
-	_check(is_instance_valid(boss) and boss.body.texture.resource_path.ends_with("drizzle.png"), "the Sogg shrinks back into Drizzle (%s, dialogue %s)" % [boss.body.texture.resource_path if is_instance_valid(boss) else "freed", dialogue.is_active()])
+	_check(surge_seen, "the wall surges, and a wave runs the length of the floor")
+	# Cut the arms down until the wall falls (wall_health = 8).
+	for i in 3000:
+		if boss.phase != 0:
+			break
+		if boss.state == 2 and boss.arms.any(func(a: Node2D) -> bool: return (a.get_node("Hit") as Hitbox).active):
+			boss.on_parried(patch)
+		if boss.state == 4 and boss._down_arm:
+			boss.health.clear_invulnerability()
+			boss._on_arm_hit(cut, boss._down_arm)
+		await _frames(1)
+	_check(boss.phase == 1 and boss.health.current == boss.health.max_health - boss.wall_health, "after 8 cuts the wall comes down (%d/%d)" % [boss.health.current, boss.health.max_health])
+
+	# Phase 2: it splits into waves of Soggies.
+	var waves_seen := 0
+	for i in 2400:
+		if boss.phase == 2:
+			break
+		var spawn := get_nodes_in_group(&"sogg_spawn").filter(func(n: Node) -> bool: return n.is_inside_tree())
+		if not spawn.is_empty():
+			waves_seen = maxi(waves_seen, boss.wave + 1)
+			for foe in spawn:
+				foe.queue_free()
+		await _frames(1)
+	_check(waves_seen == boss.waves.size(), "the water comes up in %d waves of Soggies (saw %d)" % [boss.waves.size(), waves_seen])
+	_check(boss.phase == 2, "and pulls itself together again, smaller, with a pale cloud in it")
+
+	# Phase 3: the drain. A lunge leaves it spent; cuts to its heart drain the water.
+	var flood_before: float = boss._flood_level
+	var lowest := flood_before
+	var warmest := 0.0
+	var spent_seen := false
+	var rain_seen := false
+	var since_cut := 99
+	for i in 6000:
+		if boss.phase != 2:
+			break
+		lowest = minf(lowest, boss._flood_level)
+		warmest = maxf(warmest, boss.warm.modulate.a)
+		since_cut += 1
+		if boss.state == 7:
+			rain_seen = true
+		if boss.state == 9:
+			spent_seen = true
+			if since_cut > 40:
+				since_cut = 0
+				boss.health.clear_invulnerability()
+				boss._on_heart_hit(cut)
+		await _frames(1)
+	_check(rain_seen and spent_seen, "it rains ink on him, and lunges, and is spent")
+	_check(boss.stage == 4 and lowest < flood_before - 40.0, "the water goes down a stage at a time as they talk (stage %d, %.0f -> %.0f)" % [boss.stage, flood_before, lowest])
+	_check(warmest > 0.08, "a warm light comes from far above (%.2f)" % warmest)
+
+	# Phase 4: only Drizzle is left. The shears won't cut her.
+	await _frames(120)
+	_check(boss.state == 10 and boss.drizzle != null and boss.mend != null, "nothing's left of the Sogg but Drizzle, torn, on the floor")
+	await _skip_dialogue(dialogue)
+	boss._on_drizzle_hit(cut)
+	_check(dialogue.is_active() or boss._refused > 0.0, "Patch can't bring the shears down on her")
+	await _skip_dialogue(dialogue)
+	_check(not game_state.get_flag("boss_sogg_defeated"), "cutting her ends nothing")
+	cut.queue_free()
+	_check(boss.mend.prompt_text == "Give her the tail", "the only way on: give her the tail")
+	boss.mend.interact(patch)
+	await _frames(4)
 	await _skip_dialogue(dialogue)
 	await _wait_for_scene("EndingTable", 600)
+	_check(game_state.get_flag("boss_sogg_defeated") and game_state.get_flag("gave_tail") and not game_state.abilities.has(&"tape_tail"), "Patch stitches her shut with the Tape Tail, and doesn't have it any more")
 	_check(current_scene.name == "EndingTable", "morning comes at Gran's table")
 	for i in 1200:
 		if dialogue.is_active():
@@ -550,6 +613,7 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	patch = get_first_node_in_group("player")
 	_check(current_scene.name == "NellsPage" and game_state.get_flag("has_new_tail"), "the ending turns to Nell's crayon page")
 	_check(patch.rig.mended and patch.rig.find_child("MendedTail", true, false) != null, "Patch has his new map-and-tape tail")
+	_check(game_state.abilities.has(&"tape_tail"), "the map tail is a tail again: the Tape Tail is back")
 	_check(get_nodes_in_group("companion").size() >= 2, "Dot and Corrugate are back with Patch")
 	patch.global_position = current_scene.get_node("Story/ArrivalTalk").global_position + Vector2(0, 150)
 	await _frames(10)
@@ -2910,7 +2974,6 @@ const PAINTED := {
 	"res://scenes/enemies/boss_millwheel.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_kraken.tscn": Vector2(2.5, 6.0),
 	"res://scenes/enemies/boss_sogg.tscn": Vector2(2.5, 6.0),
-	"res://scenes/enemies/boss_sogg_final.tscn": Vector2(2.5, 6.0),
 	"res://scenes/world/npc_shepherd_fluff.tscn": FRIEND_BAND,
 	"res://scenes/world/lost_sheep.tscn": FRIEND_BAND,
 	"res://scenes/world/npc_dot.tscn": FRIEND_BAND,
