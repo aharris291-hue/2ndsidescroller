@@ -120,7 +120,7 @@ static func fullness() -> float:
 	var mended := 0
 	for entry: Dictionary in BookMap.REGIONS:
 		var flag: String = entry.get("mended_flag", "")
-		if flag.is_empty():
+		if flag.is_empty() or entry.get("optional", false):
 			continue
 		total += 1
 		if GameState.get_flag(flag):
