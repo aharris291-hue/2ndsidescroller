@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/npc_bindwell.tscn" id="11_bindwell"]
 [ext_resource type="Script" path="res://scripts/world/finale_door.gd" id="12_finale"]
 [ext_resource type="Script" path="res://scripts/world/proof_press.gd" id="13_press"]
+[ext_resource type="Script" path="res://scripts/world/penny_theatre.gd" id="14_theatre"]
 
 [node name="SpineHub" type="Node2D"]
 script = ExtResource("1_page")
@@ -58,6 +59,7 @@ entities = {
 "I": ExtResource("5_door"),
 "L": ExtResource("13_press"),
 "M": ExtResource("5_door"),
+"Q": ExtResource("14_theatre"),
 "T": ExtResource("6_tin")
 }
 entity_props = {
@@ -81,6 +83,9 @@ entity_props = {
 },
 "M": {
 "region_id": &"margins"
+},
+"Q": {
+"offset": Vector2(32, 0)
 }
 }
 

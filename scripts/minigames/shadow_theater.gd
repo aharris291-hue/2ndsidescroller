@@ -43,6 +43,8 @@ var _flash := 0.0
 var _last_word := ""
 var _word_left := 0.0
 var _fox_pose := 0.0
+## The arcade game being played ("" outside the arcade).
+var _arcade_id := ""
 
 @onready var status_label: Label = $UI/Status
 @onready var big_label: Label = $UI/BigLabel
@@ -54,6 +56,7 @@ const LANE_Y := 440.0
 
 func _ready() -> void:
 	GameState.in_gameplay = true
+	_arcade_id = Arcade.take(self)
 	HUD.show_hud(false)
 	if music:
 		AudioManager.play_music(music)
@@ -78,9 +81,9 @@ func _build_chart() -> void:
 
 
 func _countdown() -> void:
-	for word in ["3", "2", "1", "Showtime!"]:
+	for word in ["3", "2", "1", "Curtain."]:
 		big_label.text = word
-		AudioManager.play_sfx(&"voice_blip", 1.6 if word == "Showtime!" else 1.0)
+		AudioManager.play_sfx(&"voice_blip", 1.6 if word == "Curtain." else 1.0)
 		await get_tree().create_timer(0.6).timeout
 	big_label.text = ""
 
@@ -132,7 +135,7 @@ func _judge(note: Dictionary, hit: bool) -> void:
 		_streak += 1
 		_flash = 1.0
 		_fox_pose = 1.0
-		_say("Lovely!" if _streak % 8 == 0 else "")
+		_say("Clean." if _streak % 8 == 0 else "")
 		AudioManager.play_sfx(&"voice_blip", [1.0, 1.26, 1.5, 0.84][note.lane], -2.0)
 	else:
 		_misses += 1
@@ -199,16 +202,37 @@ func _finish() -> void:
 	_running = false
 	var total := _hits + _misses
 	var won := total > 0 and float(_hits) / total >= win_ratio
+	if not _arcade_id.is_empty():
+		var percent := roundi(score() * 100.0)
+		var rank := arcade_rank(percent)
+		var paid := Arcade.record(_arcade_id, percent, rank, 2)
+		big_label.text = "%d%% of the shadows caught. %s.%s" % [percent, Arcade.RANKS[rank],
+			"\n%d scraps for a new best." % paid if paid > 0 else ""]
+		AudioManager.play_sfx(&"checkpoint" if won else &"hurt", 1.0)
+		await get_tree().create_timer(3.0).timeout
+		Arcade.back_to_theatre()
+		return
 	GameState.add_scraps(_hits / 4)
 	if won:
-		big_label.text = "Bravo! The crowd stamps its paper feet."
+		big_label.text = "The candle steadies. Somewhere in the dark, a few hands clap."
 		AudioManager.play_sfx(&"checkpoint")
 		GameState.advance_quest(quest_id)
 		GameState.complete_quest(quest_id)
 	else:
-		big_label.text = "The crowd coughs politely. Try again?"
+		big_label.text = "The candle gutters. The house is quiet. Again?"
 	await get_tree().create_timer(2.5).timeout
 	SceneManager.change_page(return_page, return_spawn)
+
+
+## Arcade rank (1 Paper .. 4 Gilt) for the share of shadows caught.
+static func arcade_rank(percent: int) -> int:
+	if percent >= 95:
+		return 4
+	if percent >= 85:
+		return 3
+	if percent >= 70:
+		return 2
+	return 1
 
 
 ## True once the show is over (used by the smoke test).

@@ -17,7 +17,7 @@ normal = Vector2(-1, 0)
 script = ExtResource("1_lab")
 page_title = "Combat Lab"
 music = ExtResource("2_music")
-bounds = Rect2(0, 0, 7168, 1080)
+bounds = Rect2(0, 0, 8960, 1080)
 in_book = false
 
 [node name="Background" type="Parallax2D" parent="."]
@@ -40,7 +40,7 @@ tile_set = ExtResource("4_tiles")
 shape = SubResource("Edge_left")
 
 [node name="RightEdge" type="CollisionShape2D" parent="PageEdges"]
-position = Vector2(7168, 0)
+position = Vector2(8960, 0)
 shape = SubResource("Edge_right")
 
 [node name="Start" type="Marker2D" parent="." groups=["spawn_points"]]
