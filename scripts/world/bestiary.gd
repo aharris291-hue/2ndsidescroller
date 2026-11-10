@@ -117,6 +117,13 @@ const ENTRIES := {
 		"tell": "The sign over his head says which act is next; from half health it lies. Watch him, not the sign: cards glint in his hand (parry the white one and it cuts him open), hooves drum in the wings (jump the horses), and he swells before he shouts (jump the wave, then he's out of breath).",
 		"weak": -1,
 	},
+	"redactor": {
+		"name": "The Redactor",
+		"art": "res://assets/art/dark/enemies/redactor.png",
+		"note": "It lived at the back of Gran's book and went through her Index with a pen, striking out everything that hurt. The flood. The window. Drizzle. I think it thought it was being kind. Patch says it very nearly was, and that was the worst thing about it.",
+		"tell": "A red line down the page: get out of it before the pen comes down. When it lifts the stamp over its head, get out from under; the stamp sticks and pins its arm, and it's open. When a red box rules itself round you, you're being struck out, and you can't jump the walls: have Gran's ribbon down somewhere outside the lines and warp out. Then it has spent its ink.",
+		"weak": -1,
+	},
 	"heron": {
 		"name": "The Grey Heron",
 		"art": "res://assets/art/dark/bosses/heron.png",
@@ -134,7 +141,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "silverfish", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "silverfish", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "redactor", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

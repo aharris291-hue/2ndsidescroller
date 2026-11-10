@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="8_e"]
 [ext_resource type="Script" path="res://scripts/world/shutter.gd" id="9_e"]
 [ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="10_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="11_e"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
 
 [node name="TheReadingRoom" type="Node2D"]
@@ -43,6 +44,7 @@ entities = {
 "B": ExtResource("9_e"),
 "C": ExtResource("9_e"),
 "E": ExtResource("6_e"),
+"R": ExtResource("11_e"),
 "T": ExtResource("10_e"),
 "U": ExtResource("10_e"),
 "W": ExtResource("10_e"),
@@ -94,8 +96,11 @@ entity_props = {
 },
 "E": {
 "size": Vector2(128, 256),
-"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_page": "res://scenes/levels/index/6_4_the_stacks.tscn",
 "target_spawn": &"Start"
+},
+"R": {
+"name": &"FromStacks"
 },
 "o": {
 "offset": Vector2(0, -32)

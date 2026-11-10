@@ -46,7 +46,7 @@ const REGIONS := [
 	},
 	{
 		"id": &"index", "name": "The Index", "dirs": ["res://scenes/levels/index/"], "subtitle": "everything, listed",
-		"mended_flag": "", "open_flag": "boss_barker_defeated",
+		"mended_flag": "boss_redactor_defeated", "open_flag": "boss_barker_defeated",
 		"door": "res://scenes/levels/index/6_1_the_back_pages.tscn",
 		"spot": Vector2(0.5, 0.36),
 	},

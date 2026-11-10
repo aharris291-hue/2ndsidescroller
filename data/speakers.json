@@ -69,6 +69,11 @@
 		"color": "#8a2a22",
 		"pitch": 0.85
 	},
+	"redactor": {
+		"name": "The Redactor",
+		"color": "#4a4652",
+		"pitch": 0.7
+	},
 	"sogg": {
 		"name": "The Sogg",
 		"color": "#3e4c80",
