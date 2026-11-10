@@ -347,60 +347,14 @@ func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	_check(not ResourceLoader.exists("res://scenes/levels/margin/paperclip_heist.tscn"), "the old paperclip heist is retired")
 	_check(game_state.has_ability(&"pop_up_slam") and game_state.get_flag("patch_told_truth"), "Patch reaches the Sogg with the Pop-Up Slam, having told the truth")
 
-	# The Sogg: lure it down by a fold mark, spring the peak into it, swipe Drizzle.
-	await scene_manager.change_page(CH3 + "sogg_arena.tscn")
-	await _frames(20)
-	await _skip_dialogue(dialogue)
-	var patch = get_first_node_in_group("player")
-	patch.health.max_health = 99
-	patch.health.set_health(99)
-	var boss := current_scene.get_node("TheSogg")
-	boss.start_fight()
-	await _skip_dialogue(dialogue)
-	_check(boss.state == 1, "the Sogg fight starts")
-	var mark := current_scene.get_node("Props/Fold2")
-	var stunned_once := false
-	for attempt in 600:
-		if boss.state == 6 or boss.health.is_dead():
-			break
-		if boss.state == 1 or boss.state == 2 or boss.state == 3:
-			# Stand by the middle fold mark so it dives there.
-			patch.global_position = mark.global_position + Vector2(0, -48)
-			patch.velocity = Vector2.ZERO
-			await _frames(10)
-		elif boss.state == 4:
-			mark.fold_away()
-			await _frames(40)
-			mark.pop()
-			await _frames(30)
-			if not stunned_once and boss.state == 5:
-				stunned_once = true
-				_check(true, "springing a peak under the soaking Sogg pins it")
-		elif boss.state == 5:
-			var heart := boss.get_node("Heart") as Node2D
-			patch.global_position = heart.global_position + Vector2(-74, 6)
-			patch.velocity = Vector2.ZERO
-			patch.facing = Vector2.RIGHT
-			await _frames(2)
-			Input.action_press(&"attack")
-			await _frames(2)
-			Input.action_release(&"attack")
-			await _frames(25)
-		else:
-			await _frames(10)
-	_check(stunned_once, "the Sogg can be pinned by a peak")
-	_check(not is_instance_valid(boss) or boss.phase == 1, "the Sogg swells into its second phase at half health")
-	_check(game_state.get_flag("boss_sogg_phase2_done"), "the Sogg's first two phases can be won (health %d)" % (boss.health.current if is_instance_valid(boss) else 0))
-	for i in 400:
-		if dialogue.is_active():
-			break
-		await _frames(1)
-	await _skip_dialogue(dialogue)
-	for i in 600:
-		if current_scene and current_scene.name == "Interlude03":
-			break
-		await _frames(1)
-	_check(current_scene.name == "Interlude03", "the Sogg drags Patch into the Gutter and the third interlude plays")
+	# The way down: the Spine's door (or the summit) turns first to Gran's table,
+	# then down into the Gutter.
+	_check(not ResourceLoader.exists(CH3 + "sogg_arena.tscn"), "the old summit fight with the Sogg is retired (the whole fight is at the bottom of the Gutter now)")
+	var door: Node = load("res://scripts/world/finale_door.gd").new()
+	root.add_child(door)
+	_check(door.target_page == "res://scenes/levels/interludes/interlude_03.tscn", "the first time down, Gran's table comes first")
+	door.free()
+	await scene_manager.change_page("res://scenes/levels/interludes/interlude_03.tscn")
 	for i in 1200:
 		if dialogue.is_active():
 			break
@@ -408,62 +362,119 @@ func _chapter_three(game_state: Node, scene_manager: Node, dialogue: Node) -> vo
 	await _skip_dialogue(dialogue)
 	await _frames(90)
 	_check(game_state.get_flag("chapter3_complete"), "the third interlude marks Chapter 3 complete")
+	door = load("res://scripts/world/finale_door.gd").new()
+	root.add_child(door)
+	_check(door.target_page == "res://scenes/levels/finale/f_1_the_gutter_descent.tscn", "after that, the way down goes straight to the Gutter")
+	door.free()
 
 
 func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	const FIN := "res://scenes/levels/finale/"
-	# The third interlude now turns the page down into the Gutter.
-	await _wait_for_scene("TheGutter", 900)
-	_check(current_scene.name == "TheGutter", "the third interlude turns down into the Gutter")
+	# F-1 The Gutter Descent: the third interlude turns the page down into it.
+	await _wait_for_scene("TheGutterDescent", 900)
+	_check(current_scene.name == "TheGutterDescent", "the third interlude turns down into the Gutter")
+	_check(not ResourceLoader.exists(FIN + "the_gutter.tscn"), "the old Gutter page is retired")
 	await _frames(30)
 	await _skip_dialogue(dialogue)
-	var patch := get_first_node_in_group("player")
-	_check(get_nodes_in_group("companion").is_empty(), "Patch is alone in the Gutter")
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	_check(get_nodes_in_group("companion").is_empty(), "Patch goes down into the Gutter alone")
 	patch.health.max_health = 99
 	patch.health.set_health(99)
+	patch.health.grant_invulnerability(9000.0)
+	await _stand(patch, level.get_node("story_trigger_7_7").global_position)
+	for i in 60:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	_check(dialogue.is_active(), "at the top of the spine, Patch sees where the Sogg went")
+	await _skip_dialogue(dialogue)
+	_check(level.get_node("page_exit_1_7").target_page == "res://scenes/levels/hub/spine_hub.tscn", "the way back goes up to the Spine")
 
-	# The gauntlet: each lock seals its gates until every wave is cleared.
-	for lock_name in ["LockOne", "LockTwo"]:
-		var lock := current_scene.get_node("Story/" + lock_name)
-		var gate := current_scene.get_node("Props/%sGate1" % lock_name) as Node2D
-		patch.global_position = lock.global_position + Vector2(0, 150)
-		patch.velocity = Vector2.ZERO
-		await _frames(10)
-		_check(lock.is_running() and gate.visible, "walking into %s seals its gates" % lock_name)
-		var waves_seen := 0
-		for i in 40:
+	var frozen := level.get_node_or_null("soggy_184_21")
+	_check(frozen != null and frozen.frozen, "Soggies frozen into the run-off")
+	# The wave locks: each seals its gates until every wave is beaten, and stays open.
+	var locks := {"gutter_lock_40_19": 9, "gutter_lock_123_17": 11, "gutter_lock_201_27": 16}
+	for lock_name in locks:
+		for e in get_nodes_in_group(&"enemies"):
+			e.free()
+		var lock := level.get_node(lock_name)
+		_check(not lock.is_running() and not lock.gates[0].visible, "%s stands open until Patch walks in" % lock_name)
+		await _stand(patch, lock.global_position + Vector2(lock.width * 32.0, -8.0))
+		await _frames(4)
+		await _skip_dialogue(dialogue)
+		_check(lock.is_running() and lock.gates[0].visible and lock.gates[1].visible, "walking into %s shuts its gates" % lock_name)
+		_check(not lock.gates[1].get_child(0).disabled, "the gates of %s are solid" % lock_name)
+		var seen := 0
+		var inked := 0
+		var kinds := {}
+		for i in 80:
 			if not lock.is_running():
 				break
-			await _frames(30)
-			for actor in current_scene.get_node("Story").get_children():
-				if actor is CharacterBody2D:
-					waves_seen += 1
-					actor.queue_free()
-		await _frames(40)
-		_check(not lock.is_running() and not gate.visible and waves_seen >= 6, "clearing every wave of %s opens it (%d Soggies)" % [lock_name, waves_seen])
-		await _skip_dialogue(dialogue)
-		if lock_name == "LockOne":
-			# The drowned gap: zip from the floor's edge to the ring by the page bundle.
-			for actor in current_scene.get_node("Actors").get_children():
-				actor.free()
-			patch.global_position = Vector2(29.5 * 64, 16 * 64 - 48)
-			patch.velocity = Vector2.ZERO
-			patch.facing = Vector2.RIGHT
 			await _frames(20)
+			for e in get_nodes_in_group(&"enemies"):
+				if e.get_parent() == level and not e.is_queued_for_deletion():
+					seen += 1
+					if e.get("inked"):
+						inked += 1
+					kinds[e.scene_file_path.get_file()] = true
+					e.queue_free()
 			await _skip_dialogue(dialogue)
-			_check(patch.try_grapple(), "the Tape Tail finds the ring over the drowned gap")
-			await _frames(120)
-			_check(patch.global_position.x > 39 * 64 and patch.global_position.y < 13 * 64 and patch.is_on_floor(),
-				"zipping to the ring lands Patch on the page bundle (%.0f, %.0f)" % [patch.global_position.x, patch.global_position.y])
+		await _frames(40)
+		await _skip_dialogue(dialogue)
+		_check(not lock.is_running() and lock.is_cleared() and not lock.gates[0].visible, "beating every wave opens %s (%d foes, %d inked, %d kinds)" % [lock_name, seen, inked, kinds.size()])
+		_check(seen == locks[lock_name] and inked >= 1, "%s sends all its waves, some of them inked" % lock_name)
+		if lock_name == "gutter_lock_201_27":
+			_check(kinds.size() >= 7, "the last lock sends every kind of enemy in the book (%s)" % [kinds.keys()])
 
-	var fold := current_scene.get_node("Props/LastFold")
-	patch.global_position = fold.global_position + Vector2(0, -48)
+	# The sump: the page comes down to meet the ink, and a current runs on under it.
+	var currents := level.get_children().filter(func(n: Node) -> bool: return n.get_script() != null and n.get_script().resource_path.ends_with("ink_current.gd") and n.direction == Vector2.RIGHT)
+	_check(not currents.is_empty(), "a current runs under the low page in the sump (only a Blot Dive gets through)")
+	patch.global_position = Vector2(67 * 64 + 32, 23 * 64)
 	patch.velocity = Vector2.ZERO
-	await _frames(20)
-	await _skip_dialogue(dialogue)
-	_press(&"slam")
-	await _frames(90)
-	_check(fold.is_up, "a slam springs the last fold mark up to the high ledge")
+	for i in 6:
+		await physics_frame
+	_check(patch.blotting, "into the sump as a blot")
+	Input.action_press(&"move_right")
+	var swum := false
+	for i in 400:
+		if patch.global_position.x > 87.5 * 64:
+			swum = true
+			break
+		if not patch.blotting:
+			break
+		await physics_frame
+	Input.action_release(&"move_right")
+	_check(swum and patch.blotting and patch.breath_left > 0.5, "the current carries him under the page on one breath (%.1f s to spare)" % patch.breath_left)
+	patch.global_position = Vector2(92 * 64, 22 * 64 - 8)
+	patch.velocity = Vector2.ZERO
+	await _frames(4)
+	# The chasm: no floor, one updraft.
+	var draft := level.get_node_or_null("Updraft_109_16")
+	_check(draft != null and draft.size.y > 20 * 64, "the chasm has one tall updraft to glide on")
+	# The shutter: pull at the bottom of the shaft, warp back to the ribbon by the door.
+	var shutter_p := level.get_node("shutter_172_17")
+	var tab_t := level.get_node("pull_tab_152_28")
+	_check(shutter_p.open_time > 0.0 and not shutter_p.open, "a spring shutter across the way down")
+	await _stand(patch, Vector2(170 * 64, 18 * 64))
+	var by_door := patch.global_position
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	_check(patch.ribbon != null, "Gran's ribbon laid by the shutter")
+	await _stand(patch, (tab_t as Node2D).global_position)
+	tab_t.interact(patch)
+	for i in 60:
+		if shutter_p.open and shutter_p._shape.disabled:
+			break
+		await physics_frame
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	_check(patch.global_position.distance_to(by_door) < 6.0, "from the bottom of the shaft, straight back to the shutter")
+	Input.action_press(&"move_right")
+	await _frames(40)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > (shutter_p as Node2D).global_position.x + 64.0, "and through it before it drops")
+	_check(level.get_node("page_exit_228_27").target_page == FIN + "deepest_fold.tscn", "the Gutter goes on down into the deepest fold")
 
 	# The deepest fold, first time: Patch can't win, and it cuts to Gran's table.
 	await scene_manager.change_page(FIN + "deepest_fold.tscn")
@@ -1751,7 +1762,7 @@ func _spine_peaks_part_two(game_state: Node, scene_manager: Node, dialogue: Node
 	patch = get_first_node_in_group("player") as CharacterBody2D
 	patch.health.grant_invulnerability(900.0)
 	var summit := level.get_node("page_exit_134_17")
-	_check(summit.target_page == "res://scenes/levels/ch3_spine/sogg_arena.tscn" and summit.requires_flag == "patch_told_truth", "the Low Point climbs to the Sogg, once Patch has told the truth")
+	_check(summit.target_page == "res://scenes/levels/interludes/interlude_03.tscn" and summit.requires_flag == "patch_told_truth", "the Low Point climbs on toward the Gutter (by way of Gran's table), once Patch has told the truth")
 	_check(not game_state.get_flag("patch_told_truth"), "Patch hasn't said it yet")
 	patch.global_position = (level.get_node("story_trigger_97_17") as Node2D).global_position + Vector2(0, -40)
 	patch.velocity = Vector2.ZERO

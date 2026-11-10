@@ -33,7 +33,7 @@ const REGIONS := [
 		"spot": Vector2(0.17, 0.36),
 	},
 	{
-		"id": &"peaks", "name": "The Spine Peaks", "dirs": ["res://scenes/levels/peaks/", "res://scenes/levels/ch3_spine/"], "subtitle": "the cold top of the book",
+		"id": &"peaks", "name": "The Spine Peaks", "dirs": ["res://scenes/levels/peaks/"], "subtitle": "the cold top of the book",
 		"mended_flag": "boss_bindwell_defeated", "open_flag": "boss_heron_defeated",
 		"door": "res://scenes/levels/peaks/4_1_the_rime_slopes.tscn",
 		"spot": Vector2(0.5, 0.14),

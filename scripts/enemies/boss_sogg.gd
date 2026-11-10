@@ -34,7 +34,7 @@ const DRIP_SCENE := preload("res://scenes/enemies/ink_drip.tscn")
 ## How close (horizontally) a springing peak must be to catch the Sogg.
 @export var catch_range := 230.0
 @export var defeated_flag := "boss_sogg_phase2_done"
-@export var defeat_dialogue := "sogg_drags_patch"
+@export var defeat_dialogue := ""
 ## Where the story goes once the Sogg drags Patch away (the interlude).
 @export_file("*.tscn") var next_page := ""
 

@@ -1,8 +1,13 @@
 class_name FinaleDoor
 extends PageDoor
-## The way down out of the Spine to the Sogg and the Gutter (the finale). It stays
+## The way down out of the Spine into the Gutter (the finale). It stays
 ## sewn shut until Patch has told the truth at the Low Point (4-5) and every region of
-## the book is mended (BookMap.torn_regions); its sign says what's still torn.
+## the book is mended (BookMap.torn_regions); its sign says what's still torn. The first
+## time through, Gran's table comes first (Interlude 3); after that it goes straight
+## down to the top of the Gutter Descent.
+
+const INTERLUDE := "res://scenes/levels/interludes/interlude_03.tscn"
+const DESCENT := "res://scenes/levels/finale/f_1_the_gutter_descent.tscn"
 
 const DOOR := preload("res://assets/art/dark/props/region_door.png")
 
@@ -17,7 +22,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	target_page = "res://scenes/levels/ch3_spine/sogg_arena.tscn"
+	target_page = DESCENT if GameState.get_flag("chapter3_complete") else INTERLUDE
 	target_spawn = &"Start"
 	door_prompt = "Go down to the Gutter"
 	var shape := CollisionShape2D.new()
