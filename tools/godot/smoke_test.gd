@@ -3681,7 +3681,7 @@ func _voice_and_sound(dialogue: Node) -> void:
 		clips += 1
 		if first_voiced.is_empty() and index == 0:
 			first_voiced = conv
-	_check(clips >= 200, "story dialogue is voiced (%d recorded lines)" % clips)
+	_check(clips >= 285, "story dialogue is voiced (%d recorded lines)" % clips)
 	_check(strays.is_empty(), "every recording belongs to a dialogue line %s" % [strays])
 	if not first_voiced.is_empty():
 		dialogue.start(first_voiced)
