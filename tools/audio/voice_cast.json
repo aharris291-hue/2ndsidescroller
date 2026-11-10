@@ -1,0 +1,20 @@
+{
+  "_how": "Story dialogue voices (ElevenLabs, model eleven_v4). Each speaker's lines are generated as one take joined by \"\\n\\n[long pause]\\n\\n\" (tools/audio/voice_plan.json lists the batches: chunk, voice, and [conversation, line index, text, speaker]), then cut with tools/audio/split_voice.py into assets/audio/vo/<conversation>_<line>.ogg. Lines with no letters (\"...\") keep the blips. ElevenLabs refuses prompts containing the word for a sewing pin's bigger cousin, so the dialogue avoids it.",
+  "narrator": "BNgbHR0DNeZixGQVzloa",
+  "patch": "6IwYbsNENZgAB1dtBZDp",
+  "runaway": "6IwYbsNENZgAB1dtBZDp",
+  "nell": "nDJIICjR9zfJExIFeSCN",
+  "nell_hand": "nDJIICjR9zfJExIFeSCN",
+  "dad": "ZG7qXXGw7ffx1qHkWHUf",
+  "dad_hand": "ZG7qXXGw7ffx1qHkWHUf",
+  "gran": "7NsaqHdLuKNFvEfjpUno",
+  "corrugate": "htZQqY7WtacRNV7s62Iy",
+  "shepherd_fluff": "1wg2wOjdEWKA7yQD8Kca",
+  "bindwell": "lQqvnBXwXksgKqT9o1di",
+  "lamplighters": "YGWwh1G8pUwWmJyCCpma",
+  "drizzle": "sfEqHIAPrP82grzla9Ji",
+  "dot": "Q9tvtUZSrZWvXOcpOOLK",
+  "redactor": "6skOfZocEJASdC668mi0",
+  "barker": "lWhswphZlWodh6wrAYkj",
+  "kraken": "3VkFsBHdRPqWKsitgYhJ"
+}

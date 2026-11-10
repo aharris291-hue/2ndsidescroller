@@ -1,0 +1,1862 @@
+[
+ {
+  "chunk": 0,
+  "voice": "fluff",
+  "items": [
+   [
+    "fluff_intro",
+    0,
+    "Patch. You look like a fox who left in a hurry and hopes nobody noticed.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_intro",
+    2,
+    "I was on the Weather Page that night. I saw which way you were running.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_intro",
+    4,
+    "The Sogg. It soaks a page until the folds forget what shape they were, then it comes up out of the wet and takes what's left.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_intro",
+    5,
+    "Every night it sends them at my fold. Every night there are fewer of my flock to keep. Some of them come back. They aren't sheep any more when they do.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_intro",
+    6,
+    "Stand in the pen with me tonight. If you're any good with those shears, we might both see morning.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_intro",
+    7,
+    "And three of mine bolted the night the water came. If you find them alive, send them home.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_repeat",
+    0,
+    "Cut them hard and they dry out. Hesitate and they'll wring you out instead.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_repeat",
+    1,
+    "And Patch? Running from a flood isn't the worst thing a fox can do. Pretending you didn't is a close second.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_quest_progress",
+    0,
+    "No sign? They'll be somewhere high, or somewhere dark. Frightened sheep go one way or the other.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_quest_done",
+    0,
+    "All three home. Thin, soaked, alive. You've a decent heart under all that noise, Patch.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_quest_done",
+    2,
+    "Take these Scraps. And lad: the tail's gone. You're still here. Start counting from that.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_fold_held",
+    0,
+    "...That was all of them. The ones wearing wool too.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_fold_held",
+    1,
+    "I knew those sheep. I named them. Don't look at me like that; I'd rather it was you than the water.",
+    "shepherd_fluff"
+   ],
+   [
+    "fluff_fold_held",
+    3,
+    "The east gate's open. The hill path goes down past the chapel. The bell's been ringing there since the flood, and nobody's ringing it.",
+    "shepherd_fluff"
+   ],
+   [
+    "epilogue_fluff",
+    0,
+    "Well, look at you. A tail again.",
+    "shepherd_fluff"
+   ],
+   [
+    "epilogue_fluff",
+    2,
+    "Already did, lad. Years ago. Well. Two chapters ago. Nobody thought less of you.",
+    "shepherd_fluff"
+   ],
+   [
+    "epilogue_fluff",
+    3,
+    "Sheep don't care about tails. We care who comes back for us. You did.",
+    "shepherd_fluff"
+   ]
+  ]
+ },
+ {
+  "chunk": 1,
+  "voice": "patch",
+  "items": [
+   [
+    "fluff_intro",
+    1,
+    "My tail? Lost it fighting a thunderstorm. Two, actually. Twins.",
+    "patch"
+   ],
+   [
+    "fluff_intro",
+    3,
+    "...Right. Why is the whole field squelching?",
+    "patch"
+   ],
+   [
+    "dot_meet",
+    1,
+    "You're a... full stop?",
+    "patch"
+   ],
+   [
+    "dot_meet",
+    3,
+    "Well, good news. You've found the bravest fox in Foldwick.",
+    "patch"
+   ],
+   [
+    "dot_meet",
+    5,
+    "...Me. Obviously me.",
+    "patch"
+   ],
+   [
+    "fluff_quest_done",
+    1,
+    "It was nothing. It was three things. Three loud, wet things.",
+    "patch"
+   ],
+   [
+    "windmill_hills_arrival",
+    1,
+    "Because they're soggy. Everything's soggy. My jokes are soggy, and my jokes are load-bearing.",
+    "patch"
+   ],
+   [
+    "millwheel_arrival",
+    0,
+    "The old mill. It used to grind sunshine into flour for the whole meadow. Kids came from three pages over.",
+    "patch"
+   ],
+   [
+    "millwheel_arrival",
+    2,
+    "Windmills don't look at people, Dot. They don't have... oh. Oh no, it has a face now.",
+    "patch"
+   ],
+   [
+    "fluff_fold_held",
+    2,
+    "I'd have done it with more flair if the floor wasn't soup.",
+    "patch"
+   ],
+   [
+    "lamplighters_intro",
+    1,
+    "Patch. Fox. Hero, technically. You two are the ones doing the rounds.",
+    "patch"
+   ],
+   [
+    "lamplighters_intro",
+    4,
+    "I'll light them.",
+    "patch"
+   ],
+   [
+    "lamplighters_done",
+    2,
+    "Somebody is.",
+    "patch"
+   ],
+   [
+    "corrugate_intro",
+    1,
+    "I'm not wet. Look. Dry fox.",
+    "patch"
+   ],
+   [
+    "corrugate_cat",
+    1,
+    "I'm not wet. Look. Dry fox. With tape, even.",
+    "patch"
+   ],
+   [
+    "corrugate_cat",
+    5,
+    "Then I'll go up. Light the lamp, ride the shadows, grab the cat. Easy.",
+    "patch"
+   ],
+   [
+    "heist_arrival",
+    0,
+    "Gran's table. At night. Everything the size of a house, and all of it quiet.",
+    "patch"
+   ],
+   [
+    "heist_arrival",
+    2,
+    "In and out. Nothing out here's on our side.",
+    "patch"
+   ],
+   [
+    "flap_arrival",
+    1,
+    "Now it's ink.",
+    "patch"
+   ],
+   [
+    "kraken_arrival",
+    0,
+    "That's not a sea. That's a spill. With an eye.",
+    "patch"
+   ],
+   [
+    "kraken_drizzle",
+    1,
+    "It talked.",
+    "patch"
+   ],
+   [
+    "kraken_drizzle",
+    3,
+    "Drizzle.",
+    "patch"
+   ],
+   [
+    "kraken_drizzle",
+    6,
+    "...Nobody came.",
+    "patch"
+   ],
+   [
+    "kraken_drizzle",
+    7,
+    "I know. I know nobody came.",
+    "patch"
+   ],
+   [
+    "barker_yields",
+    2,
+    "There's nobody in the seats.",
+    "patch"
+   ],
+   [
+    "barker_yields",
+    4,
+    "It wasn't a shower. You watched the water come in under the canvas. You told them to stay, because if they left the night was over, and then you were just a man with a megaphone, standing in the rain.",
+    "patch"
+   ],
+   [
+    "barker_yields",
+    6,
+    "I know. I tell stories too. I told one about my tail to anyone who'd listen. It's easier than saying what happened. It's so much easier.",
+    "patch"
+   ],
+   [
+    "barker_yields",
+    7,
+    "Say it. Just once. Not to them. To me.",
+    "patch"
+   ],
+   [
+    "gutter_arrival",
+    2,
+    "She wants me to follow.",
+    "patch"
+   ],
+   [
+    "gutter_arrival",
+    3,
+    "...Then I'll follow. I didn't, last time.",
+    "patch"
+   ],
+   [
+    "epilogue_arrival",
+    0,
+    "This page is new. It smells of crayon.",
+    "patch"
+   ],
+   [
+    "epilogue_arrival",
+    2,
+    "Dot.",
+    "patch"
+   ],
+   [
+    "epilogue_arrival",
+    4,
+    "Someone made it. Out of a bit of the harbour map. It's taped on, and the tape's on the outside. On purpose.",
+    "patch"
+   ]
+  ]
+ },
+ {
+  "chunk": 2,
+  "voice": "patch",
+  "items": [
+   [
+    "epilogue_arrival",
+    6,
+    "...That's the nicest thing you've ever said to me.",
+    "patch"
+   ],
+   [
+    "epilogue_fluff",
+    1,
+    "You can tell everyone the real story, by the way. The running away bit. I don't mind.",
+    "patch"
+   ],
+   [
+    "sogg_tail",
+    2,
+    "I know. I saw. I've been walking through it for weeks.",
+    "patch"
+   ],
+   [
+    "sogg_tail",
+    4,
+    "I did. And then I ran, and I didn't look back, and I told everyone it was a storm. There wasn't a storm. There was just me.",
+    "patch"
+   ],
+   [
+    "sogg_tail",
+    6,
+    "Because you were still knocking.",
+    "patch"
+   ],
+   [
+    "sogg_tail",
+    9,
+    "It was always the thing you were holding on to. You might as well have it.",
+    "patch"
+   ],
+   [
+    "sogg_tail",
+    12,
+    "Yeah. It's supposed to.",
+    "patch"
+   ],
+   [
+    "redactor_yields",
+    2,
+    "I'd know.",
+    "patch"
+   ],
+   [
+    "redactor_yields",
+    4,
+    "Drizzle. His name's Drizzle. And you didn't keep it from hurting. You just made it so there was nothing left to put right.",
+    "patch"
+   ],
+   [
+    "redactor_yields",
+    5,
+    "Leave it in. All of it. The flood, the window, me running. If it's struck out I can't go back and fix it. I have to be able to find the page.",
+    "patch"
+   ],
+   [
+    "redactor_yields",
+    7,
+    "...She wouldn't have wanted that either.",
+    "patch"
+   ],
+   [
+    "margin_arrival",
+    0,
+    "Okay. Outside the book. Everything out here is ENORMOUS and none of it was in the brochure.",
+    "patch"
+   ],
+   [
+    "margin_arrival",
+    1,
+    "That's the Great Light. And that is a roll of tape the size of a castle.",
+    "patch"
+   ],
+   [
+    "margin_arrival",
+    2,
+    "If I could haul a strip of that back inside... I could stick anything back together. Maybe even me.",
+    "patch"
+   ],
+   [
+    "heron_down",
+    1,
+    "You saw. You were right there in the reeds and you saw her go under, and you just stood there.",
+    "patch"
+   ],
+   [
+    "heron_down",
+    2,
+    "...So did I.",
+    "patch"
+   ],
+   [
+    "bindwell_yields",
+    2,
+    "You sewed the spine shut. The night of the flood. Everyone down there was knocking.",
+    "patch"
+   ],
+   [
+    "bindwell_yields",
+    6,
+    "I'm not going to cut you.",
+    "patch"
+   ],
+   [
+    "bindwell_yields",
+    8,
+    "Come down to the Spine. There's a stove. The pages need sewing back together, and you're the only one who knows how they were sewn apart.",
+    "patch"
+   ],
+   [
+    "bindwell_hub",
+    2,
+    "...Thank you.",
+    "patch"
+   ],
+   [
+    "peaks_lowpoint",
+    3,
+    "The night of the flood I was on the Weather Page. With Drizzle. We were always together. She'd follow me anywhere. I liked that she would.",
+    "patch"
+   ],
+   [
+    "peaks_lowpoint",
+    4,
+    "The water came over the edge of the page, and she was smaller than me, and slower, and she held onto my tail.",
+    "patch"
+   ],
+   [
+    "peaks_lowpoint",
+    5,
+    "And I pulled. I didn't pull her up. I pulled away. The tail tore off in her hands and I ran, and I didn't look back, and I heard her calling all the way down.",
+    "patch"
+   ]
+  ]
+ },
+ {
+  "chunk": 3,
+  "voice": "patch",
+  "items": [
+   [
+    "peaks_lowpoint",
+    7,
+    "Every story I've told since is about something that took my tail. Storms. Dragons. The moon. It was never anything. It was me getting away.",
+    "patch"
+   ],
+   [
+    "peaks_lowpoint",
+    8,
+    "And she went down into the ink and came up as the Sogg. That's what's drowning the book. That's what I left behind. Bindwell sewed a door shut. I didn't even need a door.",
+    "patch"
+   ],
+   [
+    "peaks_lowpoint",
+    13,
+    "...Yeah. She is.",
+    "patch"
+   ],
+   [
+    "runaway_hand",
+    1,
+    "Go on. You've cut everything else in the book. Do the one that matters.",
+    "runaway"
+   ],
+   [
+    "runaway_hand",
+    2,
+    "No.",
+    "patch"
+   ],
+   [
+    "runaway_hand",
+    3,
+    "I pulled my tail out of her hands. I heard her go under, and I ran, and I kept running till the water stopped. You don't get to forgive that. Nobody does.",
+    "runaway"
+   ],
+   [
+    "runaway_hand",
+    4,
+    "I know. I'm not here to forgive it. I'm here because you're me, and I'm tired of leaving you out here on your own.",
+    "patch"
+   ],
+   [
+    "runaway_hand",
+    5,
+    "...It still happened.",
+    "runaway"
+   ],
+   [
+    "runaway_hand",
+    6,
+    "It still happened. I'm going to carry it. Both of us are. Give me your paw.",
+    "patch"
+   ],
+   [
+    "prologue_patch",
+    0,
+    "Behold! Patch the Magnificent. Hero of page one. Owner of the finest tail in Foldwick, possibly in literature.",
+    "patch"
+   ],
+   [
+    "prologue_patch",
+    1,
+    "...Why is the page wet? Why is the page getting MORE wet?",
+    "patch"
+   ],
+   [
+    "prologue_patch",
+    2,
+    "Okay. Okay. Heroes don't run. Heroes stride away very quickly.",
+    "patch"
+   ],
+   [
+    "midnight_boast",
+    0,
+    "Watch closely, Drizzle. You are about to see the finest climber on this shelf. Possibly in the whole library.",
+    "patch"
+   ],
+   [
+    "midnight_boast",
+    2,
+    "And I was right yesterday. Consistency. That's what greatness is.",
+    "patch"
+   ],
+   [
+    "midnight_boast",
+    4,
+    "Try to keep up. And don't rain on anything. These are Gran's books.",
+    "patch"
+   ],
+   [
+    "midnight_stack",
+    1,
+    "In the whole book. Somebody should write that down.",
+    "patch"
+   ],
+   [
+    "midnight_stack",
+    3,
+    "Course you do. Come on. The far end of the shelf is where the good view is.",
+    "patch"
+   ],
+   [
+    "midnight_dark",
+    1,
+    "Draught. Probably. Stay close.",
+    "patch"
+   ],
+   [
+    "midnight_dark",
+    3,
+    "Then it's nothing. And heroes don't get scared of nothing.",
+    "patch"
+   ],
+   [
+    "rising_pinned",
+    1,
+    "Hold still. I'll lift it. I'll just... get my shoulder under...",
+    "patch"
+   ],
+   [
+    "rising_pinned",
+    4,
+    "I'll get help. Gran. I'll get Gran. I'll be right back.",
+    "patch"
+   ],
+   [
+    "rising_pinned",
+    6,
+    "I'll be right back.",
+    "patch"
+   ]
+  ]
+ },
+ {
+  "chunk": 4,
+  "voice": "dot",
+  "items": [
+   [
+    "dot_meet",
+    0,
+    "I am Dot. I end sentences.",
+    "dot"
+   ],
+   [
+    "dot_meet",
+    2,
+    "Was. My sentence got smeared in the flood. Now I just hang around. Unfinished.",
+    "dot"
+   ],
+   [
+    "dot_meet",
+    4,
+    "Where.",
+    "dot"
+   ],
+   [
+    "dot_meet",
+    6,
+    "Hm. I will come along. Someone has to know when your stories are over.",
+    "dot"
+   ],
+   [
+    "windmill_hills_arrival",
+    0,
+    "Windmills. Not turning.",
+    "dot"
+   ],
+   [
+    "windmill_hills_arrival",
+    2,
+    "Then this page is in danger. Find a tab.",
+    "dot"
+   ],
+   [
+    "millwheel_arrival",
+    1,
+    "It is looking at us.",
+    "dot"
+   ],
+   [
+    "millwheel_arrival",
+    3,
+    "The Sogg got inside it. That is not the mill anymore. That is the flood, wearing it.",
+    "dot"
+   ],
+   [
+    "corrugate_joins",
+    4,
+    "Welcome aboard.",
+    "dot"
+   ],
+   [
+    "heist_arrival",
+    1,
+    "Tape. Far end.",
+    "dot"
+   ],
+   [
+    "flap_arrival",
+    3,
+    "Rings. Use the tail.",
+    "dot"
+   ],
+   [
+    "kraken_arrival",
+    2,
+    "Blotters. Up top.",
+    "dot"
+   ],
+   [
+    "kraken_drizzle",
+    4,
+    "The Sogg. Was Drizzle.",
+    "dot"
+   ],
+   [
+    "epilogue_arrival",
+    1,
+    "Patch.",
+    "dot"
+   ],
+   [
+    "epilogue_arrival",
+    3,
+    "Tail. New.",
+    "dot"
+   ],
+   [
+    "epilogue_arrival",
+    8,
+    "Everyone's here. Go and see them. Then: last page.",
+    "dot"
+   ],
+   [
+    "peaks_lowpoint",
+    6,
+    "Patch.",
+    "dot"
+   ],
+   [
+    "peaks_lowpoint",
+    12,
+    "Still knocking.",
+    "dot"
+   ]
+  ]
+ },
+ {
+  "chunk": 5,
+  "voice": "lamplighters",
+  "items": [
+   [
+    "lamplighters_intro",
+    0,
+    "You're not one of the wet ones. Good. We weren't sure, in the dark.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_intro",
+    2,
+    "Our father's rounds. He lit every lamp in Lanternfold for forty years. The night of the flood he went up to the lighthouse and he didn't come down.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_intro",
+    3,
+    "There are five lamps on the wharf he never reached. We can't get up to them. We've been cut from one strip of paper, and the wind takes us like a kite.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_intro",
+    5,
+    "He'd have liked you. He liked people who said things like that and then did them.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_progress",
+    0,
+    "Five lamps. On the shed roof, the crane yard, out along the flap. He kept a list. We kept it for him.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_done",
+    0,
+    "That's all of them. That's the whole round.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_done",
+    1,
+    "It's stupid. It doesn't bring him back. But from up there it'll look like somebody's still doing it.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_done",
+    3,
+    "Take this. It was his. He'd want it spent, not kept.",
+    "lamplighters"
+   ],
+   [
+    "lamplighters_repeat",
+    0,
+    "We'll keep the round going. Someone has to. You go and find whatever's doing this.",
+    "lamplighters"
+   ],
+   [
+    "epilogue_lamplighters",
+    0,
+    "We're lighting the lanterns again tonight. All of them. On this page, because it's the only one that's properly dry.",
+    "lamplighters"
+   ],
+   [
+    "epilogue_lamplighters",
+    1,
+    "Bring the cloud. Five lanterns for five sisters, and a little rain over them. It's how our mother used to do it.",
+    "lamplighters"
+   ]
+  ]
+ },
+ {
+  "chunk": 6,
+  "voice": "corrugate",
+  "items": [
+   [
+    "corrugate_intro",
+    0,
+    "Stay back. I'm armed. With a boathook. Somewhere.",
+    "corrugate"
+   ],
+   [
+    "corrugate_intro",
+    2,
+    "Hm. Corrugate. Captain, of a boat I won't sail. Something under the harbour flap has been dragging this town down plank by plank, and I've been in this shed for a week pretending I can't hear it.",
+    "corrugate"
+   ],
+   [
+    "corrugate_need_tape",
+    0,
+    "You'll want something to swing on, out here. The lamplighter kept a roll of tape up in his tower. He won't be needing it.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat",
+    0,
+    "Stay back. I'm armed. With a boathook. Somewhere.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat",
+    2,
+    "The lamplighter's tape. So you went up there. Then you know.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat",
+    3,
+    "Corrugate. Captain, of a boat I won't sail any more. Something under the harbour flap has been eating this town from below, and I've been hiding in a net shed listening to it.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat",
+    4,
+    "My cat's up the big crane. Crumple. She went up when the water came and she won't come down for me. I can't climb. I've tried. I'm cardboard. I fold.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat",
+    6,
+    "Nothing out there's easy, fox. That's what it does to you. Bring her back and I'll open the flap. I owe the harbour that much.",
+    "corrugate"
+   ],
+   [
+    "corrugate_cat_progress",
+    0,
+    "Up the crane. The short lamp by its foot throws shadows up it, but they don't last. Move fast, and don't look down.",
+    "corrugate"
+   ],
+   [
+    "corrugate_joins",
+    1,
+    "There she is. Dry, and furious about it. Thank you.",
+    "corrugate"
+   ],
+   [
+    "corrugate_joins",
+    2,
+    "Right. I said I'd open the flap. I'm going to open the flap.",
+    "corrugate"
+   ],
+   [
+    "corrugate_joins",
+    3,
+    "And then I'm coming down there with you, because if I stay in this shed one more night I'll fold up for good.",
+    "corrugate"
+   ],
+   [
+    "flap_arrival",
+    0,
+    "Under the harbour. It used to be blue down here, you know. Properly blue. I learned to swim in it.",
+    "corrugate"
+   ],
+   [
+    "flap_arrival",
+    2,
+    "Don't fall in. Things that fall in don't come out the colour they went in. Some of them don't come out.",
+    "corrugate"
+   ],
+   [
+    "kraken_arrival",
+    1,
+    "Blotch. It's been under the town since the flood, drinking.",
+    "corrugate"
+   ],
+   [
+    "kraken_arrival",
+    3,
+    "Blotting paper drinks ink faster than it does. Drop it on the beast and it'll sag. Then cut, fox, and don't stop.",
+    "corrugate"
+   ],
+   [
+    "kraken_drizzle",
+    2,
+    "Look at the ink, fox. That's not harbour ink. That's the Weather Page. That's Drizzle's ink.",
+    "corrugate"
+   ],
+   [
+    "kraken_drizzle",
+    5,
+    "The flood filled that little cloud until there was no room left for it. This isn't a monster. It's what's left when the water won't stop and nobody comes.",
+    "corrugate"
+   ],
+   [
+    "epilogue_arrival",
+    5,
+    "Suits you, fox. A tail with a map on it. You'll always know where you've been.",
+    "corrugate"
+   ],
+   [
+    "epilogue_arrival",
+    7,
+    "I've had it ready since the snow. Didn't want to waste it.",
+    "corrugate"
+   ]
+  ]
+ },
+ {
+  "chunk": 7,
+  "voice": "corrugate",
+  "items": [
+   [
+    "peaks_lowpoint",
+    1,
+    "Say it, fox. You've been not saying it since the harbour. It's heavier than I am, and I'm wet.",
+    "corrugate"
+   ],
+   [
+    "peaks_lowpoint",
+    10,
+    "I'm not going to tell you it's fine. It isn't.",
+    "corrugate"
+   ],
+   [
+    "peaks_lowpoint",
+    11,
+    "But you came back. Nobody else from that page came back. You came all the way up here, to the worst of it, to the top, to her.",
+    "corrugate"
+   ]
+  ]
+ },
+ {
+  "chunk": 8,
+  "voice": "kraken",
+  "items": [
+   [
+    "kraken_drizzle",
+    0,
+    "...I only wanted... it to stop... raining...",
+    "kraken"
+   ]
+  ]
+ },
+ {
+  "chunk": 9,
+  "voice": "narrator",
+  "items": [
+   [
+    "barker_yields",
+    0,
+    "The Barker folded down onto the sawdust a joint at a time, the way a puppet does when the strings are let go. He was still talking.",
+    "narrator"
+   ],
+   [
+    "barker_yields",
+    10,
+    "He said it quietly, without the megaphone. Then he reached up into the dark over the ring and pulled a cord, and all over Gatefold Fair, one string at a time, the lights went out.",
+    "narrator"
+   ],
+   [
+    "barker_yields",
+    11,
+    "The rain sounded different after that. It sounded like rain. Like something that could stop.",
+    "narrator"
+   ],
+   [
+    "gutter_arrival",
+    0,
+    "The top of the spine. Below it the Gutter: the crease where the pages meet, where every drop of the flood ran in the end and had nowhere left to go.",
+    "narrator"
+   ],
+   [
+    "gutter_arrival",
+    1,
+    "The Sogg was down there. It hadn't stayed to fight. It had gone down, the way water does, and left the way open behind it.",
+    "narrator"
+   ],
+   [
+    "interlude_4",
+    0,
+    "Two in the morning. Dad had fallen asleep at the table again, his head on his arm next to the book. Nell had come down for a glass of water and hadn't gone back up.",
+    "narrator"
+   ],
+   [
+    "interlude_4",
+    9,
+    "The hairdryer was where she'd left it, at the end of the table. The plug was already in the wall. She didn't remember doing that.",
+    "narrator"
+   ],
+   [
+    "interlude_4",
+    10,
+    "Nell switched it to warm, and held it low over the very middle of the book, where the pages met, and didn't move it for a long time.",
+    "narrator"
+   ],
+   [
+    "ending_table",
+    0,
+    "Morning. Grey light through the laundromat steam, across Gran's table. The hairdryer had been switched off and put back, and its cord wound round it, neatly, the way nobody in the house ever wound it.",
+    "narrator"
+   ],
+   [
+    "ending_table",
+    10,
+    "Nell cut a strip from the corner of the harbour map, the bit that had never quite dried flat, and folded it into a tail, and taped it on.",
+    "narrator"
+   ],
+   [
+    "the_end",
+    0,
+    "On the last page of the book, under Dad's old handwriting, there was a new line, in crayon.",
+    "narrator"
+   ],
+   [
+    "the_end",
+    3,
+    "The End.",
+    "narrator"
+   ],
+   [
+    "the_end_all_letters",
+    0,
+    "On the last page of the book, under Dad's old handwriting, there was a new line, in crayon.",
+    "narrator"
+   ],
+   [
+    "the_end_all_letters",
+    3,
+    "And above it, where the flood had washed the page blank, every Lost Letter had found its way home. Letter by letter, an older line came back: the first thing Dad ever wrote in the book.",
+    "narrator"
+   ],
+   [
+    "the_end_all_letters",
+    7,
+    "The End.",
+    "narrator"
+   ],
+   [
+    "sogg_tail",
+    0,
+    "Patch knelt down on the floor of the Gutter, in the last of the water, beside her.",
+    "narrator"
+   ],
+   [
+    "sogg_tail",
+    7,
+    "He reached round behind him, to the strip of tape the lamplighters had given him: the only tail he'd had since the night of the flood. It came away a stitch at a time.",
+    "narrator"
+   ]
+  ]
+ },
+ {
+  "chunk": 10,
+  "voice": "narrator",
+  "items": [
+   [
+    "sogg_tail",
+    10,
+    "Gran's shears weren't made for cutting. They were made for this. He threaded the tape through the eye of the stork's bill and sewed her up the middle, small stitches, the way Gran did, and tied it off.",
+    "narrator"
+   ],
+   [
+    "sogg_tail",
+    13,
+    "Far above them, at the very edge of the page, the warm light was still on. It stayed on all night.",
+    "narrator"
+   ],
+   [
+    "redactor_yields",
+    0,
+    "The Redactor came apart the way a stack of cards does: a few at a time, and then all at once. They settled face up. On every one, under the black bar, the words were still there. Ink doesn't take a word away. It only covers it.",
+    "narrator"
+   ],
+   [
+    "redactor_yields",
+    6,
+    "The pen slipped out of its long fingers and rolled away across the floor, drawing a thin line behind it that went nowhere. The bar across its face had smudged. Under it, very faint, a title: GRAN'S INDEX. Kept in her hand for fifty years, until the night of the flood, when something in the book had tried to spare her the reading of it.",
+    "narrator"
+   ],
+   [
+    "redactor_yields",
+    8,
+    "The black bars began to lift off the walls like flakes of soot, and under them were the entries, all of them, the whole book listed and nothing left out. A long way up, in the gutter of the book, something heavy and wet turned over in its sleep.",
+    "narrator"
+   ],
+   [
+    "interlude_3",
+    0,
+    "Dad had fallen asleep at the table. The lamp was still on. The book lay open at the winter page, its spine split down the middle.",
+    "narrator"
+   ],
+   [
+    "interlude_3",
+    9,
+    "Nell looked at the hairdryer at the end of the table for a long time. She didn't pick it up. Not yet.",
+    "narrator"
+   ],
+   [
+    "interlude_3",
+    10,
+    "Down in the middle of the book, in the dark, something small was still moving.",
+    "narrator"
+   ],
+   [
+    "heron_down",
+    0,
+    "The heron folded down into the reeds, and lay flat, and was only a sheet of wet paper with a bird printed faintly in it.",
+    "narrator"
+   ],
+   [
+    "heron_down",
+    3,
+    "The ink round the nest went still, and then, for the first time since the flood, it began to drain.",
+    "narrator"
+   ],
+   [
+    "bindwell_yields",
+    0,
+    "Old Bindwell lay down on the boards he'd sewn, and didn't get up. The seams in the floor went slack, one by one.",
+    "narrator"
+   ],
+   [
+    "bindwell_yields",
+    9,
+    "It was a long time before Bindwell answered. When he did, he only said: \"Mind the stitches.\" But he got up.",
+    "narrator"
+   ],
+   [
+    "peaks_lowpoint",
+    0,
+    "Past the workshop the snow came sideways, and there was nothing to do but get behind a rock and light what they had and wait.",
+    "narrator"
+   ],
+   [
+    "peaks_lowpoint",
+    14,
+    "When the wind dropped they went on, up, to the top of the spine, where the Sogg was waiting. This time nobody told a story on the way.",
+    "narrator"
+   ]
+  ]
+ },
+ {
+  "chunk": 11,
+  "voice": "narrator",
+  "items": [
+   [
+    "runaway_hand",
+    0,
+    "Patch put the shears down on the paper, a long way out of reach, and knelt in the ink in front of him.",
+    "narrator"
+   ],
+   [
+    "runaway_hand",
+    7,
+    "The Runaway looked at the paw held out to him for a long time. Then he took it, and the ink began to run off him like rain off a window, and the fox underneath was the same fox, all the way through.",
+    "narrator"
+   ],
+   [
+    "true_ending",
+    0,
+    "Weeks later. A rented flat, two rooms and a kitchen, with boxes still stacked in the corner that nobody had the heart to open. Rain on the window. One lamp.",
+    "narrator"
+   ],
+   [
+    "true_ending",
+    16,
+    "Nell opened the new book to its first page, and wrote at the top of it, slowly, so she wouldn't have to cross it out.",
+    "narrator"
+   ],
+   [
+    "true_ending",
+    18,
+    "The End. Truly, this time.",
+    "narrator"
+   ],
+   [
+    "rising_pinned",
+    2,
+    "It did not move. Below them, the ink found the bottom shelf and kept coming.",
+    "narrator"
+   ],
+   [
+    "rising_pinned",
+    7,
+    "He was not right back.",
+    "narrator"
+   ]
+  ]
+ },
+ {
+  "chunk": 12,
+  "voice": "barker",
+  "items": [
+   [
+    "barker_yields",
+    1,
+    "...a passing shower, ladies and gentlemen, nothing more, do not be alarmed, keep your seats, the finale is about to\u2014",
+    "barker"
+   ],
+   [
+    "barker_yields",
+    3,
+    "The finale is about to\u2014",
+    "barker"
+   ],
+   [
+    "barker_yields",
+    5,
+    "...They were having such a wonderful time.",
+    "barker"
+   ],
+   [
+    "barker_yields",
+    9,
+    "It was raining.",
+    "barker"
+   ]
+  ]
+ },
+ {
+  "chunk": 13,
+  "voice": "nell",
+  "items": [
+   [
+    "interlude_4",
+    1,
+    "Gran? You're awake.",
+    "nell"
+   ],
+   [
+    "interlude_4",
+    3,
+    "Look at the middle of it. It's worse. It's black right down the fold, and it's still wet. The fox's page is empty.",
+    "nell"
+   ],
+   [
+    "interlude_4",
+    5,
+    "Dad's going to wake up and try again and it won't work, and he'll keep trying anyway. And I keep telling him it's ruined.",
+    "nell"
+   ],
+   [
+    "interlude_4",
+    11,
+    "Okay, fox. I don't know if you're in there. Hang on anyway.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    2,
+    "Mostly. It's lumpy. The fold's gone brown.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    4,
+    "It's not the same.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    6,
+    "...I don't think I mind.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    7,
+    "Dad, the fox. The bit of tape on him, the tail. It's come off. It's down in the fold, holding the rain cloud together. Like he put it there.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    9,
+    "He needs a new one, then. Hang on.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    12,
+    "No. Outside. So he knows.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    14,
+    "And there's a blank page at the back. It's been blank since I was born.",
+    "nell"
+   ],
+   [
+    "ending_table",
+    16,
+    "I do. Pass me the crayons. And don't watch.",
+    "nell"
+   ],
+   [
+    "the_end",
+    1,
+    "THE POP-UP KINGDOM OF FOLDWICK. Soaked, torn, dried, taped, and finished.",
+    "nell_hand"
+   ],
+   [
+    "the_end",
+    2,
+    "Made by Dad. Mended by Dad, Gran, and Nell. And a fox.",
+    "nell_hand"
+   ],
+   [
+    "the_end_all_letters",
+    1,
+    "THE POP-UP KINGDOM OF FOLDWICK. Soaked, torn, dried, taped, and finished.",
+    "nell_hand"
+   ],
+   [
+    "the_end_all_letters",
+    2,
+    "Made by Dad. Mended by Dad, Gran, and Nell. And a fox.",
+    "nell_hand"
+   ],
+   [
+    "interlude_1",
+    1,
+    "The fox's tail is gone. Half the pages are stuck together. It's ruined, Dad.",
+    "nell"
+   ],
+   [
+    "interlude_1",
+    3,
+    "It's not the same, though. Nothing's the same. The house isn't even ours anymore.",
+    "nell"
+   ],
+   [
+    "interlude_2",
+    1,
+    "Dad.",
+    "nell"
+   ],
+   [
+    "interlude_2",
+    3,
+    "Dad. Stop.",
+    "nell"
+   ],
+   [
+    "interlude_2",
+    4,
+    "Just stop. It's never going to be the same. None of it. You can tape it and iron it all night and it's still going to be wrecked.",
+    "nell"
+   ],
+   [
+    "interlude_2",
+    7,
+    "No. I'm going to bed. Don't wait up for the book. It's not coming back.",
+    "nell"
+   ],
+   [
+    "interlude_3",
+    1,
+    "...Dad?",
+    "nell"
+   ],
+   [
+    "interlude_3",
+    3,
+    "It's worse. Look. The middle's coming apart. The fox is just... gone. The page he was on is empty.",
+    "nell"
+   ],
+   [
+    "interlude_3",
+    6,
+    "He kept the torn bit. The fox's tail. It's in an envelope. He wrote 'Patch, tail' on it.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    2,
+    "I couldn't sleep. I was looking at the back page. The blank one.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    4,
+    "Before I drew on it I wrote something. In pen. I wrote it was ruined, and I crossed it out, and I wrote it again. I was so angry at it, Dad. At the book. At you, for not stopping.",
+    "nell"
+   ]
+  ]
+ },
+ {
+  "chunk": 14,
+  "voice": "nell",
+  "items": [
+   [
+    "true_ending",
+    6,
+    "Look, though. Right at the bottom, in the margin, under all of that. The fox is there. Two of him. Holding paws.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    8,
+    "Neither did I.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    10,
+    "Gran. You're supposed to be asleep.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    13,
+    "It doesn't have to be the same.",
+    "nell"
+   ],
+   [
+    "true_ending",
+    14,
+    "Can the fox be in it?",
+    "nell"
+   ],
+   [
+    "true_ending",
+    17,
+    "SECOND PRINTING. For everyone who ran, and came back.",
+    "nell_hand"
+   ],
+   [
+    "prologue_intro",
+    0,
+    "Dad. The water's under the door. Like, actually in the room.",
+    "nell"
+   ],
+   [
+    "prologue_intro",
+    2,
+    "The book's on the shelf. The one you made me. I'm not leaving it.",
+    "nell"
+   ],
+   [
+    "prologue_intro",
+    4,
+    "Then I'll carry it, and you can carry the argument. Go.",
+    "nell"
+   ]
+  ]
+ },
+ {
+  "chunk": 15,
+  "voice": "gran",
+  "items": [
+   [
+    "interlude_4",
+    2,
+    "Old women don't sleep, love. We just wait for the kettle.",
+    "gran"
+   ],
+   [
+    "interlude_4",
+    4,
+    "Mm.",
+    "gran"
+   ],
+   [
+    "interlude_4",
+    6,
+    "He will keep trying. So did your grandad. They don't do it because they think it'll come back the same.",
+    "gran"
+   ],
+   [
+    "interlude_4",
+    7,
+    "Mended isn't halfway back to new, Nell. It's its own thing. You can see where it went wrong. That's the point of it.",
+    "gran"
+   ],
+   [
+    "ending_table",
+    13,
+    "Good girl.",
+    "gran"
+   ],
+   [
+    "interlude_1",
+    2,
+    "Ruined is when you stop fixing it, love. Your grandad's mug has three glue lines and I'd fight anyone who tried to bin it.",
+    "gran"
+   ],
+   [
+    "interlude_2",
+    6,
+    "Nell, love...",
+    "gran"
+   ],
+   [
+    "interlude_3",
+    2,
+    "Let him sleep, love. He's been up every night since we got here.",
+    "gran"
+   ],
+   [
+    "interlude_3",
+    4,
+    "Mm. It'll need more than one pair of hands, that bit.",
+    "gran"
+   ],
+   [
+    "interlude_3",
+    7,
+    "Your dad doesn't throw out the bits that come off. Never has.",
+    "gran"
+   ],
+   [
+    "true_ending",
+    9,
+    "Books do that, if you leave them room. Something comes back for the bit of itself it left behind.",
+    "gran"
+   ],
+   [
+    "true_ending",
+    11,
+    "I'm waiting for the kettle. What's the empty one for?",
+    "gran"
+   ]
+  ]
+ },
+ {
+  "chunk": 16,
+  "voice": "dad",
+  "items": [
+   [
+    "ending_table",
+    1,
+    "Nell? Did you... The middle's dry.",
+    "dad"
+   ],
+   [
+    "ending_table",
+    3,
+    "It's dry. I'd stopped thinking it would be.",
+    "dad"
+   ],
+   [
+    "ending_table",
+    5,
+    "No. It isn't.",
+    "dad"
+   ],
+   [
+    "ending_table",
+    8,
+    "Funny. I don't remember taping the cloud.",
+    "dad"
+   ],
+   [
+    "ending_table",
+    11,
+    "Tape on the inside, so it doesn't show?",
+    "dad"
+   ],
+   [
+    "ending_table",
+    15,
+    "I never knew what to put there.",
+    "dad"
+   ],
+   [
+    "the_end_all_letters",
+    4,
+    "FOR NELL, ON THE DAY YOU WERE BORN.",
+    "dad_hand"
+   ],
+   [
+    "the_end_all_letters",
+    5,
+    "Everything in here can be folded, and unfolded, and folded again. Nothing in here is ever really ruined. Neither are you.",
+    "dad_hand"
+   ],
+   [
+    "the_end_all_letters",
+    6,
+    "Love, Dad.",
+    "dad_hand"
+   ],
+   [
+    "interlude_1",
+    0,
+    "There. Page one's dry. Wrinkled, but the meadow pops up again. Mostly.",
+    "dad"
+   ],
+   [
+    "interlude_1",
+    4,
+    "...No. It isn't the same.",
+    "dad"
+   ],
+   [
+    "interlude_1",
+    5,
+    "I'll do the next page tomorrow, all the same. You can help, if you want. Or just sit there and be angry. Both count.",
+    "dad"
+   ],
+   [
+    "interlude_2",
+    0,
+    "Harbor page. The lanterns came up better than I thought. The boat's held together with about a metre of tape, but it floats. Well. It would.",
+    "dad"
+   ],
+   [
+    "interlude_2",
+    2,
+    "There's a bit under the flap I can't get dry. The ink keeps running, no matter what I...",
+    "dad"
+   ],
+   [
+    "interlude_2",
+    8,
+    "...Goodnight, Nell.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    1,
+    "You're up late.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    3,
+    "The one you drew on.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    5,
+    "I know. I could hear you thinking it.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    7,
+    "...I didn't draw that.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    12,
+    "I bought it today. I thought we'd start another. A second one. It won't be the same.",
+    "dad"
+   ],
+   [
+    "true_ending",
+    15,
+    "He's in all of them now.",
+    "dad"
+   ],
+   [
+    "prologue_intro",
+    1,
+    "Shoes, coat, phone. Nothing else, Nell. I mean it.",
+    "dad"
+   ],
+   [
+    "prologue_intro",
+    3,
+    "Nell, it's paper. We can't\u2014",
+    "dad"
+   ]
+  ]
+ },
+ {
+  "chunk": 17,
+  "voice": "drizzle",
+  "items": [
+   [
+    "epilogue_drizzle",
+    0,
+    "Everyone keeps being kind to me. I don't know what to do with it.",
+    "drizzle"
+   ],
+   [
+    "epilogue_drizzle",
+    1,
+    "Shepherd Fluff asked if I'd rain on the meadow on Thursdays. Just a little. For the grass. Nobody's asked me for anything since the flood.",
+    "drizzle"
+   ],
+   [
+    "epilogue_drizzle",
+    2,
+    "...You can see the stitches from right across the page. I checked.",
+    "drizzle"
+   ],
+   [
+    "sogg_tail",
+    1,
+    "Don't. I'm ruined. Look at me. I went down into the ink and I turned into that, and I drowned the whole book to make it stop hurting.",
+    "drizzle"
+   ],
+   [
+    "sogg_tail",
+    3,
+    "You pulled away. I had your tail in both hands and you pulled.",
+    "drizzle"
+   ],
+   [
+    "sogg_tail",
+    5,
+    "...Why did you come down?",
+    "drizzle"
+   ],
+   [
+    "sogg_tail",
+    8,
+    "That's yours.",
+    "drizzle"
+   ],
+   [
+    "sogg_tail",
+    11,
+    "...It shows.",
+    "drizzle"
+   ],
+   [
+    "midnight_boast",
+    1,
+    "You said that yesterday.",
+    "drizzle"
+   ],
+   [
+    "midnight_boast",
+    3,
+    "Can I come?",
+    "drizzle"
+   ],
+   [
+    "midnight_stack",
+    0,
+    "You did it! You're the best climber in the whole book!",
+    "drizzle"
+   ],
+   [
+    "midnight_stack",
+    2,
+    "I'll remember it. I remember everything you do.",
+    "drizzle"
+   ],
+   [
+    "midnight_dark",
+    0,
+    "Patch? Why did the lamps go out?",
+    "drizzle"
+   ],
+   [
+    "midnight_dark",
+    2,
+    "There's no draught in here. There's never a draught in here.",
+    "drizzle"
+   ],
+   [
+    "rising_pinned",
+    0,
+    "Patch! My leg. The spine came down on me, I can't\u2014",
+    "drizzle"
+   ],
+   [
+    "rising_pinned",
+    3,
+    "It's coming up. Patch, it's coming up!",
+    "drizzle"
+   ],
+   [
+    "rising_pinned",
+    5,
+    "Don't go. Please. Patch, don't go.",
+    "drizzle"
+   ]
+  ]
+ },
+ {
+  "chunk": 18,
+  "voice": "bindwell",
+  "items": [
+   [
+    "epilogue_bindwell",
+    0,
+    "The spine's restrung. Kettle stitch, every signature, and a door in every page. I sewed the doors in first this time.",
+    "bindwell"
+   ],
+   [
+    "epilogue_bindwell",
+    1,
+    "You gave her the tape. Good. A mend you can see is an honest one. I should know. I sewed the dishonest kind for long enough.",
+    "bindwell"
+   ],
+   [
+    "bindwell_yields",
+    1,
+    "Go on, then. Cut the thread. It's what I'd have done.",
+    "bindwell"
+   ],
+   [
+    "bindwell_yields",
+    3,
+    "I heard them. Every one. I had the high pages to think of, and the water was coming up the binding, and I thought: if I open it, we all go.",
+    "bindwell"
+   ],
+   [
+    "bindwell_yields",
+    4,
+    "So I sewed. Kettle stitch, all the way up. I sewed until my eye bled thread, and I didn't stop when the knocking did.",
+    "bindwell"
+   ],
+   [
+    "bindwell_yields",
+    7,
+    "Then you're a fool, fox. Or you've done something of your own you can't put down.",
+    "bindwell"
+   ],
+   [
+    "bindwell_hub",
+    0,
+    "Don't look at me like that. I'm not here to be forgiven. I'm here because the binding's rotten and nobody else alive knows the stitch.",
+    "bindwell"
+   ],
+   [
+    "bindwell_hub",
+    1,
+    "Every page I open again, I'll have to look at what got left outside it. That's the price. I'll pay it.",
+    "bindwell"
+   ],
+   [
+    "bindwell_hub",
+    3,
+    "Don't. Go and do the thing you came up the mountain not saying.",
+    "bindwell"
+   ],
+   [
+    "bindwell_hub_repeat",
+    0,
+    "Kettle stitch. Over, under, back through the last. It holds because every stitch is tied to the one before it. Remember that, fox.",
+    "bindwell"
+   ]
+  ]
+ },
+ {
+  "chunk": 19,
+  "voice": "redactor",
+  "items": [
+   [
+    "redactor_yields",
+    1,
+    "...Let me. Please. It is one line. PATCH, fox, paper: left a friend in the rain. I can make it so it never happened. Nobody need ever read it again.",
+    "redactor"
+   ],
+   [
+    "redactor_yields",
+    3,
+    "You would forget. That is what I am for. Everything in this book that hurt, I have kept from hurting. The flood. The window. The dog at the window.",
+    "redactor"
+   ]
+  ]
+ }
+]

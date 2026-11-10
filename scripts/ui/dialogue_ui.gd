@@ -36,6 +36,11 @@ var _active := false
 var _pitch := 1.0
 var _caption_queue: Array[String] = []
 var _caption_busy := false
+var _conversation_id := ""
+## Plays the recorded line (assets/audio/vo/<conversation>_<line>.ogg) when there is one;
+## lines without a recording fall back to the per-speaker blips.
+var _speech := AudioStreamPlayer.new()
+var _voiced := false
 
 @onready var box: Control = $Box
 @onready var name_label: Label = $Box/Margin/VBox/NameLabel
@@ -51,6 +56,8 @@ func _ready() -> void:
 	_speakers = _load_json(SPEAKERS_FILE)
 	for path in DIALOGUE_FILES:
 		_conversations.merge(_load_json(path))
+	_speech.bus = &"SFX"
+	add_child(_speech)
 	_style_dark()
 	Settings.changed.connect(_apply_text_scale)
 	box.visible = false
@@ -106,6 +113,7 @@ func start(conversation_id: String) -> void:
 		return
 	_lines = lines
 	_index = 0
+	_conversation_id = conversation_id
 	_active = true
 	box.visible = true
 	EventBus.dialogue_started.emit()
@@ -130,6 +138,29 @@ func _show_line() -> void:
 	_visible_chars = 0.0
 	_last_blip_char = 0
 	continue_hint.visible = false
+	_play_recording()
+
+
+const VO_DIR := "res://assets/audio/vo/"
+
+
+## The recording for a line, or "" when it has none.
+static func recording_path(conversation_id: String, index: int) -> String:
+	var path := "%s%s_%d.ogg" % [VO_DIR, conversation_id, index]
+	return path if ResourceLoader.exists(path) else ""
+
+
+func _play_recording() -> void:
+	_speech.stop()
+	var path := recording_path(_conversation_id, _index)
+	_voiced = not path.is_empty()
+	if _voiced:
+		_speech.stream = load(path)
+		_speech.play()
+
+
+func is_speaking() -> bool:
+	return _speech.playing
 
 
 func _process(delta: float) -> void:
@@ -139,7 +170,7 @@ func _process(delta: float) -> void:
 	text_label.visible_characters = int(_visible_chars)
 	# Animal Crossing-style voice: a blip every other letter, pitched per speaker.
 	var shown := text_label.visible_characters
-	if shown - _last_blip_char >= 2:
+	if not _voiced and shown - _last_blip_char >= 2:
 		_last_blip_char = shown
 		var parsed := text_label.get_parsed_text()
 		if shown <= parsed.length() and parsed[shown - 1] != " ":
@@ -169,6 +200,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _index < _lines.size():
 		_show_line()
 	else:
+		_speech.stop()
 		_active = false
 		box.visible = false
 		EventBus.dialogue_finished.emit()

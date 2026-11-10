@@ -35,6 +35,7 @@ func _run() -> void:
 	await _frames(20)
 	_check(current_scene != null and current_scene.name == "TitleScreen", "title screen loads")
 	_painted_art()
+	await _voice_and_sound(dialogue)
 	# Every action must work on a controller (the slam once had no button, which
 	# stranded controller players at the ice on the flat Frostfold page).
 	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"warp", &"pause"]:
@@ -931,7 +932,7 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 		_check(not lock.is_running() and not lock.gates[0].visible, "%s stands open until Patch walks in" % lock_name)
 		await _stand(patch, lock.global_position + Vector2(lock.width * 32.0, -8.0))
 		await _frames(4)
-		await _skip_dialogue(dialogue)
+		await _skip_dialogue(dialogue, 200)
 		_check(lock.is_running() and lock.gates[0].visible and lock.gates[1].visible, "walking into %s shuts its gates" % lock_name)
 		_check(not lock.gates[1].get_child(0).disabled, "the gates of %s are solid" % lock_name)
 		var seen := 0
@@ -948,9 +949,9 @@ func _finale(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 						inked += 1
 					kinds[e.scene_file_path.get_file()] = true
 					e.queue_free()
-			await _skip_dialogue(dialogue)
+			await _skip_dialogue(dialogue, 200)
 		await _frames(40)
-		await _skip_dialogue(dialogue)
+		await _skip_dialogue(dialogue, 200)
 		_check(not lock.is_running() and lock.is_cleared() and not lock.gates[0].visible, "beating every wave opens %s (%d foes, %d inked, %d kinds)" % [lock_name, seen, inked, kinds.size()])
 		_check(seen == locks[lock_name] and inked >= 1, "%s sends all its waves, some of them inked" % lock_name)
 		if lock_name == "gutter_lock_201_27":
@@ -1574,7 +1575,7 @@ func _lanternfold(game_state: Node, scene_manager: Node, dialogue: Node) -> void
 		for cell in solution[room]:
 			level.get_node("beam_mirror_%d_%d" % [cell[0], cell[1]]).turn()
 		await _frames(5)
-		await _skip_dialogue(dialogue)
+		await _skip_dialogue(dialogue, 200)
 		_check(game_state.get_flag(["lamp_room_1", "lamp_room_2", "lighthouse_lit"][room]) and gates[room].is_open,
 			"turning the mirrors right lights room %d's wicks and opens its grille" % (room + 1))
 	_check(wicks.all(func(w: Node) -> bool: return w.lit), "every wick burns once the great lamp is lit")
@@ -3657,3 +3658,54 @@ func _finish() -> void:
 	else:
 		print("SMOKE TEST FAILED: %d check(s)" % _failures.size())
 		quit(1)
+
+
+## The voice pass: every recorded clip belongs to a real line, a voiced line plays its
+## recording instead of the blips, and every sound the scripts ask for exists (a
+## missing name only warns at run time, so a typo goes unheard).
+func _voice_and_sound(dialogue: Node) -> void:
+	var conversations: Dictionary = dialogue.get(&"_conversations")
+	var clips := 0
+	var strays: Array[String] = []
+	var first_voiced := ""
+	for file in DirAccess.get_files_at("res://assets/audio/vo/"):
+		if not file.ends_with(".ogg"):
+			continue
+		var stem := file.get_basename()
+		var cut := stem.rfind("_")
+		var conv := stem.substr(0, cut)
+		var index := int(stem.substr(cut + 1))
+		if not conversations.has(conv) or index >= (conversations[conv] as Array).size():
+			strays.append(file)
+			continue
+		clips += 1
+		if first_voiced.is_empty() and index == 0:
+			first_voiced = conv
+	_check(clips >= 285, "story dialogue is voiced (%d recorded lines)" % clips)
+	_check(strays.is_empty(), "every recording belongs to a dialogue line %s" % [strays])
+	if not first_voiced.is_empty():
+		dialogue.start(first_voiced)
+		await _frames(5)
+		_check(dialogue.is_speaking(), "a voiced line plays its recording ('%s')" % first_voiced)
+		_check(dialogue.get(&"_voiced"), "a voiced line skips the blips")
+		await _skip_dialogue(dialogue, 200)
+		_check(not dialogue.is_speaking(), "finishing a conversation stops its recording")
+	var sfx: Dictionary = root.get_node("AudioManager").get(&"SFX")
+	var unknown: Array[String] = []
+	var regex := RegEx.create_from_string("play_sfx\\(&\"([a-z_]+)\"")
+	for path in _scripts_under("res://scripts/"):
+		for m in regex.search_all(FileAccess.get_file_as_string(path)):
+			if not sfx.has(StringName(m.get_string(1))):
+				unknown.append("%s in %s" % [m.get_string(1), path.get_file()])
+	_check(unknown.is_empty(), "every sound the scripts play exists %s" % [unknown])
+
+
+func _scripts_under(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".gd"):
+			out.append(dir + file)
+	for sub in DirAccess.get_directories_at(dir):
+		out.append_array(_scripts_under(dir + sub + "/"))
+	return out
+

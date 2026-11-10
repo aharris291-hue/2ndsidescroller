@@ -250,7 +250,7 @@ func _run() -> void:
 	_set_mode(Mode.RUN, 2.5)
 	velocity.x = facing * run_speed * 2.2
 	_recent_hits.clear()
-	AudioManager.play_sfx(&"dash", 0.7)
+	AudioManager.play_sfx(&"ink_rush", 0.9)
 
 
 func _run_target() -> float:
@@ -294,7 +294,7 @@ func _after_throw() -> void:
 		blade.active = true
 		blade.set_deferred("monitorable", true)
 		_attack_kind = Patch.Attack.THRUST
-		AudioManager.play_sfx(&"dash", 0.55)
+		AudioManager.play_sfx(&"ink_rush", 0.75)
 	else:
 		_set_mode(Mode.STALK, 0.6)
 
@@ -363,6 +363,7 @@ func unstitch(_by: Node) -> void:
 	if mode != Mode.STAGGER:
 		return
 	AudioManager.play_sfx(&"enemy_pop", 0.5)
+	AudioManager.play_sfx(&"drip", 0.8)
 	if BossStagger.unstitch(self, health, hold):
 		DialogueUI.narrate("Patch cut along the seam where the ink was thinnest. A whole sheet of the night came off him and was rain again.")
 		_set_mode(Mode.STAGGER, 0.6)
@@ -396,6 +397,7 @@ func take_hand() -> void:
 	var p := _player()
 	if p:
 		p.set(&"input_enabled", false)
+	AudioManager.play_sfx(&"heartbeat")
 	DialogueUI.start(HAND_DIALOGUE)
 	await EventBus.dialogue_finished
 	# The ink runs off him: the fox under it is Patch.

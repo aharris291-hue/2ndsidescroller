@@ -1,6 +1,6 @@
 {
 	"bindwell_yields": [
-		{"speaker": "narrator", "text": "The old needle lay down on the boards he'd sewn, and didn't get up. The seams in the floor went slack, one by one."},
+		{"speaker": "narrator", "text": "Old Bindwell lay down on the boards he'd sewn, and didn't get up. The seams in the floor went slack, one by one."},
 		{"speaker": "bindwell", "text": "Go on, then. Cut the thread. It's what I'd have done."},
 		{"speaker": "patch", "text": "You sewed the spine shut. The night of the flood. Everyone down there was knocking."},
 		{"speaker": "bindwell", "text": "I heard them. Every one. I had the high pages to think of, and the water was coming up the binding, and I thought: if I open it, we all go."},
@@ -9,7 +9,7 @@
 		{"speaker": "patch", "text": "I'm not going to cut you."},
 		{"speaker": "bindwell", "text": "Then you're a fool, fox. Or you've done something of your own you can't put down."},
 		{"speaker": "patch", "text": "Come down to the Spine. There's a stove. The pages need sewing back together, and you're the only one who knows how they were sewn apart."},
-		{"speaker": "narrator", "text": "It was a long time before the needle answered. When he did, he only said: \"Mind the stitches.\" But he got up."}
+		{"speaker": "narrator", "text": "It was a long time before Bindwell answered. When he did, he only said: \"Mind the stitches.\" But he got up."}
 	],
 	"bindwell_hub": [
 		{"speaker": "bindwell", "text": "Don't look at me like that. I'm not here to be forgiven. I'm here because the binding's rotten and nobody else alive knows the stitch."},

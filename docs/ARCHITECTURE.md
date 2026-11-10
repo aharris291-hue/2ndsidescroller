@@ -24,11 +24,11 @@ The autoloads load in this order (Project > Project Settings > Globals > Autoloa
 | `Settings` | script | Volume and fullscreen, saved to `user://settings.cfg`. |
 | `GameState` | script | The current playthrough: health, Scraps, letters, abilities, collected pickups, story flags, side quests, checkpoint. Also reads and writes the save slots. A new game starts at `FIRST_PAGE` (the Prologue). |
 | `InputGlyphs` | script | Detects whether the player is on a controller or keyboard, for prompt labels. |
-| `AudioManager` | script | Crossfading music plus a pooled sound-effect player (`play_sfx(&"jump")`). Uses the `Music` and `SFX` buses. |
+| `AudioManager` | script | Crossfading music plus a pooled sound-effect player (`play_sfx(&"jump")`). Uses the `Music` and `SFX` buses. The post-game set (proof press, sticker stamp, penny, rack rustle, ink rush, heartbeat, drip) is built by `tools/audio/synth_postgame_sfx.py`. The smoke test fails if a script plays a sound name that isn't in `SFX`. |
 | `SceneManager` | script (CanvasLayer) | Page-turn transitions, spawn placement, respawning, returning to the title screen. |
 | `BookFrame` | script (CanvasLayer 5) | Draws every page as an open book lying on a desk: a shader warps everything below layer 5 onto the pages in perspective, with a scalloped border, gutter, cover and shadow. Scenes with `in_book = false` (the Margin, cutscenes) fill the screen instead. The pause menu's Book view button turns it off. Keep clickable UI on layer 6 or above so it isn't warped. |
 | `HUD` | scene | Health tokens, Scraps, Lost Letter count, and the boss health bar. |
-| `DialogueUI` | scene | Conversations (typewriter + voice blips) and narrator captions. |
+| `DialogueUI` | scene | Conversations and narrator captions. A line with a recording (`assets/audio/vo/<conversation>_<line index>.ogg`) plays it instead of the per-speaker blips; lines without one keep the blips. The cast and how the recordings are made and cut are in `tools/audio/voice_cast.json`, `voice_plan.json` and `split_voice.py`. |
 | `PauseMenu` | scene | Pause, quest log, volume, fullscreen, save and quit. Runs while the tree is paused. |
 
 ### Save data
