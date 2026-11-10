@@ -2,33 +2,19 @@
 	"gutter_arrival": [
 		{
 			"speaker": "narrator",
-			"text": "The Gutter. The deep fold where the pages meet. Every drop of the flood had run down here in the end, and it had nowhere left to go."
+			"text": "The top of the spine. Below it the Gutter: the crease where the pages meet, where every drop of the flood ran in the end and had nowhere left to go."
 		},
-		{
-			"speaker": "patch",
-			"text": "Hello? Dot? Corrugate?"
-		},
-		{
-			"speaker": "patch",
-			"text": "...Okay. Okay. No sidekicks. That's fine. Classic hero stuff. The lone fox walks into the dark."
-		},
-		{
-			"speaker": "patch",
-			"text": "The lone fox would really like a torch, though."
-		},
-		{
-			"speaker": "patch",
-			"text": "Right. The Sogg came down here, so there's only one way to go. Down and along. Story of my life, lately."
-		}
-	],
-	"gutter_echoes": [
 		{
 			"speaker": "narrator",
-			"text": "The water down here remembered everything it had soaked. Shapes kept rising out of it."
+			"text": "The Sogg was down there. It hadn't stayed to fight. It had gone down, the way water does, and left the way open behind it."
 		},
 		{
 			"speaker": "patch",
-			"text": "Every Soggy in the book must drain down here. Brilliant. It's like the world's worst bath."
+			"text": "She wants me to follow."
+		},
+		{
+			"speaker": "patch",
+			"text": "...Then I'll follow. I didn't, last time."
 		}
 	],
 	"gutter_sogg_arrival": [

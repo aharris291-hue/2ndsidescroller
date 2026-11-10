@@ -101,7 +101,7 @@ entity_props = {
 "requires_flag": "patch_told_truth",
 "requires_whole_book": true,
 "size": Vector2(128, 256),
-"target_page": "res://scenes/levels/ch3_spine/sogg_arena.tscn",
+"target_page": "res://scenes/levels/interludes/interlude_03.tscn",
 "target_spawn": &"Start"
 },
 "R": {
