@@ -59,6 +59,7 @@ func _run() -> void:
 		_finish()
 		return
 	_check(patch.is_on_floor(), "Patch lands on the ground")
+	await _health_bars(patch)
 
 	var start_x := patch.global_position.x
 	Input.action_press(&"move_right")
@@ -3708,4 +3709,50 @@ func _scripts_under(dir: String) -> Array[String]:
 	for sub in DirAccess.get_directories_at(dir):
 		out.append_array(_scripts_under(dir + sub + "/"))
 	return out
+
+
+## Patch's torn-paper health strip follows his health, and ordinary enemies grow a
+## small bar over their heads once hurt (one-hit enemies and bosses don't).
+func _health_bars(patch: Node) -> void:
+	var hud := root.get_node("HUD")
+	var strip: Control = hud.find_child("PatchHealth", true, false)
+	_check(strip != null and strip.visible, "Patch's health shows as a paper strip")
+	if strip == null:
+		return
+	var before: float = patch.health.current
+	patch.health.take_damage(2, patch.global_position)
+	await _frames(2)
+	_check(is_equal_approx(strip.get(&"value"), before - 2.0), "the strip drops when Patch is hurt (%s)" % strip.get(&"value"))
+	patch.health.clear_invulnerability()
+	patch.health.heal(2)
+	await _frames(2)
+	_check(is_equal_approx(strip.get(&"value"), before), "the strip refills when Patch heals")
+	_check(not hud.find_child("BossHealth", true, false).visible and hud.find_child("BossPaper", true, false) != null, "the boss bar is a paper strip too")
+	var tough: Node2D = null
+	var flimsy: Node2D = null
+	for enemy in get_nodes_in_group("enemies"):
+		var h = enemy.get("health")
+		if h == null:
+			continue
+		if h.max_health > 1 and tough == null:
+			tough = enemy
+		elif h.max_health == 1 and flimsy == null:
+			flimsy = enemy
+	if tough:
+		var bar := _enemy_bar(tough)
+		_check(bar != null and bar.modulate.a == 0.0, "an unhurt enemy's bar is hidden")
+		tough.get("health").take_damage(1, patch.global_position)
+		await _frames(2)
+		_check(bar != null and bar.modulate.a > 0.9, "a hurt enemy shows its bar")
+		tough.get("health").clear_invulnerability()
+		tough.get("health").heal(1)
+	if flimsy:
+		_check(_enemy_bar(flimsy) == null, "one-hit enemies get no bar")
+
+
+func _enemy_bar(enemy: Node) -> Node2D:
+	for child in enemy.get_children():
+		if child.get_script() != null and child.get_script().get_global_name() == &"EnemyBar":
+			return child
+	return null
 
