@@ -93,5 +93,10 @@
 		"name": "",
 		"color": "#5a3d24",
 		"pitch": 0.8
+	},
+	"runaway": {
+		"name": "The Runaway",
+		"color": "#6a6478",
+		"pitch": 1.2
 	}
 }

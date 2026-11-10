@@ -2,7 +2,9 @@
 ; Ground floor: start, bookmark, doors to Thistledown (A), Lanternfold (B) and
 ; Watermark Marsh (C), Gran's sewing tin (T), Gran's penny theatre (Q, the
 ; minigame arcade), and the way down to the Gutter (G,
-; the finale, open once every region is mended). The gallery above (doors D Spine
+; the finale, open once every region is mended). Once the book is finished: the way
+; to the Last Margin (N, the true ending), and in the gallery Gran's drying rack of
+; papers (W, Patch's paper finishes). The gallery above (doors D Spine
 ; Peaks, F Gatefold Fair, I The Index and M the optional Blank Margins, and L Gran's
 ; proof press for boss rematches) is reached by the HubStair boards on the right once
 ; Thistledown is mended.
@@ -14,12 +16,12 @@ $......................................$
 $......................................$
 $......................................$
 $......................................$
-$.......D.....F.....I.....M...L........$
+$..W....D.....F.....I.....M...L........$
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......$
 $......................................$
 $......................................$
 $......................................$
 $......................................$
-$..@.k...A....B.Q..C.....T.......G.....$
+$..@.k...A....B.Q..C.....T...N...G.....$
 $######################################$
 ########################################

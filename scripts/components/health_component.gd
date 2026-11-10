@@ -18,6 +18,9 @@ var _invulnerable_left := 0.0
 
 
 func _ready() -> void:
+	# The Second Printing: everything but Patch (who sets his own) is half again as tough.
+	if GameState.printing > 0 and current <= 0 and not get_parent() is Patch:
+		max_health = ceili(max_health * SecondPrinting.ENEMY_HEALTH)
 	if current <= 0:
 		current = max_health
 

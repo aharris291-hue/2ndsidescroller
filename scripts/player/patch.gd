@@ -228,6 +228,7 @@ func _ready() -> void:
 		# He gave the Tape Tail to Drizzle in the Gutter; Nell's map tail reels like it did.
 		if GameState.get_flag("gave_tail") and not GameState.has_ability(&"tape_tail"):
 			GameState.abilities.append(&"tape_tail")
+	rig.set_paper(Papers.worn())
 	health.max_health = GameState.max_health
 	health.set_health(GameState.health)
 	health.changed.connect(_on_health_changed)
@@ -1555,6 +1556,9 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 		return
 	# Assist mode: no single hit takes more than half a paper token.
 	var amount := mini(hitbox.damage, 1) if Settings.assist else hitbox.damage
+	# The Second Printing is set in heavier type: everything cuts half again as deep.
+	if GameState.printing > 0 and not Settings.assist:
+		amount = ceili(amount * SecondPrinting.DAMAGE_TAKEN)
 	if health.take_damage(amount, hitbox.global_position):
 		var away := (global_position - hitbox.global_position).normalized()
 		if view_mode == PageView.Mode.SIDE:

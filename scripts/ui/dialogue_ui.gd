@@ -20,6 +20,7 @@ const DIALOGUE_FILES: Array[String] = [
 	"res://data/dialogue/peaks.json",
 	"res://data/dialogue/fair.json",
 	"res://data/dialogue/index.json",
+	"res://data/dialogue/postgame.json",
 ]
 const SPEAKERS_FILE := "res://data/speakers.json"
 const CHARS_PER_SECOND := 45.0

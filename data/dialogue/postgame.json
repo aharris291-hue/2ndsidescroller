@@ -1,0 +1,114 @@
+{
+	"runaway_hand": [
+		{
+			"speaker": "narrator",
+			"text": "Patch put the shears down on the paper, a long way out of reach, and knelt in the ink in front of him."
+		},
+		{
+			"speaker": "runaway",
+			"text": "Go on. You've cut everything else in the book. Do the one that matters."
+		},
+		{
+			"speaker": "patch",
+			"text": "No."
+		},
+		{
+			"speaker": "runaway",
+			"text": "I pulled my tail out of her hands. I heard her go under, and I ran, and I kept running till the water stopped. You don't get to forgive that. Nobody does."
+		},
+		{
+			"speaker": "patch",
+			"text": "I know. I'm not here to forgive it. I'm here because you're me, and I'm tired of leaving you out here on your own."
+		},
+		{
+			"speaker": "runaway",
+			"text": "...It still happened."
+		},
+		{
+			"speaker": "patch",
+			"text": "It still happened. I'm going to carry it. Both of us are. Give me your paw."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The Runaway looked at the paw held out to him for a long time. Then he took it, and the ink began to run off him like rain off a window, and the fox underneath was the same fox, all the way through."
+		}
+	],
+	"true_ending": [
+		{
+			"speaker": "narrator",
+			"text": "Weeks later. A rented flat, two rooms and a kitchen, with boxes still stacked in the corner that nobody had the heart to open. Rain on the window. One lamp."
+		},
+		{
+			"speaker": "dad",
+			"text": "You're up late."
+		},
+		{
+			"speaker": "nell",
+			"text": "I couldn't sleep. I was looking at the back page. The blank one."
+		},
+		{
+			"speaker": "dad",
+			"text": "The one you drew on."
+		},
+		{
+			"speaker": "nell",
+			"text": "Before I drew on it I wrote something. In pen. I wrote it was ruined, and I crossed it out, and I wrote it again. I was so angry at it, Dad. At the book. At you, for not stopping."
+		},
+		{
+			"speaker": "dad",
+			"text": "I know. I could hear you thinking it."
+		},
+		{
+			"speaker": "nell",
+			"text": "Look, though. Right at the bottom, in the margin, under all of that. The fox is there. Two of him. Holding paws."
+		},
+		{
+			"speaker": "dad",
+			"text": "...I didn't draw that."
+		},
+		{
+			"speaker": "nell",
+			"text": "Neither did I."
+		},
+		{
+			"speaker": "gran",
+			"text": "Books do that, if you leave them room. Something comes back for the bit of itself it left behind."
+		},
+		{
+			"speaker": "nell",
+			"text": "Gran. You're supposed to be asleep."
+		},
+		{
+			"speaker": "gran",
+			"text": "I'm waiting for the kettle. What's the empty one for?"
+		},
+		{
+			"speaker": "dad",
+			"text": "I bought it today. I thought we'd start another. A second one. It won't be the same."
+		},
+		{
+			"speaker": "nell",
+			"text": "It doesn't have to be the same."
+		},
+		{
+			"speaker": "nell",
+			"text": "Can the fox be in it?"
+		},
+		{
+			"speaker": "dad",
+			"text": "He's in all of them now."
+		},
+		{
+			"speaker": "narrator",
+			"text": "Nell opened the new book to its first page, and wrote at the top of it, slowly, so she wouldn't have to cross it out."
+		},
+		{
+			"speaker": "nell_hand",
+			"text": "SECOND PRINTING. For everyone who ran, and came back."
+		},
+		{
+			"speaker": "narrator",
+			"text": "The End. Truly, this time."
+		}
+	]
+}

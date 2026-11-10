@@ -6,7 +6,8 @@ extends Node
 ## seen (for the torn map). Version 1 saves load with none of those.
 ## 3: Gran's patterns (sword techniques bought at the tin). Older saves load with none.
 ## 4: the shears' current form and Nell's bestiary (what Patch has beaten, how often).
-const SAVE_VERSION := 4
+## 5: the printing (the Second Printing, New Game+). Older saves are the first.
+const SAVE_VERSION := 5
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
@@ -47,6 +48,9 @@ var visited: Dictionary = {}
 var sandbox := false
 ## The boss being fought again from Gran's proof press (Rematch), or "". Never saved.
 var rematch := ""
+## Which printing of the book this is: 0 is the first edition, 1+ a Second Printing
+## (SecondPrinting), with tougher enemies.
+var printing := 0
 var letters: Array[String] = []
 var abilities: Array[StringName] = []
 ## Unique ids of one-time pickups that are already collected.
@@ -80,6 +84,7 @@ func new_game(new_slot: int) -> void:
 	slot = new_slot
 	sandbox = false
 	rematch = ""
+	printing = 0
 	max_health = BASE_MAX_HEALTH
 	health = max_health
 	scraps = 0
@@ -313,6 +318,7 @@ func save_game() -> bool:
 		"charm_slots": charm_slots,
 		"patterns": patterns.map(func(p: StringName) -> String: return String(p)),
 		"shear_form": shear_form,
+		"printing": printing,
 		"bestiary": bestiary,
 		"bookmarks": bookmarks,
 		"visited": visited.keys(),
@@ -370,6 +376,8 @@ func load_game(save_slot: int) -> bool:
 		learn_pattern(StringName(pattern))
 	# Version 4: the shears' form and Nell's bestiary.
 	shear_form = int(data.get("shear_form", 0))
+	# Version 5: the printing.
+	printing = int(data.get("printing", 0))
 	var seen: Variant = data.get("bestiary", {})
 	if seen is Dictionary:
 		for id in seen:
