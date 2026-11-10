@@ -7,7 +7,7 @@ extends Node
 ## 3: Gran's patterns (sword techniques bought at the tin). Older saves load with none.
 ## 4: the shears' current form and Nell's bestiary (what Patch has beaten, how often).
 ## 5: the printing (the Second Printing, New Game+). Older saves are the first.
-const SAVE_VERSION := 5
+const SAVE_VERSION := 6
 const SLOT_COUNT := 3
 const FIRST_PAGE := "res://scenes/levels/prologue/prologue_intro.tscn"
 const QUESTS_FILE := "res://data/quests.json"
@@ -64,6 +64,10 @@ var checkpoint_page := ""
 var checkpoint_position := Vector2.ZERO
 var current_page := ""
 var play_time := 0.0
+## Play report (PlayReport): page path -> {"t": seconds played, "d": deaths, "h": hits
+## taken, "v": visits}. Measured, so PRs and tuning can quote real play times.
+var page_stats: Dictionary = {}
+var _last_health := -1
 ## True while a gameplay page is running; the clock only counts real play.
 var in_gameplay := false
 
@@ -73,11 +77,35 @@ func _ready() -> void:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(QUESTS_FILE))
 		if typeof(parsed) == TYPE_DICTIONARY:
 			quest_defs = parsed
+	EventBus.player_died.connect(func() -> void: _stat(&"d", 1))
+	EventBus.player_health_changed.connect(_on_health_seen)
 
 
 func _process(delta: float) -> void:
 	if in_gameplay and not get_tree().paused:
 		play_time += delta
+		_stat(&"t", delta)
+
+
+func _stat(key: StringName, amount: float) -> void:
+	if current_page.is_empty() or sandbox:
+		return
+	var entry: Dictionary = page_stats.get(current_page, {})
+	entry[String(key)] = float(entry.get(String(key), 0.0)) + amount
+	page_stats[current_page] = entry
+
+
+## Counts a visit each time a page loads (Page calls this).
+func note_visit(page_path: String) -> void:
+	current_page = page_path
+	_last_health = -1
+	_stat(&"v", 1)
+
+
+func _on_health_seen(current: int, _maximum: int) -> void:
+	if _last_health >= 0 and current < _last_health:
+		_stat(&"h", 1)
+	_last_health = current
 
 
 func new_game(new_slot: int) -> void:
@@ -109,6 +137,7 @@ func new_game(new_slot: int) -> void:
 	checkpoint_position = Vector2.ZERO
 	current_page = ""
 	play_time = 0.0
+	page_stats.clear()
 
 
 # --- Inventory and progress --------------------------------------------------
@@ -330,6 +359,7 @@ func save_game() -> bool:
 		"checkpoint_page": checkpoint_page,
 		"checkpoint_position": [checkpoint_position.x, checkpoint_position.y],
 		"play_time": play_time,
+		"page_stats": page_stats,
 		"saved_at": Time.get_datetime_string_from_system(),
 	}
 	# Write to a temp file first so a crash mid-write never corrupts the real save.
@@ -345,6 +375,7 @@ func save_game() -> bool:
 	if err != OK:
 		push_error("Could not finalize save: %s" % error_string(err))
 		return false
+	PlayReport.write(slot)
 	EventBus.game_saved.emit(slot)
 	return true
 
@@ -400,6 +431,7 @@ func load_game(save_slot: int) -> bool:
 	var pos: Array = data.get("checkpoint_position", [0, 0])
 	checkpoint_position = Vector2(float(pos[0]), float(pos[1]))
 	play_time = float(data.get("play_time", 0.0))
+	page_stats = data.get("page_stats", {})
 	return true
 
 

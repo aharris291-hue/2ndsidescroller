@@ -43,6 +43,10 @@ Saves are JSON at `user://save_slot_N.json`. Because `use_custom_user_dir` is on
 - **Bosses:** a wide strip on the HUD. `BossHealth` stays as a hidden ProgressBar holding the value.
 - **Ordinary enemies:** a small `EnemyBar` over their heads, added by `HealthComponent` to anything in the `enemies` group with more than 1 health and no `boss_name`. It shows when the enemy is hurt, fades 3 s after the last hit, and goes when the enemy dies.
 
+## Play report (measured play time)
+
+`GameState.page_stats` counts, for each page, the seconds played (only while unpaused gameplay runs), visits, deaths and hits taken. It is saved with the game (SAVE_VERSION 6). Every save also writes `user://play_report_slot_<n>.txt` (`PlayReport`), which is readable in the pause menu under "Play report". `tools/telemetry/summarize.py` averages the stats of several save files per region, and PRs quote its numbers as measured play time.
+
 ## How a page works
 
 Every level scene's root has `scripts/world/page.gd` (`class_name Page`). On `_ready` it:
