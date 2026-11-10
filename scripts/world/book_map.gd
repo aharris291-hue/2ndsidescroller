@@ -45,8 +45,9 @@ const REGIONS := [
 		"spot": Vector2(0.83, 0.36),
 	},
 	{
-		"id": &"index", "name": "The Index", "dirs": [], "subtitle": "everything, listed",
-		"mended_flag": "", "open_flag": "", "door": "",
+		"id": &"index", "name": "The Index", "dirs": ["res://scenes/levels/index/"], "subtitle": "everything, listed",
+		"mended_flag": "", "open_flag": "boss_barker_defeated",
+		"door": "res://scenes/levels/index/6_1_the_back_pages.tscn",
 		"spot": Vector2(0.5, 0.36),
 	},
 ]
@@ -70,3 +71,14 @@ static func region_of(page_path: String) -> Dictionary:
 
 static func is_written(entry: Dictionary) -> bool:
 	return not (entry["dirs"] as Array).is_empty()
+
+
+## The names of the regions not mended yet (whose boss still stands). The way down to
+## the Gutter (the finale) stays shut until this is empty.
+static func torn_regions() -> Array[String]:
+	var out: Array[String] = []
+	for entry: Dictionary in REGIONS:
+		var flag: String = entry.get("mended_flag", "")
+		if not flag.is_empty() and not GameState.get_flag(flag):
+			out.append(entry["name"])
+	return out

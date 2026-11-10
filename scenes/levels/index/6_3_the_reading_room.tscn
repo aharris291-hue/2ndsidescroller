@@ -1,0 +1,105 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_reading_room.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/page_door.tscn" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="8_e"]
+[ext_resource type="Script" path="res://scripts/world/shutter.gd" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/pull_tab.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[node name="TheReadingRoom" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Reading Room"
+opening_caption = "The Reading Room. Kept, kept, kept, and one pile face down."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.46, 0.42, 1)
+rain_amount = 90
+lightning = false
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/index/6_3_the_reading_room.txt"
+region = "index"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"A": ExtResource("9_e"),
+"B": ExtResource("9_e"),
+"C": ExtResource("9_e"),
+"E": ExtResource("6_e"),
+"T": ExtResource("10_e"),
+"U": ExtResource("10_e"),
+"W": ExtResource("10_e"),
+"X": ExtResource("7_e"),
+"o": ExtResource("8_e")
+}
+entity_props = {
+"1": {
+"caption": "The Reading Room, under the dome. Rain came through the skylight onto the desks. Shutters down over every alcove, and a tab by each to work them, and none of them worked only the one you wanted.",
+"size": Vector2(128, 320)
+},
+"2": {
+"caption": "Somebody had sat here a long time, sorting. Cards in piles: kept, kept, kept, and one pile on its own, turned face down. He didn't turn them over.",
+"size": Vector2(128, 320)
+},
+"3": {
+"caption": "Through. The desks went up like stairs towards the dome, each one with its lamp still lit, the way you'd leave a light on for somebody coming home late.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "At the top, a card pinned to the last desk, in Gran's hand: WHERE YOU LEFT OFF. Under it, a way on, deeper into the Index.",
+"size": Vector2(128, 384)
+},
+"A": {
+"size": Vector2(96, 384),
+"tag": "A"
+},
+"B": {
+"size": Vector2(96, 384),
+"tag": "B"
+},
+"C": {
+"size": Vector2(96, 384),
+"tag": "C"
+},
+"T": {
+"flips": PackedStringArray("A", "B")
+},
+"W": {
+"flips": PackedStringArray("C")
+},
+"U": {
+"flips": PackedStringArray("A", "C")
+},
+"X": {
+"door_prompt": "Back down the catalogue",
+"target_page": "res://scenes/levels/index/6_2_the_card_catalogue.tscn",
+"target_spawn": &"FromReadingRoom"
+},
+"E": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"o": {
+"offset": Vector2(0, -32)
+}
+}
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

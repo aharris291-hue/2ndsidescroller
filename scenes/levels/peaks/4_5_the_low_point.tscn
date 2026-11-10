@@ -95,7 +95,11 @@ entity_props = {
 "target_spawn": &"FromLowPoint"
 },
 "E": {
+"closed_caption": "Over the summit the book fell away into the Gutter, and the Sogg was down there, waiting. Not yet. {torn}: still torn, still his to mend. He went back down to the Spine.",
+"fallback_page": "res://scenes/levels/hub/spine_hub.tscn",
+"fallback_spawn": &"Start",
 "requires_flag": "patch_told_truth",
+"requires_whole_book": true,
 "size": Vector2(128, 256),
 "target_page": "res://scenes/levels/ch3_spine/sogg_arena.tscn",
 "target_spawn": &"Start"

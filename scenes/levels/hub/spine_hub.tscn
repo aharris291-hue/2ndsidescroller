@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/dark/props/hanging_lamp.png" id="9_lamp"]
 [ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="10_patch"]
 [ext_resource type="PackedScene" path="res://scenes/world/npc_bindwell.tscn" id="11_bindwell"]
+[ext_resource type="Script" path="res://scripts/world/finale_door.gd" id="12_finale"]
 
 [node name="SpineHub" type="Node2D"]
 script = ExtResource("1_page")
@@ -52,6 +53,7 @@ entities = {
 "C": ExtResource("5_door"),
 "D": ExtResource("5_door"),
 "F": ExtResource("5_door"),
+"G": ExtResource("12_finale"),
 "I": ExtResource("5_door"),
 "T": ExtResource("6_tin")
 }

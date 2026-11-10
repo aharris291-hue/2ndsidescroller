@@ -96,6 +96,13 @@ const ENTRIES := {
 		"tell": "It rears before it charges. The charge is three big bounds and you can guard them: parry one, or let it run into a wall, and it goes over on its side. Cut it while it's down.",
 		"weak": -1,
 	},
+	"silverfish": {
+		"name": "Silverfish",
+		"art": "res://assets/art/dark/enemies/silverfish.png",
+		"note": "The Index's vermin. They lived in the spine of every book Gran ever owned and she said they were harmless. These ones have eaten whole chapters and grown on them. They go for paper first. Patch is paper.",
+		"tell": "It dives into the page and you see the paper ripple as it comes. When the ripple stops under you the floor bulges red: move, the bite can't be guarded. Up out of the floor it's open for a moment. It goes for Gran's ribbon if it can reach it.",
+		"weak": ShearForms.Form.WINGS,
+	},
 	"bindwell": {
 		"name": "Old Bindwell",
 		"art": "res://assets/art/dark/friends/bindwell.png",
@@ -127,7 +134,7 @@ const ENTRIES := {
 }
 ## The order the pages come in Nell's book.
 const ORDER := ["soggy", "tack_knight", "ink_spitter", "paper_moth", "inkwell_turret",
-	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "sogg"]
+	"folded_crane", "mimic_book", "clockwork_needle", "carousel_horse", "silverfish", "inked", "millwheel", "kraken", "heron", "bindwell", "barker", "sogg"]
 
 
 static func entry(enemy_id: String) -> Dictionary:

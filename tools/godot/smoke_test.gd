@@ -37,7 +37,7 @@ func _run() -> void:
 	_painted_art()
 	# Every action must work on a controller (the slam once had no button, which
 	# stranded controller players at the ice on the flat Frostfold page).
-	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"map", &"pause"]:
+	for action in [&"jump", &"attack", &"heavy", &"dash", &"guard", &"mend", &"grapple", &"slam", &"interact", &"warp", &"pause"]:
 		var on_pad := false
 		for event in InputMap.action_get_events(action):
 			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
@@ -2052,6 +2052,289 @@ func _gatefold_fair_two(game_state: Node, scene_manager: Node, dialogue: Node) -
 	await _skip_dialogue(dialogue)
 	game_state.max_health = 99
 	game_state.health = 99
+	await _the_index(game_state, scene_manager, dialogue)
+
+
+## Presses an action for a couple of frames, as a player would.
+func _tap(action: StringName) -> void:
+	Input.action_press(action)
+	await _frames(2)
+	Input.action_release(action)
+	await _frames(2)
+
+
+## Puts Patch on the floor at `at` (the top of the ground he'll stand on) and lets him land.
+func _stand(patch: CharacterBody2D, at: Vector2) -> void:
+	patch.global_position = at + Vector2(0, -60)
+	patch.velocity = Vector2.ZERO
+	await _frames(12)
+
+
+## The Index part 1: Bookmark Warp (Gran's ribbon), silverfish, spring shutters (6-1),
+## the drawers of the card catalogue (6-2), the Reading Room's shutter puzzle (6-3),
+## and the way down to the Gutter, shut until the whole book is mended.
+func _the_index(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	const R6 := "res://scenes/levels/index/"
+	var book_map := load("res://scripts/world/book_map.gd")
+	var index: Dictionary = book_map.region(&"index")
+	_check(index.get("door") == R6 + "6_1_the_back_pages.tscn" and index.get("open_flag") == "boss_barker_defeated", "the Barker beaten, the Index's door opens on the Back Pages")
+	await scene_manager.change_page(R6 + "6_1_the_back_pages.tscn", &"Start")
+	await _wait_for_scene("TheBackPages", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var level := current_scene.get_node("Level")
+	var patch := get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	for fish in get_nodes_in_group(&"enemies"):
+		fish.queue_free()
+	await _frames(2)
+	# Gran's ribbon.
+	_check(not game_state.has_ability(&"bookmark_warp"), "Patch can't warp yet")
+	await _tap(&"warp")
+	_check(patch.ribbon == null, "without the ribbon, the warp button does nothing")
+	patch.global_position = (level.get_node("ability_page_50_17") as Node2D).global_position
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	_check(game_state.has_ability(&"bookmark_warp"), "Gran's ribbon in her unfinished book teaches the Bookmark Warp")
+	# Lay it, walk away, tear back.
+	await _stand(patch, Vector2(30 * 64, 20 * 64))
+	var laid_at := patch.global_position
+	await _tap(&"warp")
+	_check(patch.ribbon != null and patch.ribbon.global_position.distance_to(laid_at) < 4.0, "the warp button lays the ribbon where Patch stands")
+	Input.action_press(&"move_left")
+	await _frames(50)
+	Input.action_release(&"move_left")
+	await _frames(4)
+	_check(patch.global_position.distance_to(laid_at) > 300.0, "Patch walks away from it (%.0f px)" % patch.global_position.distance_to(laid_at))
+	await _tap(&"warp")
+	_check(patch.global_position.distance_to(laid_at) < 6.0 and patch.ribbon == null, "the warp button again tears him straight back to it, and he picks it up")
+	# In the air he can't lay it.
+	patch.global_position = Vector2(30 * 64, 14 * 64)
+	patch.velocity = Vector2.ZERO
+	await _frames(2)
+	patch._warp_cooldown = 0.0
+	_check(not patch.bookmark_warp() and patch.ribbon == null, "the ribbon can only be laid on the ground")
+	await _frames(40)
+	# Nowhere to stand: if something solid is where the ribbon is, it stays put.
+	await _stand(patch, Vector2(30 * 64, 20 * 64))
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	var ribbon: Node2D = patch.ribbon
+	ribbon.global_position = Vector2(90 * 64, 8 * 64)  # inside the cabinet over the passage
+	var before := patch.global_position
+	patch._warp_cooldown = 0.0
+	_check(not patch.bookmark_warp() and patch.global_position == before and is_instance_valid(ribbon), "with no room where the ribbon is, the warp fails and the ribbon stays")
+	ribbon.queue_free()
+	patch.ribbon = null
+	# The spring shutter: too quick to run back to, not too quick for the ribbon.
+	var shutter_p := level.get_node("shutter_78_19")
+	var tab_t := level.get_node("pull_tab_64_7")
+	_check(not shutter_p.open and not shutter_p._shape.disabled, "the first shutter is down and solid")
+	var tab_top := (tab_t as Node2D).global_position
+	await _stand(patch, tab_top)
+	tab_t.interact(patch)
+	Input.action_press(&"move_right")
+	await _frames(240)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x < (shutter_p as Node2D).global_position.x, "running from the tab, the shutter drops before Patch gets to it")
+	_check(not shutter_p.open, "the spring shuts it again (%.1f s)" % shutter_p.open_time)
+	await _stand(patch, Vector2(76 * 64, 20 * 64))
+	var by_door := patch.global_position
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	await _stand(patch, tab_top)
+	tab_t.interact(patch)
+	for i in 60:
+		if shutter_p.open and shutter_p._shape.disabled:
+			break
+		await physics_frame
+	await _tap(&"warp")
+	_check(patch.global_position.distance_to(by_door) < 6.0, "with the ribbon by the door, pull, and warp back to it")
+	Input.action_press(&"move_right")
+	await _frames(40)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > (shutter_p as Node2D).global_position.x + 64.0, "and through before it drops")
+	await _frames(120)
+	_check(not shutter_p.open, "behind him, it drops shut")
+	# Silverfish: under the floor, a bulge, the bite; and they eat ribbons.
+	var fish_scene := load("res://scenes/enemies/silverfish.tscn") as PackedScene
+	var fish := fish_scene.instantiate() as CharacterBody2D
+	fish.position = Vector2(134 * 64, 20 * 64)
+	level.add_child(fish)
+	await _frames(10)
+	_check(fish.get_script().resource_path.ends_with("silverfish.gd"), "a silverfish in the stacks")
+	fish._go_under(fish.global_position.x + 300.0)
+	await _frames(30)
+	_check(fish.state == 2 and not fish.hurtbox.monitoring, "it goes under the page, where it can't be cut")
+	for i in 240:
+		if fish.state == 3:
+			break
+		await physics_frame
+	_check(fish.state == 3, "the ripple stops and the floor bulges (the tell)")
+	for i in 60:
+		if fish.state == 4:
+			break
+		await physics_frame
+	_check(fish.state == 4 and fish._bite.active and fish._bite.unblockable, "it bursts up biting, and the bite can't be guarded")
+	for i in 60:
+		if fish.state == 5:
+			break
+		await physics_frame
+	_check(fish.state == 5 and fish.hurtbox.monitoring, "out of the floor it's open")
+	fish.state = 5
+	await _stand(patch, Vector2(134 * 64 - 260.0, 20 * 64))
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	ribbon = patch.ribbon
+	_check(ribbon != null, "a ribbon laid near a silverfish...")
+	await _stand(patch, Vector2(fish.global_position.x - 900.0, 20 * 64))
+	for i in 240:
+		if not is_instance_valid(ribbon) or ribbon.is_queued_for_deletion():
+			break
+		await physics_frame
+	_check(not is_instance_valid(ribbon) or ribbon.is_queued_for_deletion(), "...gets eaten")
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	_check(patch.ribbon != null and patch.ribbon.global_position.distance_to(patch.global_position) < 4.0, "with that ribbon eaten, the next press lays a new one")
+	patch.ribbon.queue_free()
+	patch.ribbon = null
+	fish.queue_free()
+	_check(level.get_node("page_exit_190_19").target_page == R6 + "6_2_the_card_catalogue.tscn", "the Back Pages lead on to the Card Catalogue")
+
+	# 6-2: drawers in and out on their clock; a ribbon laid on one rides with it.
+	await scene_manager.change_page(R6 + "6_2_the_card_catalogue.tscn", &"Start")
+	await _wait_for_scene("TheCardCatalogue", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	for enemy in get_nodes_in_group(&"enemies"):
+		enemy.queue_free()
+	var drawer := level.get_node("index_drawer_13_40")
+	var xs := []
+	for i in 300:
+		xs.append(drawer.drawer.position.x)
+		await physics_frame
+	_check(xs.max() - xs.min() > 150.0, "a drawer slides out of the cabinet and back in (%.0f px)" % (xs.max() - xs.min()))
+	for i in 400:
+		if drawer.is_out():
+			break
+		await physics_frame
+	await _stand(patch, (drawer.drawer as Node2D).global_position + Vector2(40, 0))
+	_check(patch.is_on_floor() and patch.get_last_slide_collision() != null, "Patch stands on a drawer that's out")
+	patch._warp_cooldown = 0.0
+	patch.bookmark_warp()
+	_check(patch.ribbon != null and patch.ribbon.get_parent() == drawer.drawer, "a ribbon laid on a drawer rides it")
+	patch.ribbon.queue_free()
+	patch.ribbon = null
+	# The shaft: lay the ribbon by the shutter, drop to the tab, pull, warp, through.
+	var shutter := level.get_node("shutter_26_7")
+	await _stand(patch, Vector2(24 * 64 + 32, 8 * 64))
+	by_door = patch.global_position
+	patch._warp_cooldown = 0.0
+	await _tap(&"warp")
+	var tab := level.get_node("pull_tab_4_21")
+	await _stand(patch, (tab as Node2D).global_position)
+	tab.interact(patch)
+	for i in 60:
+		if shutter.open and shutter._shape.disabled:
+			break
+		await physics_frame
+	await _tap(&"warp")
+	Input.action_press(&"move_right")
+	await _frames(40)
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > (shutter as Node2D).global_position.x + 64.0, "the shaft's tab, the ribbon by the door, and through")
+	_check(level.get_node("page_exit_34_7").target_page == R6 + "6_3_the_reading_room.tscn", "the top of the catalogue leads to the Reading Room")
+
+	# 6-3: every tab but the desk's shuts Patch in, and the ribbon gets him out. The
+	# order tools/levels/build_index.py proves shortest: W, lay, U, warp, W, lay, T, warp.
+	await scene_manager.change_page(R6 + "6_3_the_reading_room.tscn", &"Start")
+	await _wait_for_scene("TheReadingRoom", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	level = current_scene.get_node("Level")
+	patch = get_first_node_in_group("player") as CharacterBody2D
+	patch.health.grant_invulnerability(900.0)
+	var doors := {}
+	for d in ["A", "B", "C"]:
+		for node in get_nodes_in_group(&"shutters"):
+			if node.tag == d:
+				doors[d] = node
+	var tabs := {"T": level.get_node("pull_tab_4_19"), "W": level.get_node("pull_tab_18_19"), "U": level.get_node("pull_tab_30_19")}
+	_check(not doors["A"].open and not doors["B"].open and not doors["C"].open, "the Reading Room's shutters all start down")
+	var hall := Vector2(14 * 64, 20 * 64)
+	var steps := [["pull", "W"], ["lay"], ["walk", "U"], ["pull", "U"], ["warp"], ["pull", "W"], ["lay"], ["walk", "T"], ["pull", "T"], ["warp"]]
+	var trapped := false
+	for n in steps.size():
+		var step: Array = steps[n]
+		match step[0]:
+			"pull":
+				var t: Node2D = tabs[step[1]]
+				if patch.global_position.distance_to(t.global_position) > 80.0:
+					# Walk there: the tab must be reachable through the open shutters.
+					var dir := signf(t.global_position.x - patch.global_position.x)
+					Input.action_press(&"move_right" if dir > 0 else &"move_left")
+					for i in 400:
+						if absf(patch.global_position.x - t.global_position.x) < 40.0:
+							break
+						await physics_frame
+					Input.action_release(&"move_right")
+					Input.action_release(&"move_left")
+				_check(absf(patch.global_position.x - t.global_position.x) < 60.0, "Patch gets to tab %s" % step[1])
+				t.interact(patch)
+				await _frames(50)
+			"walk":
+				pass
+			"lay":
+				await _stand(patch, hall)
+				patch._warp_cooldown = 0.0
+				await _tap(&"warp")
+			"warp":
+				if n == 4:
+					trapped = not doors["C"].open and not doors["B"].open
+				patch._warp_cooldown = 0.0
+				await _tap(&"warp")
+				await _frames(10)
+	_check(trapped, "pulling U shuts Patch in with the shutters either side down")
+	_check(doors["B"].open and doors["C"].open, "four pulls and two warps: the middle and right shutters are up")
+	Input.action_press(&"move_right")
+	for i in 400:
+		if patch.global_position.x > 37 * 64:
+			break
+		await physics_frame
+	Input.action_release(&"move_right")
+	_check(patch.global_position.x > 37 * 64, "Patch walks through into the stair of desks")
+	_check(level.get_node("page_exit_48_7").target_page == "res://scenes/levels/hub/spine_hub.tscn", "for now the Reading Room's way on comes back to the Spine")
+
+	# The way down to the Gutter: shut until every region is mended.
+	game_state.set_flag("patch_told_truth")
+	var torn: Array = book_map.torn_regions()
+	_check(torn.is_empty(), "with every boss so far beaten, no region is still torn (%s)" % [torn])
+	game_state.set_flag("boss_barker_defeated", false)
+	torn = book_map.torn_regions()
+	_check(torn == ["Gatefold Fair"], "with the Barker standing, the Fair is still torn (%s)" % [torn])
+	await scene_manager.change_page(book_map.HUB, &"Start")
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var finale_door: Node = null
+	var index_door: Node = null
+	for node in current_scene.get_node("Level").get_children():
+		if node.get_script() and node.get_script().resource_path.ends_with("finale_door.gd"):
+			finale_door = node
+		if node.get("region_id") == &"index":
+			index_door = node
+	_check(finale_door != null and not finale_door.is_open() and not finale_door.can_interact(), "the Spine's way down stays sewn shut while a region is torn")
+	_check(index_door.state() == "locked", "the Index's door is shut while the Barker stands")
+	game_state.set_flag("boss_barker_defeated")
+	await _frames(3)
+	_check(finale_door.is_open() and index_door.state() == "open", "with the Barker beaten, the Index opens, and (for now) the way down")
+	var low_point: Node = (load("res://scenes/levels/peaks/4_5_the_low_point.tscn") as PackedScene).instantiate()
+	var summit_props: Dictionary = low_point.get_node("Level").entity_props["E"]
+	low_point.free()
+	_check(summit_props.get("requires_whole_book") == true and summit_props.get("fallback_page") == book_map.HUB, "the Low Point's summit only goes down to the Gutter once the whole book is mended")
 
 
 ## The Hayloft, 1-2's sealed back page: shut until the Millwheel is beaten, then a
@@ -2113,7 +2396,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(doors.size() == 6, "the Spine has a door for each of the six regions (%d)" % doors.size())
 	_check(doors[&"thistledown"].state() == "open" and doors[&"thistledown"].can_interact(), "Thistledown's door is open from the start")
 	_check(doors[&"lanternfold"].state() == "locked" and not doors[&"lanternfold"].can_interact(), "Lanternfold's door stays shut until Thistledown is mended")
-	_check(doors[&"index"].state() == "unwritten" and not doors[&"index"].can_interact(), "an unwritten region's door is stitched shut")
+	_check(doors[&"index"].state() == "locked" and not doors[&"index"].can_interact(), "the Index's door stays shut until the Barker is beaten")
 	_check(doors[&"fair"].state() == "locked", "the Fair's door stays shut until Bindwell is beaten")
 	_check(doors[&"marsh"].state() == "locked", "the Marsh's door stays shut until the Kraken is beaten")
 	var stair := current_scene.get_node("Stair")
