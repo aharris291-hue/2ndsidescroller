@@ -134,8 +134,150 @@ func _run() -> void:
 	game_state.max_health = 99
 	game_state.health = 99
 	_check(game_state.load_game(2) and game_state.scraps == scraps, "loading restores the slot")
+	game_state.max_health = 99
+	game_state.health = 99
+	await _last_margin(game_state, scene_manager, dialogue)
+	await _second_printing(game_state)
 	game_state.delete_save(2)
 	_finish()
+
+
+## Post-game: Gran's papers, the Last Margin's door, and the Runaway (the true ending).
+func _last_margin(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
+	var papers := load("res://scripts/world/papers.gd")
+	var door_script := load("res://scripts/world/last_margin_door.gd")
+	_check(papers.CATALOG.size() == 7, "seven papers on Gran's rack")
+	_check(papers.material_for("foolscap") == null and papers.material_for("marbled") != null,
+		"his own paper needs no reprint; the others do")
+	for b: String in papers.STORY_BOSSES:
+		game_state.set_flag("sticker:" + b, 0)
+	game_state.set_flag("game_complete", false)
+	game_state.set_flag("true_ending", false)
+	game_state.set_flag("boss_runaway_defeated", false)
+	# The finale's last page may still be turning.
+	for i in 300:
+		if not scene_manager.is_transitioning:
+			break
+		await _frames(1)
+	await scene_manager.change_page("res://scenes/levels/hub/spine_hub.tscn", &"Start")
+	await _wait_for_scene("SpineHub", 120)
+	await _frames(20)
+	await _skip_dialogue(dialogue)
+	var door := current_scene.get_node_or_null("Level/last_margin_door_29_14")
+	var rack := current_scene.get_node_or_null("Level/paper_rack_3_8")
+	_check(door != null and rack != null, "the Last Margin's door and Gran's paper rack are in the Spine (%s)" % current_scene.name)
+	if door == null or rack == null:
+		return
+	await _frames(2)
+	_check(not door.visible and not rack.visible, "neither shows before the book is finished")
+	game_state.set_flag("game_complete")
+	game_state.set_flag("boss_forecast_defeated")
+	await _frames(2)
+	_check(door.visible and not door.is_open() and door_script.proofs_left() == 8,
+		"then the door shows, shut, with every proof still to pull")
+	for b: String in papers.STORY_BOSSES:
+		game_state.set_flag("sticker:" + b, 1)
+	await _frames(2)
+	_check(door.is_open() and door.can_interact(), "a sticker from every boss opens it")
+	_check(rack.visible and rack.can_interact(), "Gran's rack is out")
+	_check(papers.refresh().has("newsprint") and papers.owned("newsprint") and not papers.owned("mourning"),
+		"finishing the book earns Newsprint, and only that")
+	var patch := current_scene.get_node("Patch")
+	rack.interact(patch)
+	await _skip_dialogue(dialogue)
+	var panel: Node = rack._panel
+	_check(panel != null and paused, "the rack opens its list, paused")
+	panel._wear("newsprint")
+	await _frames(2)
+	_check(papers.worn() == "newsprint" and patch.rig.material != null and not paused,
+		"Patch is reprinted on Newsprint")
+
+	await scene_manager.change_page(door.target_page, &"Start")
+	await _wait_for_scene("TheLastMargin", 120)
+	await _frames(30)
+	await _skip_dialogue(dialogue)
+	patch = current_scene.get_node("Patch")
+	_check(patch.rig.material != null, "and stays on it on the next page")
+	var level := current_scene.get_node("Level")
+	var inked := 0
+	var foes := 0
+	for child in level.get_children():
+		if child.get("inked") != null:
+			foes += 1
+			inked += 1 if child.inked else 0
+	_check(foes >= 10 and inked == foes, "everything in the Last Margin is inked (%d/%d)" % [inked, foes])
+	var runaway := current_scene.get_node_or_null("TheRunaway")
+	_check(runaway != null and runaway.rig.material != null, "the Runaway waits at the bottom, in ink")
+	if runaway == null:
+		return
+	for child in level.get_children():
+		if child.get("inked") != null:
+			child.queue_free()
+	await _stand(patch, current_scene.get_node("StartZone").global_position + Vector2(0, 200))
+	await _frames(10)
+	_check(runaway.mode != 0, "stepping into the arena starts the fight")
+	var hp: int = patch.health.current
+	for i in 360:
+		if patch.health.current < hp:
+			break
+		await _frames(1)
+	_check(patch.health.current < hp, "he closes in and cuts")
+	var cut: Node = load("res://scripts/components/hitbox.gd").new()
+	cut.damage = 1
+	current_scene.add_child(cut)
+	runaway.health.clear_invulnerability()
+	runaway._set_mode(1, 0.5)
+	for i in 3:
+		runaway.health.clear_invulnerability()
+		runaway._on_hurt(cut)
+	_check(runaway.mode == 4, "three quick cuts and he runs")
+	runaway.health.clear_invulnerability()
+	runaway.health.take_damage(runaway.health.current, runaway.global_position)
+	await _frames(5)
+	await _skip_dialogue(dialogue)
+	_check(runaway.mode == 9 and runaway.mend_spot != null, "at zero he kneels and waits")
+	runaway._on_hurt(cut)
+	_check(runaway.mode == 9, "cutting him again does nothing")
+	runaway.mend_spot.interact(patch)
+	await _frames(4)
+	await _skip_dialogue(dialogue)
+	await _wait_for_scene("TheLastMarginEnd", 600)
+	_check(game_state.get_flag("true_ending") and papers.owned("mourning"), "holding out his paw is the true ending")
+	_check(game_state.checkpoint_page.ends_with("spine_hub.tscn"), "and the book reopens in the Spine")
+	for i in 600:
+		if dialogue.is_active():
+			break
+		await _frames(1)
+	await _skip_dialogue(dialogue, 60)
+	await _wait_for_scene("TitleScreen", 600)
+	_check(game_state.get_flag("true_ending_seen"), "the true ending plays to the end")
+
+
+## Post-game: the Second Printing (New Game+) of a finished book.
+func _second_printing(game_state: Node) -> void:
+	var printing := load("res://scripts/world/second_printing.gd")
+	game_state.set_flag("game_complete")
+	game_state.set_flag("sticker:millwheel", 3)
+	game_state.set_flag("paper_finish", "newsprint")
+	game_state.unlock_ability(&"tape_tail")
+	var health: int = game_state.max_health
+	_check(game_state.save_game(), "a finished book is saved")
+	_check(printing.available(game_state.read_save(2)), "a finished book can be printed again")
+	_check(printing.begin(2), "the Second Printing begins")
+	_check(game_state.printing == 1 and game_state.abilities.is_empty() and not game_state.get_flag("game_complete"),
+		"it starts the story over")
+	_check(game_state.max_health == health and int(game_state.get_flag("sticker:millwheel", 0)) == 3
+		and game_state.get_flag("paper:newsprint") and game_state.get_flag("paper:watermarked"),
+		"keeping his health, stickers and papers, and earning Watermarked")
+	game_state.new_game(2)
+	_check(game_state.load_game(2) and game_state.printing == 1, "the printing is saved")
+	var soggy := (load("res://scenes/enemies/soggy.tscn") as PackedScene).instantiate()
+	var base: int = soggy.get_node("HealthComponent").max_health
+	root.add_child(soggy)
+	await _frames(1)
+	_check(soggy.health.max_health == ceili(base * 1.5), "enemies are half again as tough (%d -> %d)" % [base, soggy.health.max_health])
+	soggy.queue_free()
+	game_state.printing = 0
 
 
 func _chapter_one(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
@@ -3258,7 +3400,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(not paused, "closing the bestiary unpauses")
 	# Save format 4 keeps all of it.
 	game_state.save_game()
-	_check(game_state.read_save(2).get("version", 0) == 4, "saves are written as version 4")
+	_check(game_state.read_save(2).get("version", 0) == 5, "saves are written as version 5")
 	game_state.shear_form = 0
 	game_state.bestiary.clear()
 	game_state.load_game(2)

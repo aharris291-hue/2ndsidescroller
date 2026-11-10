@@ -1,0 +1,133 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/page.gd" id="1_page"]
+[ext_resource type="AudioStream" path="res://assets/audio/dark/mus_lullaby_drowned.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/art/dark/bg_last_margin.png" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/world/text_level.gd" id="4_level"]
+[ext_resource type="Script" path="res://scripts/world/story_trigger.gd" id="5_e"]
+[ext_resource type="Script" path="res://scripts/world/page_exit.gd" id="6_e"]
+[ext_resource type="Script" path="res://scripts/world/spawn_point.gd" id="7_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/soggy.tscn" id="9_e"]
+[ext_resource type="PackedScene" path="res://scenes/pickups/scrap.tscn" id="10_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ink_spitter.tscn" id="11_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/paper_moth.tscn" id="12_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tack_knight.tscn" id="13_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/bookmark.tscn" id="14_e"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_ring.tscn" id="15_e"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_runaway.tscn" id="90_boss"]
+[ext_resource type="PackedScene" path="res://scenes/player/patch.tscn" id="99_patch"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_start"]
+size = Vector2(160, 600)
+
+[node name="TheLastMargin" type="Node2D"]
+script = ExtResource("1_page")
+page_title = "The Last Margin"
+opening_caption = "The back of the book. The page that was left blank."
+music = ExtResource("2_music")
+weather_tint = Color(0.5, 0.48, 0.56, 1)
+rain_amount = 140
+
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 0.3)
+repeat_size = Vector2(1920, 1080)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
+texture = ExtResource("3_bg")
+centered = false
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("4_level")
+map_file = "res://levels/postgame/the_last_margin.txt"
+region = "blank"
+entities = {
+"1": ExtResource("5_e"),
+"2": ExtResource("5_e"),
+"3": ExtResource("5_e"),
+"4": ExtResource("5_e"),
+"5": ExtResource("5_e"),
+"6": ExtResource("5_e"),
+"O": ExtResource("15_e"),
+"X": ExtResource("6_e"),
+"Y": ExtResource("7_e"),
+"k": ExtResource("14_e"),
+"m": ExtResource("12_e"),
+"n": ExtResource("13_e"),
+"o": ExtResource("10_e"),
+"p": ExtResource("11_e"),
+"s": ExtResource("9_e")
+}
+entity_props = {
+"1": {
+"caption": "The last page of the book: the blank one at the back, that Nell drew on at the table. From in here it wasn't blank at all. The ink from the Gutter had come up through it from underneath, the way damp comes up a wall.",
+"size": Vector2(128, 384)
+},
+"2": {
+"caption": "A pencil note in the margin, in Gran's hand, very small: Leave room at the back. Every book needs somewhere to put the things that didn't fit.",
+"size": Vector2(128, 384)
+},
+"3": {
+"caption": "Nell's crayon: a fox, a cloud, a sun with too many rays. And under it, in pen, pressed hard enough to tear the paper: IT'S RUINED. Crossed out. Written again. Crossed out again.",
+"size": Vector2(128, 384)
+},
+"4": {
+"caption": "From the top of the slate he could see the bottom of the margin. A long way down, and something standing on it, small and dark and fox-shaped, with its back to him.",
+"size": Vector2(128, 384)
+},
+"5": {
+"caption": "Footprints in the wet ink, the size of his own. All of them going one way: away.",
+"size": Vector2(128, 384)
+},
+"6": {
+"caption": "The bottom of the last page. The flood had stopped here, and left a tide line. Standing on it, with the shears in his paw, was the fox who ran.",
+"size": Vector2(128, 384)
+},
+"O": {
+"offset": Vector2(0, -64)
+},
+"X": {
+"size": Vector2(128, 256),
+"target_page": "res://scenes/levels/hub/spine_hub.tscn",
+"target_spawn": &"Start"
+},
+"Y": {
+"name": &"ArenaEnd"
+},
+"m": {
+"inked": true,
+"scrap_drop": 2
+},
+"n": {
+"inked": true,
+"scrap_drop": 4
+},
+"o": {
+"offset": Vector2(0, -32)
+},
+"p": {
+"inked": true,
+"scrap_drop": 3
+},
+"s": {
+"inked": true,
+"scrap_drop": 3
+}
+}
+
+[node name="StartZone" type="Area2D" parent="."]
+position = Vector2(9344, 900)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StartZone"]
+shape = SubResource("RectangleShape2D_start")
+
+[node name="TheRunaway" parent="." node_paths=PackedStringArray("start_zone") instance=ExtResource("90_boss")]
+position = Vector2(10752, 1150)
+start_zone = NodePath("../StartZone")
+arena_left = 8640.0
+arena_right = 11392.0
+floor_y = 1152.0
+
+[node name="Patch" parent="." instance=ExtResource("99_patch")]

@@ -14,6 +14,8 @@
 [ext_resource type="Script" path="res://scripts/world/finale_door.gd" id="12_finale"]
 [ext_resource type="Script" path="res://scripts/world/proof_press.gd" id="13_press"]
 [ext_resource type="Script" path="res://scripts/world/penny_theatre.gd" id="14_theatre"]
+[ext_resource type="Script" path="res://scripts/world/paper_rack.gd" id="15_rack"]
+[ext_resource type="Script" path="res://scripts/world/last_margin_door.gd" id="16_margin"]
 
 [node name="SpineHub" type="Node2D"]
 script = ExtResource("1_page")
@@ -59,8 +61,10 @@ entities = {
 "I": ExtResource("5_door"),
 "L": ExtResource("13_press"),
 "M": ExtResource("5_door"),
+"N": ExtResource("16_margin"),
 "Q": ExtResource("14_theatre"),
-"T": ExtResource("6_tin")
+"T": ExtResource("6_tin"),
+"W": ExtResource("15_rack")
 }
 entity_props = {
 "A": {

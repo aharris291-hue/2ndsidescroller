@@ -155,6 +155,9 @@ func _refresh_slots() -> void:
 			var prefix := "Erase " if erase_toggle.button_pressed else ""
 			var letters: int = data.get("letters", []).size()
 			var done := " - The End" if data.get("flags", {}).get("game_complete", false) else ""
+			var printing := int(data.get("printing", 0))
+			if printing > 0:
+				done += " - %s Printing" % SecondPrinting.ordinal(printing)
 			slot_buttons[i].text = "%sBook %d  -  %s played, %d/%d letters%s" % [
 				prefix, i + 1, GameState.format_time(data.get("play_time", 0.0)), letters, GameState.LETTER_TOTAL, done]
 
@@ -199,6 +202,10 @@ func _on_slot_pressed(slot: int) -> void:
 		GameState.delete_save(slot)
 		erase_toggle.button_pressed = false
 		_refresh_slots()
+		return
+	if SecondPrinting.available(GameState.read_save(slot)):
+		var panel := SecondPrinting.PrintingPanel.open(self, slot)
+		panel.closed.connect(slot_buttons[slot].grab_focus.call_deferred)
 		return
 	if GameState.load_game(slot):
 		SceneManager.change_page_at(GameState.checkpoint_page, GameState.checkpoint_position)

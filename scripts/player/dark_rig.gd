@@ -80,6 +80,9 @@ func _ready() -> void:
 	position = feet_offset
 	var holder := Node2D.new()
 	holder.position = -FEET
+	# The layers draw with the rig's own material, so a paper finish (Papers) is one
+	# material on the rig.
+	holder.use_parent_material = true
 	add_child(holder)
 	_skeleton = Skeleton2D.new()
 	_skeleton.name = &"Skeleton"
@@ -100,6 +103,7 @@ func _ready() -> void:
 	for layer in LAYERS:
 		var polygon := Polygon2D.new()
 		polygon.texture = layer[0]
+		polygon.use_parent_material = true
 		holder.add_child(polygon)
 		_build_mesh(polygon, layer[0], layer[1])
 		if layer[0] == FRONT_ARM:
@@ -115,6 +119,7 @@ func set_mended(on: bool) -> void:
 		_mended_tail = Sprite2D.new()
 		_mended_tail.name = &"MendedTail"
 		_mended_tail.texture = MENDED_TAIL
+		_mended_tail.use_parent_material = true
 		_mended_tail.centered = false
 		_mended_tail.offset = -MENDED_TAIL_ROOT
 		_mended_tail.position = along * MENDED_TAIL_ALONG
@@ -220,7 +225,16 @@ static func _segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 # Patch faces right in the painting, so a negative turn on a leg swings it forward.
 
 ## Called by Patch every frame with what he's doing.
-func drive(patch: Patch, delta: float) -> void:
+## Reprints him on one of Gran's papers (Papers.CATALOG id, or a colour dictionary
+## like Papers.INK); "foolscap" is his own paper.
+func set_paper(spec: Variant) -> void:
+	material = Papers.material_for(spec)
+
+
+## `patch` is Patch, or anything that looks like him to the rig (BossRunaway): it
+## needs velocity, run_speed, state (a Patch.State), combo_step, view_mode,
+## attack_time, charge_level, _attack_kind, _heavy_phase and is_on_floor().
+func drive(patch: Node, delta: float) -> void:
 	# Until he finds Gran's shears (P-2) his front paw is empty.
 	var armed := GameState.has_ability(&"crease_swipe")
 	if armed != _armed and _front_arm:
@@ -229,9 +243,9 @@ func drive(patch: Patch, delta: float) -> void:
 	var t := {}
 	for key in _targets:
 		t[key] = 0.0
-	var grounded := patch.is_on_floor() or patch.view_mode == PageView.Mode.TOP
-	var speed := absf(patch.velocity.x) / patch.run_speed
-	var state := patch.state
+	var grounded: bool = patch.is_on_floor() or patch.view_mode == PageView.Mode.TOP
+	var speed: float = absf(patch.velocity.x) / patch.run_speed
+	var state: int = patch.state
 	if state != _last_state or (state == Patch.State.ATTACK and patch.combo_step != _last_step):
 		_swing = 0.0
 	_last_state = state
@@ -299,8 +313,8 @@ func _pose_run(t: Dictionary, speed: float, delta: float) -> void:
 	t[&"tail"] = 14.0 * c
 
 
-func _pose_air(t: Dictionary, patch: Patch) -> void:
-	var rising := patch.velocity.y < 0.0
+func _pose_air(t: Dictionary, patch: Node) -> void:
+	var rising: bool = patch.velocity.y < 0.0
 	if rising:
 		t[&"thigh_f"] = -48.0
 		t[&"shin_f"] = 70.0
@@ -324,7 +338,7 @@ func _pose_air(t: Dictionary, patch: Patch) -> void:
 
 
 ## Light cuts alternate between a falling slash and a rising one; the last hit is a thrust.
-func _pose_attack(t: Dictionary, patch: Patch) -> void:
+func _pose_attack(t: Dictionary, patch: Node) -> void:
 	var k := clampf(_swing / maxf(patch.attack_time, 0.01), 0.0, 1.0)
 	var e := 1.0 - pow(1.0 - k, 3.0)
 	match patch.get(&"_attack_kind"):
@@ -344,7 +358,7 @@ func _pose_attack(t: Dictionary, patch: Patch) -> void:
 			t[&"arm_f"] = lerpf(20.0, -150.0, e)
 			t[&"fore_f"] = lerpf(10.0, -30.0, e)
 		_:
-			var rising := patch.combo_step % 2 == 0
+			var rising: bool = patch.combo_step % 2 == 0
 			var from := 5.0 if rising else -120.0
 			var to := -120.0 if rising else 5.0
 			t[&"arm_f"] = lerpf(from, to, e)
@@ -359,7 +373,7 @@ func _pose_attack(t: Dictionary, patch: Patch) -> void:
 			t[&"head"] = -5.0
 
 
-func _pose_heavy(t: Dictionary, patch: Patch) -> void:
+func _pose_heavy(t: Dictionary, patch: Node) -> void:
 	var phase: int = patch.get(&"_heavy_phase")
 	var kind: int = patch.get(&"_attack_kind")
 	if kind == Patch.Attack.LAUNCHER and phase > 0:
@@ -372,7 +386,7 @@ func _pose_heavy(t: Dictionary, patch: Patch) -> void:
 		return
 	if phase <= 1:
 		# Wind up: the shears drawn back over his shoulder, weight on the back foot.
-		var shake := sin(Time.get_ticks_msec() * 0.06) * 1.5 * patch.charge_level
+		var shake: float = sin(Time.get_ticks_msec() * 0.06) * 1.5 * patch.charge_level
 		t[&"chest"] = -14.0 + shake
 		t[&"hips"] = -6.0
 		t[&"head"] = -6.0
