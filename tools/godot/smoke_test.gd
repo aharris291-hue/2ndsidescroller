@@ -3405,6 +3405,7 @@ func _spine_hub(game_state: Node, scene_manager: Node, dialogue: Node) -> void:
 	_check(game_state.read_save(2).get("version", 0) == 6, "saves are written as version 6")
 	await _play_report(game_state)
 	await _difficulty_curve(game_state)
+	await _achievements(game_state)
 	game_state.shear_form = 0
 	game_state.bestiary.clear()
 	game_state.load_game(2)
@@ -3812,6 +3813,27 @@ func _difficulty_curve(game_state: Node) -> void:
 	hit.queue_free()
 	patch.health.clear_invulnerability()
 	_check(taken == [2, 3], "a 2-point hit takes 2 in Thistledown and 3 at the Fair (%s)" % [taken])
+
+
+## Achievements: unlocked from flags once and kept across save slots, then handed to
+## Steam when it's there, and listed in the play report panel.
+func _achievements(game_state: Node) -> void:
+	var ach = root.get_node("Achievements")
+	_check(ach.LIST.size() >= 15, "there are %d achievements" % ach.LIST.size())
+	var all_named := true
+	for id: String in ach.LIST:
+		all_named = all_named and id == id.to_upper() and (ach.LIST[id] as Array).size() == 2
+	_check(all_named, "each achievement has an upper-case Steam API name, a title and a description")
+	ach.unlocked.erase("MILLWHEEL")
+	var had: bool = game_state.get_flag("boss_millwheel_defeated")
+	game_state.set_flag("boss_millwheel_defeated")
+	await _frames(2)
+	_check(ach.unlocked.has("MILLWHEEL"), "mending Thistledown unlocks The Wheel Stops")
+	_check(FileAccess.get_file_as_string(ach.PATH).contains("MILLWHEEL"), "achievements are kept in their own file, across slots")
+	_check(root.find_child("AchievementToast", true, false) != null, "an unlock shows a slip on screen")
+	_check(ach.summary().begins_with("Achievements: "), "the play report lists the achievements")
+	if not had:
+		game_state.flags.erase("boss_millwheel_defeated")
 
 
 func _play_report(game_state: Node) -> void:

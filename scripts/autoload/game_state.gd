@@ -257,6 +257,7 @@ func is_collected(pickup_id: String) -> bool:
 
 func set_flag(flag: String, value: Variant = true) -> void:
 	flags[flag] = value
+	EventBus.flag_set.emit(flag, value)
 
 
 func get_flag(flag: String, default: Variant = false) -> Variant:

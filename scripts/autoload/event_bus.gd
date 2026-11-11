@@ -37,3 +37,5 @@ signal player_parried
 signal player_perfect_dodge
 ## Something bought at Gran's sewing tin: &"heart", &"spool" or &"charm".
 signal upgrade_bought(kind: StringName)
+## GameState.set_flag was called (Achievements listens).
+signal flag_set(flag: String, value: Variant)

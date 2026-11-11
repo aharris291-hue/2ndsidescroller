@@ -95,7 +95,7 @@ class ReportPanel extends CanvasLayer:
 		scroll.custom_minimum_size = Vector2(1040, 600)
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		box.add_child(scroll)
-		var body := DarkUI.label(PlayReport.text(GameState.page_stats, GameState.play_time), 22)
+		var body := DarkUI.label(PlayReport.text(GameState.page_stats, GameState.play_time) + Achievements.summary(), 22)
 		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		body.custom_minimum_size = Vector2(1000, 0)
 		scroll.add_child(body)
