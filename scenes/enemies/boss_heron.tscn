@@ -8,5 +8,5 @@ script = ExtResource("1_heron")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")
-max_health = 12
+max_health = 14
 invulnerability_time = 0.3

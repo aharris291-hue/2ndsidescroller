@@ -1556,6 +1556,9 @@ func _on_hurtbox_hit(hitbox: Hitbox) -> void:
 		return
 	# Assist mode: no single hit takes more than half a paper token.
 	var amount := mini(hitbox.damage, 1) if Settings.assist else hitbox.damage
+	# The last regions cut deeper, so found hearts don't turn them soft.
+	if amount > 0 and not Settings.assist:
+		amount += BookMap.ink_depth(GameState.current_page)
 	# The Second Printing is set in heavier type: everything cuts half again as deep.
 	if GameState.printing > 0 and not Settings.assist:
 		amount = ceili(amount * SecondPrinting.DAMAGE_TAKEN)
