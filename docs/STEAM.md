@@ -4,7 +4,7 @@ The game is ready for Steam except for things only the Steamworks account holder
 
 ## 1. Steamworks app
 - Pay the Steam Direct fee and create the app. Note the **App ID**.
-- **Achievements:** add each one under *Stats & Achievements* with the API name from `scripts/autoload/achievements.gd` (`LIST`), for example `MILLWHEEL` or `LAST_MARGIN`. The names and descriptions are in that file too. Achievement icons are 256x256 JPGs, one locked and one unlocked.
+- **Achievements:** add each one under *Stats & Achievements* with the API name from `scripts/autoload/achievements.gd` (`LIST`), for example `MILLWHEEL` or `LAST_MARGIN`. The names and descriptions are in that file too. The icons are in `docs/store/achievements/` as `<ID>.jpg` and `<ID>_locked.jpg`, built at 256x256 by `tools/art/achievement_icons.py`.
 - **Cloud saves (Steam Auto-Cloud):** no code is needed. Under *Steam Cloud → Auto-Cloud*, add these paths:
   - Windows: root `WinAppDataRoaming`, subdirectory `Godot/app_userdata/Patch and the Pop-Up Kingdom`, pattern `*`
   - macOS: root `MacAppSupport`, subdirectory `Godot/app_userdata/Patch and the Pop-Up Kingdom`, pattern `*`
@@ -26,6 +26,6 @@ These are ready in `docs/store/`:
 - `screenshots/`: 9 shots at 1920x1080, retaken with `tools/godot/store_shots.gd`
 - `capsules/`: every capsule size, plus the library hero, library logo and page background, all built by `tools/art/steam_capsules.py` from the key art in `tools/art/source/keyart_raw.png`
 
-Still to do: a trailer, and achievement icons.
+- `trailer.mp4`: about 60 seconds, 1080p. It's recorded from the game by `tools/godot/trailer_capture.gd` with Godot's Movie Maker, then cut with `tools/video/cut_trailer.py`.
 
-What Steam asks for: Steam requires: header capsule 920x430, small capsule 462x174, main capsule 1232x706, vertical capsule 748x896, library capsule 600x900, library hero 3840x1240 and library logo, at least 5 screenshots at 1920x1080, a trailer, a short description of 300 characters or fewer, and the age rating questionnaire (the game targets 16+: horror themes and violence against paper creatures).
+What Steam asks for: header capsule 920x430, small capsule 462x174, main capsule 1232x706, vertical capsule 748x896, library capsule 600x900, library hero 3840x1240 and library logo, at least 5 screenshots at 1920x1080, a trailer, a short description of 300 characters or fewer, and the age rating questionnaire (the game targets 16+: horror themes and violence against paper creatures).
